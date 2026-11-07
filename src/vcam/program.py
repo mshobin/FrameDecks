@@ -475,23 +475,29 @@ class ProgramFX:
         h = int(round(2 * pad + inner_h))
         img = Image.new("RGBA", (max(1, w), max(1, h)), (0, 0, 0, 0))
         dr = ImageDraw.Draw(img)
-        plate = L.get("plate", True) is not False
+        bga = max(0.0, min(1.0, float(L.get("bg", 1.0)))) if L.get("plate", True) is not False else 0.0
+        plate = bga > 0                                       # 26.11.8 how solid the plate is (Branding → Background)
         if plate:
             bw = max(2, int(round(u * 0.13)))
-            dr.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (255,))
             plate_rgb = surface_of(L.get("look"))[1] if L.get("look") else (14, 30, 62)   # 7.1 the look's surface
-            dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=plate_rgb + (225,))
+            ring = Image.new("RGBA", img.size, (0, 0, 0, 0))
+            rd = ImageDraw.Draw(ring)
+            rd.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (int(round(255 * bga)),))
+            rd.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=(0, 0, 0, 0))
+            dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=plate_rgb + (int(round(225 * bga)),))
+            img.alpha_composite(ring)
+        soft = bga < 0.5                                      # a faint plate (or none): a soft shadow keeps it readable
         x = pad
         if logo is not None:
             lg = logo.resize((lw, lh), Image.LANCZOS)
             at = (int(round(x)), int(round((h - lh) / 2)))
-            if not plate:                                     # 6.7 no plate: a soft shadow keeps the logo readable
+            if soft:                                          # 6.7 no plate: a soft shadow keeps the logo readable
                 img.alpha_composite(_shadow(lg, u), (at[0], at[1] + max(1, int(round(u * 0.08)))))
             img.alpha_composite(lg, at)
             x += lw + (gap if lines else 0)
         y = (h - text_h) / 2
         for t, f, col in lines:
-            if not plate:
+            if soft:
                 sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
                 ImageDraw.Draw(sh).text((x, y + f.size * 0.125 + max(1, u * 0.08)), t, font=f, fill=(0, 0, 0, 215))
                 img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(max(1.0, u * 0.25))))
@@ -515,9 +521,9 @@ class ProgramFX:
                 data = {"brand": True, "meeting": b.get("meeting") or "", "org": b.get("org") or "", "logo": c.get("logo") and b.get("logo"),
                         "name": bool(c.get("name")), "show_org": bool(c.get("org"))}
                 L = {"scale": float(c.get("scale") or 1), "accent": accent, "pad": _num(c.get("pad"), 1.0), "plate": c.get("plate", True) is not False,
-                     "margin": _num(c.get("margin"), 4.0), "look": look}
+                     "bg": max(0.0, min(1.0, _num(c.get("bg"), 1.0))), "margin": _num(c.get("margin"), 4.0), "look": look}
                 key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"),
-                       L["pad"], L["plate"], L["margin"], str(sorted(look.items())), W, H)
+                       L["pad"], L["plate"], L["bg"], L["margin"], str(sorted(look.items())), W, H)
             else:
                 text = countdown_text(st, l) if l["kind"] == "countdown" else brand_text(st, c.get("text"))
                 title = brand_text(st, c.get("title"))

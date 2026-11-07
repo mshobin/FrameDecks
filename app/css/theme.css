@@ -545,6 +545,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .un-pic{flex:none;position:relative;width:176px;aspect-ratio:16/9;overflow:hidden;border-radius:8px;background:var(--bg);border:1px solid var(--line-soft)}
 .un-pic iframe{position:absolute;left:0;top:0;width:1280px;height:720px;border:0;transform:scale(.1375);transform-origin:0 0;pointer-events:none}
 .upnext.closed .un-pic,.upnext.closed .un-items{display:none}
+.un-pic iframe.kc-rest{display:none}                /* 26.11.8 behind a meeting: kept loaded, drawn by nobody */
 .un-body{flex:1;min-width:0}
 .un-h{margin:0;font-size:14px;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .un-k{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}

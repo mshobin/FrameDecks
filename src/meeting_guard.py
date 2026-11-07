@@ -218,8 +218,9 @@ class Gpu:
         except Exception:
             self.ok = False
 
-    def read(self, ours=()):
-        """{'total': %, 'app': %} or None."""
+    def read(self, ours=(), names=None):
+        """{'total': %, 'app': %, 'pages': %, 'program': %, 'kinds': {'3D': %, 'VideoDecode': %, ...}} or None.
+        26.11.8: FrameDecks' share split by process (the program itself, its WebView2 pages) and by kind of work."""
         if not self.ok:
             return None
         try:
@@ -240,20 +241,34 @@ class Gpu:
             if self.pdh.PdhGetFormattedCounterArrayW(self.c, 0x200, ctypes.byref(size), ctypes.byref(count), buf):
                 return None
             items = ctypes.cast(buf, ctypes.POINTER(ITEM))
-            engines, mine = {}, {}
-            for i in range(count.value):
-                name, v = items[i].szName or "", items[i].FmtValue.doubleValue
-                parts = name.split("_", 2)                    # pid_1234_luid_..._engtype_3D
-                if len(parts) < 3 or parts[0] != "pid":
-                    continue
-                engine = parts[2]
-                engines[engine] = engines.get(engine, 0.0) + v
-                if int(parts[1]) in ours:
-                    mine[engine] = mine.get(engine, 0.0) + v
-            return {"total": round(min(100.0, max(engines.values() or [0.0])), 1),
-                    "app": round(min(100.0, max(mine.values() or [0.0])), 1)}
+            return split_gpu([(items[i].szName or "", items[i].FmtValue.doubleValue) for i in range(count.value)], ours, names or {})
         except Exception:
             return None
+
+
+def split_gpu(values, ours, names):
+    """values: [('pid_1234_luid_..._engtype_3D', %)]. The PC's figure is its busiest engine (as Task Manager shows it);
+    FrameDecks' figures are its busiest engine too: all of it, its pages (WebView2), the program, and per kind of work."""
+    engines, mine, pages, program, kinds = {}, {}, {}, {}, {}
+    for name, v in values:
+        parts = name.split("_", 2)                            # pid_1234_luid_..._engtype_3D
+        if len(parts) < 3 or parts[0] != "pid":
+            continue
+        try:
+            pid = int(parts[1])
+        except ValueError:
+            continue
+        engine = parts[2]
+        engines[engine] = engines.get(engine, 0.0) + v
+        if pid in ours:
+            mine[engine] = mine.get(engine, 0.0) + v
+            side = pages if str(names.get(pid, "")).lower().startswith("msedgewebview2") else program
+            side[engine] = side.get(engine, 0.0) + v
+            kind = engine.rsplit("engtype_", 1)[-1] if "engtype_" in engine else "other"
+            kinds[kind] = max(kinds.get(kind, 0.0), mine[engine])
+    top = lambda d: round(min(100.0, max(d.values() or [0.0])), 1)
+    return {"total": top(engines), "app": top(mine), "pages": top(pages), "program": top(program),
+            "kinds": {k: round(min(100.0, v), 1) for k, v in sorted(kinds.items(), key=lambda kv: -kv[1]) if v >= 1}}
 
 
 # ---------- what else is using a camera, and the battery ----------
@@ -375,8 +390,9 @@ def close_camera_app():
 class Guard:
     """in_use(): is a meeting app using FrameDecks vCam? lighten(busy): FrameDecks makes its own camera work lighter
     while the PC is very busy, and back when it is calm."""
-    def __init__(self, in_use, lighten=None, clock=time.time):
+    def __init__(self, in_use, lighten=None, clock=time.time, context=None):
         self.in_use, self.lighten, self.clock = in_use, lighten, clock
+        self.context = context                 # 26.11.8 () -> {'open': [FrameDecks windows on screen], 'front': the one in front}
         self.lock = threading.Lock()
         self.history = deque(maxlen=HISTORY)
         self.peak = {}
@@ -437,8 +453,9 @@ class Guard:
             was = self.status["busy"]
             busy = True if self._over >= BUSY_LOOKS else False if self._under >= CALM_LOOKS else was
             self.status.update(s, busy=busy, at=self.clock())
-            self.history.append({k: s.get(k) for k in ("cpu", "gpu", "appCpu", "appGpu", "appMB", "memLoad")} | {"t": round(self.clock())})
-            for k in ("cpu", "gpu", "appCpu", "appGpu", "appMB", "memLoad"):
+            self.history.append({k: s.get(k) for k in ("cpu", "gpu", "appCpu", "appGpu", "pagesGpu", "programGpu", "gpuKinds", "appMB",
+                                                        "memLoad", "front", "open")} | {"t": round(self.clock())})
+            for k in ("cpu", "gpu", "appCpu", "appGpu", "pagesGpu", "programGpu", "appMB", "memLoad"):
                 if s.get(k) is not None:
                     self.peak[k] = max(self.peak.get(k, 0), s[k])
         if busy != was and self.lighten:
@@ -460,10 +477,18 @@ class Guard:
         app_mb = round(sum(m for m in (process_memory(p) for p in ours) if m), 1)
         if self._gpu is None:
             self._gpu = Gpu()
-        g = self._gpu.read(ours)
+        g = self._gpu.read(ours, {pid: name for pid, _pp, name in procs})
         top = self._busiest(procs, ours, now) if cpu is not None and cpu >= TOP_FROM else None
+        ctx = {}
+        if self.context:
+            try:
+                ctx = self.context() or {}
+            except Exception:
+                ctx = {}
         return {"cpu": cpu, "gpu": g and g["total"], "appCpu": app_cpu, "appGpu": g and g["app"], "appMB": app_mb,
-                "memLoad": mem.get("loadPct"), "memTotalMB": mem.get("totalMB"), "top": top}
+                "pagesGpu": g and g["pages"], "programGpu": g and g["program"], "gpuKinds": g and g["kinds"],
+                "memLoad": mem.get("loadPct"), "memTotalMB": mem.get("totalMB"), "top": top,
+                "open": ctx.get("open"), "front": ctx.get("front")}
 
     def _busiest(self, procs, ours, now):
         """The other program using the most processor since the last look: {'name', 'cpu'} (or None)."""

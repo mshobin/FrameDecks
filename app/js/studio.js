@@ -632,14 +632,16 @@ var guardToldAt = 0;
 function guardSeen(g){
   if (!g) return;
   var was = window.KCGuard;
-  window.KCGuard = g;
+  window.KCGuard = {active: !!g.active, busy: !!g.busy, front: g.front || null, known: !!g.known};
+  if (window.KCMeetingMode) KCMeetingMode.apply(g);
   if (g.active !== was.active && window.KCWorkspace && KCWorkspace.guard) KCWorkspace.guard();
   if (g.busy && !was.busy && Date.now() - guardToldAt > 300000 && window.KCActions){
     guardToldAt = Date.now();
     window.KCActions.toast('Your PC is very busy. FrameDecks has made its camera work lighter; the Command Center\u2019s Control chip says what else is in the way.', true);
   }
 }
-function resting(){ return window.KCGuard.active && !document.hasFocus(); }
+function resting(){ return window.KCGuardRest ? KCGuardRest('Studio') : (window.KCGuard.active && !document.hasFocus()); }   // 26.11.8 Windows says which window is in front
+document.addEventListener('kc-guard', function(){ if (visible() && !pulling) pullImage(); });
 window.addEventListener('focus', function(){ if (visible() && !pulling) pullImage(); });
 function pullImage(){
   if (!visible()){ pulling = false; return; }

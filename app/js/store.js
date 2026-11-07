@@ -303,10 +303,11 @@ var TEXT_DEFAULTS = {
   /* the meeting's logo and/or name as a small badge (logo = show the logo, name = the Meeting Name, org = Leader / Organization) */
   brand: {title: '', text: '', pos: 'upper-right', w: 30, scale: 1, label: false, anim: 'fade', logo: true, name: true, org: false,
     /* 6.7: plate = the navy plate behind the badge (off: the logo / name alone, with a soft shadow); pad = inner padding
-       (x the standard); margin = the safe margin from the picture's edges (in 1/100 of the picture width) */
-    plate: true, pad: 1, margin: 4}
+       (x the standard); margin = the safe margin from the picture's edges (in 1/100 of the picture width);
+       26.11.8 bg = how solid the plate is (1 = the standard plate, 0 = none: only the logo and name) */
+    plate: true, pad: 1, margin: 4, bg: 1}
 };
-var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12]};      // numbers; anything else 0.4 .. 3
+var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12], bg: [0, 1]};      // numbers; anything else 0.4 .. 3
 function cleanLayer(l){
   if (!isObj(l)) return null;
   var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS, SOUND_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;

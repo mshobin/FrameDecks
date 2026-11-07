@@ -140,5 +140,7 @@ body.sp-glass .sp-main{border-radius:0}
 .tp-voice-on .tp-band.hearing{animation:tp-breathe 2.4s ease-in-out infinite}
 @keyframes tp-breathe{0%,100%{opacity:.55}50%{opacity:1}}
 .tp-voice-on .tp-w{transition:opacity .35s ease}
+/* 26.11.8 meeting mode: the listening band stays still while Zoom or Teams uses FrameDecks vCam */
+html.kc-meeting .tp-voice-on .tp-band.hearing{animation:none}
 @media (prefers-reduced-motion:reduce){ .tp-voice-on .tp-band.hearing{animation:none} .tp-voice-on .tp-w,.tp-band{transition:none} }
 

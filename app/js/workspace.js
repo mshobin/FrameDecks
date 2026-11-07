@@ -1119,8 +1119,11 @@ function brandForm(gen, sc, l, tab, set){
     gen.appendChild(row('Fine size', rangeCtl(c.scale, 0.4, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.scale = v; }); })));
     gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0.1, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.opacity = v; }); })));
     gen.appendChild(row('Padding', rangeCtl(c.pad, 0, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.pad = v; }); })));
-    gen.appendChild(checkCtl('Background plate', c.plate, function(v){ set(function(x){ x.c.plate = v; }, true); }, 'A navy plate with the accent edge behind the text.'));
-    gen.appendChild(h('p', {cls: 'hint', text: c.plate ? 'The badge uses your accent colour when one is set.' : 'Without the plate, a soft shadow keeps the logo and name readable on any picture.'}));
+    /* 26.11.8 the plate behind the logo and name, from solid to none (was a switch) */
+    var bg = c.plate === false ? 0 : (c.bg == null ? 1 : c.bg);
+    gen.appendChild(row('Background', rangeCtl(bg, 0, 1, 0.01, function(v){ return +v ? Math.round(v * 100) + '%' : 'None'; },
+      function(v){ set(function(x){ x.c.bg = +v; x.c.plate = +v > 0; }); })));
+    gen.appendChild(h('p', {cls: 'hint', text: 'The plate behind your logo and name. At None only the logo and name show, with a soft shadow so they stay readable on any picture. If your logo image has its own box, use Remove the logo\u2019s background (Content).'}));
   }
 }
 function textForm(gen, sc, l, tab){
@@ -1364,13 +1367,15 @@ function renderUpNext(){
   box.classList.toggle('closed', !unOpen);
   $('un-toggle').textContent = unOpen ? 'Hide preview' : 'Show preview';
   $('un-toggle').setAttribute('aria-expanded', String(unOpen));
-  var rest = window.KCGuard && KCGuard.active && !document.hasFocus();   // 26.11.7 in a meeting, behind Zoom: no live preview
-  var src = unOpen && !document.hidden && !rest ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(sc.id) : 'about:blank';
+  /* 26.11.8 in a meeting with the Studio behind it: the preview is hidden (kept loaded, drawn by nobody), never reloaded */
+  var rest = window.KCGuardRest ? KCGuardRest('Studio') : false;
+  var src = unOpen && !document.hidden ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(sc.id) : 'about:blank';
   if (src !== unSrc){ unSrc = src; $('un-frame').src = src; }
+  $('un-frame').classList.toggle('kc-rest', rest);
 }
 $('un-toggle').addEventListener('click', function(){ unOpen = !unOpen; lsSet('kc-upnext', unOpen ? 'open' : 'closed'); renderUpNext(); });
 document.addEventListener('visibilitychange', function(){ if (live) renderUpNext(); });
-['focus', 'blur'].forEach(function(t){ window.addEventListener(t, function(){ if (live && window.KCGuard && KCGuard.active) renderUpNext(); }); });
+document.addEventListener('kc-guard', function(){ if (live) renderUpNext(); });   // 26.11.8 the meeting started or ended, or another window came in front
 var slideInfo = null;
 function renderLiveBar(){
   var sc = scene(), L = live.live;

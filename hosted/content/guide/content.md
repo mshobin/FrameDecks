@@ -194,7 +194,7 @@ Branding**. A quick way to add or remove it is the **Branding** tick in a Frame'
 | Position and size | **Safe margin** | How far the badge stays from the edges of the picture |
 | Look | **Size** and **Fine size** | **Small**, **Medium** or **Large**, then adjust it exactly |
 | Look | **Opacity** and **Padding** | How see-through the badge is, and the space around the logo and name |
-| Look | **Background plate** | On: a navy plate with your accent edge. Off: a soft shadow keeps it readable on any picture |
+| Look | **Background** | How solid the plate behind your logo and name is, from 100% (a navy plate with your accent edge) to **None** (only the logo and name, with a soft shadow that keeps them readable on any picture). If your logo image has its own box, use **Remove the logo's background** under Content |
 
 The badge looks the same on the FrameDecks vCam and the OBS pages, and it keeps its size at 720p, 1080p or
 4K.

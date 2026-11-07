@@ -78,4 +78,7 @@
 /* 26.11.1 the next Frame's script rises in (js/teleprompter.js), once */
 .tp-text.tp-swap{animation:tp-swap .32s var(--ease,cubic-bezier(.2,.8,.2,1)) both}
 @keyframes tp-swap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* 26.11.8 meeting mode (js/meeting-mode.js): while Zoom or Teams uses FrameDecks vCam the bars are plain glass, with no
+   blur of the scrolling text behind them, which the graphics card would redo for every line that moves */
+html.kc-meeting .tp-float-mode .tp-cues,html.kc-meeting .tp-float.tp-controls{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--tp-glass-solid,rgba(16,20,28,.92))}
 @media (prefers-reduced-motion:reduce){ .tp-text.tp-swap{animation:none} }

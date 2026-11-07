@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.8': [
+    {title: 'Your logo without its box', text: 'Branding \u2192 Look has a Background slider: from the full plate down to None, where only your logo and name show.', show: {settings: 'keys', spot: '#keys-global'}},
+    {title: 'Lighter in meetings', text: 'While Zoom or Teams uses FrameDecks vCam, the Teleprompter drops its blur and the Studio\u2019s previews rest whenever the Studio is behind your meeting.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.7': [
     {title: 'Lighter during meetings', text: 'While Zoom or Teams uses FrameDecks vCam, the Studio\u2019s picture rests whenever the Studio is behind your meeting, and the blur gets lighter when the PC is very busy.', show: {settings: 'keys', spot: '#keys-global'}},
     {title: 'Before you go live', text: 'The Command Center\u2019s Control chip (Alt+Space, Alt+3) now says what is in the way, like the Windows Camera app holding your webcam, with one button to fix it.', show: {settings: 'keys', spot: '#keys-global'}},

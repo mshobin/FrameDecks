@@ -481,7 +481,10 @@ function TextLayers(root){
       x.zone.className = 'zone-x zone-brand pos-' + c.pos;
       x.zone.style.setProperty('--bm', c.margin == null ? 4 : c.margin);          // 6.7 safe margin, padding, plate
       x.card.style.setProperty('--xs', c.scale); x.card.style.setProperty('--bp', c.pad == null ? 1 : c.pad);
-      x.card.classList.toggle('no-plate', c.plate === false);
+      var bga = c.plate === false ? 0 : (c.bg == null ? 1 : Math.max(0, Math.min(1, +c.bg)));   // 26.11.8 how solid the plate is
+      x.card.classList.toggle('no-plate', bga <= 0);
+      x.card.classList.toggle('faint-plate', bga > 0 && bga < 0.5);
+      x.card.style.setProperty('--bga', String(bga));
       setLogo(x.logo, c.logo ? logoSrc(st) : '');
       x.name.textContent = c.name ? b.meeting : ''; x.org.textContent = c.org ? b.org : '';
       x.name.hidden = !x.name.textContent; x.org.hidden = !x.org.textContent;

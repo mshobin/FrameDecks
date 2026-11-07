@@ -398,7 +398,7 @@ poll();
 
 /* Preview: pulls a small picture about 3 times a second while it is open and this section is visible */
 function pullPreview(){
-  if (document.hidden){ setTimeout(pullPreview, 1000); return; }       // minimised: don't ask for pictures
+  if (document.hidden || (window.KCGuardRest && KCGuardRest('Studio'))){ setTimeout(pullPreview, 1000); return; }   // minimised, or behind a meeting (26.11.8)
   if (!previewing) return;
   if ($('sec-vcam').hidden || document.body.dataset.tab !== 'settings'){
     previewing = false; previewBtn.textContent = 'Show preview'; previewBox.classList.remove('on'); img.removeAttribute('src'); return;

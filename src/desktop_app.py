@@ -920,13 +920,43 @@ def main():
         if isinstance(w, NativePresentation):
             return w.is_open() and w.fullscreen
         return bool(w and state.get("present_fs"))
+    def windows_now():
+        """26.11.8 for the meeting guard: which FrameDecks windows are on screen, and which one is in front (None: another
+        program, such as Zoom). Read from Windows; nothing is changed."""
+        if not dw.IS_WIN:
+            return {}
+        u = dw.user32
+        pres = state.get("present")
+        named = (("Studio", window), ("Teleprompter", state.get("teleprompter")), ("Command Center", spot_holder["w"]),
+                 ("Share Window", pres))
+        try:
+            front = u.GetForegroundWindow()
+        except Exception:
+            front = 0
+        out, in_front = [], None
+        for name, w in named:
+            if w is None:
+                continue
+            try:
+                hwnd = getattr(w, "hwnd", None) if isinstance(w, NativePresentation) else window_handle(w)
+            except Exception:
+                hwnd = None
+            if not hwnd:
+                continue
+            if u.IsWindowVisible(hwnd) and not u.IsIconic(hwnd):
+                out.append(name)
+            if front and int(front) == int(hwnd):
+                in_front = name
+        return {"open": out, "front": in_front}
+
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder, window_theme=set_theme,
                           on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
                           present_fs_state=present_fs_state, present_open=present_open, teleprompter=teleprompter,
                           teleprompter_open=lambda: bool(state.get("teleprompter")), spotlight=spotlight,
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
                           settings_changed=settings_changed, memory_popup=popup_show, popup_op=popup_op,
-                          popup_state=popup_state, share_annotate=share_annotate, spot_word=spot_word)
+                          popup_state=popup_state, share_annotate=share_annotate, spot_word=spot_word,
+                          windows=windows_now)
     state["tray"] = build_tray(show, quit_app)
     apply_hotkey(settings.get("spotlightKey", "Alt+Space"))
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.

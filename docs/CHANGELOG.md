@@ -10,6 +10,33 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.8] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.8.md](releases/v26.11.8.md).
+
+### Added
+- **Branding → Background** (owner's request): `c.bg` 0..1 on the brand layer (`TEXT_DEFAULTS.brand.bg = 1`,
+  `TEXT_RANGE.bg`), replacing the Background plate switch (`plate` stays for older plans: false = 0). Overlay:
+  the plate is `.card-brand::after` at `--bga`, the accent ring and shadow fade with it, `.faint-plate` below 0.5
+  adds the no-plate shadows. Camera (`vcam/program.py _badge`): plate alpha `225 * bg`, ring `255 * bg`, soft
+  shadows below 0.5; at 1 the picture is unchanged (checked pixel for pixel).
+- Meeting meter, sharper (owner's report: FrameDecks 37-87 % of the GPU, camera at 4 fps): `meeting_guard.split_gpu`
+  gives FrameDecks' graphics use by process (pages = WebView2, program) and by engine kind; `desktop_app.windows_now`
+  (`DESKTOP["windows"]`) says which FrameDecks windows are on screen and which is in front; request counts name the
+  page (`page stage.html`) instead of lumping pages and files together.
+- `app/js/meeting-mode.js` in the Studio and Teleprompter: asks `/api/app/guard?brief=1` every 5 s, sets
+  `html.kc-meeting` and `KCGuardRest(window)`.
+
+### Changed
+- In a meeting: the Teleprompter's bars without `backdrop-filter`, its listening band still; the Studio picture,
+  Settings camera preview and Up next rest unless Windows has the Studio in front.
+
+### Fixed
+- Up next reloaded its page on every switch between the meeting app and the Studio (26.11.7 swapped it to
+  about:blank); now hidden (`.kc-rest`).
+- `server.process_memory_mb` read 0 on Windows (the process handle was cut to 32 bits); it uses
+  `meeting_guard.process_memory`.
+
 ## [26.11.7] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.7.md](releases/v26.11.7.md).

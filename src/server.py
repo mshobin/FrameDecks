@@ -45,7 +45,7 @@ import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.7"
+APP_VERSION = "26.11.8"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -890,11 +890,21 @@ REQ = {"counts": {}, "since": time.time()}
 def count_request(path):
     """Count requests by kind, so Diagnostics can show which screens are busy."""
     kind = path if path in ("/api/rev", "/api/state", "/api/presence", "/api/vcam/preview.jpg", "/api/vcam/stage.jpg",
-                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg", "/api/remote/live.jpg") else ("page" if not path.startswith("/api/") else "other api")
+                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg", "/api/remote/live.jpg") else (
+        "page " + path.rsplit("/", 1)[-1] if path.endswith(".html") or path == "/" else "other api" if path.startswith("/api/") else "file")   # 26.11.8 which page
     REQ["counts"][kind] = REQ["counts"].get(kind, 0) + 1
 
 
 def process_memory_mb():
+    """26.11.8 the program's own memory (was 0 on Windows: the handle lost its upper half); meeting_guard reads it with
+    its Windows functions declared."""
+    try:
+        import meeting_guard
+        mb = meeting_guard.process_memory()
+        if mb:
+            return mb
+    except Exception:
+        pass
     try:
         if os.name == "nt":
             import ctypes
@@ -1447,7 +1457,8 @@ def _guard_lighten(busy):
 def _guard():
     if MEETING_GUARD.get("g") is None:
         import meeting_guard
-        MEETING_GUARD["g"] = meeting_guard.Guard(_guard_in_use, _guard_lighten)
+        MEETING_GUARD["g"] = meeting_guard.Guard(_guard_in_use, _guard_lighten,
+                                                 context=lambda: DESKTOP["windows"]() if DESKTOP.get("windows") else {})
     return MEETING_GUARD["g"]
 
 
@@ -2043,7 +2054,8 @@ def studio_status():
     lay_status = comp.layers.status()
     staged = comp.staged
     g = _guard()
-    return {"guard": {"active": bool(g.status.get("active")), "busy": bool(g.status.get("busy"))},
+    return {"guard": {"active": bool(g.status.get("active")), "busy": bool(g.status.get("busy")), "front": g.status.get("front"),
+                      "known": g.status.get("open") is not None},
             "available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
             "staged": staged is not None, "stagedLayers": staged or [], "collections": st["collections"],
             "sceneMode": comp.scene_mode(staged if staged is not None else comp.layers.layers),
@@ -2652,6 +2664,11 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/app/guard":                     # 26.11.7 the meeting guard: what is in the way, how busy
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            if "brief=1" in url.query:                   # 26.11.8 meeting mode for every window: cheap, every 5 s
+                g = _guard()
+                return self.reply(200, json.dumps({"active": bool(g.status.get("active")), "busy": bool(g.status.get("busy")),
+                                                   "front": g.status.get("front"), "known": g.status.get("open") is not None}),
+                                  TYPES[".json"])
             return self.reply(200, json.dumps(_guard().report()), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():

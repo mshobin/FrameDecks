@@ -291,7 +291,15 @@ body[data-stx="cinema"] .card,body[data-stx="church"] .card{transition-duration:
 .zone-brand.pos-top,.zone-brand.pos-upper-left,.zone-brand.pos-upper-right{top:calc(var(--u)*var(--bm,4))}
 .zone-brand.pos-bottom,.zone-brand.pos-lower-left,.zone-brand.pos-lower-right{bottom:calc(var(--u)*var(--bm,4))}
 /* no plate: the logo and the names alone, with a soft shadow so they stay readable on any picture */
+/* 26.11.8 the plate fades as one (--bga, Branding → Background): its colour, the accent ring and its shadow; the logo
+   and names stay solid. Below half, the names get the same soft shadow as without a plate. */
+.card-brand{isolation:isolate;background:none;box-shadow:0 calc(var(--u)*.8) calc(var(--u)*2.8) rgba(0,0,0,calc(.38*var(--bga,1))),0 0 0 1px rgba(0,0,0,calc(.25*var(--bga,1)))}
+.card-brand::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,var(--navy-a),var(--navy-b));opacity:var(--bga,1)}
+.card-brand::before{opacity:var(--bga,1)}
+.card-brand.faint-plate .brand-logo{filter:drop-shadow(0 calc(var(--u)*.08) calc(var(--u)*.3) rgba(0,0,0,.55))}
+.card-brand.faint-plate .brand-name,.card-brand.faint-plate .brand-org{text-shadow:0 calc(var(--u)*.08) calc(var(--u)*.4) rgba(0,0,0,.85),0 0 calc(var(--u)*.15) rgba(0,0,0,.6)}
 .card-brand.no-plate{background:none;box-shadow:none}
+.card-brand.no-plate::after{display:none}
 .card-brand.no-plate::before{display:none}
 .card-brand.no-plate .brand-logo{filter:drop-shadow(0 calc(var(--u)*.08) calc(var(--u)*.3) rgba(0,0,0,.55))}
 .card-brand.no-plate .brand-name,.card-brand.no-plate .brand-org{text-shadow:0 calc(var(--u)*.08) calc(var(--u)*.4) rgba(0,0,0,.85),0 0 calc(var(--u)*.15) rgba(0,0,0,.6)}

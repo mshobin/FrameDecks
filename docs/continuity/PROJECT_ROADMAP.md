@@ -58,7 +58,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.4: Help: error codes and Check my connection, ? links and Help search, Keys and What's new, clips and Was this helpful?, support report and Ask Help | Released |
 | 26.11.5: floating controls: the Command Center's chip panels and the phone remote with no boxes inside, colour only for meaning | Released |
 | 26.11.6: the Command Center's window cut to the shape it shows (SetWindowRgn), so no grey box on any PC | Released |
-| 26.11.7: the meeting guard (measure in meetings, lighter FrameDecks, before-you-go-live line, busy hint); Teleprompter in Engage | On `main`; owner tags `v26.11.7`, then sends the support report after a Zoom meeting |
+| 26.11.7: the meeting guard (measure in meetings, lighter FrameDecks, before-you-go-live line, busy hint); Teleprompter in Engage | Released; owner's report: camera 4 fps, FrameDecks 37-87 % GPU, 1.3 GB |
+| 26.11.8: Branding Background slider; sharper meeting meter (GPU by process and kind, windows open and in front, page names); meeting mode in every window; Up next hidden not reloaded; memory figure fixed | On `main`; owner tags `v26.11.8`, then sends the report after a Zoom meeting |
 | 26.11: Teleprompter Follow my voice (Vosk, own low-priority process, only while pinned); versions become YY.MM; old release notes and changelog archived; 4 GB check and preview leak fix | Published; clean-up done |
 | 9.13.0: the five chips everywhere (top bar in place of Live tools, Command Center, phone remote tabs), Notes from the phone, Draw opens the Share Window | Published |
 | 9.12.1: Spotlight on demand (double-click or Ctrl twice) with a bloom exit | Published |

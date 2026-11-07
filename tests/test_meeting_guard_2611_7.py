@@ -130,7 +130,7 @@ class Wiring(unittest.TestCase):
 
     def test_the_studio_rests_behind_a_meeting(self):
         self.assertIn("if (resting()){ pulling = false; return; }", read("app/js/studio.js"))
-        self.assertIn("var rest = window.KCGuard && KCGuard.active && !document.hasFocus();", read("app/js/workspace.js"))
+        self.assertIn("var rest = window.KCGuardRest ? KCGuardRest('Studio') : false;", read("app/js/workspace.js"))   # 26.11.8
 
     def test_control_shows_what_is_in_the_way_only_while_open_and_in_front(self):
         js = read("app/js/command-center.js")

@@ -1,34 +1,31 @@
-## FrameDecks v26.11.7
+## FrameDecks v26.11.8
 
-The meeting guard: FrameDecks keeps itself light while your meeting app uses it, and tells you plainly what else on
-the PC is in the way. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over
-every earlier version and keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
+Lighter in meetings, and your logo without its box. Download from **framedecks.com/download**, or let FrameDecks
+update itself. It installs over every earlier version and keeps all your meetings, members, settings, notes, pinned
+Memory Cards and recordings.
 
 ## What's New
-- **The meeting guard.** While Zoom, Teams or another meeting app uses FrameDecks vCam:
-  - the Studio's picture and its Up next preview rest whenever the Studio is not the window in front, so your
-    meeting gets the PC, and come back the moment you click into it;
-  - when the PC stays very busy, the background blur works half as often until it calms down.
-- **Before you go live**, the Command Center's Control chip says what is in the way, each with one button: the
-  Windows Camera app holding your webcam (**Close it**, which closes it the way its own X does), battery saver
-  (**Battery settings**), or a very busy PC and the program using most of it. FrameDecks never closes another
-  program by itself.
+- **Branding → Look → Background**: a slider for the plate behind your logo and name, from 100% (the plate as before) to
+  **None**, where only your logo and name show, with a soft shadow that keeps them readable. It works on the camera
+  picture and on the overlay pages alike. (If your logo image has its own box, **Remove the logo's background** is
+  under Content.)
 
 ## Enhancements
-- The **Teleprompter** is also in the Command Center's Engage chip, where you reach for it live.
-- **Send a report to support** includes what the guard measured during your last meeting: the PC's processor,
-  graphics and memory at their highest, and FrameDecks' own share.
-- A hidden Command Center does no work at all.
+- **Meeting mode in every FrameDecks window**: while Zoom or Teams uses FrameDecks vCam, the Teleprompter's bars are
+  plain glass without blur and its listening band stays still, and the Studio's picture and Up next preview rest
+  whenever the Studio is not the window in front. Windows itself says which window that is.
+- **The support report says more about meetings**: FrameDecks' graphics use split into its pages and the program
+  and by kind of work, which FrameDecks windows were open and which was in front, and which pages were loaded.
 
 ## Fixes
-None in this version.
+- The Up next preview no longer reloads each time you switch between your meeting app and the Studio; it is
+  hidden instead.
+- The support report's own memory figure read 0 MB on Windows.
 
 ## Performance Improvements
-- Lighter during meetings: no Studio picture or Up next preview behind your meeting app, and lighter background
-  blur while the PC is very busy.
+- Less drawing during meetings: no blur behind the Teleprompter's bars, no Up next reloads, no Studio or camera
+  preview pictures while another window is in front.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.
-- The graphics figures need Windows 10 1709 or later (Task Manager's own counters); on older Windows only the
-  processor and memory are measured.
