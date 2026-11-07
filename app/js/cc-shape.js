@@ -2,7 +2,8 @@
  * really paints (the bar, the chips, an open panel, a list, Keep open, a note) and the program cuts the window to
  * exactly those boxes (desktop_win.clip, SetWindowRgn). Outside them there is no window, so nothing can be drawn
  * there: no grey or black box behind the glass on any PC, and clicks there go to the window behind. While something
- * moves the shape covers where it was and where it is going; when it settles the shape is exact again. */
+ * moves the shape covers where it was and where it is going; when it settles the shape is exact again. It works only
+ * while the window has focus (it hides when it loses it), so a hidden Command Center costs nothing. */
 (function(){
 'use strict';
 if (document.body.getAttribute('data-win') !== 'spotlight') return;
@@ -81,6 +82,7 @@ function sample(final){
 }
 var chain = false, finalT = 0;
 function schedule(){                       // a few looks while things move, then one exact shape (at most 0.8 s later)
+  if (!document.hasFocus()) return;        // hidden (it closes when it loses focus): live updates cost nothing here
   if (!finalT) finalT = setTimeout(function(){ finalT = 0; requestAnimationFrame(function(){ sample(true); }); }, 800);
   if (chain) return;
   chain = true;
@@ -92,6 +94,7 @@ new MutationObserver(schedule).observe(document.body, {subtree: true, childList:
 ['transitionend', 'animationend', 'pointerover', 'pointerout', 'focusin'].forEach(function(t){ document.addEventListener(t, schedule, true); });
 window.addEventListener('resize', schedule);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden){ last = ''; schedule(); } });
+window.addEventListener('focus', function(){ schedule(); });           // opened: measure what shows now
 schedule();
 window.KCShape = {boxes: boxes, now: function(){ sample(true); }};
 })();
