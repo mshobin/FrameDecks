@@ -94,6 +94,9 @@ body.spotlight:not(.spr-live) .spr{display:none}
   font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .spr-kinds button[aria-checked="true"]{background:var(--lv-content-soft,var(--raised));border-color:var(--lv-content,var(--line));color:var(--ink)}
 .spr-kinds button:focus-visible,.spr-round:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 26.11.10 Question · Both · Scripture for the live Frame, under the Content row */
+.spr-qsrow{display:flex;align-items:center;justify-content:center;gap:10px}
+.spr-qsrow[hidden]{display:none}
 .spr-round{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:999px;border:1px solid var(--line-soft,var(--line));
   background:var(--raised);color:var(--ink);cursor:pointer;box-shadow:inset 0 1px 0 var(--spr-hi),0 1px 2px var(--spr-sh);transition:background-color .14s ease,transform .08s ease}
 .spr-round:hover{background:var(--hover-2)}

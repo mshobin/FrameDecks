@@ -67,7 +67,7 @@ class FasterBlur(unittest.TestCase):
     def test_wired_in_the_camera_loop_and_the_report(self):
         eng = (ROOT / "src/vcam/engine.py").read_text(encoding="utf-8")
         self.assertIn("self.blur.coarse = self.pace.level >= 2", eng)
-        self.assertIn('frame = self.blur.apply(frame, strength, "natural")', eng)
+        self.assertIn('blur.apply(f, st, "natural")', eng)                # 26.11.10 on the blur stage's thread
         self.assertNotIn('"classic"', eng)                         # keeping up never switches to the haloed style
         self.assertIn("self.blur.period = 0.2 if (self.pace.level >= 1 or self.guard_busy) else 0.1", eng)
         self.assertIn("lighterBlur=lvl", eng)

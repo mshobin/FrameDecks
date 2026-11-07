@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.10': [
+    {title: 'Question, Both or Scripture', text: 'In the Command Center\u2019s Control, a Frame with a question and a scripture has a Shows switch: the question, both, or the scripture.', show: {settings: 'keys', spot: '#keys-global'}},
+    {title: 'A smoother camera', text: 'With background blur on, FrameDecks vCam now shares its work across two cores, so it keeps up better on slower PCs.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.9': [
     {title: 'The camera keeps up', text: 'If background blur slows FrameDecks vCam down in a meeting, FrameDecks lightens the work by itself and goes back to your setting when the PC has room. The blur is also faster on every PC.', show: {settings: 'keys', spot: '#keys-global'}},
     {title: 'A natural blur, always', text: 'Every blur setting now softens the background like a camera lens focused on you, with no halo around you.', show: {settings: 'keys', spot: '#keys-global'}}

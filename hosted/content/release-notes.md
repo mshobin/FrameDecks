@@ -1,29 +1,27 @@
-## FrameDecks v26.11.9
+## FrameDecks v26.11.10
 
-The camera keeps up, and the blur always looks natural. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over
-every earlier version and keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
+The camera uses two cores, and the Command Center chooses question, scripture or both. Download from
+**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all
+your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **The camera keeps up with your meeting app by itself.** If background blur makes FrameDecks vCam send fewer
-  frames than Zoom or Teams asks for, FrameDecks lightens the work in two steps (it finds your outline half as often,
-  then works the same natural blur out on a smaller picture) and goes back to your setting as soon as the PC has room
-  again. The look stays the same: soft and natural, with no halo around you. The support report says when it has
-  done this.
+- **Question, Both or Scripture in the Command Center.** When the Frame on screen has a question and a scripture,
+  Control shows a **Shows** switch under Next Frame: the question only, both together, or the scripture only. It is
+  the same switch as on the phone remote and in the Studio, and it changes the screen straight away.
 
 ## Enhancements
-- **One blur, the natural one.** Every blur setting, from the presets to the exact Fine-tune amount, now uses the
-  natural blur that softens the background like a camera lens focused on you, with no halo around you. The older
-  Classic style, which left a halo, has been removed; if you had chosen it, FrameDecks now uses Natural.
+- The support report's FrameDecks vCam line now says which picture size the camera sends, and from which webcam size.
 
 ## Fixes
-None in this version.
+- With background blur on, FrameDecks vCam stopped with an error when nobody was in the picture (for example when
+  you stepped away from the desk). It now simply shows the blurred room.
 
 ## Performance Improvements
-- **Background blur is about a third to two-fifths faster** on every PC, with the same picture: the blurred
-  background and you are blended in whole numbers, only in the area around you, and a fine blur no longer works
-  out a second, gentler layer that looked the same.
-- A very light blur is no longer worked out on the full-size picture, which on an older PC took longer than a whole
-  frame; half size looks the same.
+- **The camera works on two cores.** The background blur of each picture is worked out at the same time as the
+  picture before it is finished and sent to Zoom or Teams, so on a slower PC the camera can send up to about twice as
+  many frames a second. Each picture reaches the meeting about 33 ms later, which nobody can see.
+- The blur's soft edge around you is now prepared by the same helper that finds your outline, so the camera no
+  longer stops for it five times a second.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.

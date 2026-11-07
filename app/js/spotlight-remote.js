@@ -46,6 +46,12 @@ function video(){
   post('api/remote/studio', {op: 'media', id: m.id, cmd: playing ? 'pause' : 'play'}).then(function(r){ studio = r.studio || studio; tell(m.name + (playing ? ' paused' : ' playing')); render(); })
     .catch(function(e){ tell(e.message, true); });
 }
+var QS = [['question', 'Question', 'Question only'], ['both', 'Both', 'Question and scripture'], ['verse', 'Scripture', 'Scripture only']];
+function setQS(m, said){
+  var ls = live && SC.liveScene(live);
+  if (!ls || SC.qsMode(ls) === m) return;
+  update(function(n){ SC.setQS(n, ls.id, m); }, said);
+}
 function hideAll(){ update(function(n){ SC.hideAll(n); }, 'Everything hidden'); }
 function black(){ var on = live && live.live.blackout; update(function(n){ n.live.blackout = !n.live.blackout; }, on ? 'Picture back' : 'Black screen'); }
 var leaveArm = 0;
@@ -140,6 +146,11 @@ function build(){
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-prev', title: 'Previous (Alt+↑)', 'aria-label': 'Previous', 'aria-keyshortcuts': 'Alt+ArrowUp', html: I('chevron-left', 20), onclick: function(){ contentStep(-1); }}),
       h('div', {cls: 'spr-step-t'}, [h('b', {id: 'spr-c-title', text: '—'}), h('small', {id: 'spr-c-detail'})]),
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-next', title: 'Next (Alt+↓)', 'aria-label': 'Next', 'aria-keyshortcuts': 'Alt+ArrowDown', html: I('chevron-right', 20), onclick: function(){ contentStep(1); }})]),
+    // 26.11.10 a Frame with a question and a scripture: show the question, both, or the scripture (as on the phone remote)
+    h('div', {cls: 'spr-qsrow', id: 'spr-qsrow', hidden: 'hidden'}, [h('span', {cls: 'spr-tag', id: 'spr-qs-name', text: 'Shows'}),
+      h('div', {cls: 'spr-kinds', id: 'spr-qs', role: 'radiogroup', 'aria-labelledby': 'spr-qs-name'}, QS.map(function(o){
+        return h('button', {type: 'button', role: 'radio', 'data-qs': o[0], 'aria-checked': 'false', title: o[2], text: o[1], onclick: function(){ setQS(o[0], o[2]); }});
+      }))]),
     h('div', {cls: 'spr-row spr-tools', role: 'group', 'aria-labelledby': 'spr-tools-name'}, [
       h('span', {cls: 'spr-tag', id: 'spr-tools-name', text: 'Live tools'}),
       btn('spot', 'Spotlight', 'circle-dot', 'Alt+L', function(){ openTool('spot'); }),
@@ -227,6 +238,9 @@ function render(){
     }
     setText($('spr-c-title'), title); setText($('spr-c-detail'), detail); $('spr-c-detail').classList.toggle('on', shown);
   }
+  var qm = ls ? SC.qsMode(ls) : '';
+  $('spr-qsrow').hidden = !qm;
+  if (qm) Array.prototype.forEach.call($('spr-qs').children, function(b){ b.setAttribute('aria-checked', String(b.dataset.qs === qm)); });
   // Live tools
   var ink = !!(L.ink && L.ink.on);
   [['spot', annMode === 'spot'], ['draw', annMode === 'draw' || ink]].forEach(function(b){ var el = $('spr-' + b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); });

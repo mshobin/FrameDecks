@@ -72,6 +72,8 @@ class BackgroundBlur:
         self.cond = threading.Condition()
         self.model_ms = 0.0
         self.coarse = False           # 26.11.9 keeping up: the same natural blur worked out on a picture half as big
+        self.want = None              # 26.11.10 (w, h, d, strength) of the last frame: the model thread builds its masks
+        self.masks_ms = 0.0
         self.alive = True
         threading.Thread(target=self._segment_loop, name="bcc-vcam-blur", daemon=True).start()
 
@@ -98,6 +100,14 @@ class BackgroundBlur:
             self.small_mask = m
             self.mask_version += 1
             self.model_ms = (time.perf_counter() - t) * 1000
+            want = self.want
+            if want is not None:          # 26.11.10 the new outline's masks are made here, not on the camera's path
+                t2 = time.perf_counter()
+                try:
+                    self._natural_masks(*want)
+                except Exception:         # the camera loop simply makes them itself
+                    pass
+                self.masks_ms = (time.perf_counter() - t2) * 1000
             time.sleep(max(0.0, self.period - (time.perf_counter() - t)))
 
     def _full(self, w, h):
@@ -111,10 +121,12 @@ class BackgroundBlur:
 
     def _natural_masks(self, w, h, d, s):
         """(alpha at full size, background weight and depth ramp at the working size), cached."""
-        key = (self.mask_version, w, h, d, round(s, 1))
-        if self._nat is not None and self._nat[0] == key:
-            return self._nat[1]
-        m = cv2.GaussianBlur(self.small_mask, (0, 0), 1.2)
+        mask, version = self.small_mask, self.mask_version
+        key = (version, w, h, d, round(s, 1))
+        nat = self._nat                                       # read once: the model thread may replace it
+        if nat is not None and nat[0] == key:
+            return nat[1]
+        m = cv2.GaussianBlur(mask, (0, 0), 1.2)
         person = np.clip((m - 0.35) / 0.3, 0.0, 1.0).astype(np.float32)
         # the edge softens with strength, inward only: the background stays fully softened right up to you
         # (an outward soft edge lets the sharp background show through around you)
@@ -127,7 +139,11 @@ class BackgroundBlur:
         else:
             box = (0, 0, 0, 0)
         roi = a8[box[0]:box[1], box[2]:box[3]]
-        alpha = (cv2.merge([roi, roi, roi]), cv2.merge([255 - roi] * 3), box)   # only the box is blended
+        if roi.size:
+            alpha = (cv2.merge([roi, roi, roi]), cv2.merge([255 - roi] * 3), box)   # only the box is blended
+        else:                                                               # 26.11.10 nobody in the picture: all background
+            empty = np.zeros((0, 0, 3), np.uint8)
+            alpha = (empty, empty, box)
         sw, sh = w // d, h // d
         weight = cv2.resize(1.0 - person, (sw, sh), interpolation=cv2.INTER_AREA)
         bg = (person < 0.5).astype(np.uint8)
@@ -147,6 +163,7 @@ class BackgroundBlur:
         if self.coarse:                                       # still mask-normalised (never a halo), just cheaper
             d = min(8, d * 2)
         ss = sig / d
+        self.want = (w, h, d, s)
         alpha, weight, ramp = self._natural_masks(w, h, d, s)
         small = cv2.resize(frame, (w // d, h // d), interpolation=cv2.INTER_AREA) if d > 1 else frame
         if d == 1:                                            # a few pixels: a plain blur is already clean

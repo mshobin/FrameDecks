@@ -42,6 +42,31 @@ def fit_cover(img, w, h, zoom=1.0):
 
 
 
+class BlurStage:
+    """26.11.10 two cores share the camera's work: the background blur of one frame runs on this thread while the
+    camera loop finishes the frame before it (look, cards, sending). Each frame comes out one frame later (about
+    33 ms), and the camera can keep up at nearly the speed of its slowest half instead of both halves added up."""
+
+    def __init__(self):
+        from concurrent.futures import ThreadPoolExecutor
+        self.pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="bcc-vcam-stage")
+        self.pending = None
+
+    def swap(self, fn, frame):
+        """Start this frame and hand back the one before it, finished (None the first time)."""
+        fut = self.pool.submit(fn, frame)
+        prev, self.pending = self.pending, fut
+        return prev.result() if prev is not None else None
+
+    def drop(self):
+        """Blur turned off, webcam closed or an error: forget the frame in progress."""
+        self.pending = None
+
+    def close(self):
+        self.pending = None
+        self.pool.shutdown(wait=False)
+
+
 class Pace:
     """26.11.9 the camera keeps up with the frame rate the meeting app asks for. Measured once a second: when frames
     come out too slowly (under 80 % of the rate, each taking longer than its slot) for 2 seconds in a row, the blur
@@ -176,6 +201,7 @@ class VCamEngine:
         self.cam = None
         self.blur = None
         self.pace = Pace()          # 26.11.9 steps the blur down when the camera cannot keep up
+        self.stage = BlurStage()    # 26.11.10 the blur on a second core
         self.guard_busy = False     # set by the meeting guard while the PC is very busy
         self.preview_until = 0.0
         self.sharp_until = 0.0                    # the phone's drawing pad is open: previews 960 wide instead of 640
@@ -204,6 +230,8 @@ class VCamEngine:
         if t:
             t.join(timeout=5)
         self._close_camera()
+        self.stage.close()
+        self.stage = BlurStage()
         if self.blur:
             self.blur.close()
             self.blur = None
@@ -260,6 +288,7 @@ class VCamEngine:
         return SIZES.get(s.get("captureResolution"), (w, h)) if s.get("captureResolution") != "auto" else (w, h)
 
     def _close_camera(self):
+        self.stage.drop()
         if self.cam:
             self.cam.close()
             self.cam = None
@@ -353,7 +382,14 @@ class VCamEngine:
                         # 26.11.9 always the natural blur (no halo); keeping up only makes it cheaper, never changes the look
                         self.blur.period = 0.2 if (self.pace.level >= 1 or self.guard_busy) else 0.1
                         self.blur.coarse = self.pace.level >= 2
-                        frame = self.blur.apply(frame, strength, "natural")
+                        blur = self.blur
+                        frame = self.stage.swap(lambda f, st=strength: blur.apply(f, st, "natural"), frame)
+                        if frame is None:
+                            continue                     # the very first blurred frame is still on its way
+                    else:
+                        self.stage.drop()
+                else:
+                    self.stage.drop()
                 grade = s.get("grade")
                 if frame is not None and grade is not None:   # filter (Camera Look x intensity): the webcam picture only
                     frame = grade.apply(frame)

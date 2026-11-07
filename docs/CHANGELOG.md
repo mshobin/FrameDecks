@@ -10,6 +10,26 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.10] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.10.md](releases/v26.11.10.md).
+
+### Added
+- Command Center Control: a **Shows** switch (Question / Both / Scripture, `#spr-qs` in `app/js/spotlight-remote.js`)
+  for a live Frame with both cards, through `KCScenes.setQS` like the phone remote's `[data-qs]` and the Studio's
+  `qsPill` (owner's request). The support report's vCam line adds `outputSize` and `captureInfo`.
+
+### Changed
+- Owner's 26.11.9 report: 13.9 fps out of 29.7 in, 71.9 ms per frame, blur model 45 ms, level 2. The camera loop was
+  one core in series. `vcam.engine.BlurStage`: the blur of frame N runs on its own thread (`bcc-vcam-stage`) while
+  the loop finishes frame N-1 (look, adjustments, cards, send); one frame of delay, throughput set by the slower half.
+  `BackgroundBlur.want` lets the outline thread build `_natural_masks` right after each model run (`masks_ms`), so
+  the camera thread no longer rebuilds them (11 ms at 1080p here, about 5x that on the owner's PC) every 200 ms.
+
+### Fixed
+- `_natural_masks` with no person in the picture: `cv2.merge` of an empty box raised and closed the camera (26.11.9).
+  An empty box now means all background. Tests `tests/test_camera_stage_2611_10.py`.
+
 ## [26.11.9] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.9.md](releases/v26.11.9.md).
