@@ -9,7 +9,8 @@ Two styles (setting blurStyle):
       * mask-normalised blur: your colours never smear into the background (no halo);
       * depth: background close to you is softened slightly less than the far background (both blurred, so no
         sharp "ghost"), and the edge around you softens with strength.
-  classic - exactly the picture of 4.8 and older.
+  classic - the picture of 4.8 and older. 26.11.9: no longer chosen anywhere (it leaves a halo around you);
+      kept only so older callers still work.
 
 Kept light on CPU:
   - the model runs on its own thread about 10 times a second, never holding up a video frame;
@@ -70,6 +71,7 @@ class BackgroundBlur:
         self._nat = None              # natural style: cached masks, rebuilt when the outline, size or strength changes
         self.cond = threading.Condition()
         self.model_ms = 0.0
+        self.coarse = False           # 26.11.9 keeping up: the same natural blur worked out on a picture half as big
         self.alive = True
         threading.Thread(target=self._segment_loop, name="bcc-vcam-blur", daemon=True).start()
 
@@ -119,7 +121,13 @@ class BackgroundBlur:
         person = np.minimum(person, cv2.GaussianBlur(person, (0, 0), 0.8 + 0.035 * s))
         alpha = cv2.resize(1.0 - person, (w, h), interpolation=cv2.INTER_LINEAR)
         a8 = np.clip(alpha * 255.0 + 0.5, 0, 255).astype(np.uint8)          # 26.11.9: the blend in whole numbers
-        alpha = (cv2.merge([a8, a8, a8]), cv2.merge([255 - a8] * 3))        # (background weight, picture weight)
+        ys, xs = np.nonzero(a8 < 255)                                       # 26.11.9 where you are (and your edge)
+        if len(ys):
+            box = (int(ys.min()), int(ys.max()) + 1, int(xs.min()), int(xs.max()) + 1)
+        else:
+            box = (0, 0, 0, 0)
+        roi = a8[box[0]:box[1], box[2]:box[3]]
+        alpha = (cv2.merge([roi, roi, roi]), cv2.merge([255 - roi] * 3), box)   # only the box is blended
         sw, sh = w // d, h // d
         weight = cv2.resize(1.0 - person, (sw, sh), interpolation=cv2.INTER_AREA)
         bg = (person < 0.5).astype(np.uint8)
@@ -136,6 +144,8 @@ class BackgroundBlur:
             return frame                                      # below a tenth of a pixel: nothing to see
         h, w = frame.shape[:2]
         d = _scale_for(sig)
+        if self.coarse:                                       # still mask-normalised (never a halo), just cheaper
+            d = min(8, d * 2)
         ss = sig / d
         alpha, weight, ramp = self._natural_masks(w, h, d, s)
         small = cv2.resize(frame, (w // d, h // d), interpolation=cv2.INTER_AREA) if d > 1 else frame
@@ -147,10 +157,13 @@ class BackgroundBlur:
             den_far = cv2.GaussianBlur(weight, (0, 0), ss)[..., None]
             far = cv2.GaussianBlur(f * wf, (0, 0), ss) / np.maximum(den_far, 1e-3)
             near_s = max(0.5, ss * 0.8)             # a gentle gradation, never a visible band
-            den_near = cv2.GaussianBlur(weight, (0, 0), near_s)[..., None]
-            near = cv2.GaussianBlur(f * wf, (0, 0), near_s) / np.maximum(den_near, 1e-3)
-            r = ramp[..., None]
-            bg = near + (far - near) * r                      # less blur next to you, full blur far away
+            if ss - near_s >= 0.5:                  # 26.11.9 only when near and far really differ (not at fine settings)
+                den_near = cv2.GaussianBlur(weight, (0, 0), near_s)[..., None]
+                near = cv2.GaussianBlur(f * wf, (0, 0), near_s) / np.maximum(den_near, 1e-3)
+                r = ramp[..., None]
+                bg = near + (far - near) * r                  # less blur next to you, full blur far away
+            else:
+                bg = far
             plain = cv2.GaussianBlur(f, (0, 0), ss)           # inside the outline (no background to sample)
             bg = np.where(den_far < 0.02, plain, bg)
             bg = np.clip(bg, 0, 255).astype(np.uint8)
@@ -158,8 +171,12 @@ class BackgroundBlur:
         # 26.11.9 whole-number blend (about half the time of a float blend at 1080p; the same picture to within 1/255)
         if d == 1:
             bg = bg if bg.dtype == np.uint8 else np.clip(bg, 0, 255).astype(np.uint8)
-        a3, inv3 = alpha
-        return cv2.add(cv2.multiply(bg, a3, scale=1 / 255.0), cv2.multiply(frame, inv3, scale=1 / 255.0))
+        a3, inv3, (y0, y1, x0, x1) = alpha
+        out = bg if bg is not frame else bg.copy()            # outside the box: all background
+        if y1 > y0 and x1 > x0:                               # 26.11.9 the blend only around you: the same picture
+            out[y0:y1, x0:x1] = cv2.add(cv2.multiply(bg[y0:y1, x0:x1], a3, scale=1 / 255.0),
+                                        cv2.multiply(frame[y0:y1, x0:x1], inv3, scale=1 / 255.0))
+        return out
 
     def apply(self, frame, strength=30, style="natural"):
         with self.cond:                                       # hand the newest frame to the model thread

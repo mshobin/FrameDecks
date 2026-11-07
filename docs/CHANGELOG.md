@@ -17,14 +17,21 @@ Full notes: [docs/releases/v26.11.9.md](releases/v26.11.9.md).
 ### Added
 - `vcam.engine.Pace` (owner's 26.11.8 report: webcam 30.7 fps in, 7.5 fps out, 133 ms per frame, 9760 dropped; the
   graphics card was fine at 22-29 %): checked once a second while a meeting app uses FrameDecks vCam with blur on;
-  under 80 % of the frame rate with frames over their slot for 2 s steps down (1: outline found 5/s, 2: classic blur),
+  under 80 % of the frame rate with frames over their slot for 2 s steps down (1: outline found 5/s, 2: `blur.coarse`,
+  the same mask-normalised natural blur at twice the working-size divisor, max 8; never classic, which has a halo),
   under 60 % of the slot for 10 s steps back up. Status `lighterBlur`; the support report's FrameDecks vCam line says
   so. The meeting guard's busy flag now goes through `engine.guard_busy`.
 
 ### Changed
 - `vcam.blur` natural style: the final blend in uint8 (`cv2.multiply`/`cv2.add` with a cached 3-channel alpha, within
   1/255 of the float `blendLinear`), 20-30 % faster at 1080p; `_scale_for` never works at full size (d >= 2): a full
-  1080p Gaussian took 40-50 ms here for a blur of a pixel or two. Tests `tests/test_camera_pace_2611_9.py`.
+  1080p Gaussian took 40-50 ms here for a blur of a pixel or two. The blend runs only inside the bounding box of
+  `alpha < 255` (outside it the picture is all background; equal to the whole-picture blend), and the near layer is
+  skipped when it would differ from the far one by under half a pixel. Measured at 1080p, one thread: strength 2
+  46.3 -> 27.5 ms, 10: 10.7 -> 7.3, 30: 9.3 -> 6.7, 55: 10.0 -> 7.5; with `coarse`, strength 2 9.4 ms, 5: 5.1 ms.
+- Owner's request (blur must feel organic, no halo): `blurStyle` is always `natural`. `clean_vcam` reads a saved
+  `classic` as `natural`, the engine always passes `natural`, and the Blur style choice is gone from the vCam panel
+  (the classic code path stays in `vcam.blur` for older callers only). Tests `tests/test_camera_pace_2611_9.py`.
 
 ## [26.11.8] - 2026-11-07
 

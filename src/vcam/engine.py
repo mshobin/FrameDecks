@@ -48,7 +48,8 @@ class Pace:
     steps down one level; when there is plenty of room (under 60 % of the slot) for 10 seconds, it steps back up.
         0  as set
         1  the person outline is found 5 times a second instead of 10
-        2  and the lighter classic blur instead of natural
+        2  and the same natural blur worked out on a picture half as big (never the classic style, which leaves
+           a halo around you)
     """
     MAX = 2
 
@@ -349,9 +350,10 @@ class VCamEngine:
                     if self.blur is None and self.blur_factory:
                         self.blur = self.blur_factory()
                     if self.blur:
-                        style = "classic" if self.pace.level >= 2 else s.get("blurStyle", "natural")    # 26.11.9 keeping up
+                        # 26.11.9 always the natural blur (no halo); keeping up only makes it cheaper, never changes the look
                         self.blur.period = 0.2 if (self.pace.level >= 1 or self.guard_busy) else 0.1
-                        frame = self.blur.apply(frame, strength, style)
+                        self.blur.coarse = self.pace.level >= 2
+                        frame = self.blur.apply(frame, strength, "natural")
                 grade = s.get("grade")
                 if frame is not None and grade is not None:   # filter (Camera Look x intensity): the webcam picture only
                     frame = grade.apply(frame)

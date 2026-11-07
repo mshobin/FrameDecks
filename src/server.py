@@ -1570,7 +1570,7 @@ def clean_vcam(d):
     if d.get("presentFps") in (15, 30):
         out["presentFps"] = d["presentFps"]
     if d.get("blurStyle") in ("natural", "classic"):
-        out["blurStyle"] = d["blurStyle"]
+        out["blurStyle"] = "natural"      # 26.11.9 one style: natural (classic left a halo around you); old saves read as natural
     if isinstance(d.get("blurStrength"), (int, float, str)) and not isinstance(d.get("blurStrength"), bool):
         try:
             raw = float(d["blurStrength"])

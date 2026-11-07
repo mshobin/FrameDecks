@@ -79,10 +79,6 @@ function snapBlur(n){ var m = milli(n); return !isFinite(m) || m <= 0 ? 0 : Math
 function toPos(n){ return Math.sqrt(Math.max(0, n) / 100); }          // strength -> slider position (curved)
 function fromPos(x){ return snapBlur(100 * x * x); }
 var blurNowVal = 0, blurLocalAt = 0;      // a value just set here wins over status checks still on their way
-var styleSeg = h('div', {cls: 'seg', id: 'vcam-blur-style'});
-[['natural', 'Natural'], ['classic', 'Classic']].forEach(function(o){
-  styleSeg.appendChild(h('button', {type: 'button', 'data-val': o[0], text: o[1], onclick: function(){ save('blurStyle', o[0]); }}));
-});
 var blurSave = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-save', text: 'Save as default'});
 var blurNote = h('span', {cls: 'hint', id: 'vcam-blur-note'});
 var blurT = null;
@@ -280,10 +276,9 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FrameDecks vCam'])]),
-  h('details', {cls: 'vcam-fine vcam-tune'}, [h('summary', {text: 'Fine-tune: exact blur, blur style, camera look and smoothness'}),
+  h('details', {cls: 'vcam-fine vcam-tune'}, [h('summary', {text: 'Fine-tune: exact blur, camera look and smoothness'}),
     h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), h('div', {cls: 'blur-ctl'}, [blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp, blurNum, h('span', {cls: 'hint', text: '%'})])]),
-    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur style'}), styleSeg]),
-    h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Natural softens the background like a camera lens focused on you - no halo around you, and settings below 10 % stay subtle. Classic is the look of earlier versions.'})]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'The blur softens the background like a camera lens focused on you - no halo around you, and settings below 10 % stay subtle.'})]),
     h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel]),
     h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Keys: Ctrl+Alt+1 Warm, Ctrl+Alt+2 Dark, Ctrl+Alt+3 Neutral, Ctrl+Alt+0 Off.'})]),
     h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Presentation window'}), presSeg]),
@@ -345,7 +340,6 @@ function render(d){
     blurNowVal = now; blurRange.value = toPos(now); blurNum.value = fmtNum(now); blurVal.textContent = fmtBlur(now);
   } else if (blurNum.value === '' && document.activeElement !== blurNum){ blurNum.value = fmtNum(blurNowVal); blurRange.value = toPos(blurNowVal); }
   markBlur(blurNowVal);
-  Array.prototype.forEach.call(styleSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === (s.blurStyle || 'natural'))); });
   Array.prototype.forEach.call(presSeg.children, function(b){ b.setAttribute('aria-pressed', String(+b.dataset.val === (s.presentFps || 15))); });
   blurDown.disabled = blurNowVal <= 0; blurUp.disabled = blurNowVal >= BLUR_MAX;
   blurSave.disabled = milli(now) === milli(saved);

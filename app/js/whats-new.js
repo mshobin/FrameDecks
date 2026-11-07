@@ -6,7 +6,8 @@
 'use strict';
 var NEWS = {
   '26.11.9': [
-    {title: 'The camera keeps up', text: 'If background blur slows FrameDecks vCam down in a meeting, FrameDecks lightens the blur by itself and goes back to your setting when the PC has room. The blur is also faster on every PC.', show: {settings: 'keys', spot: '#keys-global'}}
+    {title: 'The camera keeps up', text: 'If background blur slows FrameDecks vCam down in a meeting, FrameDecks lightens the work by itself and goes back to your setting when the PC has room. The blur is also faster on every PC.', show: {settings: 'keys', spot: '#keys-global'}},
+    {title: 'A natural blur, always', text: 'Every blur setting now softens the background like a camera lens focused on you, with no halo around you.', show: {settings: 'keys', spot: '#keys-global'}}
   ],
   '26.11.8': [
     {title: 'Your logo without its box', text: 'Branding \u2192 Look has a Background slider: from the full plate down to None, where only your logo and name show.', show: {settings: 'keys', spot: '#keys-global'}},
