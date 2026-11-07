@@ -66,7 +66,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | Antivirus blocks or quarantines the app (for example Microsoft Defender: "Trojan … executes commands from an attacker", and FrameDecks disappears) | A false alarm that unsigned apps made with Python sometimes get. FrameDecks starts no hidden PowerShell or other background commands | Windows Security → Virus & threat protection → **Protection history** → the entry → **Actions → Restore**. Then **Manage settings → Exclusions → Add an exclusion → Folder** `%LOCALAPPDATA%\Programs\FRAMEDECKS`, and update to the latest version |
 
 > **Note:** Check the download first: compare its SHA-256 with the one on framedecks.com/download, in PowerShell:
-> `Get-FileHash .\FrameDecks-26.11.6-Setup.exe -Algorithm SHA256`.
+> `Get-FileHash .\FrameDecks-26.11.7-Setup.exe -Algorithm SHA256`.
 
 ## Window, tray and Spotlight
 
@@ -203,6 +203,19 @@ Other translations aren't fetched. Choose **Type it myself** and type or paste t
 | Background blur on a slow PC | Lower the blur, or turn it off |
 
 **Settings → Diagnostics** shows the frame rate, dropped frames, processor use and which screens are busy.
+
+### The meeting guard
+
+While Zoom, Teams or another meeting app is using FrameDecks vCam, FrameDecks keeps itself light:
+
+- The Studio's picture and its Up next preview rest whenever the Studio is not the window in front, and come back as
+  soon as you click into it.
+- When the PC stays very busy for about ten seconds, the background blur works half as often until it calms down.
+
+The Command Center's **Control** chip (Alt+Space, then Alt+3) says what is in the way before you go live, each with
+one button: the **Windows Camera** app holding your webcam (**Close it**), battery saver (**Battery settings**), or
+a very busy PC with the program using most of it. FrameDecks never closes another program by itself. **Send a
+report to support** includes what the guard measured during your last meeting.
 
 ## Audio
 

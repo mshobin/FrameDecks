@@ -45,7 +45,7 @@ import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.6"
+APP_VERSION = "26.11.7"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -980,7 +980,8 @@ def diagnostics(address):
         "network": windows_network_check() if REMOTE else None, "now": time.time(),
         "vcam": {"available": VCAM["engine"] is not None, "reason": VCAM["reason"], "detail": VCAM["detail"],
                  "cameras": VCAM["cameras"] or [], "blockers": _vcam_blockers(),
-                 "status": dict(VCAM["engine"].status) if VCAM["engine"] else None}
+                 "status": dict(VCAM["engine"].status) if VCAM["engine"] else None},
+        "guard": _guard().report(),
     }
 
 
@@ -1423,7 +1424,34 @@ def open_folder(path):
 
 
 # 26.11.4 the Windows settings pages the connection check opens (Wi-Fi, network type), nothing else
-SETTINGS_PAGES = ("ms-settings:network-wifi", "ms-settings:network-status")
+# 26.11.7 and battery saver, from the meeting guard
+SETTINGS_PAGES = ("ms-settings:network-wifi", "ms-settings:network-status", "ms-settings:batterysaver")
+
+
+
+# 26.11.7 the meeting guard (src/meeting_guard.py): measures only while a meeting app uses FrameDecks vCam, makes the
+# camera work lighter while the PC is very busy, and lists what is in the way (Windows Camera app, battery saver)
+def _guard_in_use():
+    eng = VCAM.get("engine") if "VCAM" in globals() else None
+    return bool(eng and eng.status.get("inUse"))
+
+
+def _guard_lighten(busy):
+    """While the PC is very busy the background blur's person outline is found 5 times a second instead of 10."""
+    eng = VCAM.get("engine") if "VCAM" in globals() else None
+    blur = getattr(eng, "blur", None) if eng else None
+    if blur is not None and hasattr(blur, "period"):
+        blur.period = 0.2 if busy else 0.1
+
+
+def _guard():
+    if MEETING_GUARD.get("g") is None:
+        import meeting_guard
+        MEETING_GUARD["g"] = meeting_guard.Guard(_guard_in_use, _guard_lighten)
+    return MEETING_GUARD["g"]
+
+
+MEETING_GUARD = {"g": None}
 
 
 def open_external(url):
@@ -2014,7 +2042,9 @@ def studio_status():
     rec = comp.recorder
     lay_status = comp.layers.status()
     staged = comp.staged
-    return {"available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
+    g = _guard()
+    return {"guard": {"active": bool(g.status.get("active")), "busy": bool(g.status.get("busy"))},
+            "available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
             "staged": staged is not None, "stagedLayers": staged or [], "collections": st["collections"],
             "sceneMode": comp.scene_mode(staged if staged is not None else comp.layers.layers),
             "screen": comp.screen_status(), "sources": _cached_sources(list_sources),
@@ -2619,6 +2649,10 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(update_info()), TYPES[".json"])
+        if path == "/api/app/guard":                     # 26.11.7 the meeting guard: what is in the way, how busy
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(_guard().report()), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3010,6 +3044,14 @@ class Handler(BaseHTTPRequestHandler):
         if action == "firewall":
             done, msg = firewall("undo" if data.get("action") == "undo" else "allow")
             return ok({"ok": done, "message": msg})
+        if action == "guard":                            # 26.11.7 Close it (the Windows Camera app) / battery settings
+            what = str(data.get("do") or "")
+            if what == "close-camera":
+                import meeting_guard
+                return ok({"asked": meeting_guard.close_camera_app()})
+            if what == "power":
+                return ok({"opened": open_external("ms-settings:batterysaver")})
+            return bad("Unknown request", 400)
         if action == "win":
             # 6.8 the page's own window buttons and ribbon: {win: main/teleprompter/spotlight, op: minimize,
             # toggle-max, close, drag, hide, on-top (value)}
@@ -3401,6 +3443,7 @@ def start_main_server():
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
     threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameDecks
+    _guard().start()                                             # 26.11.7 measures only while a meeting uses FrameDecks vCam
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     threading.Thread(target=_update_loop, daemon=True).start()   # once a day: is a newer version published?

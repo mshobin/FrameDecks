@@ -567,6 +567,7 @@ function draw(){
 }
 function apply(d){
   S = d;
+  guardSeen(d.guard);
   if (!d.available){
     root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain u-pad-20', text: d.reason || 'FrameDecks vCam is not available.'}));
     scenesSec.hidden = left.hidden = true; railNote.hidden = false;
@@ -623,8 +624,26 @@ function poll(){
 }
 poll();
 var pulling = false, imgTag = {};
+/* 26.11.7 the meeting guard: while a meeting app uses FrameDecks vCam, the Studio's picture rests whenever the Studio
+ * is not the window in front (Zoom gets the PC), and comes back the moment you click into it. A very busy PC gets one
+ * quiet note every few minutes (the Command Center's Control chip says what is in the way). */
+window.KCGuard = window.KCGuard || {active: false, busy: false};
+var guardToldAt = 0;
+function guardSeen(g){
+  if (!g) return;
+  var was = window.KCGuard;
+  window.KCGuard = g;
+  if (g.active !== was.active && window.KCWorkspace && KCWorkspace.guard) KCWorkspace.guard();
+  if (g.busy && !was.busy && Date.now() - guardToldAt > 300000 && window.KCActions){
+    guardToldAt = Date.now();
+    window.KCActions.toast('Your PC is very busy. FrameDecks has made its camera work lighter; the Command Center\u2019s Control chip says what else is in the way.', true);
+  }
+}
+function resting(){ return window.KCGuard.active && !document.hasFocus(); }
+window.addEventListener('focus', function(){ if (visible() && !pulling) pullImage(); });
 function pullImage(){
   if (!visible()){ pulling = false; return; }
+  if (resting()){ pulling = false; return; }                      // in a meeting and the Studio is behind: rest
   pulling = true;
   window.KCStore.freshPreview(imgTag).then(function(b){
     if (b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; stage.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); }

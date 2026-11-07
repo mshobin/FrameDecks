@@ -643,3 +643,11 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc-panel .spr-now{padding-left:4px}
 .cc-panel .spr-step,.cc-panel .spr-mt{padding-top:10px;border-top:1px solid var(--cc-rim);border-radius:0}
 .cc-panel .spr-seg{padding:0}
+/* 26.11.7 the meeting guard's line in Control: plain text on the glass, the one action beside it */
+.cc-guard{display:grid;gap:6px;margin:0 0 10px}
+.cc-guard-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:12px;background:var(--gold-soft);color:var(--ink);font-size:13px;line-height:1.35}
+.cc-guard-row span{flex:1;min-width:0}
+.cc-guard-row.busy{background:var(--cc-cell-2)}
+.cc-guard-btn{flex:none;min-height:32px;padding:0 14px;border:0;border-radius:999px;background:var(--gold);color:var(--gold-ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.cc-guard-btn:hover{background:var(--gold-strong)}
+.cc-guard-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

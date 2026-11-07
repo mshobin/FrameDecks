@@ -51,9 +51,9 @@ class ConnectionCheck(unittest.TestCase):
         self.assertIn("openSettings('network-status')", steps)
         self.assertIn('<script src="js/help-codes.js"></script>', read("app/dashboard.html"))
 
-    def test_only_two_windows_settings_pages_can_be_opened(self):
-        import server
-        self.assertEqual(server.SETTINGS_PAGES, ("ms-settings:network-wifi", "ms-settings:network-status"))
+    def test_only_the_listed_windows_settings_pages_can_be_opened(self):
+        import server                                                   # 26.11.7 + battery saver (meeting guard)
+        self.assertEqual(server.SETTINGS_PAGES, ("ms-settings:network-wifi", "ms-settings:network-status", "ms-settings:batterysaver"))
         self.assertFalse(server.open_external("ms-settings:windowsupdate"))
         self.assertFalse(server.open_external("file:///C:/Windows"))
         src = read("src/server.py")

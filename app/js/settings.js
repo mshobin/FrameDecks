@@ -276,6 +276,16 @@ function supportReport(){
 }
 window.KCSupport = {open: supportReport};
 /* 26.11.4 the report's lines: no PIN, secret key, folder path or member data is ever included */
+/* 26.11.7 what the meeting guard measured during the last meeting: peaks, the last looks and what was in the way */
+function guardLine(g){
+  if (!g) return 'n/a';
+  var pk = g.peak || {}, f = function(v, u){ return v == null ? '?' : Math.round(v) + u; };
+  return (g.active ? 'in a meeting now' : 'no meeting now') + (g.busy ? ', PC very busy' : '') +
+    ' · peaks: PC processor ' + f(pk.cpu, '%') + ', graphics ' + f(pk.gpu, '%') + ', FrameDecks processor ' + f(pk.appCpu, '%') +
+    ', graphics ' + f(pk.appGpu, '%') + ', memory ' + f(pk.appMB, ' MB') + ', PC memory in use ' + f(pk.memLoad, '%') +
+    ' · in the way: ' + ((g.warnings || []).map(function(w){ return w.id; }).join(', ') || 'nothing') +
+    ' · last looks: ' + JSON.stringify((g.recent || []).slice(-5));
+}
 function reportLines(){
   var d = lastDiag || {};
   var cx = window.KCConnection ? KCConnection.codes() : null;
@@ -290,7 +300,8 @@ function reportLines(){
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),
     'Browser: ' + navigator.userAgent, 'Window: ' + window.innerWidth + 'x' + window.innerHeight,
     'Recent problems: ' + (errors.length ? errors.slice(-10).map(function(e){ return e.time + ' ' + e.message; }).join(' | ') : 'none'),
-    'Connection check: ' + (!cx ? 'not run' : cx.length ? cx.join(', ') : 'all steps passed')];
+    'Connection check: ' + (!cx ? 'not run' : cx.length ? cx.join(', ') : 'all steps passed'),
+    'Meeting guard: ' + guardLine(d.guard)];
 }
 function copyReport(){
   var text = reportLines().join('\n');

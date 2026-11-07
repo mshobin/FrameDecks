@@ -10,9 +10,29 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.7] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.7.md](releases/v26.11.7.md).
+
 ### Added
-- The Teleprompter also sits in the Command Center's Engage chip (owner's request), so it opens from there while live.
-  `alsoIn` in `app/js/chips.js` shows an action's own tile in one more chip on one surface; still one action.
+- **The meeting guard** (`src/meeting_guard.py`, owner's request; order: measure, then lighter FrameDecks, then the
+  before-you-go-live line, then the busy hint). While a meeting app uses FrameDecks vCam (`engine.status.inUse`) it
+  looks every 3 s: the PC's processor (`GetSystemTimes`), memory (`GlobalMemoryStatusEx`), FrameDecks' own share
+  (its process and everything it started, i.e. its WebView2 pages: `GetProcessTimes`, `GetProcessMemoryInfo`), the
+  graphics card (PDH `\GPU Engine(*)\Utilization Percentage`, as Task Manager) and, at 85 % and more, the busiest
+  other program. Otherwise it only checks whether a meeting is using the camera. Busy after 3 looks at 90 %
+  processor or 95 % graphics, calm after 2 under 80 %. Other camera users come from Windows' camera privacy record
+  (`ConsentStore\webcam`, read-only); battery saver from `GetSystemPowerStatus`. Nothing starts a shell or ends a
+  program; Close it posts WM_CLOSE to the Windows Camera app's window. `GET /api/app/guard`,
+  `POST /api/app/guard {do: close-camera | power}`, `ms-settings:batterysaver` added to `SETTINGS_PAGES`.
+- Lighter FrameDecks in a meeting: the Studio picture (`studio.js` `resting()`) and Up next preview
+  (`workspace.js`) rest while the Studio is not in front; the blur model runs at 5 a second while busy
+  (`_guard_lighten`).
+- The Command Center's Control chip shows what is in the way (`.cc-guard`, read only while Control is open and in
+  front); a quiet Studio note when the PC turns very busy (once in 5 minutes); `Meeting guard:` line in the support
+  report.
+- The Teleprompter also sits in the Command Center's Engage chip (`alsoIn` in `app/js/chips.js`).
+- Guide: Troubleshooting → The meeting guard. Tests `tests/test_meeting_guard_2611_7.py`.
 
 ### Changed
 - `app/js/cc-shape.js` measures only while the Command Center has focus, so a hidden Command Center does no work.

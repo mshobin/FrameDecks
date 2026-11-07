@@ -209,6 +209,30 @@ if (foot) foot.remove();                                       // the hints live
 var golive = h('button', {cls: 'cc-switch', type: 'button', role: 'switch', 'aria-checked': 'false', id: 'cc-golive', onclick: function(){ goLive(!isLive()); }},
   [h('span', {cls: 'cc-switch-t'}, [h('b', {text: 'Go Live'}), h('small', {id: 'cc-golive-sub'})]), h('span', {cls: 'cc-knob', 'aria-hidden': 'true'}, [h('i')])]);
 var control = h('div', {cls: 'cc-control'}, [golive, h('p', {cls: 'cc-offair', id: 'cc-offair'}), h('div', {id: 'cc-remote-slot'})]);
+/* 26.11.7 the meeting guard, before you go live: what is in the way (the Windows Camera app holding the webcam,
+ * battery saver, a very busy PC), each with its one action. Read only while Control is open and in front. */
+var guardBox = h('div', {cls: 'cc-guard', id: 'cc-guard', role: 'status', hidden: 'hidden'});
+control.insertBefore(guardBox, golive);
+var guardT = 0, guardSig = '';
+var GUARD_DO = {'close-camera': 'Close it', 'power': 'Battery settings'};
+function guardLoad(){
+  clearTimeout(guardT);
+  if (!open || !open.control || !document.hasFocus()) return;
+  fetch('api/app/guard', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(guardPaint).catch(function(){})
+    .then(function(){ guardT = setTimeout(guardLoad, 4000); });
+}
+function guardPaint(g){
+  var w = (g && g.warnings) || [], sig = JSON.stringify(w);
+  if (sig === guardSig) return;
+  guardSig = sig; guardBox.textContent = ''; guardBox.hidden = !w.length;
+  w.forEach(function(x){
+    var row = h('div', {cls: 'cc-guard-row' + (x.id === 'busy' ? ' busy' : '')}, [h('span', {text: x.text})]);
+    if (x.action && GUARD_DO[x.action]) row.appendChild(h('button', {cls: 'cc-guard-btn', type: 'button', text: GUARD_DO[x.action],
+      onclick: function(){ post('api/app/guard', {do: x.action}).catch(function(){}).then(function(){ guardSig = ''; setTimeout(guardLoad, 1500); }); }}));
+    guardBox.appendChild(row);
+  });
+}
+window.addEventListener('focus', guardLoad);
 var hold = h('div', {cls: 'cc-hold', hidden: 'hidden'}, [control]);      // the remote stays in the page (it keeps itself up to date)
 box.appendChild(hold);
 
@@ -220,6 +244,7 @@ function openGroup(g, e){
   if (input.value){ input.value = ''; input.dispatchEvent(new Event('input')); }
   open = g;
   peek(true);
+  if (g.control) guardLoad();
   chips.forEach(function(c, i){ c.setAttribute('aria-selected', String(i === to)); c.classList.toggle('on', i === to); });
   box.classList.add('cc-open'); box.dataset.group = g.id;
   glideTo(to);

@@ -1364,11 +1364,13 @@ function renderUpNext(){
   box.classList.toggle('closed', !unOpen);
   $('un-toggle').textContent = unOpen ? 'Hide preview' : 'Show preview';
   $('un-toggle').setAttribute('aria-expanded', String(unOpen));
-  var src = unOpen && !document.hidden ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(sc.id) : 'about:blank';
+  var rest = window.KCGuard && KCGuard.active && !document.hasFocus();   // 26.11.7 in a meeting, behind Zoom: no live preview
+  var src = unOpen && !document.hidden && !rest ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(sc.id) : 'about:blank';
   if (src !== unSrc){ unSrc = src; $('un-frame').src = src; }
 }
 $('un-toggle').addEventListener('click', function(){ unOpen = !unOpen; lsSet('kc-upnext', unOpen ? 'open' : 'closed'); renderUpNext(); });
 document.addEventListener('visibilitychange', function(){ if (live) renderUpNext(); });
+['focus', 'blur'].forEach(function(t){ window.addEventListener(t, function(){ if (live && window.KCGuard && KCGuard.active) renderUpNext(); }); });
 var slideInfo = null;
 function renderLiveBar(){
   var sc = scene(), L = live.live;
@@ -1485,6 +1487,7 @@ function burstBox(){
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 
 window.KCWorkspace = {
+  guard: function(){ if (live) renderUpNext(); },        // 26.11.7 the meeting guard started or ended
   take: function(){ takeScene(selScene); }, step: stepScene, select: select,
   frameCount: function(){ return live ? live.scenes.filter(function(s){ return !s.tpl; }).length : 0; },
   redraw: function(){ if (live){ renderAll(true); scaleFrame(); } },
