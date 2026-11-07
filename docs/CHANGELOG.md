@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.6] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.6.md](releases/v26.11.6.md).
+
+### Fixed
+- **The Command Center's grey box** (owner's photo, a real PC after 26.11.5): Windows still drew the whole
+  see-through window as a grey rectangle on some PCs. The window is now cut to the shape of what the page paints:
+  `app/js/cc-shape.js` measures every painted box (outermost only, cut to clipping parents, full-window backdrops
+  never count; while things move the union of before and after, exact within 0.8 s) and posts it as
+  `op: "clip"`; `desktop_app` hands it to `desktop_win.clip`, which builds rounded-rect regions
+  (`shape_boxes`, at most 48) and calls `SetWindowRgn`. Outside the shape there is no window, so nothing can be
+  painted there and clicks reach the window behind. Tests `tests/test_cc_shape_2611_6.py`.
+
 ## [26.11.5] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.5.md](releases/v26.11.5.md).

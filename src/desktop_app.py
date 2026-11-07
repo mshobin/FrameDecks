@@ -827,6 +827,11 @@ def main():
                 state["spot_h"] = height
                 later(lambda: w.resize(820, height))
             return {"ok": True}
+        elif op == "clip" and name == "spotlight":           # 26.11.5 the window takes the shape of what it shows
+            rects, scale = data.get("rects"), data.get("scale")
+            if isinstance(rects, list):
+                later(lambda: dw.clip(hwnd, rects, scale))
+            return {"ok": True}
         elif op == "look" and name == "teleprompter":
             cfg = server.save_app_settings({"prompterLook": str(data.get("look") or "")})
             prompter_look(w, cfg.get("prompterLook", "solid"))

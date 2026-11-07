@@ -96,6 +96,10 @@ if IS_WIN:
     user32.MonitorFromPoint.restype = wintypes.HMONITOR
     user32.MonitorFromPoint.argtypes = [wintypes.POINT, wintypes.DWORD]
     dwmapi.DwmSetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
+    gdi32.CreateRoundRectRgn.restype = wintypes.HRGN                      # 26.11.5 the Command Center's shape (clip)
+    gdi32.CreateRoundRectRgn.argtypes = [ctypes.c_int] * 6
+    gdi32.CombineRgn.argtypes = [wintypes.HRGN, wintypes.HRGN, wintypes.HRGN, ctypes.c_int]
+    user32.SetWindowRgn.argtypes = [wintypes.HWND, wintypes.HRGN, wintypes.BOOL]
 
     class NCCALCSIZE_PARAMS(ctypes.Structure):
         _fields_ = [("rgrc", wintypes.RECT * 3), ("lppos", ctypes.c_void_p)]
@@ -379,6 +383,60 @@ def unlayer(hwnd):
         return True
     except Exception as _e:
         _swallowed("desktop_win.unlayer", _e)
+        return False
+
+
+MAX_SHAPES = 48
+
+
+def shape_boxes(rects, scale=1.0):
+    """26.11.5 the page's painted boxes (CSS pixels: x, y, w, h, corner radius) as whole device pixels, rounded outward
+    so no edge pixel is cut. Anything malformed is left out."""
+    out = []
+    try:
+        scale = min(4.0, max(0.5, float(scale or 1.0)))
+    except (TypeError, ValueError):
+        scale = 1.0
+    for r in (rects or [])[:MAX_SHAPES]:
+        try:
+            x, y, w, h = (float(v) for v in r[:4])
+            rad = float(r[4]) if len(r) > 4 else 0.0
+        except (TypeError, ValueError, IndexError):
+            continue
+        if w <= 0 or h <= 0 or w > 10000 or h > 10000:
+            continue
+        x1, y1 = int(x * scale), int(y * scale)
+        x2, y2 = int((x + w) * scale + 0.999), int((y + h) * scale + 0.999)
+        d = int(max(0.0, min(rad, w / 2, h / 2)) * 2 * scale)
+        out.append((x1, y1, x2, y2, d))
+    return out
+
+
+def clip(hwnd, rects, scale=1.0):
+    """26.11.5 the Command Center's window takes exactly the shape of what the page draws (the bar, the chips, an open
+    panel, Keep open) with Windows' window region. Outside it there is no window at all, so nothing can paint a grey or
+    black box there whatever the PC's graphics do with see-through windows, and clicks there go to the window behind.
+    An empty list puts the whole window back."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        boxes = shape_boxes(rects, scale)
+        if not boxes:
+            return bool(user32.SetWindowRgn(hwnd, None, True))
+        rgn = None
+        for x1, y1, x2, y2, d in boxes:
+            part = gdi32.CreateRoundRectRgn(x1, y1, x2 + 1, y2 + 1, d, d)
+            if rgn is None:
+                rgn = part
+            else:
+                gdi32.CombineRgn(rgn, rgn, part, 2)             # RGN_OR
+                gdi32.DeleteObject(part)
+        if not user32.SetWindowRgn(hwnd, rgn, True):            # the window owns the region from here on
+            gdi32.DeleteObject(rgn)
+            return False
+        return True
+    except Exception as _e:
+        _swallowed("desktop_win.clip", _e)
         return False
 
 
