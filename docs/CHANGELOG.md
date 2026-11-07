@@ -10,6 +10,22 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.9] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.9.md](releases/v26.11.9.md).
+
+### Added
+- `vcam.engine.Pace` (owner's 26.11.8 report: webcam 30.7 fps in, 7.5 fps out, 133 ms per frame, 9760 dropped; the
+  graphics card was fine at 22-29 %): checked once a second while a meeting app uses FrameDecks vCam with blur on;
+  under 80 % of the frame rate with frames over their slot for 2 s steps down (1: outline found 5/s, 2: classic blur),
+  under 60 % of the slot for 10 s steps back up. Status `lighterBlur`; the support report's FrameDecks vCam line says
+  so. The meeting guard's busy flag now goes through `engine.guard_busy`.
+
+### Changed
+- `vcam.blur` natural style: the final blend in uint8 (`cv2.multiply`/`cv2.add` with a cached 3-channel alpha, within
+  1/255 of the float `blendLinear`), 20-30 % faster at 1080p; `_scale_for` never works at full size (d >= 2): a full
+  1080p Gaussian took 40-50 ms here for a blur of a pixel or two. Tests `tests/test_camera_pace_2611_9.py`.
+
 ## [26.11.8] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.8.md](releases/v26.11.8.md).

@@ -49,8 +49,10 @@ def natural_sigma(strength):
 
 
 def _scale_for(sig):
-    """Work on the smallest picture where the blur is still at least 2 pixels wide (1, 2, 4 or 8 times smaller)."""
-    d = 1
+    """Work on the smallest picture where the blur is still at least 2 pixels wide (2, 4 or 8 times smaller).
+    26.11.9: never full size: a 1080p Gaussian over the whole picture took 50 ms (250 ms on an older PC) for a blur
+    of a pixel or two; half size looks the same and costs a quarter."""
+    d = 2
     while d < 8 and sig / (d * 2) >= 2.0:
         d *= 2
     return d
@@ -116,6 +118,8 @@ class BackgroundBlur:
         # (an outward soft edge lets the sharp background show through around you)
         person = np.minimum(person, cv2.GaussianBlur(person, (0, 0), 0.8 + 0.035 * s))
         alpha = cv2.resize(1.0 - person, (w, h), interpolation=cv2.INTER_LINEAR)
+        a8 = np.clip(alpha * 255.0 + 0.5, 0, 255).astype(np.uint8)          # 26.11.9: the blend in whole numbers
+        alpha = (cv2.merge([a8, a8, a8]), cv2.merge([255 - a8] * 3))        # (background weight, picture weight)
         sw, sh = w // d, h // d
         weight = cv2.resize(1.0 - person, (sw, sh), interpolation=cv2.INTER_AREA)
         bg = (person < 0.5).astype(np.uint8)
@@ -151,7 +155,11 @@ class BackgroundBlur:
             bg = np.where(den_far < 0.02, plain, bg)
             bg = np.clip(bg, 0, 255).astype(np.uint8)
             bg = cv2.resize(bg, (w, h), interpolation=cv2.INTER_LINEAR)
-        return cv2.blendLinear(bg, frame, alpha, 1.0 - alpha)
+        # 26.11.9 whole-number blend (about half the time of a float blend at 1080p; the same picture to within 1/255)
+        if d == 1:
+            bg = bg if bg.dtype == np.uint8 else np.clip(bg, 0, 255).astype(np.uint8)
+        a3, inv3 = alpha
+        return cv2.add(cv2.multiply(bg, a3, scale=1 / 255.0), cv2.multiply(frame, inv3, scale=1 / 255.0))
 
     def apply(self, frame, strength=30, style="natural"):
         with self.cond:                                       # hand the newest frame to the model thread

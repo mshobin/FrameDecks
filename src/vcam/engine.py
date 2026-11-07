@@ -41,6 +41,37 @@ def fit_cover(img, w, h, zoom=1.0):
     return out[y0:y0 + h, x0:x0 + w]
 
 
+
+class Pace:
+    """26.11.9 the camera keeps up with the frame rate the meeting app asks for. Measured once a second: when frames
+    come out too slowly (under 80 % of the rate, each taking longer than its slot) for 2 seconds in a row, the blur
+    steps down one level; when there is plenty of room (under 60 % of the slot) for 10 seconds, it steps back up.
+        0  as set
+        1  the person outline is found 5 times a second instead of 10
+        2  and the lighter classic blur instead of natural
+    """
+    MAX = 2
+
+    def __init__(self):
+        self.level, self.over, self.under = 0, 0, 0
+
+    def update(self, fps, ms, target, blurring=True):
+        if not blurring:
+            self.level = self.over = self.under = 0
+            return self.level
+        budget = 1000.0 / max(1, target)
+        if fps < 0.8 * target and ms > budget:
+            self.over, self.under = self.over + 1, 0
+        elif ms < 0.6 * budget:
+            self.under, self.over = self.under + 1, 0
+        else:
+            self.over = self.under = 0
+        if self.over >= 2 and self.level < self.MAX:
+            self.level, self.over = self.level + 1, 0
+        elif self.under >= 10 and self.level > 0:
+            self.level, self.under = self.level - 1, 0
+        return self.level
+
 class Camera:
     """The real webcam, read through Windows Media Foundation (FRAMEDECKS itself never appears there,
     so the engine can't capture its own output)."""
@@ -143,6 +174,8 @@ class VCamEngine:
         self.sink = None
         self.cam = None
         self.blur = None
+        self.pace = Pace()          # 26.11.9 steps the blur down when the camera cannot keep up
+        self.guard_busy = False     # set by the meeting guard while the PC is very busy
         self.preview_until = 0.0
         self.sharp_until = 0.0                    # the phone's drawing pad is open: previews 960 wide instead of 640
         self._preview_w = 0
@@ -316,7 +349,9 @@ class VCamEngine:
                     if self.blur is None and self.blur_factory:
                         self.blur = self.blur_factory()
                     if self.blur:
-                        frame = self.blur.apply(frame, strength, s.get("blurStyle", "natural"))
+                        style = "classic" if self.pace.level >= 2 else s.get("blurStyle", "natural")    # 26.11.9 keeping up
+                        self.blur.period = 0.2 if (self.pace.level >= 1 or self.guard_busy) else 0.1
+                        frame = self.blur.apply(frame, strength, style)
                 grade = s.get("grade")
                 if frame is not None and grade is not None:   # filter (Camera Look x intensity): the webcam picture only
                     frame = grade.apply(frame)
@@ -362,7 +397,9 @@ class VCamEngine:
                     self._set(captureFps=self.cam.fps if self.cam else 0.0, dropped=self.dropped,
                               latencyMs=round(lat_sum / max(frames, 1) * 1000, 1), cpuPercent=round(cpu, 1))
                     lat_sum = 0.0
-                    self._set(fps=round(frames / (now - t_window), 1), msPerFrame=round(busy / max(frames, 1) * 1000, 1),
+                    fps_now, ms_now = round(frames / (now - t_window), 1), round(busy / max(frames, 1) * 1000, 1)
+                    lvl = self.pace.update(fps_now, ms_now, s.get("frameRate") or 30, bool(in_use and (s.get("blurStrength") or 0) > 0))
+                    self._set(fps=fps_now, msPerFrame=ms_now, lighterBlur=lvl,
                               blurMs=round(self.blur.model_ms, 1) if self.blur and (s.get("blurStrength") or 0) > 0 else 0.0)
                     frames, busy, t_window = 0, 0.0, now
                 self._set(state="live" if in_use else "preview",

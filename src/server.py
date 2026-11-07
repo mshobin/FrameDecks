@@ -45,7 +45,7 @@ import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.8"
+APP_VERSION = "26.11.9"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1449,6 +1449,8 @@ def _guard_in_use():
 def _guard_lighten(busy):
     """While the PC is very busy the background blur's person outline is found 5 times a second instead of 10."""
     eng = VCAM.get("engine") if "VCAM" in globals() else None
+    if eng is not None:
+        eng.guard_busy = bool(busy)                  # 26.11.9 the camera loop applies it with its own pace
     blur = getattr(eng, "blur", None) if eng else None
     if blur is not None and hasattr(blur, "period"):
         blur.period = 0.2 if busy else 0.1
