@@ -46,6 +46,9 @@ class OneDefinition(unittest.TestCase):
         self.assertEqual((where["draw"], where["spot"], where["capture"]), ("engage", "engage", "engage"))
         self.assertEqual((where["black"], where["freeze"], where["emergency"], where["hidelayer"]), ("control",) * 4)
         self.assertEqual(where["prompter"], "prepare")
+        # 26.11.7 the Teleprompter's own tile also sits in the Command Center's Engage (alsoIn), nowhere else
+        also = {a["id"]: a["alsoIn"] for a in c["all"] if a.get("alsoIn")}
+        self.assertEqual(also, {"prompter": {"engage": ["cc"]}})
 
     def test_every_icon_exists(self):
         icons = read("app/js/icons.js")

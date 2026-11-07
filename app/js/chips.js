@@ -4,7 +4,9 @@
  * this). `on` lists where an action is offered: cc (Command Center), app (the top bar), phone (the remote). Each
  * place supplies what an action does; this file only says what it is called and where it belongs.
  * Previous, Next, Go Live and Hide all are Control's main actions: they stay in plain view (pinned) on every surface,
- * which is the same action shown permanently, not a second copy. */
+ * which is the same action shown permanently, not a second copy. 26.11.7 `alsoIn` shows an action's own tile in one
+ * more chip on one surface (the Teleprompter also sits in the Command Center's Engage, where it is used live): it is
+ * still one action with one home, listed after that chip's own actions. */
 (function(root){
 'use strict';
 var CHIPS = [
@@ -22,7 +24,7 @@ function A(chip, id, label, icon, sub, on, extra){
 var ACTIONS = [
   // Prepare
   A('prepare', 'meetings', 'Meetings', 'calendar-days', 'Switch and plan', ['cc', 'app', 'phone']),
-  A('prepare', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone']),
+  A('prepare', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone'], {alsoIn: {engage: ['cc']}}),
   A('prepare', 'share', 'Share Window', 'monitor', 'The window you share', ['cc', 'app']),
   A('prepare', 'studio', 'Studio', 'presentation', 'Frames, Decks, Content', ['cc']),
   A('prepare', 'quick', 'Quick Start', 'rocket', 'Ready-made Frames', ['cc', 'app']),
@@ -64,7 +66,9 @@ ACTIONS.forEach(function(a){ byId[a.id] = a; });
 function chip(id){ for (var i = 0; i < CHIPS.length; i++) if (CHIPS[i].id === id) return CHIPS[i]; return null; }
 /* the actions of a chip offered in one place (cc / app / phone), in order; pinned ones are left out unless asked */
 function actions(chipId, where, withPinned){
-  return ACTIONS.filter(function(a){ return a.chip === chipId && (!where || a.on.indexOf(where) >= 0) && (withPinned || !a.pinned); });
+  var own = ACTIONS.filter(function(a){ return a.chip === chipId && (!where || a.on.indexOf(where) >= 0) && (withPinned || !a.pinned); });
+  var also = where ? ACTIONS.filter(function(a){ return a.alsoIn && (a.alsoIn[chipId] || []).indexOf(where) >= 0; }) : [];
+  return own.concat(also);
 }
 root.KCChips = {list: CHIPS, all: ACTIONS, chip: chip, action: function(id){ return byId[id] || null; }, actions: actions,
   chipOf: function(id){ return byId[id] ? byId[id].chip : null; }};

@@ -10,6 +10,13 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Added
+- The Teleprompter also sits in the Command Center's Engage chip (owner's request), so it opens from there while live.
+  `alsoIn` in `app/js/chips.js` shows an action's own tile in one more chip on one surface; still one action.
+
+### Changed
+- `app/js/cc-shape.js` measures only while the Command Center has focus, so a hidden Command Center does no work.
+
 ## [26.11.6] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.6.md](releases/v26.11.6.md).
