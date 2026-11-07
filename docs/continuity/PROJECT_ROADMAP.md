@@ -55,7 +55,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.1: motion everywhere it helps (Go Live moment, Frames that move, reading band, phone swipe, undo timer, status pill, teaching empty lists, switches), light on 4 GB PCs | Released |
 | 26.11.2: top bars that fit every window, voice while in front, Command Center opens cleanly, Defender scan before release and no downloaded program code | Released |
 | 26.11.3: the Command Center with nothing behind its glass over the desktop; the new website front page | Released |
-| 26.11.4: Help: error codes and Check my connection, ? links and Help search, Keys and What's new, clips and Was this helpful?, support report and Ask Help | On `main`; owner runs 0017, tags `v26.11.4` |
+| 26.11.4: Help: error codes and Check my connection, ? links and Help search, Keys and What's new, clips and Was this helpful?, support report and Ask Help | Released |
+| 26.11.5: floating controls: the Command Center's chip panels and the phone remote with no boxes inside, colour only for meaning | On `main`; owner tags `v26.11.5` |
 | 26.11: Teleprompter Follow my voice (Vosk, own low-priority process, only while pinned); versions become YY.MM; old release notes and changelog archived; 4 GB check and preview leak fix | Published; clean-up done |
 | 9.13.0: the five chips everywhere (top bar in place of Live tools, Command Center, phone remote tabs), Notes from the phone, Draw opens the Share Window | Published |
 | 9.12.1: Spotlight on demand (double-click or Ctrl twice) with a bloom exit | Published |

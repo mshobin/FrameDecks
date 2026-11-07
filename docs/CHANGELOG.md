@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.5] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.5.md](releases/v26.11.5.md).
+
+### Changed
+- **Floating controls** (owner's request): in the Command Center each chip's panel is the one glass surface and
+  nothing inside it has an outline or card (`.cc-t`, `.cc-switch`, the remote's `.spr-*` in the 26.11.5 block at the
+  end of `app/css/spotlight.css`). A soft fill shows on hover and press; colour only for meaning (Go Live on air,
+  Next Frame gold, Hide all red, a tool that is on); groups by space and one hairline (`.spr-step`, `.spr-mt`).
+- The phone remote the same way (26.11.5 block in `app/css/remote.css`): `.card`, `.tool`, Previous and the list rows
+  lose their outlines and fills; fields, the top bar, the tab bar and Memory Card messages keep theirs.
+- What's new for 26.11.5; the guide's and website's pictures of the Command Center and the phone remote recaptured.
+
 ## [26.11.4] - 2026-11-06
 
 Full notes: [docs/releases/v26.11.4.md](releases/v26.11.4.md).

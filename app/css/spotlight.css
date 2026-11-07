@@ -626,3 +626,20 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc-keysheet .kk-where{color:var(--muted);font-size:12px}
 .cc-ks-more{margin-top:10px;padding:6px 12px;border:1px solid rgba(var(--rgb-gray-1000),.2);border-radius:999px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer}
 .cc-ks-more:hover{border-color:var(--gold)}
+/* 26.11.5 Floating controls: the chip's sheet is the one glass surface; nothing inside it is boxed. Buttons sit on the
+   glass with no outline and show a soft fill only on hover and press; colour is kept for what it means (on air, the
+   next step, hide all, a tool that is on). Groups are made by space and one hairline, not by frames. */
+.cc-panel .cc-t,.cc-panel .cc-switch,.cc-panel .spr-b,.cc-panel .spr-now,.cc-panel .spr-step,.cc-panel .spr-seg,.cc-panel .spr-round,.cc-panel .spr-kinds button{border-color:transparent;background:transparent;box-shadow:none}
+.cc-panel .cc-t:hover,.cc-panel .cc-switch:hover,.cc-panel .spr-b:hover:not(:disabled),.cc-panel .spr-round:hover,.cc-panel .spr-kinds button:hover{background:var(--cc-cell-2);border-color:transparent;box-shadow:none}
+.cc-panel .cc-t:active,.cc-panel .spr-b:active:not(:disabled),.cc-panel .spr-round:active{background:var(--cc-cell-2)}
+.cc-panel .cc-t:hover{transform:none}
+.cc-panel .cc-t.toggle.on,.cc-panel .spr-kinds button[aria-checked="true"]{background:var(--cc-cell-2);border-color:transparent}
+.cc-panel .cc-t.toggle.on{background:var(--live-soft)}
+.cc-panel .cc-switch.on{background:var(--live-soft);border-color:transparent;box-shadow:0 0 28px var(--live-soft)}
+.cc-panel .spr-b.gold{border-color:transparent}
+.cc-panel .spr-b.on{border-color:transparent}
+.cc-panel .spr-b.armed{border-color:transparent}
+.cc-panel .spr-round{background:var(--cc-cell)}
+.cc-panel .spr-now{padding-left:4px}
+.cc-panel .spr-step,.cc-panel .spr-mt{padding-top:10px;border-top:1px solid var(--cc-rim);border-radius:0}
+.cc-panel .spr-seg{padding:0}

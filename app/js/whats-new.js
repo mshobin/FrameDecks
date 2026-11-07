@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.5': [
+    {title: 'Controls that float', text: 'The Command Center (Alt+Space) now shows its buttons straight on the glass, with no box around each one. Colour stays only where it means something: on air, the next step, hide all.', show: {settings: 'keys', spot: '#keys-global'}},
+    {title: 'The phone remote, the same way', text: 'Its buttons and tools sit straight on the page and light up softly when you press them.', show: {settings: 'ipad', spot: '#remote-box'}}
+  ],
   '26.11.4': [
     {title: 'Check my connection', text: 'Phone won’t connect? Settings → Phone & iPad Remote now checks every step and fixes the first problem in one click.', show: {settings: 'ipad', spot: '#cx-run'}},
     {title: 'Help where you need it', text: 'A small ? next to the remote, the camera, Capture Memory and Sync opens the right page of the guide. Problems now show a short code like FD-NET-02.', show: {settings: 'ipad', spot: '#remote-box'}},

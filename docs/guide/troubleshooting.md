@@ -66,7 +66,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | Antivirus blocks or quarantines the app (for example Microsoft Defender: "Trojan … executes commands from an attacker", and FrameDecks disappears) | A false alarm that unsigned apps made with Python sometimes get. FrameDecks starts no hidden PowerShell or other background commands | Windows Security → Virus & threat protection → **Protection history** → the entry → **Actions → Restore**. Then **Manage settings → Exclusions → Add an exclusion → Folder** `%LOCALAPPDATA%\Programs\FRAMEDECKS`, and update to the latest version |
 
 > **Note:** Check the download first: compare its SHA-256 with the one on framedecks.com/download, in PowerShell:
-> `Get-FileHash .\FrameDecks-26.11.4-Setup.exe -Algorithm SHA256`.
+> `Get-FileHash .\FrameDecks-26.11.5-Setup.exe -Algorithm SHA256`.
 
 ## Window, tray and Spotlight
 
