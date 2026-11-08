@@ -76,10 +76,11 @@ test("the Overview is task first and the mission is said once (DD-24, DD-08)", (
 
 test("four main places, Settings below, and church words (owner-approved, 27 October)", () => {
   const shell = src("components/app-shell.tsx");
-  for (const label of ["Home", "Plan", "Live", "People", "Branding", "Service PCs", "Help"]) {
+  // 26.11.12 Service PCs and Manage Devices are one Devices page (Scan to join)
+  for (const label of ["Home", "Plan", "Live", "People", "Branding", "Devices", "Help"]) {
     assert.match(shell, new RegExp(`label: "${label}"`), label);
   }
-  assert.doesNotMatch(shell, /label: "(?:Running order|Meeting Form|Computers|Members)"/);
+  assert.doesNotMatch(shell, /label: "(?:Running order|Meeting Form|Computers|Members|Service PCs|Manage Devices)"/);
   assert.match(src("app/plan/page.tsx"), /PlanPage/);
   assert.match(src("app/meeting/page.tsx"), /PlanPage/);
   assert.match(src("app/help/page.tsx"), /brand\.version/);

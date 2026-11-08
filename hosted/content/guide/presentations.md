@@ -398,7 +398,7 @@ five chips folded away under it, behind a small arrow, as the Teleprompter's top
 | **Engage** | Memory Cards, Capture copies, Draw and Spotlight on the Share Window, Clear drawings, Hide the cards |
 | **Control** | **Go Live** as a switch, and while you are live the meeting remote (below) |
 | **Notes** | Your private notes for this meeting (below) |
-| **More** | Workspace Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
+| **More** | Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
 
 Each thing is in one chip only: Draw, Spotlight and Clear drawings are in **Engage**; the Studio, the
 Teleprompter, the Share Window and the camera check in **Prepare**; the phone remote in **More**.

@@ -97,9 +97,12 @@ Rollback: `hosted/supabase/rollback/0015_trusted_devices_down.sql`. Tests:
 ## 4a. The desktop application
 
 The PC is a trusted device of its own kind and was already passwordless:
-- **Linking once.** Settings → Workspace Sync → Connect to FrameDecks opens the website. On a Trusted Device the
-  workspace is already open, so there is nothing to type: the person confirms the check number and chooses **Allow**.
-  That approval stays deliberate, because linking a PC gives it the workspace's plans.
+- **Linking once.** Since 26.11.12 (Scan to join, 0018): Settings → Sync → **Add a device** shows a QR code of
+  `/join#c=CODE` (the PC's link code) and the code in big letters; the phone scans it and the website connects the PC,
+  starting a team with the phone as owner when the person has none. **Open in this PC's browser instead** keeps the
+  earlier way: the website's `/connect` page, where a signed-in owner or admin confirms the check number and chooses
+  **Allow**. Either way the approval stays deliberate, because linking a PC gives it the workspace's plans. Once
+  connected, the PC adds devices with its own key (Add a device, Invite someone, Allow a device, the Devices list).
 - **Its own key.** The PC then keeps a key in Windows Credential Manager (0003, `computers.key_hash`). It syncs every
   minute and runs remote commands with no link, session or renewal, until the PC is removed on **Service PCs**.
   Manage Devices points there.

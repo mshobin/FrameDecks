@@ -8,7 +8,7 @@ export const metadata: Metadata = pageMetadata("Connect a PC", "/connect", { pri
 
 export default function ConnectPage() {
   return (
-    <AuthShell eyebrow="Workspace Sync" title="Connect a PC">
+    <AuthShell eyebrow="Sync" title="Connect a PC">
       <ConnectPanel />
     </AuthShell>
   );

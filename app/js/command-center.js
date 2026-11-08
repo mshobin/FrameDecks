@@ -10,7 +10,7 @@
  * check in Prepare and the phone remote in More (tests/test_command_center_912.py holds this);
  *   Notes    - 9.12 the leader's private notes for this meeting, kept on this PC only (api/notes, meeting_notes.py):
  *              each note is stamped with the time and the Frame on screen; Copy, Save as a file, Email to me;
- *   More     - the settings (Workspace Sync, the camera, how people see it, the phone remote, branding, shortcuts,
+ *   More     - the settings (Sync, the camera, how people see it, the phone remote, branding, shortcuts,
  *              every setting) and help.
  * A chip opens its panel under the tray (Alt+1 to Alt+5; Esc closes it). Typing searches everything (js/palette.js;
  * > commands, # meetings and Frames, @ people).

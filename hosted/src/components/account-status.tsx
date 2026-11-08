@@ -28,7 +28,8 @@ export function AccountStatus() {
       </Link>
     );
   }
-  const email = session.user.email ?? "";
+  // 26.11.12 a device that joined by scanning a code has no email: it shows its own name
+  const email = session.user.email || String(session.user.user_metadata?.full_name ?? "") || "This device";
   return (
     <span className="fd-account">
       <Link className="fd-account-link" href="/account" title="Your workspace: profile and teams">
@@ -45,7 +46,7 @@ export function AccountStatus() {
         onClick={async () => {
           setLeaving(true);
           setProblem(null);
-          // a Trusted Device stops being trusted when it disconnects (Manage Devices no longer lists it)
+          // a Trusted Device stops being trusted when it disconnects (Devices no longer lists it)
           const trust = readTrust();
           if (trust) {
             await supabase.rpc("device_revoke", { device: trust.id }).then(() => undefined, () => undefined);

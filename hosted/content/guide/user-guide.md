@@ -67,7 +67,7 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
 
 **Settings** has six groups: **Meeting look** (Meeting & Branding, Transitions), **Content** (Scripture,
 Birthdays), **Screens & camera** (How people see it, FrameDecks vCam, Projector TV and OBS, Recording), **Controls**
-(General, Phone & iPad Remote, Keyboard shortcuts), **Workspace & privacy** (Workspace Sync, Security) and **Data &
+(General, Phone & iPad Remote, Keyboard shortcuts), **Workspace & privacy** (Sync, Security) and **Data &
 help** (Data / Backup, Diagnostics, About). A group's pages are tabs under its title; **Find a setting** searches all
 of them.
 
@@ -236,10 +236,10 @@ restore one. Each Frame keeps its version and history (Content Settings → Adva
 **Use this plan** to see exactly what is in the file (your Frames are kept in a backup first), or **Add after my
 Frames** to keep yours and add the file's at the end. The **Frame files** box then shows the check against the file.
 
-A PC linked to your team (**Settings → Workspace Sync**) also syncs its plans with framedecks.com. The **Sync**
+A PC linked to your team (**Settings → Sync**) also syncs its plans with framedecks.com. The **Sync**
 chip in the header shows **Synced**, **Syncing**, **Offline** (changes wait and go up later; presenting is not
-affected) or **Sync failed** (see Settings → Workspace Sync for why). It syncs by itself as soon as the workspace changes. To sync
-now, choose **Resync Linked PCs** in Settings → Workspace Sync or in the **Sync** chip's panel. Media is never put
+affected) or **Sync failed** (see Settings → Sync for why). It syncs by itself as soon as the workspace changes. To sync
+now, choose **Sync now** in Settings → Sync or in the **Sync** chip's panel. Media is never put
 in the cloud. Without a
 link, your meeting stays on your PC unless you export it.
 

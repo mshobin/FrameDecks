@@ -10,6 +10,33 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.12] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.12.md](releases/v26.11.12.md).
+
+### Added
+- Scan to join (owner's request: passwordless, simple and secure; `docs/architecture/scan-to-join.md`). Migration
+  `0018_scan_to_join.sql` (+ rollback, `hosted/tests/supabase-0018.test.mjs`): new devices are Supabase anonymous
+  users; join codes (8 characters, SHA-256 only, once, 2 or 5 minutes), wrong codes limited per person, PC and
+  network and answered as `{"status":"wrong"}` so the count is kept; invites (Helper/Admin), join requests, one
+  devices list, removal, recovery codes; `organizations_insert` refuses anonymous people. PC: Settings → Sync
+  (`app/js/account.js`, `src/cloud_sync.py`, `/api/sync` actions start/invite/allow-peek/allow/devices/remove/
+  sync-now) with Add a device (QR + code), Invite someone, Allow a device, Devices and one status line; the Welcome
+  tour shows the QR. Website: `/join`, `/allow`, a simpler `/sync` (Show a code for this browser; email code and
+  recovery code as other ways in), one `/devices` page (Service PCs merged; `/computers` forwards), recovery code
+  and emergency email; its own QR encoder (`lib/qr.ts`). Help codes FD-CLD-02/04 reworded, FD-CLD-06 added.
+  Tests `tests/test_scan_to_join_2611_12.py`, `hosted/tests/scan-to-join.test.mjs`.
+- How people see it: Camera / Share a window / Both (app setting `peopleSee`, `apply_people_see`): with Share a
+  window the vCam engine is not started; Welcome tour and Settings → How people see it ask; the vCam panel offers
+  Use the camera too. Tests `tests/test_people_see_2611_12.py`.
+- Simple by default (owner's choice of changes 2–10 from the design review; no renames): `app/js/simple-mode.js`,
+  `body.simple` / `body.advanced`, app setting `studioMode` (+ localStorage `kc-studio-mode` for the first paint), a
+  Simple | Advanced switch above the Studio Canvas and a Design button in the editor. Simple: a green ring round the
+  live picture instead of the badges, Transition and Auto-advance in Advanced, chip names kept, technical lines
+  tucked, the Live output panel as one sentence with the next step, Position and size / Look / Animation / Show on
+  behind Design. Command Center and phone remote say Go Live and Black screen. Tests
+  `tests/test_simple_mode_2611_12.py`.
+
 ### Changed
 - Studio: the Live Presentation Stage (owner's request, after three reference pictures). The picture of what Zoom /
   Teams receive is the hero: 16:9, centred, as large as the room allows (about 20 % wider at 1366x768 and 1920x1080).

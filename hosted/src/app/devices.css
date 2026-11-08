@@ -1,4 +1,4 @@
-/* 9.8 Trusted Devices: the Trust This Device card (signed-in pages) and Manage Devices. Loaded only by those
+/* 9.8 Trusted Devices: the Trust This Device card (signed-in pages) and Devices (26.11.12: one list per team). Loaded only by those
  * components (components/trusted-device.tsx, components/devices-panel.tsx), so public pages stay within budget. */
 .fd-trust{display:grid;grid-template-columns:auto 1fr auto;gap:14px 16px;align-items:start;margin:0 0 20px;padding:18px 20px;
   border:1px solid var(--gold);border-radius:var(--radius);background:var(--gold-soft)}
@@ -11,7 +11,7 @@
 @media (max-width:640px){ .fd-trust{grid-template-columns:auto 1fr} .fd-trust-actions{grid-column:1/-1;flex-direction:row;flex-wrap:wrap} }
 .device-title{display:flex;align-items:center;gap:8px}
 .device-list,.device-events{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
-.device-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--hairline);border-radius:var(--radius);background:var(--surface-2)}
+.device-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--hairline);border-radius:var(--radius);background:var(--surface-2)}
 .device-text{display:grid;gap:2px;min-width:0}
 .device-text small{color:var(--text-2);font-size:13px}
 .device-here{color:var(--green);font-weight:600}
@@ -19,3 +19,7 @@
 .device-events li{display:flex;flex-wrap:wrap;gap:4px;font-size:14px;padding:8px 0;border-bottom:1px solid var(--hairline)}
 .device-ev-name{color:var(--text-2)}
 .device-ev-when{margin-left:auto;color:var(--text-2)}
+.device-sub{margin:20px 0 6px;font-size:15px;font-weight:700}
+.device-invite{display:grid;justify-items:start;gap:4px;margin-top:16px;padding-top:16px;border-top:1px solid var(--hairline)}
+.device-invite-role{margin-top:14px}
+@media (max-width:520px){.device-row{grid-template-columns:auto 1fr auto}.device-row .member-action{grid-column:2/-1;justify-self:start}.device-row>span[aria-hidden]:last-child{display:none}.device-invite{justify-items:stretch}}

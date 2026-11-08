@@ -19,3 +19,14 @@ export function useSession(): Session | null | undefined {
 
   return session;
 }
+
+/** 26.11.12 whether this browser already had a session when the page opened (null while reading). A session that the
+ * page itself starts (Scan to join) does not change the answer. */
+export function useSessionAtArrival(session: Session | null | undefined): boolean | null {
+  const [arrived, setArrived] = useState<boolean | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (session !== undefined && arrived === null) setArrived(!!session);
+  }, [session, arrived]);
+  return arrived;
+}

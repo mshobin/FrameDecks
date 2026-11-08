@@ -80,8 +80,8 @@
     "code": "FD-CLD-02",
     "area": "Workspace",
     "title": "This code has ended",
-    "why": "Codes last 10 minutes and work once.",
-    "fix": "On the PC choose Connect to FrameDecks again for a new code."
+    "why": "Codes run out after a few minutes and work once.",
+    "fix": "On the PC or the device that showed it, choose Add a device again for a new code."
   },
   {
     "code": "FD-CLD-03",
@@ -95,7 +95,7 @@
     "area": "Workspace",
     "title": "Workspace syncing isn’t set up yet",
     "why": "The workspace owner hasn’t finished setting up syncing.",
-    "fix": "Ask the workspace owner to finish Workspace Sync, then try again."
+    "fix": "Ask the workspace owner to finish setting up Sync, then try again."
   },
   {
     "code": "FD-CLD-05",
@@ -103,5 +103,12 @@
     "title": "Can’t reach FrameDecks",
     "why": "This device has no internet, or a network filter blocks framedecks.com.",
     "fix": "Check the internet connection, then try again."
+  },
+  {
+    "code": "FD-CLD-06",
+    "area": "Workspace",
+    "title": "Joining with a code isn’t switched on",
+    "why": "Anonymous sign-ins are off for this site, so a new device can’t join by scanning a code.",
+    "fix": "Ask the workspace owner to turn on Allow anonymous sign-ins in Supabase, or use an email code instead."
   }
 ]

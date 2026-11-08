@@ -5,13 +5,15 @@ import { AboutButton } from "@/components/about-dialog";
 import { BrandMark } from "@/components/brand-hero";
 
 /** Sign-in and its return page: the brand and how FrameDecks works beside a glass card. `document` is the single
- * column the privacy policy uses. */
+ * column the privacy policy uses. `task` (26.11.12: Join, Allow, Open Workspace) puts the card right under the logo on
+ * a phone, since someone who just scanned a code came to do one thing. */
 export function AuthShell({
   eyebrow,
   title,
   children,
   document = false,
-}: Readonly<{ eyebrow?: string; title?: string; children: React.ReactNode; document?: boolean }>) {
+  task = false,
+}: Readonly<{ eyebrow?: string; title?: string; children: React.ReactNode; document?: boolean; task?: boolean }>) {
   const card = (
     <section className={document ? "fd-auth-card fd-auth-doc" : "fd-auth-card"}>
       {document && (
@@ -49,7 +51,7 @@ export function AuthShell({
     );
   }
   return (
-    <div className="fd-auth">
+    <div className={task ? "fd-auth fd-auth-task" : "fd-auth"}>
       <aside className="fd-auth-side">
         <Link href="/" aria-label="FrameDecks home">
           <BrandMark size="medium" />

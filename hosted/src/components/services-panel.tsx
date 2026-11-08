@@ -74,7 +74,7 @@ function Services({ workspace, historyOnly = false }: Readonly<{ workspace: Work
       <EmptyState
         title="No service plan yet"
         action={
-          <Link className="fd-btn fd-btn-glass fd-btn-sm" href="/computers">
+          <Link className="fd-btn fd-btn-glass fd-btn-sm" href="/devices">
             Link the service PC
           </Link>
         }

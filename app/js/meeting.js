@@ -105,7 +105,7 @@ if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chi
 var SYNC = {synced: ['ok', 'Synced', 'Plans are up to date with your workspace'],
   syncing: ['info', 'Syncing', 'Sending and fetching changes'],
   offline: ['info', 'Offline', 'No internet. Changes wait on this PC and go up later. Without internet, use a .frame file (Settings → Data / Backup).'],
-  failed: ['bad', 'Sync failed', 'Open Settings → Workspace Sync to see why']};
+  failed: ['bad', 'Sync failed', 'Open Settings → Sync to see why']};
 function renderSync(d){
   var c = $('h-sync'), p = d && SYNC[d.phase]; if (!c) return;
   if (c.hidden === !!p) c.hidden = !p;
@@ -113,7 +113,7 @@ function renderSync(d){
 }
 window.KCRenderSync = renderSync;
 
-/* 8.4 The Sync chip opens a small panel: the status, the last successful sync and Resync Linked PCs */
+/* 8.4 The Sync chip opens a small panel: the status, the last successful sync and Sync now (26.11.12; was Resync Linked PCs) */
 (function(){
   var chipEl = $('h-sync'); if (!chipEl) return;
   var pop = null;
@@ -125,8 +125,8 @@ window.KCRenderSync = renderSync;
     pop.innerHTML = '';
     var b = document.createElement('b'); b.textContent = p[1] + (d.workspace ? ' · ' + d.workspace : ''); pop.appendChild(b);
     var t = document.createElement('p'); t.className = 'hint'; t.textContent = 'Last successful sync: ' + when(d.lastSync); pop.appendChild(t);
-    var go = document.createElement('button'); go.type = 'button'; go.className = 'btn primary small'; go.textContent = 'Resync Linked PCs';
-    go.onclick = function(){ go.disabled = true; go.textContent = 'Syncing…'; window.KCResync().then(function(r){ out.textContent = r.message; go.disabled = false; go.textContent = 'Resync Linked PCs'; t.textContent = 'Last successful sync: ' + when((window.KCSyncInfo() || {}).lastSync); }); };
+    var go = document.createElement('button'); go.type = 'button'; go.className = 'btn primary small'; go.textContent = 'Sync now';
+    go.onclick = function(){ go.disabled = true; go.textContent = 'Syncing…'; window.KCResync().then(function(r){ out.textContent = r.message; go.disabled = false; go.textContent = 'Sync now'; t.textContent = 'Last successful sync: ' + when((window.KCSyncInfo() || {}).lastSync); }); };
     var out = document.createElement('p'); out.className = 'hint'; out.setAttribute('role', 'status');
     var more = document.createElement('button'); more.type = 'button'; more.className = 'btn quiet small'; more.textContent = 'Sync settings';
     more.setAttribute('data-goto', 'settings'); more.setAttribute('data-sec', 'account'); more.addEventListener('click', close);
@@ -148,7 +148,8 @@ window.KCRenderSync = renderSync;
 })();
 function pollSync(){
   if (document.hidden || !Store.served) return;
-  fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(renderSync).catch(function(){});
+  fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){ renderSync(d); if (d && window.KCSyncNotice) window.KCSyncNotice(d); }).catch(function(){});   // 26.11.12 "Updated from the website"
 }
 if (Store.served){ pollSync(); setInterval(pollSync, 4000); }
 

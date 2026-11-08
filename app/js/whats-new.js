@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.12': [
+    {title: 'Simple by default', text: 'The Studio now shows just what you need to run a meeting, with a bigger live picture. Choose Advanced above the picture for every control.', show: {spot: '.sm-seg'}},
+    {title: 'Add a device by scanning', text: 'Settings \u2192 Sync \u2192 Add a device shows a QR code. Scan it with your phone\u2019s camera and it joins your team, with no email or password.', show: {settings: 'account', spot: '#sync-add'}},
+    {title: 'Camera, window or both', text: 'Choose how people see your meeting. With Share a window, FrameDecks works without the virtual camera.', show: {settings: 'output', spot: '.out-pick'}}
+  ],
   '26.11.11': [
     {title: 'A clean Command Center in meetings', text: 'No grey box behind the Command Center any more, also when you open it over Zoom or Teams or keep it pinned.', show: {settings: 'keys', spot: '#keys-global'}}
   ],

@@ -93,8 +93,8 @@ export function ConnectPanel() {
   if (!request) {
     return (
       <>
-        <p className="auth-message">This page connects a PC to your workspace. Open it from FrameDecks on the PC: Settings → Workspace Sync → Connect to FrameDecks.</p>
-        <Link className="auth-link" href="/computers">
+        <p className="auth-message">This page connects a PC to your workspace. Open it from FrameDecks on the PC: Settings → Sync.</p>
+        <Link className="auth-link" href="/join">
           Type a code instead
         </Link>
       </>
@@ -142,7 +142,7 @@ export function ConnectPanel() {
             ? "This request has expired (requests last 10 minutes). On the PC, choose Connect to FrameDecks again. (FD-CLD-02)"
             : "This request is not known, or it was already used. On the PC, choose Connect to FrameDecks again."}
         </p>
-        <Link className="auth-link" href="/computers">
+        <Link className="auth-link" href="/join">
           Type a code instead
         </Link>
       </>
@@ -198,7 +198,7 @@ export function ConnectPanel() {
       </ul>
       <p className="fd-connect-meta">
         {peek?.status === "pending" ? `Asked ${ago(peek.ageSeconds)}. ` : ""}Pictures, video and what is on screen stay
-        on the PC. You can disconnect it any time under Service PCs.
+        on the PC. You can remove it any time under Devices.
       </p>
       {problem && (
         <p className="auth-error" role="alert">

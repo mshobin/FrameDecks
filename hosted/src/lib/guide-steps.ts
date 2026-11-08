@@ -31,7 +31,7 @@ export const GUIDE_STEPS: readonly GuideStep[] = [
   },
   {
     id: "connect",
-    title: "Connect to FrameDecks",
+    title: "Add a device",
     where: "program",
     optional: true,
     text: "Plan together on the website; your plans reach this PC by themselves.",

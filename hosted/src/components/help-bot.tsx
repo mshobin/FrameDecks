@@ -84,7 +84,7 @@ const STEPS: Record<string, Step> = {
   sync: {
     say: (
       <>
-        On the PC, choose the status button at the top right, then <b>Sync</b>, then <b>Resync Linked PCs</b>. If the website says the PC is
+        On the PC, choose the status button at the top right, then <b>Sync</b>, then <b>Sync now</b>. If the website says the PC is
         offline, open FrameDecks on that PC and check it has internet.
       </>
     ),

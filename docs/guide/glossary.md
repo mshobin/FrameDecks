@@ -31,7 +31,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Team** | Your organisation, church, class or group on the website: its people, its plans and its service PCs (*workspace* in the code). | church (on the website), workspace, organisation, tenant |
 | **Service PC** | The Windows PC that runs the service, linked to your team (*Linked PC* in the program). | computer, device, runtime, client |
 | **Your workspace** | Your name, your teams, invitations and Trusted Devices (the avatar at the top). | account, profile, workspace admin |
-| **Trusted Device** | A browser you chose to trust after the emailed link: it opens your workspace with no new link for 180 days (Manage Devices). | remembered device, saved sign-in |
+| **Trusted Device** | A browser you chose to trust after the emailed link: it opens your workspace with no new link for 180 days (Devices). | remembered device, saved sign-in |
 | **Phone remote** | The page on a phone, on the same Wi-Fi, that runs the service (Settings → Phone & iPad Remote). | LAN remote, iPad app |
 | **Live page** | The website page that runs a service from anywhere. | cloud remote, companion remote |
 

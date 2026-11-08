@@ -66,7 +66,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | Antivirus blocks or quarantines the app (for example Microsoft Defender: "Trojan … executes commands from an attacker", and FrameDecks disappears) | A false alarm that unsigned apps made with Python sometimes get. FrameDecks starts no hidden PowerShell or other background commands | Windows Security → Virus & threat protection → **Protection history** → the entry → **Actions → Restore**. Then **Manage settings → Exclusions → Add an exclusion → Folder** `%LOCALAPPDATA%\Programs\FRAMEDECKS`, and update to the latest version |
 
 > **Note:** Check the download first: compare its SHA-256 with the one on framedecks.com/download, in PowerShell:
-> `Get-FileHash .\FrameDecks-26.11.11-Setup.exe -Algorithm SHA256`.
+> `Get-FileHash .\FrameDecks-26.11.12-Setup.exe -Algorithm SHA256`.
 
 ## Window, tray and Spotlight
 
@@ -246,9 +246,9 @@ Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last E
 | Chip | What to do |
 | --- | --- |
 | **Offline** | The PC has no internet. Nothing to do: changes wait on the PC and go up later, and presenting is not affected. To move a plan without internet, use a [.frame file](service-planning.md#move-a-plan-to-a-service-pc) |
-| **Sync failed** (red) | Open **Settings → Workspace Sync**. It says why |
+| **Sync failed** (red) | Open **Settings → Sync**. It says why |
 
-To try again straight away, choose **Resync Linked PCs** (Settings → Workspace Sync, or the **Sync** chip's
+To try again straight away, choose **Sync now** (Settings → Sync, or the **Sync** chip's
 panel). The result shows next to it: **Sync complete: N changes received, N sent.**, **No changes found. This PC
 already has the latest plan.** or **Sync failed: …** with the reason, for example no internet. **Last successful
 sync: …** shows when the PC last had the plan.

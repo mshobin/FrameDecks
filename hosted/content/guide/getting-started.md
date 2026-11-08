@@ -59,8 +59,8 @@ A webcam is optional. You need one only if people should see you on the FrameDec
      a video or slides), and each Deck holds its Content. **+ Frame** (or **Quick Start**), **+ Deck**, **+ Question**
      and **+ Scripture** add them.
    - **Going live**: the Command Center with **Alt+Space**, **Go Live** under Control, Draw and Spotlight.
-   - **Finish**: optionally **Sync Workspace**, to plan on framedecks.com and sync to this PC (the browser opens;
-     allow this PC, and the page turns to *Linked* by itself; later: Settings → Workspace Sync). Optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
+   - **Finish**: optionally **Add a device**, to plan on framedecks.com and sync to this PC: scan the QR code with
+     your phone's camera (or type the code under it) and the PC joins your team by itself; later: Settings → Sync. Optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
      Meeting or Church Service). If FrameDecks finds data from an earlier version, **Bring it in** copies it (the old
      folder is not changed).
 

@@ -11,6 +11,8 @@
 
 export const TRUST_KEY = "fd-trusted-device";
 const LEGACY_DECIDED_KEY = "fd-trust-decided";
+/** This tab: "Just this visit" was chosen (or "This is a shared computer" when joining), so nothing asks again. */
+export const ASKED_KEY = "fd-trust-asked";
 
 export type TrustRecord = { token: string; id: string; name: string; expiresAt: string };
 export type DeviceStatus = "trusted" | "revoked" | "expired" | "unknown";
@@ -92,6 +94,31 @@ export function moveSession(toDevice: boolean, local: KV | undefined = globalThi
       safe(() => from?.removeItem(k), undefined);
     }
   }
+}
+
+/** 26.11.12 Scan to join: where a new device keeps its workspace. A shared computer keeps it in this tab only, like
+ * "Just this visit"; any other device keeps it like a Trusted Device (trust_device right after joining moves it to the
+ * device, with keepOnDevice). Either way the new session starts in this tab, so a code that fails leaves nothing
+ * behind on the device. */
+export type KeepChoice = "tab" | "device";
+export function storageChoice(shared: boolean): KeepChoice {
+  return shared ? "tab" : "device";
+}
+
+/** Before signing a new device in on a shared computer: this tab only, and no Trust This Device question. */
+export function keepInTabOnly(local: KV | undefined = globalThis.localStorage, tab: KV | undefined = globalThis.sessionStorage) {
+  safe(() => tab?.setItem(ASKED_KEY, "1"), undefined);
+  if (isLegacyKeep(local)) markDecided(local);
+}
+
+/** After trust_device: the token on the device and the session moved there. */
+export function keepOnDevice(
+  record: TrustRecord,
+  local: KV | undefined = globalThis.localStorage,
+  tab: KV | undefined = globalThis.sessionStorage,
+) {
+  writeTrust(record, local);
+  moveSession(true, local, tab);
 }
 
 /** A plain name for the device list: "Chrome on Windows", "Safari on iPhone". */

@@ -1,6 +1,6 @@
 # Scan to join (FrameDecks 26.11.12)
 
-Status: built on `main`. The owner runs migration `0018_scan_to_join.sql` and changes two Supabase settings (§5).
+Status: released in 26.11.12. The owner runs migration `0018_scan_to_join.sql` and changes two Supabase settings (§5).
 
 ## In short
 

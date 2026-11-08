@@ -147,7 +147,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   if (computers.length === 0 || !selected) {
     return (
       <EmptyState title="No service PC to run yet">
-        Owners and admins link the service PC under Service PCs, and can let a member run services with “Can run
+        Owners and admins link the service PC under Devices, and can let a member run services with “Can run
         services” on the Overview’s member list.
       </EmptyState>
     );
@@ -220,7 +220,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         )}
         {state === "offline" && (
           <p className="workspace-hint">
-            Is FrameDecks running on {pc.name}, with Settings → Workspace Sync → “Allow control from the
+            Is FrameDecks running on {pc.name}, with Settings → Sync → “Allow control from the
             companion” on? Presses made now are dropped after 10 seconds.
           </p>
         )}

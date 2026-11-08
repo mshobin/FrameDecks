@@ -183,6 +183,7 @@
       <div class="studio-host" id="tab-studio" hidden></div>
     </div>
     <aside class="stage-status" id="stage-status" aria-labelledby="ss-title">
+      <button class="ss-sum" id="ss-sum" type="button" aria-expanded="false" aria-controls="ss-list" title="Show the details"><i class="ss-dot" id="ss-dot2" aria-hidden="true"></i><span id="ss-sentence" aria-live="polite"></span></button>
       <h3 class="ss-title" id="ss-title"><i class="ss-dot" id="ss-dot" aria-hidden="true"></i><span id="ss-state">Output</span></h3>
       <ul class="ss-list" id="ss-list" aria-live="polite"></ul>
       <ul class="ss-warn" id="ss-warn" role="status"></ul>
@@ -407,7 +408,7 @@
       <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="general" data-k="general window tray minimize spotlight performance graphics"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>General</b><small>Window, tray and performance</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="ipad" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="account" data-k="account website sync cloud link workspace companion"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Workspace Sync</b><small>Sync with the website</small></span><i class="sn-dot" id="sn-account"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="account" data-k="account website sync cloud link workspace companion add a device invite someone allow devices team qr scan join"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Sync</b><small>Your team’s phones and this PC</small></span><i class="sn-dot" id="sn-account"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="security" data-k="security privacy"><span class="sn-i"><i data-icon="shield-check" data-size="16"></i></span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="data" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="data" data-sec="diag" data-k="diagnostics problems help troubleshooting log"><span class="sn-i"><i data-icon="activity" data-size="16"></i></span><span class="sn-t"><b>Diagnostics</b><small>Check that everything works</small></span><i class="sn-dot" id="sn-diag"></i></button>
@@ -510,9 +511,9 @@
       <p class="hint">These work on every tab whenever you are not typing in a box. They change the colour of your camera picture only; the cards keep their colours.</p></section>
     </section>
     <section class="s-sec" id="sec-account" aria-labelledby="sech-account" hidden>
-      <header class="s-head"><h2 id="sech-account">Workspace Sync<button class="help-q" type="button" data-help="sync" title="Help: Workspace Sync" aria-label="Help: Workspace Sync">?</button></h2><p>Keep this PC’s service plans in step with your workspace in the FrameDecks companion. Optional: services always run from this PC, online or not.</p></header>
+      <header class="s-head"><h2 id="sech-account">Sync<button class="help-q" type="button" data-help="sync" title="Help: Sync" aria-label="Help: Sync">?</button></h2><p>Add your phone and your team’s devices. Everything then stays in step by itself. Optional: services always run from this PC, online or not.</p></header>
     <section class="box" aria-labelledby="acct-title">
-      <div class="box-head"><h2 id="acct-title">Workspace sync</h2></div>
+      <div class="box-head"><h2 id="acct-title">This PC and your team</h2></div>
       <div id="acct-body"><p class="plain">Checking…</p></div>
     </section>
     <section class="box" aria-labelledby="acct-what">
@@ -541,7 +542,7 @@
     </section>
     <section class="box" aria-labelledby="s-excel">
       <div class="box-head"><h2 id="s-excel">Meeting from Excel</h2></div>
-      <p class="plain">Plan meetings on the FrameDecks website’s <b>Meeting Form</b>: it reaches this PC by itself once the PC is linked (Settings → Workspace Sync). The Excel Meeting Workbook still works here.</p>
+      <p class="plain">Plan meetings on the FrameDecks website’s <b>Meeting Form</b>: it reaches this PC by itself once the PC is connected (Settings → Sync). The Excel Meeting Workbook still works here.</p>
       <div class="actions">
         <button class="btn small" type="button" id="s-xl-import">Import a meeting from Excel…</button>
         <button class="btn small" type="button" id="s-xl-template">Download the Excel template</button>
@@ -613,6 +614,7 @@
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/stage-status.js"></script>
+<script src="js/simple-mode.js"></script>
 <script src="js/annotate.js"></script>
 <script src="js/memory.js"></script>
 <script src="js/teleprompter.js"></script>

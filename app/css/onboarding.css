@@ -217,6 +217,8 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .onb-legend .lf{background:var(--o-gold)} .onb-legend .ld{background:var(--o-deck)} .onb-legend .lc{background:var(--o-content)}
 .onb-link{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .onb-link .onb-check{font-size:20px;font-weight:800;letter-spacing:.08em;padding:4px 12px;border-radius:12px;background:var(--o-card2);border:1px solid var(--o-line2)}
+.onb-qr{display:inline-block;width:132px;padding:8px;border-radius:12px;background:var(--gray-1000)}   /* 26.11.12 scan to join */
+.onb-qr svg{display:block;width:100%;height:auto}
 .onb-ok{color:var(--o-live);font-weight:700}
 .onb-hint-top{margin:0 0 12px}
 .s-finish .onb-opt{margin-top:16px;padding:14px 16px}

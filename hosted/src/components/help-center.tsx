@@ -254,15 +254,16 @@ export const TOPICS: Topic[] = [
     id: "account",
     label: "Workspace",
     icon: UserRound,
-    blurb: "Opening your workspace, Trusted Devices, your team, linking a service PC and your data.",
+    blurb: "Opening your workspace, adding a device, your team, linking a service PC and your data.",
     body: () => (
       <>
         <div className="hc-cards">
           <section>
             <h3>Your workspace on your devices</h3>
             <ul>
-              <li><Link href="/sync">Open your workspace</Link> with your email: we send a one-time link that works for 10 minutes. Nothing to remember.</li>
-              <li><b>Trust This Device</b> keeps your workspace open here for 180 days with no new link. <Link href="/devices">Manage Devices</Link> lists them; removing one ends its access at once.</li>
+              <li><b>Scan to join:</b> a device that’s already in (the church PC, or your phone) shows a QR code under <b>Add a device</b>. Scan it with the new phone’s camera and it’s in. No email, nothing to remember.</li>
+              <li>A computer with no camera: <Link href="/sync">Open Workspace</Link> → <b>Show a code for this browser</b>, then scan it with a phone that’s in, or type it into FrameDecks on the church PC.</li>
+              <li><Link href="/devices">Devices</Link> lists every phone, computer and PC in your team; removing one ends its access at once. Owners can print a recovery code there.</li>
               <li>The button next to your name disconnects this device and takes you to framedecks.com.</li>
             </ul>
           </section>
@@ -270,13 +271,13 @@ export const TOPICS: Topic[] = [
             <h3>Your team</h3>
             <ul>
               <li><b>People</b> lists your team. Owners and admins can edit the plan and invite others.</li>
-              <li><b>Service PCs</b> lists the PCs linked to your workspace.</li>
+              <li><b>Devices</b> lists the phones, computers and PCs in your team.</li>
             </ul>
           </section>
           <section>
             <h3>Link a service PC</h3>
             <ul>
-              <li>On the PC: Settings → Workspace Sync → <b>Connect to FrameDecks</b>, then <b>Allow</b> in your browser.</li>
+              <li>On the PC, open <b>Sync</b>: it shows a QR code. Scan it with your phone and choose <b>Connect the PC</b>. A brand-new phone at a brand-new PC starts your team.</li>
               <li>A linked PC gets every change by itself within about a minute.</li>
             </ul>
           </section>
@@ -337,7 +338,7 @@ export const TOPICS: Topic[] = [
           </div>
           <div>
             <dt>The PC does not show the latest plan</dt>
-            <dd>On the PC, choose the status button at the top right, then Sync, then <b>Resync Linked PCs</b>.</dd>
+            <dd>On the PC, choose the status button at the top right, then Sync, then <b>Sync now</b>.</dd>
           </div>
           <div>
             <dt>A .frame file is refused</dt>

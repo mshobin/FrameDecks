@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
 
-import { AppShell } from "@/components/app-shell";
-import { ComputersPanel } from "@/components/computers-panel";
+import { AuthShell } from "@/components/auth-shell";
+import { Forward } from "@/components/moved-to-sync";
 import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = pageMetadata("Service PCs", "/computers", { private: true });
+export const metadata: Metadata = pageMetadata("Devices", "/computers", { private: true });
 
+// 26.11.12 Service PCs is now part of Devices: the old address (bookmarks, the PC's links) goes on there
 export default function ComputersPage() {
   return (
-    <AppShell active="pcs">
-      <section className="page-head">
-        <p className="eyebrow">WORKSPACE</p>
-        <h1>Service PCs</h1>
-      </section>
-      <ComputersPanel />
-    </AppShell>
+    <AuthShell eyebrow="FrameDecks" title="Devices">
+      <Forward to="/devices" label="Devices" />
+    </AuthShell>
   );
 }

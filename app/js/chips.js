@@ -51,7 +51,7 @@ var ACTIONS = [
   // Notes
   A('notes', 'notes', 'Notes', 'sticky-note', 'Private notes for this meeting', ['cc', 'app', 'phone']),
   // More
-  A('more', 'sync', 'Workspace Sync', 'cloud', 'This PC and your workspace', ['cc', 'app']),
+  A('more', 'sync', 'Sync', 'cloud', 'This PC and your team', ['cc', 'app']),
   A('more', 'output', 'How people see it', 'cast', 'Zoom, Teams, projector', ['cc', 'app']),
   A('more', 'phone', 'Phone remote', 'smartphone', 'PIN and QR code', ['cc', 'app']),
   A('more', 'brand', 'Meeting & Branding', 'palette', 'Names, logo, look', ['cc', 'app']),

@@ -46,7 +46,7 @@ var KIND = {cmd: 'Command', meeting: 'Meeting', card: 'Memory', frame: 'Frame', 
 var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
   ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation'], ['transitions', 'Transitions', 'fade dip cut profile'],
   ['output', 'How people see it', 'zoom teams share window projector tv obs camera'], ['recording', 'Recording', 'record mp4'], ['display', 'Projector, TV and OBS', 'zoom display overlay obs browser source links'], ['vcam', 'FrameDecks vCam', 'framedecks vcam framerelay camera zoom teams blur background look resolution'],
-  ['account', 'Workspace Sync', 'sync workspace website cloud link connect framedecks.com'],
+  ['account', 'Sync', 'sync workspace website cloud link connect framedecks.com add a device invite someone allow team devices qr'],
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
@@ -71,7 +71,7 @@ function commands(){
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['frameimport', 'Import Frame File (.frame)', 'import frame file offline service pc website plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); }],
     ['guide', 'Step-by-step guide (framedecks.com/help)', 'help guide how to start learn tutorial', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); }],
-    ['resync', 'Resync Linked PCs', 'sync now resync linked workspace cloud latest changes', function(){ if (window.KCResync) window.KCResync(); else settings('account'); }],
+    ['resync', 'Sync now', 'sync now resync linked pcs workspace cloud latest changes', function(){ if (window.KCResync) window.KCResync(); else settings('account'); }],
     ['frameexport', 'Export Frame File (.frame)', 'export frame file offline save plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.exportFile) window.KCFrameFile.exportFile(); }],
     ['excel', 'Meeting from Excel (Settings → Data / Backup)', 'import export template workbook xlsx', function(){ settings('data'); }],   /* 6.11: Excel lives in Settings */
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],

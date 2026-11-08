@@ -85,17 +85,17 @@ var HOW = {
     words: 'Pick one: FrameDecks vCam for Zoom or Teams, the Share Window, or a projector, TV or OBS.'},
   phone: {label: 'Open Phone remote', act: function(){ go('settings', 'ipad'); }, find: function(){ return $('remote-box'); },
     words: 'Turn the remote on, then scan the code with your phone’s camera. The step ticks itself when the phone connects.'},
-  connect: {label: 'Connect to FrameDecks', act: function(){ go('settings', 'account'); }, find: function(){ return $('acct-body'); },
-    words: 'Choose Connect to FrameDecks. Your browser asks you to allow this PC.'},
+  connect: {label: 'Add a device', act: function(){ go('settings', 'account'); }, find: function(){ return $('acct-body'); },
+    words: 'Choose Add a device, then scan the QR code with your phone’s camera.'},
   frame: {label: 'Go to the Studio', act: function(){ go('studio'); }, find: function(){ return $('scene-add'); },
     words: 'Add a Frame here, then give it Content: a verse, a question or a picture.'}
 };
 var WAIT = {welcome: 'Choose one to go on.', output: 'Waiting for a camera, the Share Window or a screen…', phone: 'Waiting for a phone…',
-  connect: 'Waiting for the website to allow this PC…', frame: 'Waiting for a new or changed Frame…', ready: 'Checking…'};
+  connect: 'Waiting for your phone to scan the code…', frame: 'Waiting for a new or changed Frame…', ready: 'Checking…'};
 var TIPS = {
   output: ['FrameDecks vCam is not in Zoom’s camera list? Close Zoom completely and open it again.', 'Rather not install a camera? Choose the Share Window: nothing to install.'],
   phone: ['Your phone must be on the same Wi-Fi as this PC (not a guest Wi-Fi).', 'The page does not open on the phone? In Settings → Phone & iPad Remote choose Allow through Windows Firewall.', 'No phone? Skip this step: the keyboard does everything.'],
-  connect: ['Nothing happened in the browser? Settings → Workspace Sync shows a code you can type on the website instead.', 'You can skip this: FrameDecks works on this PC without a workspace.'],
+  connect: ['No phone to hand? Under the QR code, choose Open in this PC’s browser instead.', 'You can skip this: FrameDecks works on this PC without a workspace.'],
   frame: ['Choose + Frame at the top of the Frames list, or change the words of one of the ready Frames.'],
   ready: ['Each line that needs attention has a button that takes you to the fix.']
 };

@@ -117,21 +117,23 @@ function syncPanel(){
   var body = h('div', {cls: 'onb-link', id: 'onb-sync-body', 'aria-live': 'polite'});
   function draw(d){
     body.innerHTML = '';
-    if (d && d.state === 'linked'){ stopPoll(); body.appendChild(h('span', {cls: 'onb-ok', text: '✓ Linked with ' + (d.workspace || 'your workspace') + '. Plans sync by themselves.'})); return; }
+    if (d && d.state === 'linked'){ stopPoll(); body.appendChild(h('span', {cls: 'onb-ok', text: '✓ Connected to ' + (d.workspace || 'your team') + '. Plans sync by themselves.'})); return; }
     if (d && d.state === 'waiting'){
-      body.appendChild(h('span', {text: 'Allow this PC in your browser. It shows'}));
-      body.appendChild(h('span', {cls: 'onb-check', text: String(d.check || '')}));
-      if (d.connectUrl) body.appendChild(h('a', {cls: 'onb-ghost', href: d.connectUrl, target: '_blank', rel: 'noopener', text: 'Open the page again'}));
+      /* 26.11.12 scan to join: a QR of framedecks.com/join#c=CODE; the phone that scans it is in, no email or password */
+      var qr = h('span', {cls: 'onb-qr', role: 'img', 'aria-label': 'QR code to scan with your phone'});
+      if (d.joinUrl && window.qrcode){ var q = window.qrcode(0, 'M'); q.addData(d.joinUrl); q.make(); qr.innerHTML = q.createSvgTag({cellSize: 4, margin: 2, scalable: true}); }
+      body.appendChild(qr);
+      body.appendChild(h('span', {}, [h('span', {text: 'Scan with your phone\u2019s camera. Or type the code at framedecks.com/join: '}), h('b', {cls: 'onb-check', text: String(d.code || '')})]));
       startPoll(); return;
     }
-    body.appendChild(h('button', {cls: 'onb-ghost', type: 'button', id: 'onb-connect', html: I('globe', 16) + ' Sync Workspace', onclick: connect}));
+    body.appendChild(h('button', {cls: 'onb-ghost', type: 'button', id: 'onb-connect', html: I('smartphone', 16) + ' Add a device', onclick: connect}));
     if (d && d.error) body.appendChild(h('span', {cls: 'onb-hint', text: d.error}));
   }
   function connect(ev){
     var btn = ev.currentTarget; btn.disabled = true;
-    fetch('api/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'link'})})
+    fetch('api/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'start'})})
       .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); })
-      .then(function(d){ if (d.connectUrl) window.open(d.connectUrl, '_blank', 'noopener'); draw(d); })   // the app window sends it to your browser
+      .then(function(d){ draw(d); })
       .catch(function(e){ btn.disabled = false; if (window.KCActions) window.KCActions.toast(e.message, true); });
   }
   function check(){ return fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(draw).catch(function(){ stopPoll(); draw({}); }); }
@@ -141,7 +143,7 @@ function syncPanel(){
     h('p', {cls: 'onb-opt-t', text: 'Plan on the website, present here (optional)'}),
     h('p', {cls: 'onb-hint onb-hint-top', text: 'Open your workspace at framedecks.com to plan meetings from any browser with your team. They sync to this PC by themselves; presenting never needs the internet.'}),
     body,
-    h('p', {cls: 'onb-hint', text: 'Later: Settings → Workspace Sync.'})]);
+    h('p', {cls: 'onb-hint', text: 'Later: Settings → Sync.'})]);
 }
 function stopPoll(){ clearInterval(syncT); syncT = null; }
 

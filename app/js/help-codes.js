@@ -40,17 +40,20 @@ var CODES = /* codes:start */[
    "why": "Codes have 8 letters and numbers, as shown on the PC.",
    "fix": "Copy the code exactly as the PC shows it. Spaces don’t matter."},
   {"code": "FD-CLD-02", "area": "Workspace", "title": "This code has ended",
-   "why": "Codes last 10 minutes and work once.",
-   "fix": "On the PC choose Connect to FrameDecks again for a new code."},
+   "why": "Codes run out after a few minutes and work once.",
+   "fix": "On the PC or the device that showed it, choose Add a device again for a new code."},
   {"code": "FD-CLD-03", "area": "Workspace", "title": "The PC hasn’t picked up the link yet",
    "why": "The link is saved, but the PC needs to be on and online to finish it.",
    "fix": "Open FrameDecks on the PC and check it has internet. It finishes by itself within a few seconds."},
   {"code": "FD-CLD-04", "area": "Workspace", "title": "Workspace syncing isn’t set up yet",
    "why": "The workspace owner hasn’t finished setting up syncing.",
-   "fix": "Ask the workspace owner to finish Workspace Sync, then try again."},
+   "fix": "Ask the workspace owner to finish setting up Sync, then try again."},
   {"code": "FD-CLD-05", "area": "Workspace", "title": "Can’t reach FrameDecks",
    "why": "This device has no internet, or a network filter blocks framedecks.com.",
-   "fix": "Check the internet connection, then try again."}
+   "fix": "Check the internet connection, then try again."},
+  {"code": "FD-CLD-06", "area": "Workspace", "title": "Joining with a code isn’t switched on",
+   "why": "Anonymous sign-ins are off for this site, so a new device can’t join by scanning a code.",
+   "fix": "Ask the workspace owner to turn on Allow anonymous sign-ins in Supabase, or use an email code instead."}
 ]/* codes:end */;
 /* 26.11.4 the "?" links: a place in the program -> its page in the guide (framedecks.com/docs, the same words as
    docs/guide/) or the Help Center. tests/test_help_2611_4.py checks every page and heading exists. */
@@ -60,7 +63,7 @@ var LINKS = {
   'vcam': ['FrameDecks vCam in Zoom, Teams and Meet', 'docs/faq#online-and-hybrid-services'],
   'memory': ['Capture Memory', 'docs/presentations#capture-memory-copied-chats-as-bubbles-on-the-camera'],
   'voice': ['Teleprompter and Follow my voice', 'docs/presentations#teleprompter'],
-  'sync': ['Workspace Sync', 'help#account'],
+  'sync': ['Sync', 'help#account'],
   'keys': ['Keyboard shortcuts', 'docs/presentations#keyboard-shortcuts']
 };
 var by = {};

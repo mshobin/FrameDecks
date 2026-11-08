@@ -134,7 +134,7 @@ function renderSecurity(){
   function pill(cls, text){ return h('p', {}, [h('span', {cls: 'status-pill ' + cls}, [h('i'), text])]); }
   var sync = window.KCSyncInfo ? window.KCSyncInfo() : null, linked = sync && sync.state === 'linked';
   if (linked) g.appendChild(card('Workspace sync', pill('info', 'On'),
-    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → Workspace Sync). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
+    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → Sync). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
   else g.appendChild(card('Local only', pill('ok', 'On'),
     'Everything runs on this PC. Nothing is uploaded, and no cloud workspace is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),

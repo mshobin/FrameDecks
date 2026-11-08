@@ -7,6 +7,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { browserSupabase } from "@/lib/supabase-browser";
 import {
+  ASKED_KEY,
   clearTrust,
   deviceName,
   isLegacyKeep,
@@ -20,7 +21,6 @@ import { clearLocalSession } from "@/lib/sign-out";
 import { useSession } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
 
-const ASKED_KEY = "fd-trust-asked";          // this tab: "Just this visit" was chosen
 const CHECK_EVERY_MS = 60_000;
 
 /** At every start (and when the window comes back, at most once a minute) a trusted device checks its token. A removed
@@ -127,7 +127,7 @@ export function TrustPrompt() {
         <h2 id="fd-trust-title">Trust This Device?</h2>
         <p>
           Keep your workspace open here, with no new link, for 180 days. Only on a device you use yourself. You can remove
-          it any time in Manage Devices.
+          it any time under Devices.
         </p>
         <label className="fd-trust-name">
           <span>Device name</span>

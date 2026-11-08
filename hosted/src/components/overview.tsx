@@ -159,11 +159,11 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
           <div>
             <h2>Link that PC</h2>
             <p>
-              In FrameDecks: Settings → Workspace Sync → Connect to FrameDecks. Your browser asks you to allow that PC;
-              your plan then reaches it within a minute. Linked PCs show under Service PCs.
+              In FrameDecks on the PC, open Sync: it shows a QR code. Scan it with your phone’s camera and choose Connect
+              the PC; your plan then reaches it within a minute. The PC shows under Devices.
             </p>
-            <Link className="fd-link" href="/computers">
-              Service PCs <ArrowRight aria-hidden="true" size={15} />
+            <Link className="fd-link" href="/devices">
+              Devices <ArrowRight aria-hidden="true" size={15} />
             </Link>
           </div>
         </li>

@@ -60,7 +60,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.6: the Command Center's window cut to the shape it shows (SetWindowRgn), so no grey box on any PC | Released |
 | 26.11.7: the meeting guard (measure in meetings, lighter FrameDecks, before-you-go-live line, busy hint); Teleprompter in Engage | Released; owner's report: camera 4 fps, FrameDecks 37-87 % GPU, 1.3 GB |
 | 26.11.8: Branding Background slider; sharper meeting meter (GPU by process and kind, windows open and in front, page names); meeting mode in every window; Up next hidden not reloaded; memory figure fixed | Released; owner's report: GPU fixed (22-29 %), camera 30.7 in / 7.5 out, 133 ms per frame (blur) |
-| 26.11.11: Command Center shape no longer needs page focus (grey box over Zoom fixed again) | On `main`; owner tags `v26.11.11`, checks over Zoom with the Command Center pinned |
+| 26.11.12: Scan to join (0018), Live Presentation Stage, How people see it, Simple by default | On `main`; owner tags `v26.11.12`, runs 0018, enables anonymous sign-ins, adds the code to the Magic Link email |
+| 26.11.11: Command Center shape no longer needs page focus (grey box over Zoom fixed again) | Released |
 | 26.11.10: blur on a second core (`BlurStage`), masks on the outline thread, no-person blur fix, Command Center Question/Both/Scripture | Released; owner sends the report after a Zoom meeting with blur |
 | 26.11.9: camera keeps up (Pace steps the blur down and back), faster natural blur, no full-size blur | Released; report: 13.9 fps out of 29.7, 72 ms per frame |
 | 26.11: Teleprompter Follow my voice (Vosk, own low-priority process, only while pinned); versions become YY.MM; old release notes and changelog archived; 4 GB check and preview leak fix | Published; clean-up done |

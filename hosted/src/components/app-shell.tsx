@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CircleHelp, ClipboardList, Ellipsis, Home as HomeIcon, Monitor, Palette, Radio, ShieldCheck, Users } from "lucide-react";
+import { CircleHelp, ClipboardList, Ellipsis, Home as HomeIcon, MonitorSmartphone, Palette, Radio, Users } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { TrustPrompt, TrustedDeviceGuard } from "@/components/trusted-device";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
-export type Section = "home" | "plan" | "live" | "people" | "branding" | "pcs" | "devices" | "help" | "account";
+export type Section = "home" | "plan" | "live" | "people" | "branding" | "devices" | "help" | "account";
 
 // Four places, in the order a week goes (owner-approved, 27 October; docs/guide/glossary.md): Home, Plan, Live, People.
 // What is set once lives under Settings. Phones show the same four as tabs, so both read the same.
@@ -22,8 +22,7 @@ const main = [
 ] as const;
 const settings = [
   { id: "branding", label: "Branding", href: "/branding", icon: Palette },
-  { id: "pcs", label: "Service PCs", href: "/computers", icon: Monitor },
-  { id: "devices", label: "Manage Devices", href: "/devices", icon: ShieldCheck },
+  { id: "devices", label: "Devices", href: "/devices", icon: MonitorSmartphone }, // 26.11.12 phones, browsers and church PCs
   { id: "help", label: "Help", href: "/help", icon: CircleHelp },
 ] as const;
 
@@ -33,8 +32,7 @@ const titles: Record<Section, string> = {
   live: "Live",
   people: "People",
   branding: "Branding",
-  pcs: "Service PCs",
-  devices: "Manage Devices",
+  devices: "Devices",
   help: "Help",
   account: "Your workspace",
 };

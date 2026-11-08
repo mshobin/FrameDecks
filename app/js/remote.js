@@ -500,7 +500,7 @@ function render(){
   SC.liveText(live).forEach(function(l){ bits.push(l.name); });
   setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing from this Frame is showing' : order.length ? 'Next puts “' + order[0].name + '” on screen' : 'Make your Frames on the PC'));
   var nx = ls ? SC.neighbour(live, ls.id, 1) : order[0];
-  setText($('next-t'), ls ? 'Next' : 'Start');
+  setText($('next-t'), ls ? 'Next' : 'Go Live');
   setText($('next-name'), nx ? nx.name : ls ? 'Last Frame' : '');
   $('next').setAttribute('aria-label', nx ? (ls ? 'Next Frame: ' : 'Start: ') + nx.name : 'Next Frame');
   $('prev').disabled = !ls || !SC.neighbour(live, ls.id, -1) || $('prev').dataset.off === '1';

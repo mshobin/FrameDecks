@@ -368,7 +368,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       {frames.length === 0 && editing !== "new" && (
         <EmptyState title="No Frames yet">
           {canEdit ? "Add the first one below. " : null}They appear in FrameDecks once the service PC is linked under{" "}
-          <Link href="/computers">Service PCs</Link>.
+          <Link href="/devices">Devices</Link>.
         </EmptyState>
       )}
       <FlipList className="frame-list" ids={frames.map((f) => String(f.id)).join()}>

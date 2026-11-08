@@ -6,7 +6,8 @@ remote or the camera: presenting works exactly as without it, online or not.
     Engine        one sync round: pull what changed elsewhere, apply it (never to the live Frame), push what changed
                   here. Plain Python on dictionaries, tested against a stand-in cloud (tests/test_cloud_sync.py).
     CloudApi      the Supabase calls over HTTPS (urllib, no extra package): sync_pull / sync_push and linking.
-    Service       the background thread, linking, unlinking and the status shown in Settings > FrameDecks account.
+    Service       the background thread, linking, unlinking, adding devices (26.11.12 Scan to join) and the status
+                  shown in Settings > Sync.
 
 Files in the data folder: kc-sync.json (the link, the pull cursor, what the cloud last agreed for each record, and
 changes held back while their Frame is live). The computer key is not in the data folder: it is kept in Windows
@@ -39,6 +40,7 @@ PUSH_BATCH = 200                      # sync_push: at most 200 changes and 2 MB 
 PUSH_BYTES = 1_800_000
 QUIET_SECONDS = 3                     # after a save, wait for this much quiet before syncing
 PULL_EVERY = 60                       # and pull at least this often
+INVITE_SECONDS = 120                  # 26.11.12: an Add a device / Invite someone code (0018: 2 minutes, once)
 MAX_BACKOFF = 600
 FRAME_KINDS = ("frame", "template")
 MASS_DELETE_FRAMES = 3      # all Frames gone at once (at least this many): restore from the workspace, never delete
@@ -202,8 +204,17 @@ class Engine:
         self.state["held"] = held
         self.state["cursor"] = cursor
         pushed = self._push()
+        # 26.11.12: what came from the website (a person's change, "user:<id>"; a PC's is "computer:<id>"), so the
+        # program can say once "Updated from the website: Sunday Service". Nothing is said on the first link.
+        website = []
+        if not first_link and not adopt:
+            for k, r in apply.items():
+                if str(r.get("updatedBy") or "").startswith("user:"):
+                    name = record_name(r, local.get(k))
+                    if name not in website:
+                        website.append(name)
         return {"pulled": len(remote), "applied": len(apply), "held": len(held), "pushed": pushed,
-                "conflicts": conflicts, "membersRebuilt": rebuilt}
+                "conflicts": conflicts, "membersRebuilt": rebuilt, "fromWebsite": website}
 
     # 9.3 (audit L12): a list item, setting or order changed both here and elsewhere keeps this PC's version (it is
     # sent on top). The other version stays in the workspace's history for 30 days; this PC keeps it too, the latest
@@ -391,6 +402,22 @@ class CloudApi:
     def revoke(self, computer_id):
         return self._rpc("computer_revoke", {"computer": computer_id})
 
+    # 26.11.12 Scan to join (0018_scan_to_join.sql): the church PC adds devices with its own key
+    def pc_invite_create(self, wanted):
+        return self._rpc("pc_invite_create", {"wanted": wanted})
+
+    def join_request_peek(self, code):
+        return self._rpc("join_request_peek", {"code": code})
+
+    def pc_join_request_allow(self, code, wanted):
+        return self._rpc("pc_join_request_allow", {"code": code, "wanted": wanted})
+
+    def pc_devices(self):
+        return self._rpc("pc_devices", {})
+
+    def pc_device_remove(self, person):
+        return self._rpc("pc_device_remove", {"person": person})
+
 
 def _fetch_config(base, timeout):
     req = urllib.request.Request(f"{base}/api/sync-config",
@@ -472,6 +499,46 @@ def connect_url(site, code, name):
     """The page that asks a signed-in owner or admin to allow this PC (6.13). The code rides in the fragment, after the
     #, so it never reaches a server log or a Referer header."""
     return f"{site.rstrip('/')}/connect#code={code}&name={urllib.parse.quote(name or 'A computer', safe='')}"
+
+
+def join_url(site, code):
+    """26.11.12 Scan to join: what the QR code on this PC carries. The phone's camera opens the website's /join page,
+    which uses the code (the code rides in the fragment, after the #, so it never reaches a server log)."""
+    return f"{site.rstrip('/')}/join#c={tidy_code(code)}"
+
+
+def tidy_code(code):
+    """A code as typed or scanned: letters and digits only, capitals (the cloud does the same: public.code_hash)."""
+    return "".join(ch for ch in str(code or "") if ch.isascii() and ch.isalnum()).upper()[:32]
+
+
+ROLES = ("admin", "member")
+
+
+def _epoch(value, fallback):
+    """The cloud's timestamp ("2026-11-12T10:00:00.123+00:00") as seconds since 1970, or the fallback."""
+    from datetime import datetime
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00")).timestamp()
+    except (TypeError, ValueError):
+        return fallback
+
+
+# What a record is called in "Updated from the website: ..." (Frames by their own name)
+RECORD_WORDS = {"order": "Running order", "library_question": "Questions", "library_verse": "Scriptures",
+                "theme": "Card looks", "brand": "Branding", "layout": "Layout", "meeting": "Meeting details",
+                "member": "Members"}
+
+
+def record_name(r, mine=None):
+    """A short name for a record that changed: a Frame's name, the meeting's name, or what kind of thing it is."""
+    body = r.get("body") if isinstance(r.get("body"), dict) else (mine or {}).get("body")
+    body = body if isinstance(body, dict) else {}
+    if r.get("kind") in FRAME_KINDS:
+        return str(body.get("name") or "A Frame")[:60]
+    if r.get("kind") == "meeting":
+        return str(body.get("name") or body.get("title") or RECORD_WORDS["meeting"])[:60]
+    return RECORD_WORDS.get(r.get("kind"), "Settings")
 
 
 # ---------- Where the computer key is kept ----------
@@ -572,6 +639,7 @@ class Service:
         self._retry_at = 0.0                          # while offline: not before this
         self.poll_every = 1.5                         # while waiting: "was this PC allowed?" (connected ~2 s after Allow)
         self.next_pull = lambda: PULL_EVERY           # 9.11: live_push.Doorbell.sync_every (longer while listening or resting)
+        self.update = None                            # 26.11.12: {"at", "names"} the last changes made on the website
 
     # -- the state file --
     def _load(self):
@@ -602,12 +670,16 @@ class Service:
         link = self.state.get("link") or {}
         out = {"state": self.status["state"], "workspace": link.get("organizationName"), "linkedAt": link.get("linkedAt"),
                "lastSync": self.status["lastSync"], "error": self.status["error"], "companion": COMPANION_URL,
-               "held": len(self.state.get("held") or []), "phase": self.phase()}
+               "held": len(self.state.get("held") or []), "phase": self.phase(), "update": self.update,
+               "computerName": self.computer_name}
         if self.pending:
             code = self.pending["code"]
             site = self.pending["config"].get("site") or COMPANION_URL
+            # 26.11.12 Scan to join: the phone scans joinUrl (a QR code in Settings > Sync); connectUrl opens this
+            # PC's own browser instead, as before
             out.update(code=code, expiresAt=self.pending["expiresAt"], check=check_number(code),
-                       connectUrl=connect_url(site, code, self.computer_name))
+                       connectUrl=connect_url(site, code, self.computer_name), joinUrl=join_url(site, code),
+                       expiresIn=max(0, round(self.pending["expiresAt"] - time.time())))
         return out
 
     def phase(self):
@@ -643,7 +715,7 @@ class Service:
                 return
             if time.time() > pending["expiresAt"]:
                 self.pending = None
-                self.status.update(state="unlinked", error="The request expired after 10 minutes. Choose Connect to FrameDecks again.")
+                self.status.update(state="unlinked", error="The code ran out after 10 minutes. Choose Add a device for a new one.")
                 return
             try:
                 answer = self.make_api(pending["config"], None, None).link_poll(pending["key"])
@@ -723,7 +795,78 @@ class Service:
                 self._save()                          # keep what was agreed, even when a later batch failed
             self.offline = False
             self.status.update(state="linked", lastSync=time.time(), error=None)
+            if summary.get("fromWebsite"):             # said once by the main window (account.js)
+                self.update = {"at": time.time(), "names": summary["fromWebsite"][:6]}
             return summary
+
+    # -- 26.11.12 Scan to join: the church PC adds and removes devices with its own key --
+    def _team(self):
+        link, cloud, key = self.state.get("link"), self.state.get("cloud"), self.secrets.get()
+        if not (link and cloud and key):
+            raise Refused("This PC is not connected yet. Choose Add a device first.", "42501")
+        return self.make_api(cloud, link["organizationId"], key), cloud.get("site") or COMPANION_URL
+
+    def invite(self, role="admin"):
+        """A code for a QR on this PC: the phone that scans it joins the team as Admin or Helper (member). It lasts
+        2 minutes and works once."""
+        if role not in ROLES:
+            raise Refused("Choose Admin or Helper.", "22023")
+        api, site = self._team()
+        answer = api.pc_invite_create(role) or {}
+        code = tidy_code(answer.get("code"))
+        if not code:
+            raise Refused("No code came back. Try again.")
+        return {"code": code, "role": answer.get("role") or role, "joinUrl": join_url(site, code),
+                "expiresIn": INVITE_SECONDS, "expiresAt": time.time() + INVITE_SECONDS}
+
+    def allow_peek(self, code):
+        """Allow a device: which device asked with this code, and how long ago ({"status": "pending" | "expired" |
+        "unknown", "device", "ageSeconds"})."""
+        code = tidy_code(code)
+        if len(code) < 6:
+            return {"status": "unknown"}
+        api, _ = self._team()
+        return api.join_request_peek(code) or {"status": "unknown"}
+
+    def allow(self, code, role="member"):
+        """Lets the device that shows this code into the team ({"status": "allowed" | "wrong", "device", "role"})."""
+        if role not in ROLES:
+            raise Refused("Choose Admin or Helper.", "22023")
+        code = tidy_code(code)
+        if len(code) < 6:
+            return {"status": "wrong"}
+        api, _ = self._team()
+        return api.pc_join_request_allow(code, role) or {"status": "wrong"}
+
+    def devices(self):
+        """The team's Devices list (people's devices and PCs), and the names of devices that joined since the list
+        was last looked at here ("joined"; nothing the first time)."""
+        api, _ = self._team()
+        rows = []
+        for r in api.pc_devices() or []:
+            if not isinstance(r, dict) or not r.get("id"):
+                continue
+            rows.append({"kind": r.get("kind") or "person", "id": str(r["id"]), "name": str(r.get("name") or "A device")[:80],
+                         "role": r.get("role") or "member", "me": bool(r.get("is_me")),
+                         "lastSeen": _epoch(r.get("last_seen_at"), None), "joined": _epoch(r.get("joined_at"), None)})
+        with self.lock:
+            seen = self.state.get("devicesSeen")
+            joined = [] if seen is None else [r["name"] for r in rows if r["id"] not in seen and not r["me"]]
+            ids = sorted(r["id"] for r in rows)
+            if seen is None or sorted(seen) != ids:
+                self.state["devicesSeen"] = ids
+                self._save()
+        return {"devices": rows, "joined": joined}
+
+    def remove_device(self, person):
+        """Takes a person's device out of the team (never the owner's: the cloud refuses that). PCs are removed by
+        Disconnect on that PC, or on the website."""
+        person = str(person or "").strip()
+        if not person or len(person) > 64:
+            raise Refused("Choose a device to remove.", "22023")
+        api, _ = self._team()
+        api.pc_device_remove(person)
+        return self.devices()
 
     def resync(self):
         """8.4 Resync Linked PCs: one round now, whatever the timer says, and what it did in plain words

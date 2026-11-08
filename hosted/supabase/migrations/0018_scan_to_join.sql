@@ -11,7 +11,6 @@
 -- (supabase.auth.updateUser on the website): nothing here.
 -- Nothing earlier changes: email links, Trusted Devices (0015), invitations, roles, sync_push / sync_pull and PC
 -- linking (0003, 0010) work as before; joining a PC to a team reuses computer_links.
--- NOT YET: the website and PC screens that use it are still being built; run it only when the release notes say so.
 -- Run once in the Supabase SQL editor, after 0017_help_votes.sql. Undo: supabase/rollback/0018_scan_to_join_down.sql.
 
 -- Is the request's person an anonymous (device-only) user? Supabase puts is_anonymous in the token.

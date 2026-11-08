@@ -54,7 +54,7 @@ Yes. On framedecks.com, Plan → **New meeting** makes another meeting with its 
 The website's meeting details have only **Meeting name**, **Date** and **Meeting notes**. A meeting that already has a speaker, time, location and so on keeps them; the form says so. The Excel Meeting Workbook still has its own fields.
 
 **Can two people edit the same service at once?**
-Not in the program. Plan together on framedecks.com; a PC linked to your team gets the plan by itself within about a minute (the **Sync** chip in the header shows **Synced**; **Resync Linked PCs** syncs at once). For a service PC without internet, export a **.frame file** and import it there (Settings → Data / Backup → **Import Frame File…**, then **Use this plan**). See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
+Not in the program. Plan together on framedecks.com; a PC linked to your team gets the plan by itself within about a minute (the **Sync** chip in the header shows **Synced**; **Sync now** syncs at once). For a service PC without internet, export a **.frame file** and import it there (Settings → Data / Backup → **Import Frame File…**, then **Use this plan**). See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
 
 **Can it advance automatically?**
 Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → **Move to the next Frame after N seconds**), while **Auto** is on in the command bar.
@@ -174,7 +174,7 @@ Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is n
 ## Data, privacy and offline use
 
 **Where is our data stored?**
-On your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded unless you link the PC to your team (Settings → Workspace Sync). Then your plans sync with framedecks.com, but media (pictures, video, audio and slides) never goes to the cloud.
+On your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded unless you link the PC to your team (Settings → Sync). Then your plans sync with framedecks.com, but media (pictures, video, audio and slides) never goes to the cloud.
 
 **Does FrameDecks work without the internet?**
 Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet). On a linked PC the **Sync** chip shows **Offline**: your changes wait and go up later, and presenting is not affected.

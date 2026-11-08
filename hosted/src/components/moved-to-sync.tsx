@@ -14,3 +14,15 @@ export function MovedToSync() {
     </p>
   );
 }
+
+/** 26.11.12 an old address that moved (e.g. /computers → /devices). */
+export function Forward({ to, label }: Readonly<{ to: string; label: string }>) {
+  useEffect(() => {
+    window.location.replace(to);
+  }, [to]);
+  return (
+    <p className="auth-message" role="status">
+      One moment… <Link href={to}>{label}</Link>
+    </p>
+  );
+}

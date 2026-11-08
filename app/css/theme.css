@@ -593,6 +593,30 @@ html[data-theme="light"] .ws-center .canvas-wrap{background:none}   /* the stage
 .ss-warn li.t-bad{background:var(--red-soft);color:var(--red)}
 .stage-status .canvas-note{margin:0;padding:10px 0 0;border-top:1px solid var(--line-soft);font-size:12px;line-height:1.45;color:var(--faint);min-height:0}
 .stage-status .canvas-note:empty{display:none}
+/* 26.11.12 Simple by default (js/simple-mode.js): the essentials on screen, every other control in Advanced */
+.sm-seg{flex:none}
+.sm-seg button{min-height:28px;padding:0 10px;font-size:12px}
+.sm-design[hidden]{display:none}
+.ss-sum{display:none}
+/* one clear on-screen signal: a green ring round the stage; the Deck badges and the label in the picture step back */
+body.simple .ws-center:has(.canvas-badge.live) .canvas-frame,body.simple .ws-center:has(.canvas-badge.live) .s2-stage{box-shadow:0 0 0 2px var(--live),var(--shadow-2)}
+body.simple #program-badge,body.simple #layer-list .si-badge.live{display:none}
+/* a calm top bar: Transition and Auto-advance live in Advanced */
+body.simple .cmdbar .lb-tx,body.simple .cmdbar #lb-auto{display:none}
+/* the chips keep their words wherever they fit (the bar steps down a level when they do not) */
+body.simple .cmdbar[data-fit="3"] .lc:not(.alert):not(.held) .lc-l,body.simple .cmdbar[data-fit="4"] .lc:not(.alert):not(.held) .lc-l{display:inline}
+/* technical lines in Advanced */
+body.simple .s2-under,body.simple .stage-status .canvas-note{display:none}
+/* the status panel: one sentence; its details open on a click */
+body.simple .ss-title{display:none}
+body.simple .ss-sum{display:flex;align-items:flex-start;gap:8px;width:100%;margin:0;padding:0;border:0;background:none;color:var(--ink);font:inherit;
+  font-size:13px;font-weight:600;line-height:1.45;text-align:left;cursor:pointer}
+body.simple .ss-sum .ss-dot{margin-top:5px}
+body.simple .stage-status:not(.open) .ss-list,body.simple .stage-status:not(.open) .ss-warn{display:none}
+body.simple .stage-status{gap:10px}
+/* the editor: the words first; Position and size, Look, Animation and Show on behind the Design button */
+body.simple:not(.sm-design-open) #insp-body .cs-fold,body.simple:not(.sm-design-open) #insp-body .cs-fold + .cs-sec,
+body.simple:not(.sm-design-open) #insp-body .ip.cs-sheet:has(> .cs-fold),body.simple:not(.sm-design-open) #insp-body > .ip.cs-closed{display:none}
 @media (max-height:860px){ .stage-status .canvas-note,.stage-status .ss-d{display:none} .stage-status{gap:10px} .ss-list{gap:8px} }
 @container stagerow (max-width:760px){ .stage-status{display:none} .stage-row .canvas-frame{width:min(100cqw,100cqh * 16 / 9)} .stage-row .studio-host{left:0;right:0} }
 

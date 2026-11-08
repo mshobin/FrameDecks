@@ -60,10 +60,23 @@ function warnings(){
   return w;
 }
 
+/* 26.11.12 Simple: the whole panel in one sentence, and what to do next. Details open on a click. */
+function sentence(r, w){
+  var st = cur, live = st && SC.liveScene(st), bad = w.filter(function(x){ return x[0] === 'bad'; })[0];
+  if (bad) return ['bad', bad[1] + '.'];
+  if (!st) return ['idle', 'Connecting to the program\u2026'];
+  var frames = SC.order(st).length;
+  if (!frames) return ['idle', 'No Frames yet. Add your first Frame to begin.'];
+  if (!live) return ['idle', 'Ready. Press Go Live when the meeting starts.'];
+  var shown = st.question.visible || st.verse.visible || st.birthday.visible || SC.liveText(st).length;
+  if (!shown) return ['warn', 'Live, but nothing is showing yet. Press Show on a question or verse below.'];
+  if (w.length) return ['warn', w[0][1] + '.'];
+  return ['live', 'All good. People see \u201c' + live.name + '\u201d.'];
+}
 var sig = '';
 function paint(){
   if (document.hidden || document.body.dataset.tab !== 'studio') return;
-  var r = rows(), w = warnings(), s = JSON.stringify([r, w]);
+  var r = rows(), w = warnings(), sum = sentence(r, w), s = JSON.stringify([r, w, sum]);
   if (s === sig) return; sig = s;
   list.textContent = '';
   r.forEach(function(x){
@@ -79,9 +92,17 @@ function paint(){
   var st = cur, live = st && SC.liveScene(st), worst = w.some(function(x){ return x[0] === 'bad'; }) ? 'bad' : w.length ? 'warn' : live ? 'live' : 'idle';
   $('ss-dot').className = 'ss-dot t-' + worst;
   $('ss-state').textContent = live ? 'Live output' : 'Output';
+  $('ss-dot2').className = 'ss-dot t-' + sum[0];
+  $('ss-sentence').textContent = sum[1];
 }
+var panel = document.getElementById('stage-status'), sumBtn = $('ss-sum');
+if (sumBtn) sumBtn.addEventListener('click', function(){
+  var open = !panel.classList.contains('open');
+  panel.classList.toggle('open', open); sumBtn.setAttribute('aria-expanded', String(open));
+  sumBtn.title = open ? 'Hide the details' : 'Show the details';
+});
 Store.subscribe(function(st){ cur = st; paint(); });
 setInterval(paint, 1000);
 document.addEventListener('visibilitychange', paint);
-window.KCStageStatus = {paint: paint, rows: rows, warnings: warnings};
+window.KCStageStatus = {paint: paint, rows: rows, warnings: warnings, sentence: sentence};
 })();

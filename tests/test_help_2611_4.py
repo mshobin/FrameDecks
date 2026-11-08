@@ -30,8 +30,10 @@ class ErrorCodes(unittest.TestCase):
 
     def test_every_code_is_used_somewhere_it_can_happen(self):
         used = "".join(read(f) for f in ("app/js/remote-panel.js", "app/js/remote.js", "app/js/meeting.js",
-                                          "hosted/src/components/computers-panel.tsx",
-                                          "hosted/src/components/connect-panel.tsx"))
+                                          "hosted/src/components/devices-panel.tsx", "hosted/src/components/join-panel.tsx",
+                                          "hosted/src/components/allow-panel.tsx", "hosted/src/components/workspace-sync-form.tsx",
+                                          "hosted/src/components/connect-panel.tsx", "app/js/account.js",
+                                          "hosted/src/lib/join-device.ts"))
         for c in codes():
             self.assertIn(c["code"], used, c["code"] + " is never shown")
 
@@ -67,9 +69,10 @@ class ConnectionCheck(unittest.TestCase):
         self.assertIn("(FD-REM-02)", js)
 
     def test_linking_a_pc_waits_for_the_pc_to_confirm(self):
-        tsx = read("hosted/src/components/computers-panel.tsx")
+        # 26.11.12 the Devices list (it replaced Service PCs): a PC that has not checked in yet says so
+        tsx = read("hosted/src/components/devices-panel.tsx")
         self.assertIn("Waiting for the PC to confirm", tsx)
-        self.assertIn("last_seen_at", tsx[tsx.index("Waiting for the PC to confirm"):])
+        self.assertIn("last_seen_at", tsx[:tsx.index("Waiting for the PC to confirm")])
 
 
 if __name__ == "__main__":

@@ -140,7 +140,7 @@ function build(){
       btn('next', 'Next Frame', 'chevron-right', 'Alt+→', function(){ step(1); }, 'gold wide'),
       btn('play', 'Play', 'play', 'Alt+P', video),
       btn('hide', 'Hide all', 'eye-off', 'Alt+H', hideAll, 'red'),
-      btn('black', 'Black', 'square', 'Alt+B', black)]),
+      btn('black', 'Black screen', 'square', 'Alt+B', black)]),
     h('div', {cls: 'spr-step', id: 'spr-step', role: 'group', 'aria-labelledby': 'spr-c-title', hidden: 'hidden'}, [
       h('div', {cls: 'spr-kinds', id: 'spr-kinds', role: 'radiogroup', 'aria-label': 'What the arrows move through'}),
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-prev', title: 'Previous (Alt+↑)', 'aria-label': 'Previous', 'aria-keyshortcuts': 'Alt+ArrowUp', html: I('chevron-left', 20), onclick: function(){ contentStep(-1); }}),
@@ -211,8 +211,8 @@ function render(){
   air.className = 'spr-air' + (L.blackout ? ' bad' : ls ? ' on' : '');
   setText(air.querySelector('b'), L.blackout ? 'Black screen' : L.freeze ? 'Frozen' : ls ? (on ? 'Live' : 'Live · nothing shown') : 'Off air');
   var nx = ls ? SC.neighbour(live, ls.id, 1) : order[0];
-  setText($('spr-what'), ls ? 'Frame ' + pos + ' of ' + order.length + ' · ' + ls.name + (nx ? '  ›  ' + nx.name : '') : order.length ? 'Ready: Next puts “' + order[0].name + '” on screen' : 'No Frames yet');
-  setText(document.querySelector('#spr-next .spr-l'), ls ? 'Next Frame' : 'Start');
+  setText($('spr-what'), ls ? 'Frame ' + pos + ' of ' + order.length + ' · ' + ls.name + (nx ? '  ›  ' + nx.name : '') : order.length ? 'Ready: Go Live puts “' + order[0].name + '” on screen' : 'No Frames yet');
+  setText(document.querySelector('#spr-next .spr-l'), ls ? 'Next Frame' : 'Go Live');   // 26.11.12 the same words as the top bar
   var m = (studio && studio.media || [])[0], playing = m && (m.state === 'play' && !m.ended || m.state === 'restart');
   var pb = $('spr-play'); pb.disabled = !m;
   pb.querySelector('.spr-ic').innerHTML = I(playing ? 'pause' : 'play'); setText(pb.querySelector('.spr-l'), playing ? 'Pause' : 'Play');

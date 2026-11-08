@@ -45,7 +45,7 @@ import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.11"
+APP_VERSION = "26.11.12"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1191,11 +1191,13 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "onboarding": {},        # 9.5 the Welcome flow: {done, skipped, at} (app/js/onboarding.js)
                          # 26.11.12 How people see it: "camera" (FrameDecks vCam in Zoom/Teams), "window" (share the Share
                          # Window; the camera is not even loaded, which saves memory on older PCs) or "both" (as before)
-                         "peopleSee": "both"}
+                         "peopleSee": "both",
+                         # 26.11.12 the Studio shows the essentials ("simple", the default) or every control ("advanced")
+                         "studioMode": "simple"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
-                       "peopleSee": ("camera", "window", "both")}
+                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
@@ -2769,7 +2771,7 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps({"missing": media_check(state)}), TYPES[".json"])
-        if path == "/api/sync":                                   # Settings > FrameDecks account (this PC only)
+        if path == "/api/sync":                                   # Settings > Sync (this PC only); "update": 26.11.12
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info(), live=DOORBELL.info())), TYPES[".json"])
@@ -3370,8 +3372,10 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             action = data.get("action") if isinstance(data, dict) else None
+            role = data.get("role") if isinstance(data, dict) else None
+            code = data.get("code") if isinstance(data, dict) else None
             try:
-                if action == "link":
+                if action in ("link", "start"):                    # 26.11.12 "start": the QR code for a phone to scan
                     return self.reply(200, json.dumps(SYNC.link_start()), TYPES[".json"])
                 if action == "cancel":
                     return self.reply(200, json.dumps(SYNC.link_cancel()), TYPES[".json"])
@@ -3380,9 +3384,23 @@ class Handler(BaseHTTPRequestHandler):
                 if action == "now":
                     SYNC.poke(0)
                     return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
-                if action == "resync":                             # 8.4 Resync Linked PCs: a round now, with its outcome
+                if action in ("resync", "sync-now"):               # Sync now (8.4 Resync): a round now, with its outcome
                     return self.reply(200, json.dumps(SYNC.resync()), TYPES[".json"])
-            except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
+                # 26.11.12 Scan to join (0018_scan_to_join.sql), with this PC's own key
+                if action == "invite":                             # Add a device / Invite someone: a 2-minute QR code
+                    return self.reply(200, json.dumps(SYNC.invite(role or "admin")), TYPES[".json"])
+                if action == "allow-peek":                         # Allow a device: who asked with this code
+                    return self.reply(200, json.dumps(SYNC.allow_peek(code)), TYPES[".json"])
+                if action == "allow":
+                    return self.reply(200, json.dumps(SYNC.allow(code, role or "member")), TYPES[".json"])
+                if action == "devices":
+                    return self.reply(200, json.dumps(SYNC.devices()), TYPES[".json"])
+                if action == "remove":
+                    person = data.get("person") if isinstance(data, dict) else None
+                    return self.reply(200, json.dumps(SYNC.remove_device(person)), TYPES[".json"])
+            except cloud_sync.Offline as e:
+                return self.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
+            except (cloud_sync.Refused, OSError) as e:
                 return self.reply(503, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
         if path == "/api/remote-cloud/done":                       # the window's answers to those commands

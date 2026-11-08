@@ -1,0 +1,30 @@
+/* 26.11.12 Scan to join: the QR code and its short code (Join, Allow, Open Workspace, Devices). Loaded only by those
+ * components (components/join-code-card.tsx), so other pages stay within the CSS budget. */
+.jc-card{display:grid;grid-template-columns:auto 1fr;gap:18px 22px;align-items:center;margin:4px 0 16px}
+.jc-qr{display:grid;place-items:center;width:188px;aspect-ratio:1;padding:6px;border-radius:var(--radius);background:#fff;box-shadow:0 0 0 1px var(--hairline-strong)}
+.jc-qr svg{display:block;width:100%;height:100%}
+.jc-qr .fd-skel{width:100%;height:100%;border-radius:var(--radius-sm)}
+.jc-side{display:grid;gap:6px;min-width:0}
+.jc-label{margin:0;color:var(--text-2);font-size:13px}
+.jc-code{margin:0;color:var(--text);font:800 clamp(26px,5vw,34px)/1.1 ui-monospace,Consolas,monospace;letter-spacing:.1em;word-break:break-all}
+.jc-timer{margin:0;color:var(--text-3);font-size:13px;font-variant-numeric:tabular-nums}
+.jc-timer strong{color:var(--text-2);font-weight:600}
+.jc-note{margin:0 0 14px;color:var(--text-2);font-size:14px;line-height:1.55}
+.jc-ask{margin:0 0 16px;color:var(--text);font-size:19px;line-height:1.45}
+.jc-field{display:grid;gap:6px;margin:0 0 14px;color:var(--text-2);font-size:13px}
+.jc-field input,.jc-field select{min-height:46px;padding:0 12px;border-radius:12px;font-size:15px}
+.fd-auth .auth-form input.jc-type,.fd-page input.jc-type{font:700 20px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase}
+.jc-roles{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:0;border:0}
+.jc-roles legend{margin:0 0 6px;padding:0;color:var(--text-2);font-size:13px}
+.jc-roles label{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid var(--hairline-strong);border-radius:999px;color:var(--text);cursor:pointer}
+.jc-roles label:has(input:checked){border-color:var(--gold);background:var(--gold-soft)}
+.jc-roles input{accent-color:var(--gold)}
+.jc-more{display:grid;gap:4px;margin:22px 0 0;padding:16px 0 0;border-top:1px solid var(--hairline)}
+.jc-more p{margin:0 0 4px;color:var(--text-3);font-size:13px}
+.jc-more .fd-link{justify-self:start;min-height:32px;font-size:14px}
+.jc-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.jc-recovery{margin:4px 0 12px;padding:16px;border:1px dashed var(--gold);border-radius:var(--radius);text-align:center}
+.jc-recovery .jc-code{font-size:clamp(20px,4vw,26px)}
+@media (max-width:520px){.jc-card{grid-template-columns:1fr;justify-items:center;text-align:center}.jc-qr{width:min(220px,70vw)}}
+@media print{body *{visibility:hidden}.jc-recovery,.jc-recovery *{visibility:visible}.jc-recovery{position:absolute;inset:0 auto auto 0;width:100%;border-color:#000;color:#000}.jc-recovery .jc-code{color:#000}.jc-recovery button{visibility:hidden}}
+.jc-back{display:inline-block;margin:0 0 14px;font-size:14px}
