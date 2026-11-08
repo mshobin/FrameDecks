@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.14': [
+    {title: 'Draw and Spotlight without sharing', text: 'In the Command Center, Draw and Spotlight open a small pad with the live picture. What you draw shows on your camera picture in Zoom or Teams.', show: {settings: 'keys', spot: '#keys-global'}},
+    {title: 'Say the verse, show the verse', text: 'Turn on Listen for scripture: say a reference like Romans 8:38 while live and FrameDecks offers to show it.', show: {settings: 'scripture', spot: '#vl-settings'}},
+    {title: 'How long have we got?', text: 'The Frames list shows the meeting clock, and the live Frame\u2019s time against its Planned time, in gold once it runs over.', show: {spot: '#scene-list'}}
+  ],
   '26.11.13': [
     {title: 'A bigger live picture', text: 'The picture takes the Studio’s room. Beside it: is all well, what comes next, and one button, Go Live then Next.', show: {spot: '#ls-go'}},
     {title: 'Drag it your way', text: 'Drag the border under the picture to resize it; double-click it to fit. Drag it far up for a compact layout with the editor beside a small picture.', show: {spot: '#stage-row'}},

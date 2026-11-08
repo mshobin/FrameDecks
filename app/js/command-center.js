@@ -2,7 +2,8 @@
  * everything else, the same every time the shortcut opens it:
  *   Prepare  - meetings and Frames, the Teleprompter, the Share Window, the Studio, Quick Start, the Content Library,
  *              .frame files, the camera check;
- *   Engage   - Memory Cards (capture, show, hide), Draw and Spotlight on the Share Window;
+ *   Engage   - Memory Cards (capture, show, hide), Draw and Spotlight (26.11.14 on the draw pad here, js/cc-drawpad.js;
+ *              on the Share Window when people see a shared window);
  *   Control  - Go Live as a switch (on: the first Frame goes on screen; off: everything leaves the screen) and, while
  *              live, the meeting remote (js/spotlight-remote.js: Frames, Content, Hide all, Black, the meeting app);
  * 9.12 each thing lives in one chip only: Draw, Spotlight and Clear drawings are in Engage (the remote's Live tools
@@ -56,10 +57,16 @@ function goLive(on){
     Store.update(function(n){ SC.hideAll(n); n.live.scene = ''; n.live.blackout = false; n.live.freeze = false; }).then(function(){ tell('✓ Off air: nothing on screen'); });
   }
 }
+/* 26.11.14 Draw and Spotlight open the draw pad here (js/cc-drawpad.js), so Zoom or Teams stays in front; with How
+ * people see it set to "Share a window" they open the Share Window as before (shareTool) */
 function tool(mode){
   if (!isLive()){ tell('Go Live first (Control): Draw and Spotlight work on what is on screen.', true); return; }
-  post('api/app/annotate', {op: 'mode', mode: annMode === mode ? '' : mode}).then(function(d){ annMode = d.mode || ''; paint(); });
+  if (window.KCDrawPad){ KCDrawPad.choose(mode, function(){ shareTool(mode); }); return; }
+  shareTool(mode);
 }
+function shareTool(mode){ post('api/app/annotate', {op: 'mode', mode: annMode === mode ? '' : mode}).then(function(d){ annMode = d.mode || ''; paint(); }); }
+function padMode(){ return window.KCDrawPad ? KCDrawPad.mode() : ''; }
+document.addEventListener('kc-drawpad', function(){ paint(); post('api/app/annotate', {op: 'get'}).then(function(d){ annMode = d.mode || ''; paint(); }); });
 function capture(){ if (!mem) return; post('api/memory', {action: 'capture', on: !mem.capture}).then(loadMemory); }
 function scope(id){ var s = SCOPES[id]; current = s; P.scope(s); input.value = ''; input.dispatchEvent(new Event('input')); input.focus(); paintScope(); }
 
@@ -99,8 +106,8 @@ var MAKE = {
   camera: function(){ return T('camera', function(){ setting('vcam'); }, null, camSub()); },
   cards: function(){ return T('cards', function(){ scope('memory'); }, null, !mem ? 'Chat on screen' : (mem.items || []).length + ((mem.items || []).length === 1 ? ' card' : ' cards')); },
   capture: function(){ return T('capture', capture, {on: !!(mem && mem.capture), toggle: true}, mem && mem.capture ? 'On · each Ctrl+C is a card' : 'Off'); },
-  draw: function(){ return T('draw', function(){ tool('draw'); }, {on: annMode === 'draw', toggle: true}, 'On the Share Window'); },
-  spot: function(){ return T('spot', function(){ tool('spot'); }, {on: annMode === 'spot', toggle: true}); },
+  draw: function(){ return T('draw', function(){ tool('draw'); }, {on: annMode === 'draw' || padMode() === 'draw', toggle: true}, cam && cam.peopleSee === 'window' ? 'On the Share Window' : 'On the picture'); },
+  spot: function(){ return T('spot', function(){ tool('spot'); }, {on: annMode === 'spot' || padMode() === 'spot', toggle: true}); },
   clear: function(){ return T('clear', function(){ Store.update(function(n){ SC.ink(n, 'clear'); }).then(function(){ tell('✓ Drawings cleared'); }); }); },
   hidecards: function(){ return T('hidecards', function(){ post('api/memory', {action: 'hideall'}).then(loadMemory).then(function(){ tell('✓ Cards hidden'); }); }); },
   sync: function(){ return T('sync', function(){ setting('account'); }, null, syncSub()); },
@@ -152,55 +159,44 @@ var stage = h('div', {cls: 'cc-stage'}, [h('div', {cls: 'cc-stage-in'}, [panel])
 top.insertAdjacentElement('afterend', tray);
 tray.insertAdjacentElement('afterend', stage);
 
-/* 9.11 the tray folds away under the bar, as the Teleprompter's top bar does: a small tab with an arrow hangs under
- * the drawer; pointing at it shows the chips for as long as the pointer stays, clicking it keeps them open (or folds
- * them again), remembered. A chip opened with Alt+1 to Alt+5 shows the tray while its panel is open. */
-var FOLD_KEY = 'kc-cc-tray', pinned = false, peekT = 0;
-try { pinned = localStorage.getItem(FOLD_KEY) === '1'; } catch(e){}
-/* 26.11.2 the tab says what it does: while the chips show it reads "Keep open" (with a pin), pinned it reads "Pinned"
-   in gold; the first time the chips unfold it nudges once, so the pin is found without being told */
-var PIN_SVG = '<svg class="cc-pin-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V5h6v5.8l2.5 3.2H6.5z"/><path d="M8 5h8"/></svg>';
-var handle = h('button', {cls: 'cc-handle', type: 'button', 'aria-controls': 'cc-tray', html: I('chevron-down', 14) + PIN_SVG + '<span class="cc-handle-t"></span>'});
-var tipDone = false; try { tipDone = localStorage.getItem('kc-cc-pin-tip') === '1'; } catch(e){}
-var handleRow = h('div', {cls: 'cc-handle-row'}, [handle]);
+/* 9.11 the tray folds away under the bar, as the Teleprompter's top bar does; pointing at the bar shows the chips for
+ * as long as the pointer stays. 26.11.14 no tab with an arrow: a chip is its own pin. Click a chip and its panel opens
+ * and stays (pinned: the chips stay open, and it is open again the next time the Command Center opens); click the same
+ * chip again and it closes and the chips fold away. Remembered on this PC. */
+var FOLD_KEY = 'kc-cc-tray', pinId = '', peekT = 0;
+try { pinId = localStorage.getItem(FOLD_KEY) || ''; } catch(e){}
+if (!GROUPS.some(function(g){ return g.id === pinId; })) pinId = '';      // '1' / '0' from before 26.11.14: nothing pinned
+function pin(id){
+  pinId = id || '';
+  try { localStorage.setItem(FOLD_KEY, pinId); } catch(e){}
+}
 tray.id = 'cc-tray';
-stage.insertAdjacentElement('afterend', handleRow);
 function paintFold(){
-  var shown = pinned || box.classList.contains('cc-peek');
-  box.classList.toggle('cc-fold', !pinned);
-  handle.setAttribute('aria-expanded', String(shown));
-  handle.setAttribute('aria-pressed', String(pinned));
-  handle.title = pinned ? 'Pinned: the chips stay open. Click to fold them away' : 'Keep the chips open (point here to see them)';
-  handle.setAttribute('aria-label', pinned ? 'Pinned: fold the chips away' : 'Keep the chips open');
-  handle.lastChild.textContent = pinned ? 'Pinned' : 'Keep open';
-  if (shown && !pinned && !tipDone && !reduce){ tipDone = true; try { localStorage.setItem('kc-cc-pin-tip', '1'); } catch(e){}
-    handle.classList.remove('cc-tip'); void handle.offsetWidth; handle.classList.add('cc-tip'); setTimeout(function(){ handle.classList.remove('cc-tip'); }, 900); }
+  box.classList.toggle('cc-fold', !open);
+  box.classList.toggle('cc-pinned', !!pinId);
+  chips.forEach(function(c, i){
+    var on = GROUPS[i].id === pinId;
+    c.title = GROUPS[i].label + (on ? ': pinned. Click again to close it' : ': click to open and pin it') + ' (Alt+' + (i + 1) + ')';
+  });
 }
 function peek(on){
   clearTimeout(peekT);
   if (on === box.classList.contains('cc-peek')) return;
   box.classList.toggle('cc-peek', on);
-  if (on && !reduce){ tray.classList.remove('cc-unfold'); void tray.offsetWidth; tray.classList.add('cc-unfold'); }
+  if (on && !reduce && !open){ tray.classList.remove('cc-unfold'); void tray.offsetWidth; tray.classList.add('cc-unfold'); }
   paintFold();
 }
-function inDrawer(el){ return !!el && (handleRow.contains(el) || tray.contains(el) || stage.contains(el)); }
+function inDrawer(el, hover){ return !!el && (hover || el !== input) && (top.contains(el) || tray.contains(el) || stage.contains(el)); }
 function settle(){                                           // fold again once the pointer and the keyboard have left
   clearTimeout(peekT);
   peekT = setTimeout(function(){
-    if (pinned || open || inDrawer(document.activeElement) || box.querySelector('.cc-handle-row:hover,.cc-tray:hover,.cc-stage:hover')) return;
+    if (open || inDrawer(document.activeElement) || box.querySelector('.pal-top:hover,.cc-tray:hover,.cc-stage:hover')) return;
     peek(false);
   }, 380);
 }
-document.addEventListener('mouseover', function(e){ if (inDrawer(e.target)) peek(true); else if (box.classList.contains('cc-peek')) settle(); });
+document.addEventListener('mouseover', function(e){ if (inDrawer(e.target, true) && !box.classList.contains('cc-typing')) peek(true); else if (box.classList.contains('cc-peek')) settle(); });
 box.addEventListener('focusin', function(e){ if (inDrawer(e.target)) peek(true); });
 box.addEventListener('focusout', function(){ settle(); });
-handle.addEventListener('click', function(){
-  pinned = !pinned;
-  try { localStorage.setItem(FOLD_KEY, pinned ? '1' : '0'); } catch(e){}
-  if (!pinned){ if (open) closeGroup(); box.classList.remove('cc-peek'); input.focus({preventScroll: true}); }
-  else peek(true);
-  paintFold();
-});
 paintFold();
 var foot = box.querySelector('.pal-foot');
 if (foot) foot.remove();                                       // the hints live in the panels now
@@ -236,14 +232,14 @@ window.addEventListener('focus', guardLoad);
 var hold = h('div', {cls: 'cc-hold', hidden: 'hidden'}, [control]);      // the remote stays in the page (it keeps itself up to date)
 box.appendChild(hold);
 
-var open = null;
-function toggleGroup(g, e){ if (open === g){ closeGroup(); return; } openGroup(g, e); }
-function openGroup(g, e){
+var open = null, opening = false;
+function toggleGroup(g, e){ if (open === g){ closeGroup(); input.focus({preventScroll: true}); return; } openGroup(g, e); }
+function openGroup(g, e, quiet){
   var from = open ? GROUPS.indexOf(open) : -1, to = GROUPS.indexOf(g);
   if (current){ current = null; P.scope(null); }
-  if (input.value){ input.value = ''; input.dispatchEvent(new Event('input')); }
-  open = g;
-  peek(true);
+  if (input.value){ opening = true; input.value = ''; input.dispatchEvent(new Event('input')); opening = false; }
+  open = g; pin(g.id);                                       // 26.11.14 a chip is its own pin
+  peek(true); paintFold();
   if (g.control) guardLoad();
   chips.forEach(function(c, i){ c.setAttribute('aria-selected', String(i === to)); c.classList.toggle('on', i === to); });
   box.classList.add('cc-open'); box.dataset.group = g.id;
@@ -257,16 +253,19 @@ function openGroup(g, e){
   fill();
   panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in');
   paintScope();
+  if (quiet) return;
   if (g.notes) Notes.focus();                                 // 9.12 the notes field takes the typing
   else input.focus({preventScroll: true});                    // typing and Esc keep working after a click on a chip
 }
-function closeGroup(){
+function closeGroup(keepPin){                               // closed by its chip, Esc or Alt+n: unpinned too
   if (!open) return;
+  if (!keepPin) pin('');
   open = null; box.classList.remove('cc-open'); delete box.dataset.group;
   panel.classList.remove('in');                               // its opening animation no longer holds it visible
   chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); });
   glide.classList.remove('on');
   layout();
+  paintFold();
   settle();
 }
 function glideTo(i){
@@ -337,7 +336,7 @@ function paint(){
   if (open.control){
     var on = isLive(), ls = live && SC.liveScene(live), order = live ? SC.order(live) : [];
     golive.setAttribute('aria-checked', String(on)); golive.classList.toggle('on', on);
-    setText(golive.querySelector('#cc-golive-sub'), on ? 'On air · Frame ' + (order.indexOf(ls) + 1) + ' of ' + order.length + ' · ' + ls.name + ' · switch off to leave the screen'
+    setText(golive.querySelector('#cc-golive-sub'), on ? 'Live · Frame ' + (order.indexOf(ls) + 1) + ' of ' + order.length + ' · ' + ls.name + ' · switch off to leave the screen'
       : order.length ? 'Off air · switch on to put “' + order[0].name + '” on screen' : 'Off air · no Frames yet');
     setText(control.querySelector('#cc-offair'), on ? '' : 'Go Live and the remote appears here: Frames, the Content one by one, Hide all, Black screen and your meeting app’s Mute and Camera. Draw and Spotlight are in Engage.');
     return;
@@ -384,7 +383,12 @@ P.hooks.escape = function(){
   return false;
 };
 P.hooks.backspace = function(){ if (current){ clearScope(); return true; } return false; };
-input.addEventListener('input', function(){ if (input.value.trim() && open) closeGroup(); layout(); });
+input.addEventListener('input', function(){                  // a search steps in front of a pinned panel, which comes back once the bar is empty
+  if (input.value.trim() && open) closeGroup(true);
+  else if (!opening && !input.value.trim() && !open && !current && pinned()) openGroup(pinned(), null, true);
+  layout();
+});
+function pinned(){ return GROUPS.filter(function(g){ return g.id === pinId; })[0] || null; }
 document.addEventListener('keydown', function(e){
   if (!e.altKey || e.ctrlKey || e.metaKey || !/^[1-5]$/.test(e.key)) return;
   e.preventDefault(); e.stopPropagation();
@@ -420,9 +424,10 @@ function loadMemory(){ return get('api/memory').then(function(d){ if (d){ mem = 
 function render(){ if (live) paint(); }
 function opened(){
   current = null; P.scope(null); open = null; box.classList.remove('cc-open', 'cc-typing', 'cc-peek'); delete box.dataset.group;
-  paintFold();
   chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); }); glide.classList.remove('on');
+  paintFold();
   paintScope();
+  if (pinned()) openGroup(pinned(), null, true);              // 26.11.14 a pinned chip is open again, as it was left
   if (!reduce){ box.classList.remove('cc-enter'); void box.offsetWidth; box.classList.add('cc-enter'); }
   get('api/sync').then(function(d){ sync = d; paint(); });
   get('api/app/info').then(function(d){ if (d){ var st = d.settings || {}; paintKeys(st.spotlightKey); look({size: st.ccSize, place: st.ccPlace}); } });

@@ -45,12 +45,12 @@ await measure(r, rc, "remote idle", 5000);
 const c = await ctx.newPage(); const cc = await ctx.newCDPSession(c);
 await cc.send("Performance.enable"); await cc.send("Emulation.setCPUThrottlingRate", { rate: SLOW });
 await c.setViewportSize({ width: 820, height: 720 });
-await c.goto(B + "/spotlight.html"); await c.waitForSelector(".cc-handle"); await c.waitForTimeout(2500);
+await c.goto(B + "/spotlight.html"); await c.waitForSelector(".pal-top"); await c.waitForTimeout(2500);
 await c.evaluate(() => document.documentElement.classList.add("kc-glass"));
 await measure(c, cc, "command center idle", 5000);
-// 9.11 the tray is folded away: pointing at the arrow unfolds it, clicking keeps it open for the chip scenarios
-await measure(c, cc, "command center unfold", 1200, () => c.hover(".cc-handle"));
-await c.click(".cc-handle"); await c.waitForTimeout(400);
+// 9.11 the tray is folded away: pointing at the bar unfolds it (26.11.14 a chip pins itself, no arrow)
+await measure(c, cc, "command center unfold", 1200, () => c.hover(".pal-top"));
+await c.waitForTimeout(400);
 await measure(c, cc, "command center chip", 1500, () => c.click("#cc-g-prepare"));
 await measure(c, cc, "command center chip change", 3000, async () => {
   for (const id of ["engage", "control", "more", "prepare", "engage"]) { await c.click("#cc-g-" + id); await c.waitForTimeout(420); }

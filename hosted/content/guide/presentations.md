@@ -85,6 +85,12 @@ picture**) to jump there. Drag it far up and the Studio changes to a compact lay
 the column under it, and the editor beside them at full height. Drag the border between them to the right, or press
 **Big stage**, for the big picture again. FrameDecks remembers your layout on this PC.
 
+**The run sheet.** While you are live, the Frames list shows a **meeting clock** in its header (from your first Go
+Live; click it to start it again), and the live Frame shows how long it has been on screen. Give a Frame a **Planned
+time** (in the Frame's settings, in minutes) and the list shows its time against the plan, such as *1:11 / 1:00*,
+turning gold once it runs over; Frames that are not live show their plan, such as *5 min*. While a Frame is live, the
+top bar brings **Control** forward and lets **Prepare** and **More** step back; before you go live, the reverse.
+
 **Simple and Advanced.** The Studio opens in **Simple**: the essentials only. **Advanced** (the switch at the right
 of the editor's bar, which stays there when the editor is folded) shows every control again: Transition and
 Auto-advance in the top bar, the camera numbers, the status tiles, In this Frame and the editor's settings. Nothing
@@ -166,6 +172,7 @@ on the projector sees it.
 
 1. Press **D** (or, in a browser, choose **Engage → Draw**). In the desktop app, **Engage → Draw** opens the Share Window
    to draw on instead, as Spotlight does: see [Draw and Spotlight on the Share Window](#draw-and-spotlight-on-the-share-window).
+   In the Command Center, Draw opens a draw pad right there: see [Draw and Spotlight in the Command Center](#draw-and-spotlight-in-the-command-center).
 2. Pick a tool and draw on the Studio Canvas.
 3. Press **Esc** (or **Done**) to stop. The drawings are hidden.
 
@@ -392,22 +399,23 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 
 The **Command Center** is where everything in FrameDecks starts. It works when another program is in front, and when
 FrameDecks is hidden in the tray. It has no window around it: a glass search bar floats on your screen with a tray of
-five chips folded away under it, behind a small arrow, as the Teleprompter's top bar is.
+five chips folded away under it.
 
 1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
    with its shortcut (or the tray's **Command Center**), never by itself.
 2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Memory Cards, settings and
    commands. Choose with **↑ / ↓** and **Enter**. Start with **>** for commands only, **#** for meetings and Frames,
    or **@** for people.
-3. Or point at the small arrow under the bar: the five chips unfold for as long as the pointer stays. Click the arrow
-   to keep them open every time (click again to fold them away; it is remembered). Choose a chip, or press **Alt+1**
-   to **Alt+5** even while they are folded. Its panel opens under the chips; **Esc** closes it.
+3. Or point at the bar: the five chips unfold for as long as the pointer stays. Click a chip, or press **Alt+1** to
+   **Alt+5**, and its panel opens under the chips and stays pinned: it is still open the next time you open the
+   Command Center. Click the same chip again (or press **Esc**) to close it, and the chips fold away again. Typing in
+   the bar shows your results in front of a pinned panel; clear the bar and the panel is back.
 4. **Esc** again, or a click anywhere else, closes the Command Center.
 
 | Chip | What it holds |
 |---|---|
 | **Prepare** | Meetings (switch the meeting this PC shows), Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
-| **Engage** | Memory Cards, Capture copies, Draw and Spotlight on the Share Window, Clear drawings, Hide the cards |
+| **Engage** | Memory Cards, Capture copies, Draw and Spotlight (on a draw pad right in the Command Center), Clear drawings, Hide the cards |
 | **Control** | **Go Live** as a switch, and while you are live the meeting remote (below) |
 | **Notes** | Your private notes for this meeting (below) |
 | **More** | Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
@@ -455,11 +463,30 @@ The meeting buttons press the meeting app's own keyboard shortcut in its window,
 window you were in. Google Meet has no shortcut for sharing or leaving, so those buttons are off for Meet. A button is
 also off when no meeting is open. Windows only.
 
+### Draw and Spotlight in the Command Center
+
+Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, or with **Alt+D** or **Alt+L**) and a **draw pad**
+opens right in the Command Center. Zoom or Teams stays in front: no other FrameDecks window opens.
+
+- The pad shows the picture people see in the meeting (your FrameDecks vCam camera picture, with the cards).
+- **Draw:** drag with the mouse or a pen. Choose **Pen**, **Highlight** or **Arrow**, and gold, red or white. The
+  drawing appears on your camera picture when you let go.
+- **Spotlight:** click a word or a point on the pad and it lights up for a few seconds on every screen.
+- **Undo** (or **Ctrl+Z**) takes back the last drawing; **Clear** removes them all. **Done** (or **Esc**) closes the pad
+  and hides the drawings.
+
+The first time you use the pad in a meeting, FrameDecks suggests: *Ask the host to spotlight your video so everyone sees
+your drawing large.* (In Zoom the host chooses **Spotlight video** on your video; in Teams, **Spotlight**.)
+
+The pad needs FrameDecks vCam. If **How people see it** (Settings) is set to **Share a window**, Draw and Spotlight open
+the Share Window instead, as described next.
+
 ### Draw and Spotlight on the Share Window
 
-Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, with **Alt+D** or **Alt+L**, or type *draw* or *spotlight* in its bar), or in the **Engage** chip of the Studio's top bar. The **Share Window**
-(the window you share in Zoom or Teams) opens, comes to the front, and the Command Center closes, so you can work on what everyone
-sees:
+When people see a shared window (**How people see it** set to **Share a window**), choose **Draw** or **Spotlight** in
+the Command Center (in **Engage**, with **Alt+D** or **Alt+L**), type *draw* or *spotlight* in its bar, or use the
+**Engage** chip of the Studio's top bar. The **Share Window** (the window you share in Zoom or Teams) opens, comes to
+the front, and the Command Center closes, so you can work on what everyone sees:
 
 - **Draw:** drag with the mouse. Keys **1**–**5** choose pen, highlighter, arrow, box or circle; **G**, **R** and **W**
   choose gold, red or white; **Ctrl+Z** undoes, **Delete** clears.

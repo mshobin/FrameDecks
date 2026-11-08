@@ -2,8 +2,8 @@
  * system-wide shortcut (Alt+Space by default), also while FrameDecks sits in the tray; never by itself.
  * While a Frame is live, under its search field it shows the Live panel: what is on screen, Previous / Next Frame,
  * the video, Hide all and Black screen; the Content of the Frame's Decks (questions, scriptures or slides, one by
- * one, like the phone remote); the Live tools Draw and Spotlight, which open the Share Window to draw or point on it
- * with the mouse; the meeting app (Zoom, Teams,
+ * one, like the phone remote); the Live tools Draw and Spotlight, which open the draw pad in the Command Center
+ * (26.11.14, js/cc-drawpad.js; the Share Window when people see a shared window); the meeting app (Zoom, Teams,
  * Google Meet: mute, camera, share, leave, through each app's own shortcut: src/meeting_keys.py); the PC's volume;
  * and shortcuts into FrameDecks. Nothing live: only the search field. All of it is the same shared state as the
  * phone remote (js/store.js KCScenes).
@@ -112,16 +112,24 @@ function contentStep(d){
   showItem(k, j);
 }
 
-/* ---------- 9.7 Live tools: Draw and Spotlight on the Share Window. Choosing one opens the Share Window (the
- * window you share in Zoom or Teams), puts it in front and hides Spotlight; then you draw or point on it with the
- * mouse (server.annotate_op; vcam/present_window.py, present.html). Esc or Done on the Share Window finishes. ---------- */
+/* ---------- 9.7 Live tools: Draw and Spotlight. 26.11.14 they open the draw pad inside the Command Center
+ * (js/cc-drawpad.js): the camera picture people see, drawn on with the mouse, while Zoom or Teams stays in front.
+ * When How people see it is "Share a window" they open the Share Window as in 9.7 (shareTool): it comes to the
+ * front, Spotlight hides, and you draw or point on it with the mouse (server.annotate_op; vcam/present_window.py,
+ * present.html). Esc or Done finishes. ---------- */
 var annMode = '';
 function openTool(mode){
   if (!live || !SC.liveScene(live)){ tell('Go Live first: Draw and Spotlight work on what is on screen.'); return; }
+  if (window.KCDrawPad){ KCDrawPad.choose(mode, function(){ shareTool(mode); }); return; }   // 26.11.14 the draw pad
+  shareTool(mode);
+}
+function shareTool(mode){
   var want = annMode === mode ? '' : mode;
   post('api/app/annotate', {op: 'mode', mode: want}).then(function(d){ annMode = d.mode || ''; render(); })
     .catch(function(e){ tell(e.message, true); });
 }
+function padMode(){ return window.KCDrawPad ? KCDrawPad.mode() : ''; }
+document.addEventListener('kc-drawpad', function(){ render(); checkAnnotate(); });
 function checkAnnotate(){ post('api/app/annotate', {op: 'get'}).then(function(d){ annMode = d.mode || ''; render(); }).catch(function(){}); }
 
 /* ---------- the panel ---------- */
@@ -243,7 +251,7 @@ function render(){
   if (qm) Array.prototype.forEach.call($('spr-qs').children, function(b){ b.setAttribute('aria-checked', String(b.dataset.qs === qm)); });
   // Live tools
   var ink = !!(L.ink && L.ink.on);
-  [['spot', annMode === 'spot'], ['draw', annMode === 'draw' || ink]].forEach(function(b){ var el = $('spr-' + b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); });
+  [['spot', annMode === 'spot' || padMode() === 'spot'], ['draw', annMode === 'draw' || padMode() === 'draw' || ink]].forEach(function(b){ var el = $('spr-' + b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); });
   $('spr-inkclear').disabled = !(L.ink && L.ink.items && L.ink.items.length);
   // the meeting
   setText($('spr-mt-name'), meet.name || 'Meeting');

@@ -1,38 +1,42 @@
-## FrameDecks v26.11.13
+## FrameDecks v26.11.14
 
-A Live Stage that uses the whole Studio, a picture you can resize your way, and a calmer website. Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all
-your meetings, members, settings, notes, pinned Memory Cards and recordings.
+Draw on the meeting without sharing a window, say a verse and see it offered, and know how long you have. Download
+from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps
+all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **The Live Stage.** The picture of what people see now takes the Studio's room: the largest 16:9 there is, about a
-  quarter wider on a laptop screen, with no strip above or below it. One column beside it holds three things: is all
-  well (one sentence), what comes next (the Up next card, with any warning), and one big button: **Go Live** while
-  nothing is on screen, then **Next**.
-- **Advanced, the same stage with more detail.** The status becomes four small tiles (Video, Sound, Connection, what
-  is showing), **In this Frame** lists the live Frame's scriptures and questions (a green dot for what is on screen,
-  **Show** for the rest), and Up next is written on the Next button itself.
-- **Resize it your way.** Drag the border under the stage and the picture grows or shrinks with it, at any window
-  size. The border clicks into place where the picture fills the width; double-click it, or choose Layout → **Fit
-  the picture**, to jump there.
-- **A compact layout when you need the editor.** Drag the border far up and the Studio changes: a small picture
-  top-left with the column under it, and the editor beside them at full height. Drag the border between them to the
-  right, or press **Big stage**, for the big picture again. FrameDecks remembers your layout on this PC.
+- **The draw pad.** In the Command Center, **Draw** and **Spotlight** now open a small pad under the bar with the live
+  picture in it: Pen, Highlight, Arrow and Spotlight, in gold, red or white, with Undo and Clear. What you draw shows
+  on your camera picture in Zoom or Teams straight away, and nothing has to be shared. **Done** or **Esc** closes it.
+  With **How people see it** set to **Share a window**, Draw and Spotlight still use the Share Window.
+- **Listen for scripture.** Turn it on in Settings → Content → Scripture. While a Frame is live, say a reference such
+  as "Romans eight thirty-eight to thirty-nine" and a card at the top of the Live Stage column offers it: **Show** adds
+  the passage to the live Frame's Scripture Deck and puts it on screen, **Dismiss** lets it go. With **Auto** on it is
+  shown straight away. Everything is heard on this PC only; nothing is recorded or sent anywhere.
+- **The run sheet.** The Frames list shows the meeting clock from your first Go Live (click it to start it again).
+  The live Frame shows how long it has been on screen, against its **Planned time** when it has one, in gold once it
+  runs over. Other Frames show their plan. Set a Frame's Planned time in its settings.
 
 ## Enhancements
-- **Simple | Advanced sits in the editor's bar**, at the right, and stays there when the editor is folded.
-- **The website's landing page** shows how a meeting is built (the flowchart of a Frame, its Decks and their
-  Content) and moves to the Studio, in Advanced, much sooner. Its animations follow your scroll, also with a
-  touchpad, and play backwards when you scroll up; there are no replay buttons.
-- **The website's pictures of the program** show the new Studio.
+- **The Command Center: a chip is its own pin.** Click a chip and its panel opens and stays, also the next time you
+  open the Command Center. Click the same chip again, or press **Esc**, to close it. The small arrow tab under the bar
+  is gone: point at the bar to see the chips.
+- **A grip on the border under the stage**, so it is plain that it can be dragged.
+- **One word each:** a Frame on screen is **Live**; its Decks and Content are **On screen**.
+- **A quieter top bar while live:** Control comes forward and the planning chips step back; before Go Live it is the
+  other way round.
 
 ## Fixes
-- **The phone remote and FrameDecks vCam switches** in Settings are the normal switch again, without the large round
-  circle around them.
+- **No box behind the Command Center** while a chip's panel opens or closes, or the draw pad opens: the window's
+  shape now follows what moves, frame by frame.
 
 ## Performance Improvements
-None in this version.
+- The meeting clock ticks only while a Frame is live, and listening for scripture uses the microphone only while the
+  setting is on and a Frame is live. It shares Follow my voice's listener, so there is one microphone and one speech
+  model in memory.
 
 ## Known Issues
+- Listen for scripture hears this PC's microphone, not the people in Zoom or Teams, and needs the FrameDecks app on
+  Windows. The speech model downloads the first time it is used (as for Follow my voice).
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

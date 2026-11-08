@@ -480,7 +480,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .si-t,.li-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .si-t b,.li-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .si-t small,.li-t small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.si-badge{flex:none;font-size:12px;font-weight:800;letter-spacing:.06em;border-radius:4px;padding:2px 6px}
+.si-badge{flex:none;font-size:12px;font-weight:800;letter-spacing:.06em;border-radius:4px;padding:2px 6px;text-transform:uppercase;white-space:nowrap}
 .si-badge.live{background:var(--live);color:var(--green-50)}
 .si-badge.next{border:1px dashed var(--muted);color:var(--muted)}
 .ib.si-fav,.ib.si-more{width:26px;height:26px;border-color:transparent;font-size:15px;color:var(--faint);opacity:0}
@@ -1072,6 +1072,28 @@ body.kc-resizing iframe{pointer-events:none}
   body.studio-focus .ws-center{grid-column:1;grid-row:1}
   body.studio-focus .kc-split,body.studio-focus .ws-left,body.studio-focus .ws-right{display:none}
 }
+/* 26.11.14 the run sheet (js/run-sheet.js): the meeting clock in the Frames header, each Frame's time on screen */
+.rs-clock{flex:none;margin-left:6px;min-height:24px;padding:0 8px;border:1px solid var(--line-soft);border-radius:999px;background:var(--surface);
+  color:var(--live);font:inherit;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer}
+.rs-clock[hidden]{display:none}
+.rs-clock::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:999px;background:var(--live);vertical-align:1px}
+.rs-t{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rs-t::after{content:" \00B7  ";font-weight:400;color:var(--faint)}
+.rs-t.on{color:var(--live)}
+.rs-t.over{color:var(--gold)}
+html[data-theme="light"] .rs-t.over{color:var(--warn)}
+.sc-plan input{width:72px}
+/* the border under the stage shows it can be dragged: a small grip in its middle */
+.kc-hsplit::before{content:"";position:absolute;left:50%;top:1px;width:36px;height:4px;margin-left:-18px;border-radius:999px;background:var(--line);z-index:1;
+  transition:background-color var(--t-fast)}
+.kc-hsplit:hover::before,.kc-hsplit.dragging::before,.kc-hsplit:focus-visible::before{background:var(--accent)}
+/* a quieter top bar: while a Frame is live, Control comes forward and the planning chips step back; before, the reverse */
+.cmdbar .lc-wrap{transition:opacity var(--t-fast)}
+body.kc-live .cmdbar #lc-prepare,body.kc-live .cmdbar #lc-more,body:not(.kc-live) .cmdbar #lc-control{opacity:.6}
+body.kc-live .cmdbar #lc-prepare:is(:hover,:focus-visible),body.kc-live .cmdbar #lc-more:is(:hover,:focus-visible),
+body:not(.kc-live) .cmdbar #lc-control:is(:hover,:focus-visible),body .cmdbar .lc-wrap.open > .lc:is(#lc-prepare,#lc-more,#lc-control){opacity:1}
+body.kc-live .cmdbar #lc-prepare .lc-l,body.kc-live .cmdbar #lc-more .lc-l{display:none}
+body.kc-live .cmdbar #lc-control{border-color:var(--ch);box-shadow:inset 0 -2px 0 var(--ch)}
 /* 26.11.13 dragged small (js/panels.js .wrap): the picture top-left at a set size, the column under it, the editor beside
    them at full height; the border between them drags sideways, and far enough to the right brings back the big stage */
 .kc-big{display:none;gap:6px}

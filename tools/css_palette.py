@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CSS = ROOT / "app/css"
-FILES = ["theme.css", "console.css", "members.css", "about.css", "dashboard.css", "speaker.css", "window.css"]
+FILES = ["theme.css", "console.css", "members.css", "about.css", "dashboard.css", "speaker.css", "window.css", "verse-listen.css"]
 PALETTE = CSS / "palette.css"
 HEX = re.compile(r"#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b")
 RGBA = re.compile(r"rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+%?)\s*)?\)")

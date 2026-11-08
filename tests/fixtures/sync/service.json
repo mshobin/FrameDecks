@@ -84,13 +84,13 @@
   },
   "scenes": [
    {
-    "id": "sc_rz34vpm",
+    "id": "sc_w587yyu",
     "name": "Welcome",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793775715408,
-    "modified": 1793775715408,
+    "created": 1794125075881,
+    "modified": 1794125075881,
     "version": 1,
     "creator": "",
     "from": "",
@@ -105,13 +105,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Lxsw7pzy",
+      "id": "Ltsy6ey1",
       "kind": "announcement",
       "name": "Announcement",
       "visible": true,
@@ -133,13 +134,13 @@
     ]
    },
    {
-    "id": "sc_i311yxj",
+    "id": "sc_ozqxoxz",
     "name": "Study: John 3",
     "group": "Teaching",
     "fav": false,
     "tpl": false,
-    "created": 1793775715410,
-    "modified": 1793775715410,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -154,13 +155,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Lif1ddcn",
+      "id": "Lrqhi8vl",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -178,7 +180,7 @@
       }
      },
      {
-      "id": "L96p2ua5",
+      "id": "Lhlsin0v",
       "kind": "question",
       "name": "Question",
       "visible": true,
@@ -195,13 +197,13 @@
     ]
    },
    {
-    "id": "sc_g6zlibx",
+    "id": "sc_qf5qc7y",
     "name": "Video",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793775715411,
-    "modified": 1793775715411,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -216,13 +218,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Lqowupea",
+      "id": "Lnxby49f",
       "kind": "video",
       "name": "Video",
       "visible": true,
@@ -241,13 +244,13 @@
     ]
    },
    {
-    "id": "sc_ck14v63",
+    "id": "sc_43knith",
     "name": "Slide",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793775715411,
-    "modified": 1793775715411,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -262,6 +265,7 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
@@ -284,13 +288,13 @@
     ]
    },
    {
-    "id": "sc_7en1bft",
+    "id": "sc_iebhz17",
     "name": "Prayer template",
     "group": "",
     "fav": false,
     "tpl": true,
-    "created": 1793775715411,
-    "modified": 1793775715411,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -305,13 +309,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Ldcacaf9",
+      "id": "L0p3d011",
       "kind": "prayer",
       "name": "Prayer Point",
       "visible": true,
@@ -331,7 +336,7 @@
       }
      },
      {
-      "id": "Lehu1sh8",
+      "id": "Lbr2uzsi",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -352,9 +357,10 @@
    }
   ],
   "live": {
-   "scene": "sc_i311yxj",
+   "scene": "sc_ozqxoxz",
    "seq": 1,
-   "at": 1793775715412,
+   "at": 1794125075882,
+   "since": 1794125075882,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -543,13 +549,13 @@
   },
   "scenes": [
    {
-    "id": "sc_rz34vpm",
+    "id": "sc_w587yyu",
     "name": "Welcome",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793775715408,
-    "modified": 1793775715408,
+    "created": 1794125075881,
+    "modified": 1794125075881,
     "version": 1,
     "creator": "",
     "from": "",
@@ -564,13 +570,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Lxsw7pzy",
+      "id": "Ltsy6ey1",
       "kind": "announcement",
       "name": "Announcement",
       "visible": true,
@@ -592,13 +599,13 @@
     ]
    },
    {
-    "id": "sc_i311yxj",
+    "id": "sc_ozqxoxz",
     "name": "Study: John 3",
     "group": "Teaching",
     "fav": false,
     "tpl": false,
-    "created": 1793775715410,
-    "modified": 1793775715410,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -613,13 +620,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Lif1ddcn",
+      "id": "Lrqhi8vl",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -637,7 +645,7 @@
       }
      },
      {
-      "id": "L96p2ua5",
+      "id": "Lhlsin0v",
       "kind": "question",
       "name": "Question",
       "visible": true,
@@ -654,13 +662,13 @@
     ]
    },
    {
-    "id": "sc_g6zlibx",
+    "id": "sc_qf5qc7y",
     "name": "Video",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793775715411,
-    "modified": 1793775715411,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -675,13 +683,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Lqowupea",
+      "id": "Lnxby49f",
       "kind": "video",
       "name": "Video",
       "visible": true,
@@ -700,13 +709,13 @@
     ]
    },
    {
-    "id": "sc_ck14v63",
+    "id": "sc_43knith",
     "name": "Slide",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793775715411,
-    "modified": 1793775715411,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -721,6 +730,7 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
@@ -745,13 +755,13 @@
     ]
    },
    {
-    "id": "sc_7en1bft",
+    "id": "sc_iebhz17",
     "name": "Prayer template",
     "group": "",
     "fav": false,
     "tpl": true,
-    "created": 1793775715411,
-    "modified": 1793775715411,
+    "created": 1794125075882,
+    "modified": 1794125075882,
     "version": 1,
     "creator": "",
     "from": "",
@@ -766,13 +776,14 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
     },
     "layers": [
      {
-      "id": "Ldcacaf9",
+      "id": "L0p3d011",
       "kind": "prayer",
       "name": "Prayer Point",
       "visible": true,
@@ -792,7 +803,7 @@
       }
      },
      {
-      "id": "Lehu1sh8",
+      "id": "Lbr2uzsi",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -813,9 +824,10 @@
    }
   ],
   "live": {
-   "scene": "sc_i311yxj",
+   "scene": "sc_ozqxoxz",
    "seq": 1,
-   "at": 1793775715412,
+   "at": 1794125075882,
+   "since": 1794125075882,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -903,15 +915,15 @@
   "entities": [
    {
     "kind": "frame",
-    "id": "sc_rz34vpm",
+    "id": "sc_w587yyu",
     "body": {
-     "id": "sc_rz34vpm",
+     "id": "sc_w587yyu",
      "name": "Welcome",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1793775715408,
-     "modified": 1793775715408,
+     "created": 1794125075881,
+     "modified": 1794125075881,
      "version": 1,
      "creator": "",
      "from": "",
@@ -926,13 +938,14 @@
       "on": false,
       "sec": 30
      },
+     "plan": 0,
      "out": {
       "vcam": true,
       "obs": true
      },
      "layers": [
       {
-       "id": "Lxsw7pzy",
+       "id": "Ltsy6ey1",
        "kind": "announcement",
        "name": "Announcement",
        "visible": true,
@@ -956,15 +969,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_i311yxj",
+    "id": "sc_ozqxoxz",
     "body": {
-     "id": "sc_i311yxj",
+     "id": "sc_ozqxoxz",
      "name": "Study: John 3",
      "group": "Teaching",
      "fav": false,
      "tpl": false,
-     "created": 1793775715410,
-     "modified": 1793775715410,
+     "created": 1794125075882,
+     "modified": 1794125075882,
      "version": 1,
      "creator": "",
      "from": "",
@@ -979,13 +992,14 @@
       "on": false,
       "sec": 30
      },
+     "plan": 0,
      "out": {
       "vcam": true,
       "obs": true
      },
      "layers": [
       {
-       "id": "Lif1ddcn",
+       "id": "Lrqhi8vl",
        "kind": "scripture",
        "name": "Scripture",
        "visible": true,
@@ -1003,7 +1017,7 @@
        }
       },
       {
-       "id": "L96p2ua5",
+       "id": "Lhlsin0v",
        "kind": "question",
        "name": "Question",
        "visible": true,
@@ -1022,15 +1036,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_g6zlibx",
+    "id": "sc_qf5qc7y",
     "body": {
-     "id": "sc_g6zlibx",
+     "id": "sc_qf5qc7y",
      "name": "Video",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1793775715411,
-     "modified": 1793775715411,
+     "created": 1794125075882,
+     "modified": 1794125075882,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1045,13 +1059,14 @@
       "on": false,
       "sec": 30
      },
+     "plan": 0,
      "out": {
       "vcam": true,
       "obs": true
      },
      "layers": [
       {
-       "id": "Lqowupea",
+       "id": "Lnxby49f",
        "kind": "video",
        "name": "Video",
        "visible": true,
@@ -1072,15 +1087,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_ck14v63",
+    "id": "sc_43knith",
     "body": {
-     "id": "sc_ck14v63",
+     "id": "sc_43knith",
      "name": "Slide",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1793775715411,
-     "modified": 1793775715411,
+     "created": 1794125075882,
+     "modified": 1794125075882,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1095,6 +1110,7 @@
       "on": false,
       "sec": 30
      },
+     "plan": 0,
      "out": {
       "vcam": true,
       "obs": true
@@ -1121,15 +1137,15 @@
    },
    {
     "kind": "template",
-    "id": "sc_7en1bft",
+    "id": "sc_iebhz17",
     "body": {
-     "id": "sc_7en1bft",
+     "id": "sc_iebhz17",
      "name": "Prayer template",
      "group": "",
      "fav": false,
      "tpl": true,
-     "created": 1793775715411,
-     "modified": 1793775715411,
+     "created": 1794125075882,
+     "modified": 1794125075882,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1144,13 +1160,14 @@
       "on": false,
       "sec": 30
      },
+     "plan": 0,
      "out": {
       "vcam": true,
       "obs": true
      },
      "layers": [
       {
-       "id": "Ldcacaf9",
+       "id": "L0p3d011",
        "kind": "prayer",
        "name": "Prayer Point",
        "visible": true,
@@ -1170,7 +1187,7 @@
        }
       },
       {
-       "id": "Lehu1sh8",
+       "id": "Lbr2uzsi",
        "kind": "scripture",
        "name": "Scripture",
        "visible": true,
@@ -1256,11 +1273,11 @@
     "id": "order",
     "body": {
      "scenes": [
-      "sc_rz34vpm",
-      "sc_i311yxj",
-      "sc_g6zlibx",
-      "sc_ck14v63",
-      "sc_7en1bft"
+      "sc_w587yyu",
+      "sc_ozqxoxz",
+      "sc_qf5qc7y",
+      "sc_43knith",
+      "sc_iebhz17"
      ],
      "questions": [
       "q1",
@@ -1416,9 +1433,10 @@
     }
    },
    "live": {
-    "scene": "sc_i311yxj",
+    "scene": "sc_ozqxoxz",
     "seq": 1,
-    "at": 1793775715412,
+    "at": 1794125075882,
+    "since": 1794125075882,
     "tx": "cut",
     "txMs": 0,
     "auto": true,

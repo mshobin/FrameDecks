@@ -44,7 +44,7 @@ async def command_center(b, base):
     await sp.goto(base + "/spotlight.html")
     await sp.wait_for_timeout(1500)
     await sp.evaluate(BACKDROP)
-    await sp.hover(".cc-handle")                 # 9.11 the chips fold away under the bar; pointing at the arrow shows them
+    await sp.hover(".pal-top")                   # 9.11 the chips fold away under the bar; pointing at the bar shows them
     await sp.wait_for_timeout(300)
     await sp.screenshot(path=str(COMMAND_CENTER), animations="disabled")
     await sp.set_viewport_size({"width": 820, "height": 720})
@@ -65,7 +65,7 @@ async def command_center_web(b, base):
     await sp.wait_for_timeout(1500)
     await sp.evaluate("document.documentElement.classList.add('kc-glass');"
                       "for (const e of [document.documentElement, document.body]) e.style.background = 'transparent'")
-    await sp.hover(".cc-handle")
+    await sp.hover(".pal-top")
     await sp.wait_for_timeout(300)
     from PIL import Image
     tmp = CC_WEB.with_suffix(".png")

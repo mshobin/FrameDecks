@@ -112,9 +112,9 @@ await measure(tp, "teleprompter idle", 4000);
 await measure(tp, "teleprompter scrolling", 3000, () => tp.p.evaluate(() => document.querySelector(".tp-play").click()), "busy");
 await tp.p.evaluate(() => document.querySelector(".tp-play").click());
 
-const cc = await open("/spotlight.html", 820, 720, (p) => p.waitForSelector(".cc-handle"));
+const cc = await open("/spotlight.html", 820, 720, (p) => p.waitForSelector(".pal-top"));
 await measure(cc, "command center idle", 4000);
-await cc.p.click(".cc-handle"); await cc.p.waitForTimeout(400);
+await cc.p.hover(".pal-top"); await cc.p.waitForTimeout(400);   // 26.11.14 pointing at the bar shows the chips; a chip pins itself
 for (const g of ["prepare", "engage", "control", "notes", "more"]) await measure(cc, "command center: " + g, 1200, () => cc.p.click("#cc-g-" + g), "action");
 await leak(cc, "command center: chips", async () => { for (const g of ["prepare", "engage", "control", "notes", "more"]) { await cc.p.click("#cc-g-" + g); await cc.p.waitForTimeout(150); } });
 

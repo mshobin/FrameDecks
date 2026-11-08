@@ -10,6 +10,38 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.14] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.14.md](releases/v26.11.14.md).
+
+### Added
+- The draw pad (`app/js/cc-drawpad.js`, `window.KCDrawPad`): the Command Center's Draw and Spotlight open a pad under
+  the bar with the live picture (`api/remote/live.jpg` about four times a second, only while open; `stage.html` as a
+  fallback): Pen, Highlight, Arrow, Spotlight, three colours, Undo / Ctrl+Z, Clear, Done / Esc. Strokes go to
+  `live.ink` as the phone pad's do. With How people see it set to Share a window, the Share Window is used as before.
+- Listen for scripture: `src/scripture_speech.py` (a strict spoken-reference parser: book, chapter and verse, one-chapter
+  books, ranges forward by at most 60) and `src/scripture_listen.py` (the server listens only while `scriptureListen`
+  is on and a Frame is live, checked every 2 s; one suggestion at a time; 45 s before the same one is offered again).
+  `src/voice_worker.py` gains a second recognizer (`--scripture`) in the Follow my voice process, so one microphone and
+  one model serve both. `GET/POST /api/verse-listen` (this PC only). `app/js/verse-listen.js`: the Heard … Show /
+  Dismiss card at the top of `#stage-status`, Auto, and the settings box in Settings → Content → Scripture.
+- The run sheet (`app/js/run-sheet.js`): the meeting clock in the Frames pane (`live.since`, set by the first Go Live or
+  after 6 quiet hours, `app/js/store.js`), and each Frame's time against its Planned time (`sc.plan`, minutes, the
+  Frame's settings), gold once over. Ticks once a second only while live.
+
+### Changed
+- The Command Center: a chip is its own pin (`kc-cc-tray` now holds the pinned chip's id; old `1` / `0` pin nothing).
+  Opening a chip pins it, its second click (or Esc) unpins; a pinned chip is open again the next time the Command
+  Center opens, and a search only steps in front of it. The arrow tab (`.cc-handle`) is gone; pointing at the bar
+  shows the chips.
+- A grip on the border under the stage (`.kc-hsplit::before`); badges read Live (a Frame) and On screen (its Decks and
+  Content); while live (`body.kc-live`) the top bar brings Control forward and the planning chips step back.
+
+### Fixed
+- No box behind the Command Center while a panel or the draw pad moves: `app/js/cc-shape.js` follows the move frame by
+  frame (this frame's boxes and the one before) instead of covering where it was and where it was going for most of a
+  second, and sends its shapes one at a time so an older one can never land after a newer one.
+
 ## [26.11.13] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.13.md](releases/v26.11.13.md).

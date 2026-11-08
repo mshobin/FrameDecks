@@ -1,15 +1,15 @@
 /* FrameDecks 26.11.5 - the Command Center's window takes the shape of what it shows. The page measures every box it
- * really paints (the bar, the chips, an open panel, a list, Keep open, a note) and the program cuts the window to
+ * really paints (the bar, the chips, an open panel, a list, the draw pad, a note) and the program cuts the window to
  * exactly those boxes (desktop_win.clip, SetWindowRgn). Outside them there is no window, so nothing can be drawn
  * there: no grey or black box behind the glass on any PC, and clicks there go to the window behind. While something
- * moves the shape covers where it was and where it is going; when it settles the shape is exact again.
+ * moves the shape follows it frame by frame (26.11.14); when it settles the shape is exact again.
  * 26.11.11 it works while the Command Center is open, focused or not (opened by the shortcut over Zoom the page often
  * has no focus, and a pinned one stays open behind the meeting): the program says when it opens (KCShape.wake, which
  * always sends the shape again) and when it hides (KCShape.rest), so a hidden Command Center still costs nothing. */
 (function(){
 'use strict';
 if (document.body.getAttribute('data-win') !== 'spotlight') return;
-var last = '', burst = null, open = true, SKIP = {SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, TEMPLATE: 1, BR: 1};
+var last = '', open = true, SKIP = {SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, TEMPLATE: 1, BR: 1};
 function alpha(c){
   if (!c || c === 'transparent') return 0;
   var m = /rgba?\(([^)]+)\)/.exec(c);
@@ -67,37 +67,65 @@ function boxes(){
   });
   return out.slice(0, 48).map(function(a){ return a.map(function(v){ return Math.round(v * 10) / 10; }); });
 }
+/* 26.11.14 one request at a time, the newest shape last: an older shape can never land after a newer one */
+var busy = false, queued = null;
+function post(key, rects){
+  if (busy){ queued = [key, rects]; return; }
+  busy = true;
+  fetch('api/app/win', {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({win: 'spotlight', op: 'clip', rects: rects, scale: window.devicePixelRatio || 1})})
+    .catch(function(){}).then(function(){ busy = false; if (queued){ var q = queued; queued = null; post(q[0], q[1]); } });
+}
 function send(rects){
   if (!rects.length) return;                                                  // nothing shown yet: keep the last shape
   var key = JSON.stringify(rects);
   if (key === last) return;
   last = key;
-  fetch('api/app/win', {method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({win: 'spotlight', op: 'clip', rects: rects, scale: window.devicePixelRatio || 1})}).catch(function(){});
+  post(key, rects);
+}
+function union(a, b){
+  var seen = {}, out = [];
+  a.concat(b).forEach(function(r){ var k = r.join(); if (!seen[k]){ seen[k] = 1; out.push(r); } });
+  return out.slice(-48);
+}
+/* 26.11.14 while something moves (a chip's panel growing, the draw pad rising, the chips folding) the shape follows it
+ * frame by frame: this frame's boxes and the frame before's, never "where it was and where it is going" at once,
+ * which showed an empty box behind the glass for most of a second. When nothing moves any more it is exact again. */
+function moving(){
+  if (!document.getAnimations) return false;
+  return document.getAnimations().some(function(an){
+    if (an.playState !== 'running' || !an.effect || !an.effect.getComputedTiming) return false;
+    var t = an.effect.getComputedTiming();
+    return t.iterations !== Infinity && t.activeDuration !== Infinity;        // an endless glow is not a move
+  });
+}
+var prev = null, loop = 0, quietAt = 0;
+function frame(){
+  loop = 0;
+  if (document.hidden || !open){ prev = null; return; }
+  var now = boxes(), still = !moving() && performance.now() > quietAt;
+  if (still){ prev = null; send(now); return; }                               // settled: exactly what shows
+  send(prev ? union(prev, now) : now);
+  prev = now;
+  loop = requestAnimationFrame(frame);
 }
 function sample(final){
   if (document.hidden || !open) return;
-  var now = boxes();
-  if (final){ burst = null; send(now); return; }
-  burst = (burst || []).concat(now);                                           // where it was and where it is going
-  send(burst.filter(function(a, i){ return burst.findIndex(function(b){ return b.join() === a.join(); }) === i; }).slice(-48));
+  if (final){ prev = null; send(boxes()); return; }
+  if (!loop) loop = requestAnimationFrame(frame);
 }
-var chain = false, finalT = 0;
-function schedule(){                       // a few looks while things move, then one exact shape (at most 0.8 s later)
+function schedule(){                       // follow it while it moves, then one exact shape
   if (!open) return;                       // hidden by the program: live updates cost nothing here
-  if (!finalT) finalT = setTimeout(function(){ finalT = 0; requestAnimationFrame(function(){ sample(true); }); }, 800);
-  if (chain) return;
-  chain = true;
-  [0, 90, 220, 420].forEach(function(ms){ setTimeout(function(){ requestAnimationFrame(function(){ sample(false); }); }, ms); });
-  setTimeout(function(){ chain = false; }, 430);
+  quietAt = performance.now() + 120;       // a change without an animation still gets a frame or two to lay out
+  sample(false);
 }
 new MutationObserver(schedule).observe(document.body, {subtree: true, childList: true, characterData: true,
   attributes: true, attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-expanded', 'data-dir']});
 ['transitionend', 'animationend', 'pointerover', 'pointerout', 'focusin'].forEach(function(t){ document.addEventListener(t, schedule, true); });
 window.addEventListener('resize', schedule);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden){ last = ''; schedule(); } });
-function wake(){ open = true; last = ''; schedule(); requestAnimationFrame(function(){ sample(true); }); }   // opened: send it again
+function wake(){ open = true; last = ''; prev = null; schedule(); }   // opened: send it again
 window.addEventListener('focus', wake);
 schedule();
-window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; }};
+window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; if (loop){ cancelAnimationFrame(loop); loop = 0; } prev = null; }};
 })();

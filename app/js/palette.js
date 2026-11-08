@@ -44,7 +44,7 @@ function comboOf(e){
 var KIND = {cmd: 'Command', meeting: 'Meeting', card: 'Memory', frame: 'Frame', tpl: 'Template', lib: 'Library', content: 'Content', question: 'Question', verse: 'Scripture',
   text: 'Text', brand: 'Branding', bg: 'Background', member: 'Member', birthday: 'Birthday', setting: 'Settings', bible: 'Bible', recent: 'Recent'};
 var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
-  ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation'], ['transitions', 'Transitions', 'fade dip cut profile'],
+  ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation listen microphone spoken voice'], ['transitions', 'Transitions', 'fade dip cut profile'],
   ['output', 'How people see it', 'zoom teams share window projector tv obs camera'], ['recording', 'Recording', 'record mp4'], ['display', 'Projector, TV and OBS', 'zoom display overlay obs browser source links'], ['vcam', 'FrameDecks vCam', 'framedecks vcam framerelay camera zoom teams blur background look resolution'],
   ['account', 'Sync', 'sync workspace website cloud link connect framedecks.com add a device invite someone allow team devices qr'],
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],

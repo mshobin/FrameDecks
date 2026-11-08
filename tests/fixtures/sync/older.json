@@ -155,6 +155,7 @@
      "on": false,
      "sec": 30
     },
+    "plan": 0,
     "out": {
      "vcam": true,
      "obs": true
@@ -210,6 +211,7 @@
    "scene": "",
    "seq": 0,
    "at": 0,
+   "since": 0,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -312,6 +314,7 @@
       "on": false,
       "sec": 30
      },
+     "plan": 0,
      "out": {
       "vcam": true,
       "obs": true
@@ -561,6 +564,7 @@
     "scene": "",
     "seq": 0,
     "at": 0,
+    "since": 0,
     "tx": "cut",
     "txMs": 0,
     "auto": true,

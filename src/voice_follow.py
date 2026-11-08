@@ -14,7 +14,13 @@ Light by design, for older PCs with 4 GB of memory:
 Nothing heard is recorded, kept or sent anywhere: the worker reports words, and the Teleprompter only uses them to
 find its place.
 
-    VoiceFollow(data_dir, frozen, settings) → .start(words), .words(words), .stop(), .heard(after, wait), .state_body()"""
+    VoiceFollow(data_dir, frozen, settings) → .start(words), .words(words), .stop(), .heard(after, wait), .state_body()
+
+26.11.14 Listen for scripture (src/scripture_listen.py) shares the same listening process rather than starting a second
+one: one microphone opened once, one copy of the model in memory. The worker then carries two grammars (the script's
+words and the scripture words) and tags what the second one hears; those phrases go to a callback, never to the
+Teleprompter. Either can stop without stopping the other; the process ends when neither wants it.
+    .scripture_start(words, on_heard), .scripture_stop(), .scripture_body(), .shutdown() (everything)"""
 import collections
 import hashlib
 import json
@@ -93,6 +99,10 @@ class VoiceFollow:
         self.events, self.seq = collections.deque(maxlen=200), 0
         self.proc, self.want, self.words_now, self.asked = None, False, [], 0.0
         self.downloading = False
+        self.want_s, self.scripture_words, self.on_scripture = False, [], None     # 26.11.14 Listen for scripture
+
+    def _wanted(self):
+        return self.want or self.want_s
 
     # ---------- files ----------
     @property
@@ -170,15 +180,15 @@ class VoiceFollow:
             self.downloading = False
             if err:
                 self._set("error", err)
-                self.want = False
+                self.want = self.want_s = False
                 return
-            if not self.want:
+            if not self._wanted():
                 self._set("off")
                 return
         self._launch()
 
     def remove_files(self):
-        self.stop()
+        self.shutdown()
         shutil.rmtree(self.dir, ignore_errors=True)
 
     def disk_mb(self):
@@ -204,7 +214,7 @@ class VoiceFollow:
 
     def _launch(self):
         with self.lock:
-            if self.proc or not self.want:
+            if self.proc or not self._wanted():
                 return
             self._set("starting")
             try:
@@ -217,9 +227,13 @@ class VoiceFollow:
                 self._set("error", "Listening could not start (%s)." % e.__class__.__name__)
                 return
             proc, words = self.proc, list(self.words_now)
+            script, scripture = self.want, (list(self.scripture_words) if self.want_s else None)
         threading.Thread(target=self._read, args=(proc,), name="voice-read", daemon=True).start()
         threading.Thread(target=self._watch, args=(proc,), name="voice-watch", daemon=True).start()
-        self._send(proc, {"words": words})
+        if script:
+            self._send(proc, {"words": words})
+        if scripture is not None:
+            self._send(proc, {"scripture": scripture})
 
     def _send(self, proc, msg):
         try:
@@ -234,11 +248,17 @@ class VoiceFollow:
                 ev = json.loads(line)
             except ValueError:
                 continue
+            tell = None
             with self.lock:
                 if proc is not self.proc:
                     break
                 t = ev.get("t")
-                if t == "ready":
+                if ev.get("g") == "scripture":              # 26.11.14 never shown to the Teleprompter
+                    if t == "ready":
+                        self._set("listening")
+                    elif t == "final" and self.want_s:
+                        tell = self.on_scripture
+                elif t == "ready":
                     self._set("listening")
                 elif t in ("partial", "final"):
                     self.seq += 1
@@ -248,6 +268,11 @@ class VoiceFollow:
                     self.level = float(ev.get("v", 0) or 0)
                 elif t == "error":
                     self._set("error", str(ev.get("msg", ""))[:200] or "Listening stopped.")
+            if tell:
+                try:
+                    tell(str(ev.get("text", ""))[:500])
+                except Exception as e:                    # a problem in the listener never stops the listening
+                    print("Listen for scripture:", e)
         code = proc.wait()
         for f in (proc.stdin, proc.stdout):
             try:
@@ -259,7 +284,7 @@ class VoiceFollow:
                 self.proc = None
                 if self.state not in ("error", "off"):
                     self._set("error", "Listening stopped unexpectedly (%s)." % code)
-                self.want = False
+                self.want = self.want_s = False
 
     def _watch(self, proc):
         """Stop when the Teleprompter has stopped asking (closed, crashed, or the PC went to sleep)."""
@@ -268,7 +293,12 @@ class VoiceFollow:
             with self.lock:
                 if proc is not self.proc:
                     return
-                idle = time.monotonic() - self.asked > IDLE_STOP
+                idle = self.want and time.monotonic() - self.asked > IDLE_STOP
+                if idle and self.want_s:                # scripture still listens: only the Teleprompter's part ends
+                    self.want = False
+                    self.events.clear()
+                    self._send(proc, {"words": None})
+                    continue
             if idle:
                 self.stop()
                 return
@@ -312,8 +342,20 @@ class VoiceFollow:
         return self.state_body()
 
     def stop(self):
+        """The Teleprompter stops. 26.11.14 when Listen for scripture is on, the process goes on for it alone."""
         with self.lock:
-            self.want = False
+            if self.want_s and (self.proc or self.downloading):
+                self.want = False
+                self.events.clear()
+                if self.proc:
+                    self._send(self.proc, {"words": None})
+                return {"state": "off"}
+        return self.shutdown()
+
+    def shutdown(self):
+        """Everything stops (leaving the app, removing the voice files)."""
+        with self.lock:
+            self.want = self.want_s = False
             proc, self.proc = self.proc, None
             self.events.clear()
             self.level = 0.0
@@ -326,6 +368,52 @@ class VoiceFollow:
             except subprocess.TimeoutExpired:
                 proc.kill()
         return {"state": "off"}
+
+    # ---------- 26.11.14 what Listen for scripture calls (src/scripture_listen.py) ----------
+    def scripture_start(self, words, on_heard):
+        """Listen for these words too; on_heard(text) is called (on the reading thread) for every phrase heard."""
+        with self.lock:
+            self.scripture_words = [str(w)[:40] for w in (words or [])[:500] if isinstance(w, str)]
+            self.on_scripture = on_heard
+            if not self.available:
+                return {"state": "unavailable"}
+            if self.proc:
+                self.want_s = True
+                self._send(self.proc, {"scripture": self.scripture_words})
+                return self.scripture_body()
+            if self.downloading:
+                self.want_s = True
+                return self.scripture_body()
+            free = free_memory_mb()
+            if free is not None and free < MIN_FREE_MB:
+                return {"state": "memory", "free": free}
+            self.want_s = True
+            if not self.files_ready():
+                self.downloading = True
+                self.progress = 0
+                self._set("downloading")
+                threading.Thread(target=self._download_then_launch, name="voice-download", daemon=True).start()
+                return self.scripture_body()
+        self._launch()
+        return self.scripture_body()
+
+    def scripture_stop(self):
+        with self.lock:
+            if not self.want_s:
+                return {"state": "off"}
+            self.want_s = False
+            if self.want and self.proc:
+                self._send(self.proc, {"scripture": None})
+                return {"state": "off"}
+            if self.want:
+                return {"state": "off"}
+        return self.shutdown()
+
+    def scripture_body(self):
+        with self.lock:
+            on = self.want_s
+            return {"state": self.state if on or self.state in ("error", "memory") else "off", "message": self.message,
+                    "progress": self.progress, "level": round(self.level, 2) if on else 0}
 
     def state_body(self):
         return {"state": self.state, "message": self.message, "progress": self.progress, "level": round(self.level, 2), "seq": self.seq}

@@ -12,6 +12,10 @@ Talks over stdin / stdout, one JSON object per line.
   out: {"t": "ready", "known": n, "unknown": n}   {"t": "partial", "text": ...}   {"t": "final", "text": ...}
        {"t": "level", "v": 0..1}   {"t": "error", "msg": ...}
   in:  {"words": [...]} (a new script: the grammar is rebuilt)   {"sensitivity": 1..5}   {"quit": true}
+26.11.14 Listen for scripture shares this one process (one microphone, one model in memory) with a second, small grammar:
+  in:  {"scripture": [...]} (its words: src/scripture_speech.py)   {"scripture": null} (stop)   {"words": null} (the
+       Teleprompter stopped; scripture listening goes on)
+  out: {"t": "final", "text": ..., "g": "scripture"} ("[unk]" kept, so unrelated words are never joined); "ready" too
 
     voice_worker.py --lib DIR --model DIR [--device N] [--sensitivity 3] [--wav FILE] [--words-file FILE]
 --wav reads a 16 kHz mono WAV file instead of the microphone (tests, tools/voice_e2e.py); --words-file gives the first
@@ -84,6 +88,13 @@ class Engine:
         if not self.model:
             raise RuntimeError("The voice model could not be loaded.")
         self.rec = None
+        self.keep_unk = False
+
+    def sibling(self):
+        """26.11.14 a second recognizer on the same model (no second copy of the model in memory)."""
+        twin = object.__new__(Engine)
+        twin.lib, twin.model, twin.rec, twin.keep_unk = self.lib, self.model, None, True
+        return twin
 
     def grammar(self, words):
         """Only the script's words (those the model knows) plus [unk] for everything else said."""
@@ -103,19 +114,20 @@ class Engine:
     def feed(self, data):
         """→ ('final', text) | ('partial', text)"""
         if self.lib.vosk_recognizer_accept_waveform(self.rec, data, len(data)):
-            return "final", self._text(self.lib.vosk_recognizer_result(self.rec), "text")
-        return "partial", self._text(self.lib.vosk_recognizer_partial_result(self.rec), "partial")
+            return "final", self._text(self.lib.vosk_recognizer_result(self.rec), "text", self.keep_unk)
+        return "partial", self._text(self.lib.vosk_recognizer_partial_result(self.rec), "partial", self.keep_unk)
 
     def finish(self):
-        return self._text(self.lib.vosk_recognizer_final_result(self.rec), "text")
+        return self._text(self.lib.vosk_recognizer_final_result(self.rec), "text", self.keep_unk)
 
     @staticmethod
-    def _text(raw, key):
+    def _text(raw, key, keep_unk=False):
         try:
             t = json.loads((raw or b"{}").decode("utf-8", "replace")).get(key, "")
         except ValueError:
             return ""
-        return " ".join(w for w in t.split() if w != "[unk]")
+        words = [w for w in t.split() if keep_unk or w != "[unk]"]
+        return "" if all(w == "[unk]" for w in words) else " ".join(words)
 
 
 # ---------- the microphone (Windows waveIn) ----------
@@ -242,7 +254,12 @@ class Listener:
         self.engine, self.source, self.lock = engine, source, threading.Lock()
         self.threshold = THRESHOLDS.get(int(sensitivity), THRESHOLDS[3])
         self.quit = False
-        self.has_words = False
+        self.script_on = False
+        self.scripture = None                     # 26.11.14 the second recognizer (Listen for scripture), when on
+
+    @property
+    def has_words(self):
+        return self.script_on or self.scripture is not None
 
     def command(self, msg):
         if msg.get("quit"):
@@ -252,8 +269,44 @@ class Listener:
         if isinstance(msg.get("words"), list):
             with self.lock:
                 known, unknown = self.engine.grammar(msg["words"])
-                self.has_words = True
+                self.script_on = True
             say({"t": "ready", "known": known, "unknown": unknown})
+        elif "words" in msg and msg["words"] is None:
+            with self.lock:
+                self.script_on = False
+        if isinstance(msg.get("scripture"), list):
+            with self.lock:
+                twin = self.scripture or self.engine.sibling()
+                known, unknown = twin.grammar(msg["scripture"])
+                self.scripture = twin
+            say({"t": "ready", "known": known, "unknown": unknown, "g": "scripture"})
+        elif "scripture" in msg and msg["scripture"] is None:
+            with self.lock:
+                self.scripture = None
+
+    def _feed(self, data):
+        """Give the sound to every grammar that is on: [(kind, text, g)]."""
+        out = []
+        if self.script_on:
+            out.append(self.engine.feed(data) + (None,))
+        if self.scripture is not None:
+            out.append(self.scripture.feed(data) + ("scripture",))
+        return out
+
+    def _finish(self):
+        out = []
+        if self.script_on:
+            out.append(("final", self.engine.finish(), None))
+        if self.scripture is not None:
+            out.append(("final", self.scripture.finish(), "scripture"))
+        return out
+
+    @staticmethod
+    def _say(kind, text, g):
+        ev = {"t": kind, "text": text}
+        if g:
+            ev["g"] = g
+        say(ev)
 
     def run(self):
         quiet, talking, last_partial, last_level, before = 0.0, False, "", 0.0, None
@@ -278,10 +331,11 @@ class Listener:
                     continue                      # silence: nothing to process
                 if quiet >= SILENCE_END:          # the phrase is over
                     with self.lock:
-                        self.engine.feed(data)
-                        text = self.engine.finish()
-                    if text:
-                        say({"t": "final", "text": text})
+                        self._feed(data)
+                        ends = self._finish()
+                    for kind, text, g in ends:
+                        if text:
+                            self._say("final", text, g)
                     talking, last_partial = False, ""
                     continue
             else:
@@ -290,16 +344,18 @@ class Listener:
                     talking = True
                     if before:
                         with self.lock:
-                            self.engine.feed(before)
+                            self._feed(before)
             with self.lock:
-                kind, text = self.engine.feed(data)
-            if kind == "final":
-                if text:
-                    say({"t": "final", "text": text})
-                last_partial = ""
-            elif text and text != last_partial:
-                say({"t": "partial", "text": text})
-                last_partial = text
+                heard = self._feed(data)
+            for kind, text, g in heard:
+                if kind == "final":
+                    if text:
+                        self._say("final", text, g)
+                    if not g:
+                        last_partial = ""
+                elif not g and text and text != last_partial:     # partials only for the Teleprompter
+                    say({"t": "partial", "text": text})
+                    last_partial = text
 
 
 def _below_normal():
@@ -319,6 +375,7 @@ def main(argv=None):
     ap.add_argument("--sensitivity", type=int, default=3)
     ap.add_argument("--wav")
     ap.add_argument("--words-file")
+    ap.add_argument("--scripture", action="store_true", help="also listen for scripture references (tests)")
     a, _ = ap.parse_known_args(argv)
     if os.environ.get(CHILD_ENV) != "1":
         say({"t": "error", "msg": "Follow my voice starts only from the FrameDecks Teleprompter."})
@@ -334,6 +391,9 @@ def main(argv=None):
     if a.words_file:
         with open(a.words_file, encoding="utf-8") as f:
             lis.command({"words": json.load(f)})
+    if a.scripture:
+        from scripture_speech import grammar_words
+        lis.command({"scripture": grammar_words()})
 
     def commands():
         for line in sys.stdin:

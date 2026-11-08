@@ -65,7 +65,7 @@ var DEFAULT_STATE = {
   },
   /* v6: Scenes own Layers; the live scene and the program controls (see KCScenes below) */
   scenes: [],
-  live: {scene: '', seq: 0, at: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false, freeze: false, ink: {on: false, items: []},
+  live: {scene: '', seq: 0, at: 0, since: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false, freeze: false, ink: {on: false, items: []},
          message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},   // 9.0 + memory while Memory Cards are in the chat overlay
   profile: 'bible-study',
   v6: false,
@@ -423,6 +423,7 @@ function cleanScene(sc){
     notes: str(sc.notes, 20000),                                  /* the Teleprompter script (6.7; v6.2 leader notes), never on screen */
     tx: {type: tx.type === 'profile' ? 'profile' : txId(tx.type) || 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
+    plan: num(sc.plan, 0, 600, 0),                               /* 26.11.14 planned minutes on screen (0: none), for the run sheet */
     out: {vcam: true, obs: true},
     layers: foldOut((Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60), out)};
 }
@@ -539,7 +540,7 @@ var Scenes = {
     st.scenes = (Array.isArray(raw.scenes) ? raw.scenes : []).map(cleanScene).filter(Boolean).slice(0, 400);
     var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
     var l = isObj(raw.live) ? raw.live : {};
-    st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: txId(l.tx) || 'cut',
+    st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, since: Number(l.since) || 0, tx: txId(l.tx) || 'cut',
       txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot), follow: !!l.follow,
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
       meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
@@ -898,7 +899,9 @@ var Scenes = {
     // text layers
     n.live.on = {}; n.live.cd = {};
     sc.layers.forEach(function(l){ if ((TEXT_KINDS.indexOf(l.kind) >= 0 || SOUND_KINDS.indexOf(l.kind) >= 0) && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
-    n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = Date.now(); n.live.tx = tx.type; n.live.txMs = tx.ms;
+    var now = Date.now();                                    // 26.11.14 the meeting clock starts with the first Go Live (or after 6 quiet hours)
+    if (!n.live.scene || !n.live.since || now - (n.live.at || 0) > 6 * 3600e3) n.live.since = now;
+    n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = now; n.live.tx = tx.type; n.live.txMs = tx.ms;
     return true;
   },
   /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */

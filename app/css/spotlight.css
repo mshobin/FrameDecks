@@ -467,32 +467,13 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
 .cc-panel.in .cc-switch,.cc-panel.in .spr-now,.cc-panel.in .spr-row,.cc-panel.in .spr-step{animation:none}
 @media (prefers-reduced-motion:reduce){ .cc-panel.in .cc-tiles,.cc-panel.in .cc-control{animation:none} }
 
-/* 9.11 the tray folds away under the bar, as the Teleprompter's top bar does: a small tab with an arrow hangs under the
-   drawer. Pointing at it unfolds the chips (transform and opacity only), clicking keeps them open; folded, nothing of the
-   tray is laid out or painted */
+/* 9.11 the tray folds away under the bar, as the Teleprompter's top bar does. Pointing at the bar unfolds the chips
+   (transform and opacity only); folded, nothing of the tray is laid out or painted. 26.11.14 no tab with an arrow: an
+   open chip is pinned (js/command-center.js), and the tray stays while it is open */
 .cc.cc-fold:not(.cc-peek) .cc-tray,.cc.cc-fold:not(.cc-peek) .cc-stage{display:none}
 .cc .cc-tray.cc-unfold{animation:cc-unfold .26s cubic-bezier(.2,.9,.25,1.1) both;transform-origin:50% 0}
 @keyframes cc-unfold{from{opacity:0;transform:translateY(-10px) scaleY(.9)}to{opacity:1;transform:none}}
-.cc-handle-row{position:relative;z-index:5;height:0;display:flex;justify-content:center}
-.cc-handle{position:absolute;top:-1px;width:44px;height:16px;display:grid;place-items:center;padding:0;cursor:pointer;
-  border:1px solid var(--cc-drawer-rim);border-top:0;border-radius:0 0 8px 8px;background:var(--cc-drawer-b);color:var(--muted);
-  opacity:.72;box-shadow:var(--cc-drawer-sh);transition:opacity .15s ease,color .15s ease}
-.cc-handle svg{width:14px;height:14px;transition:transform .18s ease}
-.cc-handle:hover,.cc-handle:focus-visible{opacity:1;color:var(--ink)}
-.cc.cc-peek .cc-handle svg,.cc:not(.cc-fold) .cc-handle svg{transform:rotate(180deg)}
-.cc-handle[aria-pressed="true"]{color:var(--gold)}
-.cc.cc-typing .cc-handle-row{display:none}
-.cc-handle .cc-pin-ic{display:none;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.cc-handle-t{display:none;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
-/* 26.11.2 while the chips show, the tab is a labelled pill: Keep open / Pinned */
-.cc.cc-peek .cc-handle,.cc:not(.cc-fold) .cc-handle{width:auto;height:22px;padding:0 12px 0 10px;gap:6px;grid-auto-flow:column;opacity:1;color:var(--ink)}
-.cc.cc-peek .cc-handle .cc-pin-ic,.cc:not(.cc-fold) .cc-handle .cc-pin-ic,.cc.cc-peek .cc-handle-t,.cc:not(.cc-fold) .cc-handle-t{display:inline-block}
-.cc.cc-peek .cc-handle > svg:first-child,.cc:not(.cc-fold) .cc-handle > svg:first-child{display:none}
-.cc:not(.cc-fold) .cc-handle{color:var(--gold);border-color:var(--gold)}
-.cc:not(.cc-fold) .cc-handle .cc-pin-ic{fill:currentColor}
-.cc-handle.cc-tip{animation:cc-tip .8s cubic-bezier(.2,.9,.25,1.1) 1}
-@keyframes cc-tip{0%,100%{transform:none}30%{transform:translateY(3px) scale(1.08)}60%{transform:translateY(-1px)}}
-@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} .cc-handle,.cc-handle svg{transition:none} .cc-handle.cc-tip{animation:none} }
+@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} }
 
 /* ---------- 9.12 Compact: slim chips in one row, a slimmer bar, a narrower Command Center (Settings > Controls >
    General > Command Center). The window keeps its size; only what is drawn in it is smaller. ---------- */
@@ -539,9 +520,6 @@ body.spotlight .pal.cc.cc-bottom{flex-direction:column-reverse;padding:30px 22px
 @keyframes cc-p-up{from{opacity:0;transform:translateY(8px) scale(.965)}to{opacity:1;transform:none}}
 @keyframes cc-unfold-up{from{opacity:0;transform:translateY(10px) scaleY(.9)}to{opacity:1;transform:none}}
 /* the fold tab stands on top of the chips (or of the bar while they are folded); its arrow points the way they open */
-.cc.cc-bottom .cc-handle{top:auto;bottom:-1px;border-top:1px solid var(--cc-drawer-rim);border-bottom:0;border-radius:8px 8px 0 0}
-.cc.cc-bottom .cc-handle svg{transform:rotate(180deg)}
-.cc.cc-bottom.cc-peek .cc-handle svg,.cc.cc-bottom:not(.cc-fold) .cc-handle svg{transform:none}
 
 /* ---------- 9.12 Notes, the fifth chip (teal): a field to write in, the meeting's notes with their time and Frame,
    and Copy / Save as a file / Email to me. Only on this PC (js/command-center.js Notes, src/meeting_notes.py). ---------- */
@@ -654,3 +632,42 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc-guard-btn{flex:none;min-height:32px;padding:0 14px;border:0;border-radius:999px;background:var(--gold);color:var(--gold-ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .cc-guard-btn:hover{background:var(--gold-strong)}
 .cc-guard-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 26.11.14 the draw pad (js/cc-drawpad.js): Draw or Spotlight opens it under the bar instead of the Share Window. The
+   chips, the panel and the results step aside while it shows; the window's shape (js/cc-shape.js) takes it in. */
+.cc.cc-drawing .cc-tray,.cc.cc-drawing .cc-stage,.cc.cc-drawing .pal-list{display:none}
+.cc-drawpad{position:relative;display:flex;flex-direction:column;gap:8px;margin:0 18px;padding:10px 12px 12px;border:1px solid var(--cc-rim);border-radius:20px;
+  background:linear-gradient(180deg,var(--cc-tray-a),var(--cc-tray-b));box-shadow:var(--cc-hi),var(--cc-glow);color:var(--ink);animation:cc-rise .32s cubic-bezier(.2,.9,.25,1.15) both}
+.cc-drawpad[hidden]{display:none}
+.cc-dp-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.cc-dp-tool,.cc-dp-act{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 10px;border:1px solid transparent;border-radius:12px;background:transparent;
+  color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.cc-dp-tool:hover,.cc-dp-act:hover:not(:disabled){background:var(--cc-cell-2)}
+.cc-dp-tool:focus-visible,.cc-dp-act:focus-visible,.cc-dp-col:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cc-dp-tool.on{background:var(--gold);color:var(--gold-ink)}
+.cc-dp-act:disabled{opacity:.45;cursor:default}
+.cc-dp-act.done{background:var(--live);color:var(--surface)}
+.cc-dp-ic{display:grid;place-items:center}
+.cc-dp-ic svg{width:16px;height:16px}
+.cc-dp-cols{display:inline-flex;gap:6px;margin:0 6px}
+.cc-dp-col{width:24px;height:24px;padding:0;border:2px solid var(--cc-rim-2);border-radius:999px;cursor:pointer}
+.cc-dp-col.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--cc-rim)}
+.cc-drawpad.spot .cc-dp-cols{opacity:.4;pointer-events:none}
+.cc-dp-gap{flex:1}
+.cc-dp-say{font-size:13px;font-weight:700;color:var(--live);white-space:nowrap}
+.cc-dp-stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:12px;background:var(--gray-0)}
+.cc-dp-frame{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none}
+.cc-dp-live{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.cc-dp-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.cc-drawpad.spot .cc-dp-canvas{cursor:pointer}
+.cc-dp-ring{position:absolute;width:36px;height:36px;margin:-18px 0 0 -18px;border:3px solid var(--gold);border-radius:999px;opacity:0;pointer-events:none}
+.cc-dp-ring.on{animation:cc-ring .8s ease-out}
+.cc-dp-foot{display:flex;align-items:baseline;gap:12px;margin:0 2px}
+.cc-dp-hint{flex:1;min-width:0;margin:0;font-size:12px;color:var(--muted)}
+.cc-dp-tip{display:flex;align-items:center;gap:4px;margin:0;padding:6px 6px 6px 12px;border-radius:12px;background:var(--gold-soft);font-size:13px;white-space:nowrap}
+.cc-dp-tip[hidden]{display:none}
+.cc-dp-tip small{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:12px}
+.cc-dp-tipx{display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer}
+.cc-dp-tipx:hover{color:var(--ink)}
+.cc.cc-compact .cc-dp-tool,.cc.cc-compact .cc-dp-act{gap:4px;padding:0 6px}
+.cc.cc-compact .cc-dp-cols{gap:4px;margin:0 2px}
+.cc.cc-compact .cc-dp-bar{gap:2px}

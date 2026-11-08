@@ -430,7 +430,7 @@ function renderScenes(){
         'data-id': sc.id, tabindex: '0', draggable: 'true', 'aria-current': String(sc.id === selScene || inSel)}, [
         h('span', {cls: 'si-num', text: sc.tpl ? '◇' : String(n)}),
         h('span', {cls: 'si-t'}, [nameEl, h('small', {text: sceneSub(sc)})]),
-        isLive ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
+        isLive ? h('span', {cls: 'si-badge live', text: 'Live'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
         h('button', {cls: 'ib si-fav' + (sc.fav ? ' on' : ''), type: 'button', title: sc.fav ? 'Remove from favourites' : 'Add to favourites', 'aria-label': 'Favourite', 'aria-pressed': String(!!sc.fav), html: window.KCIcon ? window.KCIcon('star', 15) : (sc.fav ? '★' : '☆'),
           onclick: function(e){ e.stopPropagation(); edit(sc.id, function(x){ x.fav = !x.fav; }); }}),
         h('button', {cls: 'ib si-more', type: 'button', title: 'Frame actions', 'aria-label': 'Frame actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
@@ -736,7 +736,7 @@ function renderLayers(){
       'data-id': l.id, tabindex: '0', draggable: 'true', 'aria-current': String(l.id === selLayer || lInSel)}, [
       h('span', {cls: 'li-n', text: String(i + 1), title: 'Content ' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
       h('span', {cls: 'li-t'}, [name, h('small', {text: (st.error ? '⚠ ' + st.error : layerSub(sc, l))})]),
-      on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null, lock, eye]);
+      on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'On screen'}) : null, lock, eye]);   // 26.11.14 one word each: a Frame is Live, its Decks and Content are On screen
     li.addEventListener('click', function(e){ pickClick('layers', l.id, e, ol); });
     li.addEventListener('contextmenu', function(e){ e.preventDefault(); if (picked.layers.indexOf(l.id) < 0) pickOnly('layers', l.id); if (picked.layers.length > 1) layersMenu(li, e); else { select(sc.id, l.id); layerMenu(sc.id, l.id, li, e); } });
     li.addEventListener('keydown', function(e){
@@ -1025,11 +1025,16 @@ function sceneForm(gen, sc){
   var sec = h('input', {type: 'number', min: 2, max: 3600, step: 1, value: String(sc.auto.sec), 'aria-label': 'Seconds before the next Frame', id: 'sc-auto-sec'});
   sec.disabled = !sc.auto.on; sec.addEventListener('keydown', stop);
   sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
+  /* 26.11.14 the run sheet: how long this Frame is meant to be on screen (0 or empty: no plan) */
+  var plan = h('input', {type: 'number', min: 0, max: 600, step: 1, value: sc.plan ? String(sc.plan) : '', placeholder: '–', 'aria-label': 'Planned minutes on screen', id: 'sc-plan'});
+  plan.addEventListener('keydown', stop);
+  plan.addEventListener('change', function(){ edit(sid, function(x){ x.plan = Math.max(0, Math.min(600, Math.round(+plan.value || 0))); }); });
   var auto = h('input', {type: 'checkbox', id: 'sc-auto'}); auto.checked = !!sc.auto.on;
   auto.addEventListener('change', function(){ var v = auto.checked; sec.disabled = !v; edit(sid, function(x){ x.auto.on = v; }); });
   /* 26.11.2 the name and the everyday settings in a column on the left, the Teleprompter script filling the rest */
   var main = h('div', {cls: 'ip-sec sc-main'}, [h('div', {cls: 'sc-side'}, [field('Name', nm),
     h('div', {cls: 'sc-auto'}, [h('label', {cls: 'check', title: 'Moves on only while Auto-advance is on in the top bar'}, [auto, ' Next Frame after']), sec, h('span', {cls: 'hint', text: 'seconds'})]),
+    h('div', {cls: 'sc-auto sc-plan'}, [h('label', {'for': 'sc-plan', title: 'The Frames list shows the time on screen against it, and turns gold when it runs over'}, ['Planned time']), plan, h('span', {cls: 'hint', text: 'minutes'})]),
     h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', id: 'sc-dup', html: I('copy', 15) + ' Duplicate Frame', title: 'A copy of this Frame, right after it (Ctrl+D)', onclick: function(){ duplicate(sid, {}); }})])]),
     notesCtl(sc)]);
   gen.appendChild(main);

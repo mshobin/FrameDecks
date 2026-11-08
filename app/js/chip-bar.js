@@ -47,9 +47,12 @@ var DO = {
  * the Studio's picture instead (D and S there, as before). */
 var shareMode = '';
 function desktop(){ return !!(window.KCAppInfo && window.KCAppInfo.desktop); }
+function useShare(){ var see = window.KCPeopleSee && window.KCPeopleSee.get(); return desktop() && (!see || see === 'window'); }
 function share(mode){
   var T = window.KCPresenterTools;
-  if (!desktop()){
+  // 26.11.14 when people see the camera, Draw and Spotlight work on the Studio's picture (it goes to FrameDecks vCam);
+  // the Share Window opens only when people see a shared window
+  if (!useShare()){
     if (!T) return;
     if (mode === 'spot') T.spot(); else T.annotate();
     return;
@@ -134,7 +137,7 @@ function pressed(id){ var b = $(id); return !!b && b.getAttribute('aria-pressed'
 function paint(){
   var black = pressed('lb-blackout'), em = pressed('lb-emergency'), frz = pressed('lb-freeze'), draw = pressed('lb-annotate');
   var st = window.KCPresenterTools && window.KCPresenterTools.state ? window.KCPresenterTools.state() : {};
-  var dOn = desktop() ? shareMode === 'draw' : draw && st.tool !== 'spot', sOn = desktop() ? shareMode === 'spot' : !!(st.annotating && st.tool === 'spot');
+  var dOn = useShare() ? shareMode === 'draw' : draw && st.tool !== 'spot', sOn = useShare() ? shareMode === 'spot' : !!(st.annotating && st.tool === 'spot');
   [['lc-draw', dOn], ['lc-spot', sOn]].forEach(function(x){ var b = $(x[0]); if (b){ b.setAttribute('aria-pressed', String(x[1])); b.classList.toggle('on', x[1]); } });
   draw = draw || dOn || sOn;
   var ctl = $('lc-control'), eng = $('lc-engage');

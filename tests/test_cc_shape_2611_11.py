@@ -18,7 +18,7 @@ class ShapeWithoutFocus(unittest.TestCase):
     def test_the_page_never_waits_for_focus(self):
         self.assertNotIn("hasFocus", self.js)
         self.assertIn("if (!open) return;", self.js)
-        self.assertIn("wake: wake, rest: function(){ open = false; }", self.js)
+        self.assertIn("wake: wake, rest: function(){ open = false;", self.js)
         self.assertIn("function wake(){ open = true; last = '';", self.js)       # every open sends the shape again
 
     def test_the_program_wakes_and_rests_it(self):

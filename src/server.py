@@ -43,9 +43,10 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
+import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.13"
+APP_VERSION = "26.11.14"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -743,7 +744,17 @@ def remote_notes_action(data):
 # 26.11 Follow my voice: listens only while the Teleprompter has it on (src/voice_follow.py)
 VOICE = voice_follow.VoiceFollow(DATA, frozen=FROZEN, settings=lambda: app_settings(),
                                  available=os.name == "nt" or os.environ.get("FRAMEDECKS_VOICE") == "1")
-atexit.register(VOICE.stop)
+atexit.register(VOICE.shutdown)
+
+
+# 26.11.14 Listen for scripture: the microphone only while the setting is on and a Frame is live (src/scripture_listen.py)
+def _frame_is_live():
+    live = state.get("live") if isinstance(state, dict) else None
+    return bool(isinstance(live, dict) and live.get("scene"))
+
+
+VERSE_LISTEN = scripture_listen.ScriptureListen(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live)
+# ---------- end 26.11.14 Listen for scripture ----------
 
 
 def voice_action(data):
@@ -1193,7 +1204,11 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # Window; the camera is not even loaded, which saves memory on older PCs) or "both" (as before)
                          "peopleSee": "both",
                          # 26.11.12 the Studio shows the essentials ("simple", the default) or every control ("advanced")
-                         "studioMode": "simple"}
+                         "studioMode": "simple",
+                         # 26.11.14 Listen for scripture (src/scripture_listen.py): hear a spoken Bible reference while
+                         # a Frame is live and offer it ("Auto": put it on screen without asking)
+                         "scriptureListen": False,
+                         "scriptureAuto": False}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
@@ -2829,6 +2844,16 @@ class Handler(BaseHTTPRequestHandler):
             q = parse_qs(url.query)
             body = remote_notes_body(q.get("meeting", [""])[0], q.get("peek", [""])[0] != "1")
             return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/verse-listen":                 # 26.11.14 Listen for scripture: the suggestion (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            try:
+                after, wait = int(q.get("after", ["-1"])[0]), float(q.get("wait", ["0"])[0])
+            except ValueError:
+                after, wait = -1, 0.0
+            body = VERSE_LISTEN.body(after if after >= 0 else None, wait)
+            return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/voice":                        # 26.11 Follow my voice: what was heard (this PC only; never cached)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3306,6 +3331,15 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/verse-listen":                 # 26.11.14 Listen for scripture: dismiss / show / shown / hear
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            d = data if isinstance(data, dict) else {}
+            try:
+                res = VERSE_LISTEN.act(str(d.get("op") or ""), d.get("id"), d.get("text"))
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/voice":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3520,6 +3554,7 @@ def start_main_server():
     SYNC.start()                                                # does nothing unless this PC is linked
     CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
     DOORBELL.start()                                            # checks in only while linked; listens only while needed
+    VERSE_LISTEN.start()                                        # 26.11.14 the microphone only while switched on and live
     try:
         memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
     except Exception as e:
