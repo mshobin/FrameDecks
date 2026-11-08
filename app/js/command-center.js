@@ -428,7 +428,12 @@ function opened(){
   paintFold();
   paintScope();
   if (pinned()) openGroup(pinned(), null, true);              // 26.11.14 a pinned chip is open again, as it was left
-  if (!reduce){ box.classList.remove('cc-enter'); void box.offsetWidth; box.classList.add('cc-enter'); }
+  if (!reduce){
+    box.classList.remove('cc-enter'); void box.offsetWidth; box.classList.add('cc-enter');
+    // 26.11.19 the opening ends when the last chip has landed: a chip pressed after that shows its panel at once
+    // (cc-enter stayed on, so every chip waited the opening's 0.24 s before its panel even began)
+    clearTimeout(opened.t); opened.t = setTimeout(function(){ box.classList.remove('cc-enter'); }, 950);
+  }
   get('api/sync').then(function(d){ sync = d; paint(); });
   get('api/app/info').then(function(d){ if (d){ var st = d.settings || {}; paintKeys(st.spotlightKey); look({size: st.ccSize, place: st.ccPlace}); } });
   get('api/vcam/status?lite=1').then(function(d){ if (d){ cam = d; paint(); } });

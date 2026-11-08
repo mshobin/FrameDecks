@@ -20,6 +20,8 @@ None in this version.
   always goes on last.
 
 ## Performance Improvements
+- **Chips open their panel at once.** Every chip waited a quarter of a second before its panel even began to
+  appear (a pause meant only for the Command Center's first opening). Now a panel shows about three times sooner.
 - **Presses answer sooner while live.** The meeting clock ticks every second, and each tick made the Command Center
   measure itself five times. Words that change in place (the clock, "Frame 3 of 13") no longer do, and the panel only
   writes what really changed: about six times less work while live.

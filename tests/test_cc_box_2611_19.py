@@ -67,6 +67,12 @@ class FewerLooks(unittest.TestCase):
         self.assertIn("if (state.className !== dot) state.className = dot;", read("app/js/cc-listen.js"))
 
 
+class ChipsAnswerAtOnce(unittest.TestCase):
+    def test_the_opening_ends(self):
+        js = read("app/js/command-center.js")
+        self.assertIn("opened.t = setTimeout(function(){ box.classList.remove('cc-enter'); }, 950);", js)
+
+
 class ControlFits(unittest.TestCase):
     def test_tighter_rows(self):
         css = read("app/css/spotlight.css")

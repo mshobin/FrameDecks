@@ -25,6 +25,8 @@ Full notes: [docs/releases/v26.11.19.md](releases/v26.11.19.md).
   and volume were below the edge).
 
 ### Performance
+- `command-center.js` removes `cc-enter` 0.95 s after opening, so a chip's panel no longer waits the opening's
+  0.24 s `animation-delay` (325 ms to 95 ms at 4x CPU).
 - `app/js/cc-shape.js` ignores text-only mutations (the meeting clock ticked five measurements a second); the
   Control panel (`spotlight-remote.js` `setHidden`/`setCls`, `cc-listen.js`) writes attributes only on change.
 
