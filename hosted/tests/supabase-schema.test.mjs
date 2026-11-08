@@ -23,6 +23,7 @@ test("every table has at least one policy and none is open to anon", () => {
   const functionsOnly = [
     "workspace_sync", "computer_links", "computer_link_failures", "trusted_devices", "security_events", "live_push", "workspace_bells",
     "help_votes", // 0017: votes go in through help_vote() and are read only in the SQL editor
+    "join_codes", "join_failures", "recovery_codes", // 0018: only the scan-to-join functions touch them
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -54,11 +55,19 @@ const ANON_BY_DESIGN = [
   "remote_report",
   "remote_publish",
   "computer_hello",
+  // 0018: the church PC shows codes, allows a waiting browser and lists or removes the team's devices by its key
+  "pc_invite_create",
+  "pc_join_request_allow",
+  "pc_devices",
+  "pc_device_remove",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
 // check runs for every Data API request (it reads one row and can only refuse).
-const BEFORE_A_SESSION = ["magic_link_requested", "check_trusted_session"];
+const BEFORE_A_SESSION = ["magic_link_requested", "check_trusted_session",
+  // 0018: a scanned code is looked at before the new device signs in (no session yet), limited like wrong codes;
+  // join_request_peek is also used by the PC (its key) to show which browser is waiting
+  "join_code_peek", "join_request_peek"];
 // 0017: the public Help pages' "Was this helpful?": it reads nothing, only adds a checked article name and a yes or no.
 const PUBLIC_HELP = ["help_vote"];
 
