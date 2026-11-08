@@ -100,6 +100,13 @@ if IS_WIN:
     gdi32.CreateRoundRectRgn.argtypes = [ctypes.c_int] * 6
     gdi32.CombineRgn.argtypes = [wintypes.HRGN, wintypes.HRGN, wintypes.HRGN, ctypes.c_int]
     user32.SetWindowRgn.argtypes = [wintypes.HWND, wintypes.HRGN, wintypes.BOOL]
+    # 26.11.19 a region handle can have its top bit set (Windows reuses handle slots, and each reuse counts up): passed
+    # undeclared it raised "int too long to convert", clip() gave up before SetWindowRgn, and the Command Center kept
+    # an old shape or none at all (the black box). Every GDI call that takes a handle is declared.
+    gdi32.DeleteObject.argtypes = [wintypes.HGDIOBJ]
+    gdi32.DeleteObject.restype = wintypes.BOOL
+    gdi32.CreateRectRgn.argtypes = [ctypes.c_int] * 4
+    gdi32.CreateRectRgn.restype = wintypes.HRGN
 
     class NCCALCSIZE_PARAMS(ctypes.Structure):
         _fields_ = [("rgrc", wintypes.RECT * 3), ("lppos", ctypes.c_void_p)]
@@ -239,7 +246,7 @@ def glass(hwnd, frost=False):
         rgn = gdi32.CreateRectRgn(0, 0, -1, -1)              # an empty region: per-pixel transparency, no blur
         bb = DWM_BLURBEHIND(0x1 | 0x2, True, rgn, False)       # DWM_BB_ENABLE | DWM_BB_BLURREGION
         dwmapi.DwmEnableBlurBehindWindow(hwnd, ctypes.byref(bb))
-        gdi32.DeleteObject(rgn)
+        _free(rgn)
         build = windows_build()
         if build >= 22621:                                     # Windows 11 22H2: the system backdrop
             m = MARGINS(-1, -1, -1, -1)
@@ -426,18 +433,31 @@ def clip(hwnd, rects, scale=1.0):
         rgn = None
         for x1, y1, x2, y2, d in boxes:
             part = gdi32.CreateRoundRectRgn(x1, y1, x2 + 1, y2 + 1, d, d)
+            if not part:
+                continue
             if rgn is None:
                 rgn = part
             else:
                 gdi32.CombineRgn(rgn, rgn, part, 2)             # RGN_OR
-                gdi32.DeleteObject(part)
+                _free(part)
+        if rgn is None:
+            return False
         if not user32.SetWindowRgn(hwnd, rgn, True):            # the window owns the region from here on
-            gdi32.DeleteObject(rgn)
+            _free(rgn)
+            _swallowed("desktop_win.clip", OSError("SetWindowRgn refused the shape"))
             return False
         return True
     except Exception as _e:
         _swallowed("desktop_win.clip", _e)
         return False
+
+
+def _free(obj):
+    """26.11.19 letting go of a GDI object can never cost the shape (see the declarations at the top)."""
+    try:
+        gdi32.DeleteObject(obj)
+    except Exception as _e:
+        _swallowed("desktop_win.free", _e)
 
 
 def clear_frame(hwnd):

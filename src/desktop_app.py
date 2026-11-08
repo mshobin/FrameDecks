@@ -704,6 +704,28 @@ def main():
                 spot_prepare(w)                       # see-through, no frame: all done before the first open
             return spot_holder["w"]
 
+    # 26.11.19 one worker puts the Command Center's shape on, in order, and only the newest waiting one: a thread per
+    # shape let an older shape land after a newer one, and many of them queued up on the window while it was busy
+    shape_q = {"next": None, "busy": False}
+    shape_lock = threading.Lock()
+
+    def shape_later(hwnd, rects, scale):
+        with shape_lock:
+            shape_q["next"] = (hwnd, rects, scale)
+            if shape_q["busy"]:
+                return
+            shape_q["busy"] = True
+
+        def run():
+            while True:
+                with shape_lock:
+                    job, shape_q["next"] = shape_q["next"], None
+                    if job is None:
+                        shape_q["busy"] = False
+                        return
+                dw.clip(*job)
+        threading.Thread(target=run, daemon=True).start()
+
     def spot_prepare(w):
         if state["spot_ready"]:
             return
@@ -834,14 +856,14 @@ def main():
                 state["spot_h"] = height
                 rects = state.get("spot_rects")
                 # 26.11.11 the shape is put back after the size changes (it must never fall back to the whole box)
-                later(lambda: (w.resize(820, height), rects and dw.clip(hwnd, *rects)))
+                later(lambda: (w.resize(820, height), rects and shape_later(hwnd, *rects)))
             return {"ok": True}
         elif op == "clip" and name == "spotlight":           # 26.11.5 the window takes the shape of what it shows
             rects, scale = data.get("rects"), data.get("scale")
             if isinstance(rects, list):
                 if rects:
                     state["spot_rects"] = (rects, scale)    # 26.11.11 kept, to put back on every open and resize
-                later(lambda: dw.clip(hwnd, rects, scale))
+                shape_later(hwnd, rects, scale)
             return {"ok": True}
         elif op == "look" and name == "teleprompter":
             cfg = server.save_app_settings({"prompterLook": str(data.get("look") or "")})

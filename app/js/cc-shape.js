@@ -123,8 +123,17 @@ function schedule(){                       // a few looks while things move, the
   [0, 90, 220, 420].forEach(function(ms){ setTimeout(function(){ requestAnimationFrame(function(){ sample(false); }); }, ms); });
   setTimeout(function(){ chain = false; }, 430);
 }
-new MutationObserver(schedule).observe(document.body, {subtree: true, childList: true, characterData: true,
-  attributes: true, attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-expanded', 'data-dir']});
+/* 26.11.19 words that change in place (the meeting clock ticks every second, "Frame 3 of 13", a status line) never
+   change the shape: they no longer set off a round of looks (that was five measurements a second while live, and
+   presses waited behind them on a busy PC). Anything else that changes still does; the 2 s exact look covers the rest */
+function textOnly(m){
+  if (m.type === 'characterData') return true;
+  if (m.type !== 'childList') return false;
+  var all = Array.prototype.slice.call(m.addedNodes).concat(Array.prototype.slice.call(m.removedNodes));
+  return all.length > 0 && all.every(function(n){ return n.nodeType === 3; });
+}
+new MutationObserver(function(list){ if (!list.every(textOnly)) schedule(); }).observe(document.body, {subtree: true, childList: true,
+  characterData: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-expanded', 'data-dir']});
 ['transitionend', 'animationend', 'pointerover', 'pointerout', 'focusin'].forEach(function(t){ document.addEventListener(t, schedule, true); });
 window.addEventListener('resize', schedule);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden){ last = ''; schedule(); } });

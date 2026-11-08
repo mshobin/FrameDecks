@@ -60,7 +60,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.6: the Command Center's window cut to the shape it shows (SetWindowRgn), so no grey box on any PC | Released |
 | 26.11.7: the meeting guard (measure in meetings, lighter FrameDecks, before-you-go-live line, busy hint); Teleprompter in Engage | Released; owner's report: camera 4 fps, FrameDecks 37-87 % GPU, 1.3 GB |
 | 26.11.8: Branding Background slider; sharper meeting meter (GPU by process and kind, windows open and in front, page names); meeting mode in every window; Up next hidden not reloaded; memory figure fixed | Released; owner's report: GPU fixed (22-29 %), camera 30.7 in / 7.5 out, 133 ms per frame (blur) |
-| 26.11.18: Command Center fix: back to the 26.11.13 shape timing (26.11.17 showed only the bar on Windows), curves and square joins kept, gentler pour | On `main`; owner tags `v26.11.18` |
+| 26.11.18: Command Center fix: back to the 26.11.13 shape timing (26.11.17 showed only the bar on Windows), curves and square joins kept, gentler pour | Released |
+| 26.11.19: Command Center black box fixed (DeleteObject argtypes, one shape worker), fewer measurements while live, live Control fits 720 px | On `main`; owner tags `v26.11.19` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

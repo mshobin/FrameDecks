@@ -1,24 +1,28 @@
-## FrameDecks v26.11.18
+## FrameDecks v26.11.19
 
-The Command Center opens smoothly again. Download from **framedecks.com/download**, or let FrameDecks update itself.
-It installs over every earlier version and keeps all your meetings, members, settings, notes, pinned Memory Cards and
-recordings.
+No black box behind the Command Center, quicker presses, and all of Control on screen. Download from
+**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all
+your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
 None in this version.
 
 ## Enhancements
-- **A gentler waterfall.** The chips' drawer flows out of the search bar more softly, and the chips settle in one
-  after another.
+- **All of Control fits the Command Center.** While live, the Meeting row (Mute, Camera, Share screen, Leave) and the
+  volume were below the bottom edge of the window. The rows sit a little closer now, with the same buttons, keys and
+  colours, so everything is on screen, also on a laptop screen at 150 %.
 
 ## Fixes
-- **The Command Center showed only its search bar** in 26.11.17: the chips and panels did not appear. The window's
-  shape is updated the way it was in 26.11.13 again, which is smooth on every PC.
-- **Kept from 26.11.17:** the curved joins where the chips flow out of the search bar, no notches where a panel meets
-  the chips, and Control is never cut off at the bottom.
+- **The black box behind the Command Center.** The window is cut to the shape of the bar, the chips and the open panel.
+  On some PCs Windows handed out a handle that FrameDecks did not accept when it tidied up a piece of that shape, so
+  the new shape was never put on: the window kept an old shape (only the search bar in 26.11.17) or none at all (a
+  black box). Every piece is now handed over the right way, tidying up can never stop the shape, and the newest shape
+  always goes on last.
 
 ## Performance Improvements
-- The window's shape uses fewer pieces, so Windows redraws it with less work.
+- **Presses answer sooner while live.** The meeting clock ticks every second, and each tick made the Command Center
+  measure itself five times. Words that change in place (the clock, "Frame 3 of 13") no longer do, and the panel only
+  writes what really changed: about six times less work while live.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.

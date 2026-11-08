@@ -28,7 +28,7 @@ class ShapeWithoutFocus(unittest.TestCase):
     def test_the_last_shape_is_kept_and_put_back(self):
         self.assertIn('state["spot_rects"] = (rects, scale)', self.app)
         self.assertIn('dw.clip(hwnd, *state["spot_rects"])', self.app)           # before it shows
-        self.assertIn("rects and dw.clip(hwnd, *rects)", self.app)              # after a resize
+        self.assertIn("rects and shape_later(hwnd, *rects)", self.app)              # after a resize
 
 
 if __name__ == "__main__":

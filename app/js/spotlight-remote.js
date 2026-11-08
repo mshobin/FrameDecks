@@ -245,6 +245,9 @@ function mode_(){
   });
 }
 function setText(el, t){ if (el && el.textContent !== t) el.textContent = t; }
+/* 26.11.19 only a real change is written: an unchanged write still counts as a change for the window's shape */
+function setHidden(el, v){ if (el && el.hidden !== !!v) el.hidden = !!v; }
+function setCls(el, c){ if (el && el.className !== c) el.className = c; }
 function render(){
   if (!panel || !live) return;
   var L = live.live, ls = SC.liveScene(live), order = SC.order(live), pos = ls ? order.indexOf(ls) + 1 : 0;
@@ -252,21 +255,21 @@ function render(){
   document.body.classList.toggle('spr-live', !!ls);
   if (!!ls !== wasLive){ wasLive = !!ls; mode_(); }
   var air = $('spr-air');
-  air.className = 'spr-air' + (L.blackout || L.emergency ? ' bad' : ls ? ' on' : '');
+  setCls(air, 'spr-air' + (L.blackout || L.emergency ? ' bad' : ls ? ' on' : ''));
   setText(air.querySelector('b'), L.blackout ? 'Black screen' : L.emergency ? 'Emergency' : L.freeze ? 'Frozen' : ls ? (on ? 'Live' : 'Live · nothing shown') : 'Off air');
   var nx = ls ? SC.neighbour(live, ls.id, 1) : order[0];
   setText($('spr-what'), ls ? 'Frame ' + pos + ' of ' + order.length + ' · ' + ls.name + (nx ? '  ›  ' + nx.name : '') : order.length ? 'Ready: Go Live puts “' + order[0].name + '” on screen' : 'No Frames yet');
   setText(document.querySelector('#spr-next .spr-l'), ls ? 'Next Frame' : 'Go Live');   // 26.11.12 the same words as the top bar
   var m = (studio && studio.media || [])[0], playing = m && (m.state === 'play' && !m.ended || m.state === 'restart');
-  var pb = $('spr-play'); pb.disabled = !m; pb.hidden = !m;   // 26.11.15 only when the Frame has a video: room for Emergency
-  pb.querySelector('.spr-ic').innerHTML = I(playing ? 'pause' : 'play'); setText(pb.querySelector('.spr-l'), playing ? 'Pause' : 'Play');
+  var pb = $('spr-play'); pb.disabled = !m; setHidden(pb, !m);   // 26.11.15 only when the Frame has a video: room for Emergency
+  var pi = pb.querySelector('.spr-ic'), pk = playing ? 'pause' : 'play'; if (pi.dataset.ic !== pk){ pi.dataset.ic = pk; pi.innerHTML = I(pk); } setText(pb.querySelector('.spr-l'), playing ? 'Pause' : 'Play');
   var bl = $('spr-black'); bl.classList.toggle('on', !!L.blackout); bl.setAttribute('aria-pressed', String(!!L.blackout));
   var fz = $('spr-freeze'); fz.classList.toggle('on', !!L.freeze); fz.setAttribute('aria-pressed', String(!!L.freeze));
   var em = $('spr-emergency'); em.classList.toggle('on', !!L.emergency); em.setAttribute('aria-pressed', String(!!L.emergency));
   paintClock();
   // the Content, one by one
   var ks = ls ? kinds() : [], k = ls ? curKind() : null;
-  $('spr-step').hidden = !k;
+  setHidden($('spr-step'), !k);
   var kb = $('spr-kinds'), ksig = ks.join(',') + '|' + k;
   if (kb.dataset.sig !== ksig){
     kb.dataset.sig = ksig; kb.innerHTML = '';
@@ -286,7 +289,7 @@ function render(){
     setText($('spr-c-title'), title); setText($('spr-c-detail'), detail); $('spr-c-detail').classList.toggle('on', shown);
   }
   var qm = ls ? SC.qsMode(ls) : '';
-  $('spr-qsrow').hidden = !qm;
+  setHidden($('spr-qsrow'), !qm);
   if (qm) Array.prototype.forEach.call($('spr-qs').children, function(b){ b.setAttribute('aria-checked', String(b.dataset.qs === qm)); });
   // Live tools
   var ink = !!(L.ink && L.ink.on);

@@ -140,7 +140,7 @@ class CommandCenterShows(unittest.TestCase):
     def test_the_switch_is_there_and_uses_the_shared_helper(self):
         js = (ROOT / "app/js/spotlight-remote.js").read_text(encoding="utf-8")
         for bit in ("id: 'spr-qs'", "role: 'radiogroup'", "'question', 'Question'", "'both', 'Both'", "'verse', 'Scripture'",
-                    "SC.setQS(n, ls.id, m)", "$('spr-qsrow').hidden = !qm"):
+                    "SC.setQS(n, ls.id, m)", "setHidden($('spr-qsrow'), !qm)"):
             self.assertIn(bit, js)
         css = (ROOT / "app/css/spotlight.css").read_text(encoding="utf-8")
         self.assertIn(".spr-qsrow[hidden]{display:none}", css)

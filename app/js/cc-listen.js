@@ -52,12 +52,13 @@ function paint(){
   var m = mode();
   Array.prototype.forEach.call(seg.children, function(b){ b.setAttribute('aria-checked', String(b.dataset.mode === m)); });
   var w = words(); row.title = 'Listen for scripture: ' + w; state.setAttribute('aria-label', w);
-  state.className = 'cc-vl-dot' + (info && info.enabled && info.state === 'listening' && info.live ? ' on' : '');
+  var dot = 'cc-vl-dot' + (info && info.enabled && info.state === 'listening' && info.live ? ' on' : '');
+  if (state.className !== dot) state.className = dot;          // 26.11.19 only real changes (the window's shape watches)
   var p = info && info.pending, box = said;
-  box.hidden = !p;
+  if (box.hidden !== !p) box.hidden = !p;
   // 26.11.15 nothing waiting: the last verses heard, one click to show (in place of the header's description too)
   var earlier = !p && info && info.enabled ? (info.earlier || []).slice(0, 3) : [], sig = earlier.map(function(e){ return e.ref; }).join('|');
-  prior.hidden = !earlier.length;
+  if (prior.hidden !== !earlier.length) prior.hidden = !earlier.length;
   if (prior.dataset.sig !== sig){
     prior.dataset.sig = sig; prior.textContent = '';
     if (earlier.length) prior.appendChild(h('span', {text: 'Earlier'}));

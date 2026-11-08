@@ -10,6 +10,24 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.19] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.19.md](releases/v26.11.19.md).
+
+### Fixed
+- The black box behind the Command Center (and 26.11.17's bare search bar). `gdi32.DeleteObject` was called without
+  argtypes, so a region handle with its top bit set raised "int too long to convert" and `desktop_win.clip` gave up
+  before `SetWindowRgn`. Every GDI call that takes a handle is now declared (`DeleteObject`, `CreateRectRgn`),
+  `_free()` can never cost the shape, and `desktop_app.shape_later` applies shapes on one worker, newest last.
+
+### Changed
+- Live Control fits the 720 px window: tighter rows in the 26.11.19 block of `app/css/spotlight.css` (the Meeting row
+  and volume were below the edge).
+
+### Performance
+- `app/js/cc-shape.js` ignores text-only mutations (the meeting clock ticked five measurements a second); the
+  Control panel (`spotlight-remote.js` `setHidden`/`setCls`, `cc-listen.js`) writes attributes only on change.
+
 ## [26.11.18] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.18.md](releases/v26.11.18.md).

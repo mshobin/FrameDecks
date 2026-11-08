@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.19': [
+    {title: 'No box behind the Command Center', text: 'The Command Center keeps its shape on every PC, presses answer sooner while live, and all of Control fits on screen.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.18': [
     {title: 'The Command Center opens smoothly again', text: 'The chips flow out of the search bar as before, with the curved joins, and Control shows in full.', show: {settings: 'keys', spot: '#keys-global'}}
   ],

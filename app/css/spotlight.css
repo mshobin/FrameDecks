@@ -708,3 +708,14 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc-vl-earlier > span{color:var(--muted)}
 .cc-panel .cc-vl-earlier .spr-b{min-height:28px;padding:0 10px;border:1px solid var(--cc-rim);color:var(--ink);white-space:nowrap}
 .spr-b[hidden]{display:none}
+/* 26.11.19 live Control fits the Command Center's 720 px window (a 1080p screen at 150 %): the Meeting row and the
+   volume were below its edge. The same controls, keys and colours, with tighter rows */
+.cc .cc-panel-control .cc-control{gap:8px}
+.cc .cc-panel-control .cc-switch{padding-top:6px;padding-bottom:6px}
+.cc .cc-panel-control .spr{gap:8px}
+.cc .cc-panel-control .spr-now{min-height:40px;padding-top:4px;padding-bottom:4px}
+.cc .cc-panel-control .spr-b,.cc .cc-panel-control .spr-mt .spr-b{min-height:70px;gap:2px;padding:6px 6px 4px}
+.cc .cc-panel-control .spr-ic{width:28px;height:28px}
+.cc .cc-panel-control .spr-step{min-height:48px;padding-top:4px;padding-bottom:4px}
+.cc .cc-panel-control .spr-mt{padding-top:4px}
+.cc .cc-panel-control .spr-mt .spr-seg .spr-b{min-height:0;padding:0}
