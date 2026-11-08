@@ -46,7 +46,7 @@ function render(){
   c.innerHTML = '';
   if (p && ((p.status === 'waiting' && !info.auto) || p.id === failed)){
     c.className = 'vl-card vl-ask';
-    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: 'Heard'}), h('b', {cls: 'vl-ref', text: p.label})]));
+    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
     c.appendChild(h('div', {cls: 'vl-acts'}, [
       h('button', {cls: 'btn primary small', type: 'button', id: 'vl-show', text: busy === p.id ? 'Showing…' : 'Show', disabled: busy ? 'disabled' : null, onclick: function(){ show(p); }}),
       h('button', {cls: 'btn quiet small', type: 'button', id: 'vl-dismiss', text: 'Dismiss', disabled: busy ? 'disabled' : null, onclick: function(){ dismiss(p); }})]));
@@ -60,6 +60,10 @@ function render(){
     if (!words){ c.hidden = true; return; }
     c.className = 'vl-card vl-quiet' + (st === 'listening' ? ' vl-on' : '');
     c.appendChild(h('p', {cls: 'vl-line', title: 'Heard on this PC only. Nothing is recorded or sent.'}, [h('i', {cls: 'vl-dot', 'aria-hidden': 'true'}), words + (info.auto && st === 'listening' ? ' · Auto' : '')]));
+    var earlier = (info.earlier || []).slice(0, 3);                 // 26.11.15 a verse missed in the moment, still one tap away
+    if (earlier.length) c.appendChild(h('div', {cls: 'vl-earlier', role: 'group', 'aria-label': 'Heard earlier'}, [h('span', {text: 'Earlier'})].concat(earlier.map(function(e){
+      return h('button', {cls: 'btn quiet small', type: 'button', title: 'Show ' + e.label, text: e.label, onclick: function(){ post({op: 'replay', text: e.ref}).then(function(d){ if (d) take(d); }); }});
+    }))));
     c.hidden = false;
     return;
   }
@@ -77,17 +81,33 @@ function lookup(ref, tr){
     .then(function(d){ if (d.error) throw new Error(d.error); return d; });
 }
 function same(a, b){ return String(a || '').toLowerCase().replace(/\s+/g, ' ').replace(/[–—]/g, '-').trim() === String(b || '').toLowerCase().replace(/\s+/g, ' ').replace(/[–—]/g, '-').trim(); }
+function inPlan(ref){                                         // the live Frame's own items first, then the rest of the plan
+  var sid = live && live.live.scene, found = null;
+  var scenes = (live && live.scenes || []).slice().sort(function(a, b){ return (a.id === sid ? 0 : 1) - (b.id === sid ? 0 : 1); });
+  scenes.some(function(sc){
+    return (sc.layers || []).some(function(l){
+      if (l.kind !== 'scripture' || !l.c || !Array.isArray(l.c.items)) return false;
+      return l.c.items.some(function(it){
+        if (it && same(it.ref, ref) && String(it.text || '').trim()){ found = {ref: it.ref, version: it.version || '', text: it.text}; return true; }
+        return false;
+      });
+    });
+  });
+  return found;
+}
 function show(p){
   if (busy) return;
   var sid = live && live.live.scene, sc = sid && SC.find(live, sid);
   if (!sc){ toast('Nothing is live. Go Live first, then show the scripture.', true); return; }
   busy = p.id; render();
   var tr = translation(), note = '';
-  lookup(p.ref, tr).catch(function(e){
+  // 26.11.15 a passage already in this meeting's plan is shown from the plan itself: instant, and it works offline
+  var planned = inPlan(p.ref);
+  (planned ? Promise.resolve(planned) : lookup(p.ref, tr).catch(function(e){
     if (tr !== 'ESV') throw e;
     note = ' (KJV: add an ESV key in Settings → Scripture for the ESV)';
     return lookup(p.ref, 'KJV');
-  }).then(function(d){
+  })).then(function(d){
     var item = null, added = false;
     return window.KCCommit(function(n){
       var s = SC.find(n, sid); if (!s) return;

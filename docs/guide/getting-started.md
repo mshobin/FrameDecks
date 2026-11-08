@@ -184,7 +184,7 @@ Do this once, a day or two before your first real meeting.
 - [ ] **Hide all (Esc)** and **Black screen (K)** work.
 - [ ] If you use a projector: **Share Window** opens the Presentation window and it fills the projector screen.
 - [ ] If you use your phone: it connects, and **NEXT FRAME** works.
-- [ ] You know where the **Teleprompter** is (**Prepare → Teleprompter**, or **R**) if you want your script in
+- [ ] You know where the **Teleprompter** is (**Engage → Teleprompter**, or **R**) if you want your script in
       front of you. It stays on top of Zoom or Teams, and only you see it: it is hidden from screen sharing and
       recordings.
 - [ ] Do a 10-minute rehearsal with one other person on a test Zoom call.

@@ -687,3 +687,14 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc-panel .cc-vl-heard .spr-b.gold{background:var(--gold);color:var(--gold-ink)}
 .cc-panel .cc-vl-heard .spr-b.gold:disabled{opacity:.6}
 .cc.cc-compact .cc-vl-name{display:none}
+/* 26.11.15 the meeting clock in Control's now line: meeting time, then this Frame against its plan (gold once over) */
+.spr-clock{flex:none;display:inline-flex;align-items:baseline;gap:6px;margin-left:auto;font-variant-numeric:tabular-nums}
+.spr-clock[hidden]{display:none}
+.spr-clock b{font-size:15px;color:var(--ink)}
+.spr-clock small{font-size:12px;color:var(--muted)}
+.spr-clock.over small{color:var(--gold);font-weight:700}
+.cc-vl-earlier{flex:1;min-width:0;display:inline-flex;align-items:center;gap:6px;overflow:hidden;font-size:13px}
+.cc-vl-earlier[hidden]{display:none}
+.cc-vl-earlier > span{color:var(--muted)}
+.cc-panel .cc-vl-earlier .spr-b{min-height:28px;padding:0 10px;border:1px solid var(--cc-rim);color:var(--ink);white-space:nowrap}
+.spr-b[hidden]{display:none}

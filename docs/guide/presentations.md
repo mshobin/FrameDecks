@@ -138,6 +138,10 @@ tablet remote, **Listen for scripture** in the top bar's **Control** chip, and S
 - It hears this PC's microphone only (the one chosen for the Teleprompter's Follow my voice), not people in Zoom or
   Teams, and only while a Frame is live. Nothing is recorded or sent anywhere.
 - If a passage cannot be fetched (for example offline), **Show** reads **Try again**; **Dismiss** always works.
+- **Earlier** lists the last three verses heard, so one missed in the moment is still one click away.
+- A verse that is already in this meeting's plan (any Frame's Scripture Deck) is offered as the planned passage,
+  marked **in your plan**: say "Romans eight thirty-eight" and the planned Romans 8:38–39 is shown from the plan,
+  instantly and offline.
 
 ## Transitions
 
@@ -171,7 +175,7 @@ its look in **Settings → Transitions → Burst**:
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
 Black screen, Freeze, Emergency and Hide the selected Content are in the **Control** chip of the top bar; Draw and
-Spotlight are in **Engage**, and the Teleprompter in **Prepare** (the chips replace the old Live tools menu).
+Spotlight are in **Engage**, and so is the Teleprompter (the chips replace the old Live tools menu).
 **Go Live**, **◀ Previous**, **Next ▶** and **Hide all** are always in the top bar. The Control chip changes to
 **Black screen on**, **Emergency on** or **Frozen**, and Engage turns gold while you draw, so you never forget one is
 on. Press the same control again to turn it off.
@@ -261,7 +265,7 @@ optional:
 | `---` | A divider line |
 
 **Open it**
-- **Prepare → Teleprompter**, or press **R** (press it again to close it).
+- **Engage → Teleprompter**, or press **R** (press it again to close it).
 - From the [command palette](#command-palette) or [Command Center](#command-center): type *Teleprompter on / off*.
 - From the tray icon near the clock: **Teleprompter**.
 
@@ -428,14 +432,14 @@ five chips folded away under it.
 
 | Chip | What it holds |
 |---|---|
-| **Prepare** | Meetings (switch the meeting this PC shows), Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
-| **Engage** | Memory Cards, Capture copies, Draw and Spotlight (on a draw pad right in the Command Center), Clear drawings, Hide the cards |
-| **Control** | **Go Live** as a switch, **Listen for scripture** (Off · Ask · Auto, at the right of its header), and while you are live the meeting remote (below), with **Freeze** (**Alt+F**) beside Black screen |
+| **Prepare** | Meetings (switch the meeting this PC shows), Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
+| **Engage** | Memory Cards, the Teleprompter, Capture copies, Draw and Spotlight (on a draw pad right in the Command Center), Clear drawings, Hide the cards |
+| **Control** | **Go Live** as a switch, **Listen for scripture** (Off · Ask · Auto, at the right of its header), and while you are live the meeting remote (below), with **Freeze** (**Alt+F**) and **Emergency** (press it twice) beside Black screen, and the meeting clock: time since Go Live and this Frame against its planned time |
 | **Notes** | Your private notes for this meeting (below) |
 | **More** | Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
 
-Each thing is in one chip only: Draw, Spotlight and Clear drawings are in **Engage**; the Studio, the
-Teleprompter, the Share Window and the camera check in **Prepare**; the phone remote in **More**.
+Each thing is in one chip only: the Teleprompter, Draw, Spotlight and Clear drawings are in **Engage**; the Studio,
+the Share Window and the camera check in **Prepare**; the phone remote in **More**.
 
 **Size and place.** In **Settings → Controls → General → Window and tray** choose **Command Center size**
 (**Regular**, or **Compact**: slim chips in one row and a narrower bar) and **Command Center opens at** (**Top**,

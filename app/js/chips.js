@@ -24,7 +24,6 @@ function A(chip, id, label, icon, sub, on, extra){
 var ACTIONS = [
   // Prepare
   A('prepare', 'meetings', 'Meetings', 'calendar-days', 'Switch and plan', ['cc', 'app', 'phone']),
-  A('prepare', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone'], {alsoIn: {engage: ['cc']}}),
   A('prepare', 'share', 'Share Window', 'monitor', 'The window you share', ['cc', 'app']),
   A('prepare', 'studio', 'Studio', 'presentation', 'Frames, Decks, Content', ['cc']),
   A('prepare', 'quick', 'Quick Start', 'rocket', 'Ready-made Frames', ['cc', 'app']),
@@ -33,6 +32,8 @@ var ACTIONS = [
   A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app']),
   // Engage
   A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone']),
+  // 26.11.15 the Teleprompter is used live, so it lives in Engage only (Command Center, top bar and phone alike)
+  A('engage', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone']),
   A('engage', 'capture', 'Capture copies', 'copy', 'Each Ctrl+C is a card', ['cc', 'app'], {toggle: true}),
   A('engage', 'draw', 'Draw', 'pencil', 'On the picture', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'spot', 'Spotlight', 'circle-dot', 'Double-click a word', ['cc', 'app', 'phone'], {toggle: true}),
@@ -48,8 +49,8 @@ var ACTIONS = [
   A('control', 'hidelayer', 'Hide the selected Content', 'eye-off', 'Just this one', ['app']),
   A('control', 'black', 'Black screen', 'square', 'A black picture', ['cc', 'app', 'phone'], {toggle: true}),
   A('control', 'freeze', 'Freeze the picture', 'pause', 'Hold what people see', ['cc', 'app', 'phone'], {toggle: true}),
-  A('control', 'emergency', 'Emergency screen', 'circle-alert', 'Your message, full screen', ['app'], {toggle: true}),
-  A('control', 'meetingapp', 'Meeting app', 'mic', 'Mute, Camera, Share, Leave', ['cc']),
+  A('control', 'emergency', 'Emergency screen', 'circle-alert', 'Your message, full screen', ['cc', 'app', 'phone'], {toggle: true}),
+  A('control', 'meetingapp', 'Meeting app', 'mic', 'Mute, Camera, Share, Leave', ['cc', 'phone']),   // the phone: Mute and Camera only
   // Notes
   A('notes', 'notes', 'Notes', 'sticky-note', 'Private notes for this meeting', ['cc', 'app', 'phone']),
   // More

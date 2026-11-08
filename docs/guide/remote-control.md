@@ -78,9 +78,9 @@ floating top bar, the chips as a floating dock, and each tool's icon in a square
 
 | Chip | What is in it |
 | --- | --- |
-| **Control** (blue, opens first) | The Frame on screen. Its questions, scriptures or PowerPoint slides with round **◀ ▶** arrows (*Question 2 of 5*, *Slide 3 of 12*); a **Question / Both / Scripture** switch when it has both; **Video** controls (play, pause, from the start) for videos in the picture; **On this Frame**: every Deck with an eye to show or hide it; **Black screen** (*Show picture* while on) and **Freeze**; **Listen for scripture**: Off · Ask · Auto, and a verse just heard with **Show** and **Dismiss** (the PC puts it on screen). |
-| **Prepare** (gold) | This meeting's date, time, place, speaker and expected people; **Switch meeting** when there are several; the whole meeting, Frame > Deck > Content, numbered like the Meeting Workbook (1 · 1.1 · 1.1.1). Tap a Frame to put it on screen, open it (**⌄**) to see its Decks and every question or scripture; and the **Teleprompter** |
-| **Engage** (violet) | **Draw**, **Spotlight**, **Clear drawings**, and **Memory Cards** (see below) with **Hide the cards** |
+| **Control** (blue, opens first) | The Frame on screen. Its questions, scriptures or PowerPoint slides with round **◀ ▶** arrows (*Question 2 of 5*, *Slide 3 of 12*); a **Question / Both / Scripture** switch when it has both; **Video** controls (play, pause, from the start) for videos in the picture; **On this Frame**: every Deck with an eye to show or hide it; **Black screen** (*Show picture* while on) and **Freeze**; **Listen for scripture**: Off · Ask · Auto, and a verse just heard with **Show** and **Dismiss** (the PC puts it on screen). **Emergency** (tap twice; once to turn it off); **Meeting app**: **Mute** and **Camera** in Zoom, Teams or Google Meet on the PC (Leave and Share stay on the PC); the meeting clock beside **On screen**. |
+| **Prepare** (gold) | This meeting's date, time, place, speaker and expected people; **Switch meeting** when there are several; the whole meeting, Frame > Deck > Content, numbered like the Meeting Workbook (1 · 1.1 · 1.1.1). Tap a Frame to put it on screen, open it (**⌄**) to see its Decks and every question or scripture |
+| **Engage** (violet) | The **Teleprompter**, **Draw**, **Spotlight**, **Clear drawings**, and **Memory Cards** (see below) with **Hide the cards** |
 | **Notes** (teal) | Add a note for this meeting from the phone (see below) |
 | **More** (slate) | What the PC is doing (FrameDecks vCam, recording, slides) and **Disconnect this device** |
 
@@ -104,7 +104,7 @@ The spotlight uses the colour, size and strength set on the PC (Settings → Tra
 The phone can show the Frame's **Teleprompter script**, the same one you see on the PC. Only the phone shows it;
 nobody watching sees it.
 
-Select **Teleprompter**. The script opens full screen; select **Done** to close it.
+Select **Engage → Teleprompter**. The script opens full screen; select **Done** to close it.
 
 Scroll with your finger, or use the play button to scroll by itself. See
 [Presentations](presentations.md#teleprompter) for how to write the script.

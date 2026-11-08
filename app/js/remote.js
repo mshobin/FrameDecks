@@ -184,6 +184,52 @@ function clearInk(){ update(function(n){ SC.ink(n, 'clear'); }, 'Drawings cleare
 function blackout(){ update(function(n){ n.live.blackout = !n.live.blackout; }, live.live.blackout ? 'Picture back' : 'Black screen'); }
 function freeze(){ update(function(n){ n.live.freeze = !n.live.freeze; }, live.live.freeze ? 'Picture live again' : 'Picture frozen'); }
 function annotate(){ setSpot(false); if (live.live.ink && live.live.ink.on) openPad(); else update(function(n){ SC.ink(n, 'on'); }).then(openPad); }
+/* 26.11.15 Emergency screen from the phone, as in the Studio and the Command Center: tap twice to turn it on (it covers
+   everything), once to turn it off; with no message set it says "We’ll be right back." */
+var emArm = 0;
+function emergency(){
+  var on = live.live.emergency;
+  if (!on && Date.now() - emArm > 3000){ emArm = Date.now(); toast('Tap Emergency again to put your message on screen'); return; }
+  emArm = 0;
+  update(function(n){
+    if (!n.live.emergency && !String(n.live.message || '').trim()) n.live.message = 'We’ll be right back.';
+    n.live.emergency = !n.live.emergency;
+  }, on ? 'Emergency screen off' : 'Emergency screen on');
+}
+$('t-emergency').addEventListener('click', guard('te', emergency));
+/* 26.11.15 your meeting app from the phone: Mute and Camera only (api/remote/meeting-key never takes Leave or Share) */
+function meetingKey(act){
+  fetch('api/remote/meeting-key', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify({act: act})})
+    .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if (!r.ok) throw new Error(d.error || 'Couldn’t reach your PC.'); return d; }); })
+    .then(function(d){ toast('✓ ' + (act === 'mute' ? 'Microphone switched' : 'Camera switched') + (d.name ? ' in ' + d.name : '')); })
+    .catch(function(e){ toast(e.message, true); });
+}
+function meetingApp(){
+  fetch('api/remote/meeting-key', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if (!d) return;
+    setText($('mtg-app'), d.available ? (d.name || 'Ready') : 'No meeting open');
+  }).catch(function(){});
+}
+$('t-mute').addEventListener('click', guard('tm', function(){ meetingKey('mute'); }));
+$('t-camera').addEventListener('click', guard('tv', function(){ meetingKey('camera'); }));
+/* 26.11.15 the meeting clock beside On screen: time since Go Live, and this Frame against its planned time (gold once
+   over), as in the Studio and the Command Center; it ticks only while live and in view */
+function mmss(ms){
+  var t = Math.max(0, Math.floor(ms / 1000)), hh = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, x = t % 60;
+  return (hh ? hh + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (x < 10 ? '0' : '') + x;
+}
+var clockT = 0;
+function paintClock(){
+  var el = $('rclock'); if (!el || !live) return;
+  var L = live.live, ls = SC.liveScene(live), now = Date.now();
+  if (!ls || !L.since){ el.hidden = true; clearInterval(clockT); clockT = 0; return; }
+  var plan = (ls.plan || 0) * 60000, here = now - (L.at || now);
+  setText(el.querySelector('b'), mmss(now - L.since));
+  setText(el.querySelector('small'), 'Frame ' + mmss(here) + (plan ? ' / ' + mmss(plan) : ''));
+  el.classList.toggle('over', plan > 0 && here > plan); el.hidden = false;
+  if (!clockT && !document.hidden) clockT = setInterval(paintClock, 1000);
+}
+document.addEventListener('visibilitychange', function(){ if (document.hidden){ clearInterval(clockT); clockT = 0; } else paintClock(); });
 $('t-black').addEventListener('click', guard('tb', blackout));
 $('t-freeze').addEventListener('click', guard('tf', freeze));
 $('t-draw').addEventListener('click', guard('td', annotate));
@@ -534,15 +580,16 @@ function render(){
   }
   // tools
   var ink = !!(L.ink && L.ink.on);
-  [['t-draw', ink, 'Draw', 'Drawing'], ['t-spot', spotMode, 'Spotlight', 'Spotlight on'], ['t-freeze', !!L.freeze, 'Freeze', 'Unfreeze'], ['t-black', !!L.blackout, 'Black screen', 'Show picture']].forEach(function(b){
+  [['t-draw', ink, 'Draw', 'Drawing'], ['t-spot', spotMode, 'Spotlight', 'Spotlight on'], ['t-freeze', !!L.freeze, 'Freeze', 'Unfreeze'], ['t-black', !!L.blackout, 'Black screen', 'Show picture'], ['t-emergency', !!L.emergency, 'Emergency', 'Emergency off']].forEach(function(b){
     var el = $(b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); setText(el.querySelector('.tl'), b[1] ? b[3] : b[2]);
   });
   $('t-ink-clear').disabled = !(L.ink && L.ink.items && L.ink.items.length) || !connOk;
   var cs = $('ch-state'), stt = L.blackout ? 'Black screen' : L.freeze ? 'Frozen' : L.emergency ? 'Emergency screen' : ink && L.ink.items && L.ink.items.length ? 'Drawings on screen' : '';
   cs.hidden = !stt; setText(cs, stt);
-  setText($('note'), L.blackout ? 'The screen is black. Tap Show picture to bring it back.' : L.freeze ? 'The picture is frozen. Tap Unfreeze to go live again.' : L.emergency ? 'The Emergency screen is on. Turn it off on the PC.' : '');
+  setText($('note'), L.blackout ? 'The screen is black. Tap Show picture to bring it back.' : L.freeze ? 'The picture is frozen. Tap Unfreeze to go live again.' : L.emergency ? 'The Emergency screen is on. Tap Emergency off to bring the picture back.' : '');
+  paintClock();
   if (tp && !$('tp').hidden) tp.update(live, tpFrame());
-  if (tab === 'control'){ renderDecks(); renderMedia(); }
+  if (tab === 'control'){ renderDecks(); renderMedia(); if (!meetingApp.at || Date.now() - meetingApp.at > 15000){ meetingApp.at = Date.now(); meetingApp(); } }
   if (tab === 'prepare'){ renderFrames(); renderMeeting(); }
   if (tab === 'more') renderMeeting();
   if (tab === 'notes' && notesPad) notesPad.paint();

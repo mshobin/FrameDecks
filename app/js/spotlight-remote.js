@@ -54,6 +54,37 @@ function setQS(m, said){
 }
 function hideAll(){ update(function(n){ SC.hideAll(n); }, 'Everything hidden'); }
 function black(){ var on = live && live.live.blackout; update(function(n){ n.live.blackout = !n.live.blackout; }, on ? 'Picture back' : 'Black screen'); }
+/* 26.11.15 Emergency screen, as in the Studio and on the phone: your message full screen. Pressed twice to turn it on
+ * (it covers everything), once to turn it off; with no message set it says "We’ll be right back." */
+var emArm = 0;
+function emergency(){
+  var on = live && live.live.emergency;
+  if (!on && Date.now() - emArm > 3000){ emArm = Date.now(); tell('Press Emergency again to put your message on screen.'); return; }
+  emArm = 0;
+  update(function(n){
+    if (!n.live.emergency && !String(n.live.message || '').trim()) n.live.message = 'We’ll be right back.';
+    n.live.emergency = !n.live.emergency;
+  }, on ? 'Emergency screen off' : 'Emergency screen on');
+}
+/* 26.11.15 the meeting clock (since the first Go Live, live.since) and the live Frame's time against its plan, as in
+ * the Studio's Frames list (js/run-sheet.js) and on the phone: gold once over. Ticks only while live and in view. */
+function mmss(ms){
+  var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60;
+  return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (x < 10 ? '0' : '') + x;
+}
+var clockT = 0;
+function paintClock(){
+  var el = $('spr-clock'); if (!el || !live) return;
+  var L = live.live, ls = SC.liveScene(live), now = Date.now();
+  if (!ls || !L.since){ el.hidden = true; clearInterval(clockT); clockT = 0; return; }
+  var plan = (ls.plan || 0) * 60000, here = now - (L.at || now), over = plan > 0 && here > plan;
+  setText(el.querySelector('b'), mmss(now - L.since));
+  setText(el.querySelector('small'), 'this Frame ' + mmss(here) + (plan ? ' / ' + mmss(plan) : ''));
+  el.classList.toggle('over', over); el.hidden = false;
+  el.title = 'Meeting time since Go Live · time on this Frame' + (plan ? ' against its planned time' : '');
+  if (!clockT && !document.hidden) clockT = setInterval(paintClock, 1000);
+}
+document.addEventListener('visibilitychange', function(){ if (document.hidden){ clearInterval(clockT); clockT = 0; } else paintClock(); });
 // 26.11.14 Freeze the picture, as in the Studio and on the phone: people keep seeing what is there now
 function freeze(){ var on = live && live.live.freeze; update(function(n){ n.live.freeze = !n.live.freeze; }, on ? 'Picture moving again' : 'Picture frozen'); }
 var leaveArm = 0;
@@ -144,14 +175,16 @@ function build(){
   if (!top) return false;
   say = h('p', {cls: 'spr-say', role: 'status', 'aria-live': 'polite'});
   panel = h('section', {cls: 'spr', id: 'spr', 'aria-label': 'Meeting remote'}, [
-    h('div', {cls: 'spr-now'}, [h('span', {cls: 'spr-air', id: 'spr-air'}, [h('i'), h('b', {text: 'Off air'})]), h('span', {cls: 'spr-what', id: 'spr-what'}), say]),
+    h('div', {cls: 'spr-now'}, [h('span', {cls: 'spr-air', id: 'spr-air'}, [h('i'), h('b', {text: 'Off air'})]), h('span', {cls: 'spr-what', id: 'spr-what'}),
+      h('span', {cls: 'spr-clock', id: 'spr-clock', hidden: 'hidden'}, [h('b'), h('small')]), say]),
     h('div', {cls: 'spr-row spr-fd', role: 'group', 'aria-label': 'FrameDecks'}, [
       btn('prev', 'Previous', 'chevron-left', 'Alt+←', function(){ step(-1); }),
       btn('next', 'Next Frame', 'chevron-right', 'Alt+→', function(){ step(1); }, 'gold wide'),
       btn('play', 'Play', 'play', 'Alt+P', video),
       btn('hide', 'Hide all', 'eye-off', 'Alt+H', hideAll, 'red'),
       btn('black', 'Black screen', 'square', 'Alt+B', black),
-      btn('freeze', 'Freeze', 'pause', 'Alt+F', freeze)]),
+      btn('freeze', 'Freeze', 'pause', 'Alt+F', freeze),
+      btn('emergency', 'Emergency', 'circle-alert', '', emergency, 'red')]),
     h('div', {cls: 'spr-step', id: 'spr-step', role: 'group', 'aria-labelledby': 'spr-c-title', hidden: 'hidden'}, [
       h('div', {cls: 'spr-kinds', id: 'spr-kinds', role: 'radiogroup', 'aria-label': 'What the arrows move through'}),
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-prev', title: 'Previous (Alt+↑)', 'aria-label': 'Previous', 'aria-keyshortcuts': 'Alt+ArrowUp', html: I('chevron-left', 20), onclick: function(){ contentStep(-1); }}),
@@ -219,16 +252,18 @@ function render(){
   document.body.classList.toggle('spr-live', !!ls);
   if (!!ls !== wasLive){ wasLive = !!ls; mode_(); }
   var air = $('spr-air');
-  air.className = 'spr-air' + (L.blackout ? ' bad' : ls ? ' on' : '');
-  setText(air.querySelector('b'), L.blackout ? 'Black screen' : L.freeze ? 'Frozen' : ls ? (on ? 'Live' : 'Live · nothing shown') : 'Off air');
+  air.className = 'spr-air' + (L.blackout || L.emergency ? ' bad' : ls ? ' on' : '');
+  setText(air.querySelector('b'), L.blackout ? 'Black screen' : L.emergency ? 'Emergency' : L.freeze ? 'Frozen' : ls ? (on ? 'Live' : 'Live · nothing shown') : 'Off air');
   var nx = ls ? SC.neighbour(live, ls.id, 1) : order[0];
   setText($('spr-what'), ls ? 'Frame ' + pos + ' of ' + order.length + ' · ' + ls.name + (nx ? '  ›  ' + nx.name : '') : order.length ? 'Ready: Go Live puts “' + order[0].name + '” on screen' : 'No Frames yet');
   setText(document.querySelector('#spr-next .spr-l'), ls ? 'Next Frame' : 'Go Live');   // 26.11.12 the same words as the top bar
   var m = (studio && studio.media || [])[0], playing = m && (m.state === 'play' && !m.ended || m.state === 'restart');
-  var pb = $('spr-play'); pb.disabled = !m;
+  var pb = $('spr-play'); pb.disabled = !m; pb.hidden = !m;   // 26.11.15 only when the Frame has a video: room for Emergency
   pb.querySelector('.spr-ic').innerHTML = I(playing ? 'pause' : 'play'); setText(pb.querySelector('.spr-l'), playing ? 'Pause' : 'Play');
   var bl = $('spr-black'); bl.classList.toggle('on', !!L.blackout); bl.setAttribute('aria-pressed', String(!!L.blackout));
   var fz = $('spr-freeze'); fz.classList.toggle('on', !!L.freeze); fz.setAttribute('aria-pressed', String(!!L.freeze));
+  var em = $('spr-emergency'); em.classList.toggle('on', !!L.emergency); em.setAttribute('aria-pressed', String(!!L.emergency));
+  paintClock();
   // the Content, one by one
   var ks = ls ? kinds() : [], k = ls ? curKind() : null;
   $('spr-step').hidden = !k;

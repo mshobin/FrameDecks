@@ -290,7 +290,7 @@ document.addEventListener('keydown', function(e){
 $('lb-annotate').addEventListener('click', function(){ setAnnotate(!annotating()); });
 $('lb-freeze').addEventListener('click', function(){ setFreeze(!(live && live.live.freeze)); });
 /* 8.0 the Teleprompter: one window above Zoom and Teams, never shared (the desktop app); a pop-up in a browser.
-   R (or Prepare > Teleprompter) opens it and closes it again. */
+   R (or Engage > Teleprompter) opens it and closes it again. */
 var tpWin = null, tpOpen = false;
 function teleprompter(want){
   var app = window.KCAppInfo, on = want == null ? !tpOpen : !!want;

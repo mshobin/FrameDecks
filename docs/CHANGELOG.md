@@ -10,6 +10,28 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.16] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.16.md](releases/v26.11.16.md).
+
+### Added
+- Emergency screen on the Command Center (`spr-emergency`, two presses to turn on) and the phone (`#t-emergency`, two
+  taps); chips.js `emergency` on cc, app and phone; an empty message becomes "We'll be right back."
+- The meeting clock in Control: `#spr-clock` (Command Center) and `#rclock` (phone), from `live.since`, `live.at` and
+  the Frame's `plan`; gold when over; ticks only while live and visible.
+- Mute and Camera from the phone: signed-in `GET/POST /api/remote/meeting-key` (`REMOTE_MEETING_ACTS = ("mute",
+  "camera")`, never Leave or Share); `#mtg` card in the phone's Control; chips.js `meetingapp` on cc and phone.
+- Listen for scripture: `history` of the last 3 references (`earlier` in the body), op `replay` (allowed from the
+  phone) shown as Earlier chips in the Studio card, the Command Center's Control header and the phone's card;
+  `planned` (server `_plan_passage`): a spoken reference inside a passage of the meeting's Scripture Decks is offered
+  as that passage (`planned: true`, "in your plan"), and the Studio shows it from the plan without a lookup
+  (`inPlan` in `app/js/verse-listen.js`).
+
+### Changed
+- The Teleprompter is in Engage only (chips.js, no `alsoIn`; the phone's tile moved to Engage, violet); guides, website
+  Help and the landing eyebrow say Engage → Teleprompter.
+- The Command Center's Play button shows only when the Frame has a video (`.spr-b[hidden]`).
+
 ## [26.11.15] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.15.md](releases/v26.11.15.md).

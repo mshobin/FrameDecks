@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.16': [
+    {title: 'Emergency and the clock, wherever you are', text: 'Emergency screen and the meeting clock are in Control on the Command Center and your phone. Mute and Camera are on the phone too.', show: {spot: '#lc-control'}},
+    {title: 'Verses from your plan, instantly', text: 'Say a verse that is in your plan and the planned passage is offered, shown at once, even offline. Earlier keeps the last three verses heard.', show: {settings: 'scripture', spot: '#vl-settings'}},
+    {title: 'The Teleprompter is in Engage', text: 'On the Command Center, the top bar and the phone, the Teleprompter now lives in Engage only.', show: {spot: '#lc-engage'}}
+  ],
   '26.11.15': [
     {title: 'Listen for scripture, sharper', text: 'A new verse is caught even mid-sentence, and the same verse again a little later. It also works while the Studio is behind Zoom.', show: {settings: 'scripture', spot: '#vl-settings'}},
     {title: 'Off, Ask or Auto, wherever you are', text: 'Switch Listen for scripture and Show or Dismiss a verse from the Command Center\u2019s Control, the top bar or your phone.', show: {spot: '#lc-control'}},

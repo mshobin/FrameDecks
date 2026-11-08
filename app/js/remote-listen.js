@@ -28,13 +28,26 @@ function paint(){
   var p = info && info.pending;
   $('vlc-heard').hidden = !p;
   if (p){
-    $('vlc-ref').textContent = p.label;
+    $('vlc-ref').textContent = p.label + (p.planned ? ' · in your plan' : '');
     var asked = busy || p.status === 'show';
     $('vlc-show').disabled = asked;                          // Dismiss always works, also if showing fails
     $('vlc-show').textContent = asked ? 'Showing…' : p.error ? 'Try again' : 'Show';
   }
 }
-function take(d){ if (!d || d.seq == null) return; info = d; seq = d.seq; busy = false; paint(); }
+function paintEarlier(){                                    // 26.11.15 the last verses heard, one tap to show
+  var box = $('vlc-earlier'), p = info && info.pending;
+  var earlier = !p && info && info.enabled ? (info.earlier || []).slice(0, 3) : [], sig = earlier.map(function(e){ return e.ref; }).join('|');
+  box.hidden = !earlier.length;
+  if (box.dataset.sig === sig) return;
+  box.dataset.sig = sig; box.textContent = '';
+  if (earlier.length){ var k = document.createElement('span'); k.textContent = 'Earlier'; box.appendChild(k); }
+  earlier.forEach(function(e){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'cm-btn'; b.textContent = e.label; b.title = 'Show ' + e.label;
+    b.addEventListener('click', function(){ buzz(12); send('api/remote/verse-listen', {op: 'replay', text: e.ref}).then(take); });
+    box.appendChild(b);
+  });
+}
+function take(d){ if (!d || d.seq == null) return; info = d; seq = d.seq; busy = false; paint(); paintEarlier(); }
 Array.prototype.forEach.call(document.querySelectorAll('[data-vl]'), function(b){
   b.addEventListener('click', function(){
     buzz(12);

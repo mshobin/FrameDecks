@@ -34,11 +34,14 @@ REPEAT = 20.0       # the same reference is not suggested again within this many
                     # verse again a little later must work; 20 s still covers reading it aloud right after it shows)
 RETRY = 15.0        # 26.11.14 after the listener stopped by itself (an error), try again this many seconds later
 WAIT_MAX = 10.0
+HISTORY = 3         # 26.11.15 "Heard earlier": a verse missed in the moment can still be shown
 
 
 class ScriptureListen:
-    def __init__(self, voice, settings, is_live, clock=time.time):
+    def __init__(self, voice, settings, is_live, clock=time.time, planned=None):
         self.voice, self.settings, self.is_live, self.clock = voice, settings, is_live, clock
+        self.planned = planned                                # 26.11.15 ref -> the meeting's own passage holding it, or None
+        self.history = []                                     # 26.11.15 the last HISTORY references offered, newest first
         self.cond = threading.Condition()
         self.pending, self.seq, self.recent = None, 0, {}
         self.listening, self.failed, self.last = False, False, {"state": "off"}
@@ -118,8 +121,17 @@ class ScriptureListen:
                 return refs[-1]
             ref = fresh[-1]
             self.recent[ref["ref"]] = now                     # its partial and final results are one saying, not two
+            plan = None
+            try:
+                plan = self.planned(ref) if self.planned else None
+            except Exception as e:                            # never lose a verse over the plan lookup
+                print("Listen for scripture (plan):", e)
+            if plan:                                          # 26.11.15 said "Romans 8:38", the plan has 8:38-39
+                ref = dict(ref, ref=plan["ref"], label=plan["label"], planned=True)
             self._n += 1
             self._set(dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="waiting"))
+            keep = {k: ref[k] for k in ("ref", "label", "planned") if k in ref}
+            self.history = [dict(keep, at=int(now * 1000))] + [h for h in self.history if h["ref"] != ref["ref"]][:HISTORY - 1]
         return ref
 
     def _set(self, pending):
@@ -132,6 +144,15 @@ class ScriptureListen:
         if op == "hear":
             ref = self.heard(str(text or "")[:500])
             return dict(self.body(), heard=ref)
+        if op == "replay":                                    # 26.11.15 show one heard earlier (text: its ref)
+            with self.cond:
+                h = next((x for x in self.history if x["ref"] == str(text or "")), None)
+                if not h:
+                    raise ValueError("That verse is no longer in the list.")
+                self._n += 1
+                now = self.clock()
+                self._set(dict(h, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="show", error=""))
+            return self.body()
         if op not in ("dismiss", "show", "shown", "failed"):
             raise ValueError("Unknown action.")
         with self.cond:
@@ -155,8 +176,9 @@ class ScriptureListen:
                     break
                 self.cond.wait(left)
             pending, seq = (dict(self.pending) if self.pending else None), self.seq
+            earlier = [dict(x) for x in self.history if not (pending and x["ref"] == pending["ref"])]
         cfg = self.settings() or {}
         st = self.voice.scripture_body() if self.listening else dict(self.last)
         return {"enabled": bool(cfg.get("scriptureListen")), "auto": bool(cfg.get("scriptureAuto")), "live": bool(self.is_live()),
                 "state": st.get("state", "off"), "message": st.get("message", ""), "progress": st.get("progress", 0),
-                "level": st.get("level", 0), "seq": seq, "pending": pending}
+                "level": st.get("level", 0), "seq": seq, "pending": pending, "earlier": earlier}

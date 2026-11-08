@@ -158,7 +158,7 @@ cards across the width, and scriptures are rows beside **Fetch scripture**. **Po
     Teams), recordings and the overlay pages.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
-- **Teleprompter** (Prepare → Teleprompter, **R**, the command palette's *Teleprompter on / off*, or the tray's
+- **Teleprompter** (Engage → Teleprompter, **R**, the command palette's *Teleprompter on / off*, or the tray's
   **Teleprompter**) shows the Frame's **Teleprompter script** in one window that stays on top of Zoom, Teams or Meet.
   Only you see it: it is never on any output, and it is hidden from screen sharing and recordings.
   - Write the script in Frame settings → **Teleprompter script** (up to 20,000 characters), with **✎ Write Script**

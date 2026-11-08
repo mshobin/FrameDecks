@@ -45,10 +45,9 @@ class OneDefinition(unittest.TestCase):
         where = {a["id"]: a["chip"] for a in c["all"]}
         self.assertEqual((where["draw"], where["spot"], where["capture"]), ("engage", "engage", "engage"))
         self.assertEqual((where["black"], where["freeze"], where["emergency"], where["hidelayer"]), ("control",) * 4)
-        self.assertEqual(where["prompter"], "prepare")
-        # 26.11.7 the Teleprompter's own tile also sits in the Command Center's Engage (alsoIn), nowhere else
-        also = {a["id"]: a["alsoIn"] for a in c["all"] if a.get("alsoIn")}
-        self.assertEqual(also, {"prompter": {"engage": ["cc"]}})
+        # 26.11.15 the Teleprompter lives in Engage only, on every surface (no alsoIn any more)
+        self.assertEqual(where["prompter"], "engage")
+        self.assertEqual({a["id"]: a["alsoIn"] for a in c["all"] if a.get("alsoIn")}, {})
 
     def test_every_icon_exists(self):
         icons = read("app/js/icons.js")
@@ -67,7 +66,7 @@ class OneDefinition(unittest.TestCase):
         # the Command Center makes only actions offered there; the top bar likewise
         c = chips()
         cc = set(re.findall(r"^  (\w+): function\(\)\{ return T\('", read("app/js/command-center.js"), re.M))
-        offered = {a["id"] for a in c["all"] if "cc" in a["on"] and not a.get("pinned")} - {"content", "meetingapp", "black", "freeze", "listen", "notes"}   # the Control remote and the Notes pad
+        offered = {a["id"] for a in c["all"] if "cc" in a["on"] and not a.get("pinned")} - {"content", "meetingapp", "black", "freeze", "emergency", "listen", "notes"}   # the Control remote and the Notes pad
         self.assertEqual(cc, offered)
 
 

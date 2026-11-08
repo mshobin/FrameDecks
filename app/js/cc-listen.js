@@ -33,6 +33,7 @@ var heard = h('b', {cls: 'cc-vl-ref', id: 'cc-vl-ref'});
 var showB = h('button', {cls: 'spr-b chip gold', type: 'button', id: 'cc-vl-show', onclick: function(){ act('show'); }}, ['Show']);
 var dropB = h('button', {cls: 'spr-b chip', type: 'button', id: 'cc-vl-dismiss', onclick: function(){ act('dismiss'); }}, ['Dismiss']);
 var said = h('span', {cls: 'cc-vl-heard', id: 'cc-vl-heard', role: 'status', 'aria-live': 'polite', hidden: 'hidden'}, [h('span', {text: 'Heard'}), heard, showB, dropB]);
+var prior = h('span', {cls: 'cc-vl-earlier', id: 'cc-vl-earlier', role: 'group', 'aria-label': 'Heard earlier', hidden: 'hidden'});
 var row = h('span', {cls: 'cc-vl', id: 'cc-vl', role: 'group', 'aria-labelledby': 'cc-vl-name'}, [
   h('span', {cls: 'cc-vl-name', id: 'cc-vl-name', title: 'Listen for scripture', text: 'Listen'}), seg, state]);
 
@@ -54,9 +55,17 @@ function paint(){
   state.className = 'cc-vl-dot' + (info && info.enabled && info.state === 'listening' && info.live ? ' on' : '');
   var p = info && info.pending, box = said;
   box.hidden = !p;
-  var head = said.parentNode; if (head) head.classList.toggle('cc-vl-has', !!p);
+  // 26.11.15 nothing waiting: the last verses heard, one click to show (in place of the header's description too)
+  var earlier = !p && info && info.enabled ? (info.earlier || []).slice(0, 3) : [], sig = earlier.map(function(e){ return e.ref; }).join('|');
+  prior.hidden = !earlier.length;
+  if (prior.dataset.sig !== sig){
+    prior.dataset.sig = sig; prior.textContent = '';
+    if (earlier.length) prior.appendChild(h('span', {text: 'Earlier'}));
+    earlier.forEach(function(e){ prior.appendChild(h('button', {cls: 'spr-b chip', type: 'button', title: 'Show ' + e.label, onclick: function(){ post({op: 'replay', text: e.ref}).then(take); }}, [e.label])); });
+  }
+  var head = said.parentNode; if (head) head.classList.toggle('cc-vl-has', !!p || earlier.length > 0);
   if (p){
-    heard.textContent = p.label;
+    heard.textContent = p.label + (p.planned ? ' · in your plan' : '');
     var asked = p.status === 'show' || busy;
     showB.disabled = asked;                                  // Dismiss always works, also if showing fails
     showB.textContent = asked ? 'Showing…' : p.error ? 'Try again' : 'Show';
@@ -87,6 +96,7 @@ function place(){
   if (!head || head.contains(row)) return;
   var lede = head.querySelector('small');
   head.insertBefore(said, lede ? lede.nextSibling : null);
+  head.insertBefore(prior, said.nextSibling);
   head.appendChild(row);
   paint(); wake();
 }

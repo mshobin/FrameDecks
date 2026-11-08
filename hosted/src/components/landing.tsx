@@ -39,7 +39,7 @@ const CHAPTERS: readonly TourChapter[] = [
   {
     id: "prepare",
     label: "Prepare",
-    eyebrow: "Prepare · Teleprompter",
+    eyebrow: "Engage · Teleprompter",
     title: "A Teleprompter that follows your voice.",
     text: (
       <>

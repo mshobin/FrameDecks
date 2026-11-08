@@ -46,7 +46,7 @@ import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only w
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.15"
+APP_VERSION = "26.11.16"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -97,6 +97,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
                     "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
+                    "/api/remote/meeting-key",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
@@ -533,6 +534,7 @@ def page_csp(html):
     return f"{CSP_BASE}; script-src 'self'{hashes}"
 
 
+REMOTE_MEETING_ACTS = ("mute", "camera")   # 26.11.15 the phone may mute and switch the camera, never Leave or Share
 REMOTE_MEMORY_ACTIONS = ("add", "show", "showmany", "pin", "hide", "hideall", "delete")   # 9.1 from the phone remote
 
 
@@ -753,7 +755,36 @@ def _frame_is_live():
     return bool(isinstance(live, dict) and live.get("scene"))
 
 
-VERSE_LISTEN = scripture_listen.ScriptureListen(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live)
+_REF = re.compile(r"^\s*((?:[123]\s+)?[A-Za-z][A-Za-z ]*?)\s+(\d+)\s*:\s*(\d+)(?:\s*[-\u2013\u2014]\s*(\d+))?\s*$")
+
+
+def _plan_passage(ref):
+    """26.11.15 the meeting's own Scripture Deck item holding a spoken reference, the live Frame's first: said
+    "Romans 8:38" while the plan has "Romans 8:38-39" offers the planned passage, which the Studio then shows from
+    the plan itself (no lookup: instant, and it works offline). None when the plan does not have it."""
+    st = state if isinstance(state, dict) else {}
+    want_book = str(ref.get("book") or "").lower().rstrip("s")
+    live_id = (st.get("live") or {}).get("scene") if isinstance(st.get("live"), dict) else ""
+    scenes = [x for x in st.get("scenes") or [] if isinstance(x, dict)]
+    scenes.sort(key=lambda x: x.get("id") != live_id)
+    for sc in scenes:
+        for layer in sc.get("layers") or []:
+            if not isinstance(layer, dict) or layer.get("kind") != "scripture":
+                continue
+            for it in ((layer.get("c") or {}).get("items") or []):
+                m = _REF.match(str((it or {}).get("ref") or ""))
+                if not m or m.group(1).strip().lower().rstrip("s") != want_book or int(m.group(2)) != ref.get("chapter"):
+                    continue
+                lo, hi = int(m.group(3)), int(m.group(4) or m.group(3))
+                end = ref.get("to") or ref.get("verse")
+                if lo <= int(ref.get("verse") or 0) and end <= hi:
+                    r = "%s %d:%d" % (m.group(1).strip(), int(m.group(2)), lo) + ("-%d" % hi if hi != lo else "")
+                    return {"ref": r, "label": r.replace("-", "\u2013")}
+    return None
+
+
+VERSE_LISTEN = scripture_listen.ScriptureListen(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live,
+                                                planned=_plan_passage)
 VERSE_MODES = {"off": (False, False), "ask": (True, False), "auto": (True, True)}
 
 
@@ -771,7 +802,7 @@ def verse_listen_action(d, remote=False):
         save_app_settings({"scriptureListen": mode[0], "scriptureAuto": mode[1]})
         VERSE_LISTEN.tick()                                    # start or stop listening now, not at the next check
         return VERSE_LISTEN.body()
-    if remote and op not in ("show", "dismiss"):        # never "hear", "shown" or "failed": only this PC
+    if remote and op not in ("show", "dismiss", "replay"):   # never "hear", "shown" or "failed": only this PC
         raise ValueError("Not available from the remote.")
     return VERSE_LISTEN.act(op, d.get("id"), d.get("text"))
 # ---------- end 26.11.14 Listen for scripture ----------
@@ -2864,6 +2895,13 @@ class Handler(BaseHTTPRequestHandler):
             q = parse_qs(url.query)
             body = remote_notes_body(q.get("meeting", [""])[0], q.get("peek", [""])[0] != "1")
             return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/remote/meeting-key":           # 26.11.15 the phone: is a meeting app there to Mute / Camera?
+            import meeting_keys
+            st = meeting_keys.status()
+            acts = st.get("acts") or {}
+            body = {"available": bool(st.get("available")), "name": st.get("name") or "",
+                    "acts": {a: bool(acts.get(a)) for a in REMOTE_MEETING_ACTS}}
+            return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path in ("/api/verse-listen", "/api/remote/verse-listen"):   # 26.11.14 Listen for scripture: the suggestion
             if path == "/api/verse-listen" and not self.is_local():   # (the phone: /api/remote/verse-listen, signed in)
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3351,6 +3389,16 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/remote/meeting-key":           # 26.11.15 the phone: Mute and Camera only (never Leave or Share)
+            d = data if isinstance(data, dict) else {}
+            act = str(d.get("act") or "")
+            if act not in REMOTE_MEETING_ACTS:
+                return self.reply(400, json.dumps({"error": "Not available from the remote."}), TYPES[".json"])
+            import meeting_keys
+            try:
+                return self.reply(200, json.dumps(meeting_keys.send(act)), TYPES[".json"])
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
         if path in ("/api/verse-listen", "/api/remote/verse-listen"):   # 26.11.14 mode / dismiss / show (/ shown / hear)
             if path == "/api/verse-listen" and not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
