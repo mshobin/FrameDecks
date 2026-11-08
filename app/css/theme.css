@@ -1266,6 +1266,10 @@ body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:n
 /* ---------- Settings: How people see it, its two pages, and Advanced ---------- */
 .out-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:1100px}
 .out-choices > .out-card{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin:0}
+/* 26.11.12 How will people see it? one choice above the cards */
+.out-choices > .out-pick{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:0}
+.out-pick h3{margin:0;font-size:16px;font-weight:700}
+.out-pick .hint{flex-basis:100%;margin:0}
 .out-card .out-ic{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:12px;background:var(--accent-soft);color:var(--accent)}
 .out-card h3{margin:0;font-size:16px;font-weight:700}
 .out-card .plain{margin:4px 0 0}

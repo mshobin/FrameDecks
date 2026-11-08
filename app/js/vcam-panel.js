@@ -48,6 +48,8 @@ var lookSel = h('select', {id: 'vcam-look', 'aria-label': 'Camera Look'});
 var mtLook = $('mt-look');
 var installBox = h('div', {cls: 'alert warn', hidden: 'hidden'});
 var unavailable = h('div', {cls: 'alert', hidden: 'hidden'});
+/* 26.11.12 How people see it = Share a window: the camera is off and not loaded; one button brings it back */
+var useCam = h('button', {cls: 'btn primary small', type: 'button', text: 'Use the camera too', hidden: 'hidden', onclick: function(){ if (window.KCPeopleSee) KCPeopleSee.set('both'); useCam.disabled = true; setTimeout(function(){ useCam.disabled = false; }, 4000); }});
 var img = h('img', {alt: 'FrameDecks vCam preview', id: 'vcam-preview-img'});
 var previewBox = h('div', {cls: 'vcam-preview'}, [img, h('span', {cls: 'vcam-preview-off', text: 'Preview is off'})]);
 var previewBtn = h('button', {cls: 'btn small', type: 'button', id: 'vcam-preview-btn', text: 'Show preview'});
@@ -113,7 +115,10 @@ function save(key, value){
     if (key === 'resolution') toast('Picture size: ' + value + '. Zoom or Teams may need to switch the camera off and on.');
   });
 }
-sw.addEventListener('change', function(){ save('enabled', sw.checked); });
+sw.addEventListener('change', function(){
+  save('enabled', sw.checked);
+  if (sw.checked && window.KCPeopleSee && KCPeopleSee.get() === 'window') KCPeopleSee.set('both');   // 26.11.12 the camera is wanted after all
+});
 mirror.addEventListener('change', function(){ save('mirror', mirror.checked); });
 /* Camera Look: Settings menu, Meeting tab menu and Ctrl+Alt+1/2/3/0 all use this one function */
 function setLook(id){
@@ -265,7 +270,7 @@ var main = h('section', {cls: 'box'}, [
   h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
     h('div', {cls: 'hint', text: 'A camera called “FrameDecks vCam” for Zoom and Teams. Your webcam only turns on while a meeting app is using it.'})])]),
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Status'})]),
-  pill, msg, perf, unavailable, installBox
+  pill, msg, perf, unavailable, useCam, installBox
 ]);
 var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Picture'})]),
@@ -312,12 +317,14 @@ function render(d){
   var s = d.settings, st = d.status;
   unavailable.hidden = d.available;
   if (!d.available){
-    unavailable.textContent = d.reason || 'FrameDecks vCam is not available here.';
+    unavailable.textContent = d.peopleSee === 'window' && !d.available ? 'FrameDecks vCam is off: How people see it is set to Share a window. Everything else works; share the Share Window in Zoom or Teams.' : (d.reason || 'FrameDecks vCam is not available here.');
+    useCam.hidden = d.peopleSee !== 'window';
     settingsBox.hidden = helpBox.hidden = qualityBox.hidden = diagBox.hidden = true;
-    pill.className = 'status-pill'; pill.lastChild.textContent = 'Not available'; msg.textContent = ''; perf.textContent = '';
+    pill.className = 'status-pill'; pill.lastChild.textContent = d.peopleSee === 'window' ? 'Off' : 'Not available'; msg.textContent = ''; perf.textContent = '';
     chip('', '—', d.reason); dot('');
     return d;
   }
+  useCam.hidden = true;
   settingsBox.hidden = helpBox.hidden = qualityBox.hidden = diagBox.hidden = false;
   if (s.schemaVersion >= 2) renderQuality(d); else qualityBox.hidden = diagBox.hidden = true;
   sw.checked = s.enabled; swText.textContent = s.enabled ? 'FrameDecks vCam is on' : 'FrameDecks vCam is off';

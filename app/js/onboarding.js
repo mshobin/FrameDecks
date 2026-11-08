@@ -145,10 +145,31 @@ function syncPanel(){
 }
 function stopPoll(){ clearInterval(syncT); syncT = null; }
 
+/* 26.11.12 How will people see it? Camera, a shared window, or both (Settings → How people see it, any time) */
+var SEE_OPTS = [['camera', 'video', 'Camera in Zoom or Teams'], ['window', 'presentation', 'Share a window'], ['both', 'layers', 'Both']];
+function seePanel(){
+  var cur = (info && info.settings && info.settings.peopleSee) || 'both';
+  var group = h('div', {cls: 'onb-kinds', role: 'radiogroup', 'aria-labelledby': 'onb-see-t'}, SEE_OPTS.map(function(o){
+    var btn = h('button', {cls: 'onb-kind', type: 'button', role: 'radio', 'aria-checked': String(cur === o[0]), 'data-see': o[0]}, [h('span', {html: I(o[1], 18)}), h('span', {text: o[2]})]);
+    btn.addEventListener('click', function(){
+      cur = o[0];
+      group.querySelectorAll('.onb-kind').forEach(function(x){ x.setAttribute('aria-checked', String(x.dataset.see === cur)); });
+      hint.textContent = HINTS[cur];
+      post('settings', {peopleSee: cur}).catch(function(){});
+    });
+    return btn;
+  }));
+  var HINTS = {camera: 'FrameDecks vCam becomes a camera you choose in Zoom or Teams.',
+               window: 'No camera: you share the Share Window in Zoom or Teams. Lighter on older PCs; everything else works.',
+               both: 'The camera and the Share Window, both ready.'};
+  var hint = h('p', {cls: 'onb-hint', text: HINTS[cur]});
+  return h('div', {cls: 'onb-opt'}, [h('p', {cls: 'onb-opt-t', id: 'onb-see-t', text: 'How will people see it?'}), group, hint]);
+}
+
 function finishExtras(){
   var out = [h('div', {cls: 'onb-legend', 'aria-label': 'Colours'}, [
     h('span', {}, [h('i', {cls: 'lf'}), 'Frame']), h('span', {}, [h('i', {cls: 'ld'}), 'Deck']), h('span', {}, [h('i', {cls: 'lc'}), 'Content'])]),
-    syncPanel()];
+    seePanel(), syncPanel()];
   if (onlyStarters() && SC && SC.quickStarts){
     out.push(h('div', {cls: 'onb-opt'}, [
       h('p', {cls: 'onb-opt-t', id: 'onb-kinds-t', text: 'Start with a ready-made meeting? (optional)'}),

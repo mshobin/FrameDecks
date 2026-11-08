@@ -1188,10 +1188,14 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
                          "memAuto": True,         # 9.0 a copied card goes into the chat overlay at once
                          "guide": {},             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
-                         "onboarding": {}}        # 9.5 the Welcome flow: {done, skipped, at} (app/js/onboarding.js)
+                         "onboarding": {},        # 9.5 the Welcome flow: {done, skipped, at} (app/js/onboarding.js)
+                         # 26.11.12 How people see it: "camera" (FrameDecks vCam in Zoom/Teams), "window" (share the Share
+                         # Window; the camera is not even loaded, which saves memory on older PCs) or "both" (as before)
+                         "peopleSee": "both"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
-                       "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom")}
+                       "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
+                       "peopleSee": ("camera", "window", "both")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
@@ -1276,6 +1280,8 @@ def _save_app_settings(changes):
         from desktop_win import format_hotkey
         cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
     write_atomic(APP_SETTINGS_FILE, json.dumps(cur, indent=2))
+    if "peopleSee" in changes and changes["peopleSee"] == cur["peopleSee"]:
+        apply_people_see(cur["peopleSee"])
     if "cloudRemote" in changes and "CLOUD_REMOTE" in globals():
         CLOUD_REMOTE.poke()                # the switch takes effect at once (off: no more asking)
         if "DOORBELL" in globals():
@@ -2294,10 +2300,34 @@ def vcam_effective(settings):
     return out
 
 
+def apply_people_see(choice):
+    """26.11.12 How people see it. "window": FrameDecks vCam is switched off (and, from the next start, not even
+    loaded); "camera" or "both": it is on, started now if this run never loaded it."""
+    on = choice != "window"
+    cur = vcam_settings()
+    if cur.get("enabled") != on:
+        cur["enabled"] = on
+        vcam_save(cur)
+    eng = VCAM.get("engine")
+    if eng:
+        (eng.start if on else eng.stop)()
+    elif on and not VCAM.get("starting"):
+        VCAM["reason"] = ""
+        threading.Thread(target=vcam_start, daemon=True).start()
+
+
 def vcam_start():
     """Create the engine (idle until Zoom/Teams uses FrameDecks). Safe to call when unavailable."""
-    if VCAM["engine"] is not None:
+    if VCAM["engine"] is not None or VCAM.get("starting"):
         return
+    VCAM["starting"] = True
+    try:
+        _vcam_start()
+    finally:
+        VCAM["starting"] = False
+
+
+def _vcam_start():
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
     start_files_msg = ("The FrameDecks vCam works only in the installed FrameDecks. Close the window you started it from, then open "
                        "FrameDecks from its desktop or Start-menu icon.")
@@ -2389,10 +2419,12 @@ def vcam_status(lite=False):
         registered = vsink.is_registered() or os.environ.get("KC_VCAM_DEMO") == "1"
     except Exception:
         registered = False
+    see = app_settings()["peopleSee"]
+    reason = VCAM["reason"] or ("Off: How people see it is set to Share a window." if eng is None and see == "window" else "")
     if lite:
-        return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered, "lite": True,
+        return {"available": eng is not None, "reason": reason, "registered": registered, "lite": True, "peopleSee": see,
                 "settings": vcam_settings(), "status": dict(eng.status) if eng else None}
-    return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered,
+    return {"available": eng is not None, "reason": reason, "registered": registered, "peopleSee": see,
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
@@ -3461,7 +3493,8 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
-    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameDecks
+    if app_settings()["peopleSee"] != "window":                  # 26.11.12 Share Window only: no camera loaded at all
+        threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameDecks
     _guard().start()                                             # 26.11.7 measures only while a meeting uses FrameDecks vCam
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()

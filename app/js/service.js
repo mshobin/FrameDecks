@@ -52,8 +52,29 @@ window.KCServiceChecks = {
 };
 
 /* ---------- How people see it (Settings) ---------- */
+/* 26.11.12 one choice first: the camera in Zoom/Teams, a shared window, or both. "Share a window" switches FrameDecks
+ * vCam off and, from the next start, does not load it at all (less memory on older PCs); everything else works. */
+var SEE = [['camera', 'Camera', 'FrameDecks vCam in Zoom or Teams'], ['window', 'Share a window', 'Share the Share Window; no camera'], ['both', 'Both', 'The camera and the Share Window']];
+var see = null;
+function loadSee(){ return fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ see = (d.settings && d.settings.peopleSee) || 'both'; }).catch(function(){ see = see || 'both'; }); }
+function setSee(v){
+  var was = see; see = v; renderOutput();
+  fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({peopleSee: v})})
+    .then(function(r){ if (!r.ok) throw new Error(); if (window.KCActions) window.KCActions.toast(v === 'window' ? 'FrameDecks vCam is off. Share the Share Window in Zoom or Teams.' : 'FrameDecks vCam is on.'); })
+    .catch(function(){ see = was; renderOutput(); if (window.KCActions) window.KCActions.toast('Could not save', true); });
+}
+window.KCPeopleSee = {get: function(){ return see; }, set: setSee, load: loadSee, choices: SEE};
+function seeSeg(){
+  var g = h('div', {cls: 'seg out-see', role: 'radiogroup', 'aria-labelledby': 'out-see-t'});
+  SEE.forEach(function(o){ g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(see === o[0]), title: o[2], text: o[1], onclick: function(){ if (see !== o[0]) setSee(o[0]); }})); });
+  return h('section', {cls: 'box out-pick'}, [h('h3', {id: 'out-see-t', text: 'How will people see it?'}), g,
+    h('p', {cls: 'hint', text: see === 'window' ? 'FrameDecks vCam is off and not loaded, which keeps an older PC lighter. Everything else works: share the Share Window in Zoom or Teams.' :
+      see === 'camera' ? 'People see FrameDecks vCam as your camera in Zoom or Teams. The Share Window is there too whenever you want it.' :
+      'FrameDecks vCam is your camera, and the Share Window is ready to share.'})]);
+}
 function renderOutput(){
   var root = $('out-choices'); if (!root) return;
+  if (see === null){ loadSee().then(renderOutput); return; }
   var cam = chipState('h-vcam'), src = chipState('h-sources');
   var cards = [
     ['video', 'In Zoom or Teams, as a camera', 'FrameDecks vCam appears as a camera. In Zoom or Teams, choose “FrameDecks vCam” as your camera. Best for most online meetings.',
@@ -63,7 +84,9 @@ function renderOutput(){
     ['monitor', 'On a projector, TV or in OBS', 'Show your Frames on a second screen in the room, or add the overlay pages to OBS or Camo.',
       'Overlay pages: ' + (src.text || '—'), 'Set up a screen or OBS', function(){ window.KCShowSection('display'); }]
   ];
+  if (see === 'window') cards.shift();                 // no camera card while the camera is off
   root.innerHTML = '';
+  root.appendChild(seeSeg());
   cards.forEach(function(c){
     root.appendChild(h('section', {cls: 'box out-card'}, [
       h('span', {cls: 'out-ic', 'aria-hidden': 'true', html: I(c[0], 22)}),
