@@ -226,11 +226,13 @@ async def capture(base, chromium, guide_only=False):
         pg = await b.new_page(viewport={"width": 1600, "height": 640}, device_scale_factor=2, reduced_motion="reduce")
         # the picture's layout (this browser only, never the program's own). 26.11.2: the content area under the preview
         # is shown (the question cards of the live Frame), so the website shows the Studio as people use it
-        await pg.add_init_script("try { localStorage.setItem('kc-layout', JSON.stringify({left: 300, canvas: 60, scenes: 58,"
+        await pg.add_init_script("try { localStorage.setItem('kc-layout', JSON.stringify({left: 300, canvas: 68, scenes: 58,"
                                  " c: {}})); localStorage.setItem('kc-pv-hint', '1') } catch (e) {}")
         await pg.goto(base + "/dashboard.html")
         await pg.wait_for_timeout(1500)
         await pg.evaluate(QUIET)
+        # 26.11.13 the website shows the Studio in Advanced (owner's choice): every control, the status tiles, In this Frame
+        await pg.evaluate("window.KCSimpleMode && window.KCSimpleMode.set('advanced')")
         await pg.wait_for_timeout(600)
         await pg.click("#cb-take")
         await pg.wait_for_timeout(1500)
@@ -244,6 +246,17 @@ async def capture(base, chromium, guide_only=False):
         await pg.mouse.move(1, 1)
         await pg.wait_for_timeout(300)
         await pg.screenshot(path=str(TMP), animations="disabled")
+        # 26.11.13 where the landing's flowchart cards land (hosted/src/components/landing/tour.tsx CARDS[].to, in
+        # studio.webp's own pixels: this capture scaled by 0.75)
+        spots = await pg.evaluate("""(() => { const r = e => { if (!e) return null; const b = e.getBoundingClientRect(); return [b.x, b.y, b.width, b.height].map(v => Math.round(v * 0.75)); };
+            const f = document.getElementById('program-frame'), fb = f && f.getBoundingClientRect(), k = fb ? fb.width / 1920 : 0;
+            const v = f && f.offsetParent && f.contentDocument && f.contentDocument.querySelector('.card-verse:not(.out), .card-scripture:not(.out)');
+            const st = document.querySelector('#tab-studio:not([hidden]) .s2-stage');
+            let verse = null; if (st) { const b = st.getBoundingClientRect(); verse = [b.x + b.width * .19, b.y + b.height * .25, b.width * .62, b.height * .24].map(x => Math.round(x * 0.75)); }
+            if (v) { const b = v.getBoundingClientRect(); verse = [fb.x + b.x * k, fb.y + b.y * k, b.width * k, b.height * k].map(x => Math.round(x * 0.75)); }
+            return {frame: r(document.querySelector('#scene-list li')), decks: [...document.querySelectorAll('#layer-list li')].slice(0, 2).map(r),
+              verse, questions: [...document.querySelectorAll('.fl-list.fl-questions .item')].slice(0, 3).map(r)}; })()""")
+        print("landing card spots (tour.tsx CARDS[].to):", spots)
         await command_center(b, base)       # 9.9 the Command Center, in the dark theme
         await command_center_web(b, base)   # 26.11.2 and with nothing behind it, for the website
         await guide_studio(b, base)

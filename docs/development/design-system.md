@@ -137,7 +137,7 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
   2. `landing/tour.tsx`, the stage (as in the owner's mockup: the words centred above, the product below, one idea
      per screen). The words are the headline and paragraph, then one chapter each. The stage has no frame: the build
      and the screens float on the page in a soft light coloured by the chapter.
-     **One flow (26.11.3):** the finished flowchart holds for `HOLD` (5 s) before the Studio takes over; the Studio's
+     **One flow (26.11.3):** the finished flowchart holds for `HOLD` (1.2 s since 26.11.13; the first `TAKE` px of scroll carry it at once, and scrolling back up returns to the flowchart) before the Studio takes over; the Studio's
      edges fade into the page (a mask, no border); with motion allowed the scroll itself carries the screens (each
      shares `MIX` of the scroll with its neighbour, rising `RISE` px in as the last rises away, opacity eased), and
      scrolling on before the build has finished finishes it at once. Without motion the chapters change as before.

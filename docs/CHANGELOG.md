@@ -10,6 +10,35 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.13] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.13.md](releases/v26.11.13.md).
+
+### Added
+- The Live Stage, Mockup B (owner-approved): the canvas header, Up next and the stage's tools moved into one column
+  beside the picture (`#stage-status`, `app/dashboard.html`); `app/js/live-stage.js` adds the one button (`#ls-go`:
+  Go Live, then Next, pressing the top bar's own `#cb-take` / `#lb-next`) and, in Advanced, In this Frame (`#ls-list`,
+  `KCActions.showItem`) with Up next written on the button. `.stage-row` is a size container: the picture is
+  `min(100cqw - var(--rail) - 16px, 100cqh * 16 / 9)` beside a `clamp(236px, 21cqw, 280px)` column, the two centred as
+  one group; Advanced shows the status as four tiles. 615 × 345 → 780 × 439 at 1366 × 768 (Simple).
+- `app/js/panels.js`: the border under the stage snaps (14 px) to `fitPx()`, where the picture fills the width;
+  double-click and Layout → Fit the picture jump there. Dragged under 250 px of stage height it switches to `.wrap`
+  (picture column `--wrap-w` 320–470 px, the column under the picture, the editor beside at full height; the border
+  turns vertical); dragged past 470 px, double-clicked or **Big stage** (`#kc-big`) brings `bigStage()` back. One drag
+  changes one layout (`split.dataset.from`). `wrap` and `wrapW` are kept in `kc-layout`.
+- Tests `tests/test_live_stage_2611_13.py`; `tests/visual/layout.mjs` (Up next beside or under the picture).
+
+### Changed
+- `app/js/simple-mode.js`: the Simple | Advanced switch moved to the editor's bar (`#insp-tools`) and stays when the
+  editor is folded. `app/js/stage-status.js`: Video and Connection rows read as short values with their source below.
+- Website landing (`hosted/src/components/landing/tour.tsx`, `motion.tsx`): the flowchart shows on arrival, the Studio
+  (Advanced, `tools/make_product_shots.py`) takes over sooner, the chapters and the section reveals follow the scroll
+  smoothly (also with a touchpad) and reverse on scroll up; the replay button is gone. Product pictures retaken.
+
+### Fixed
+- Settings: the phone remote and vCam switches (`.big-switch`) drew a second, larger knob over the 26.11.1 switch
+  (`#tab-settings .big-switch input::after{content:none}` in `app/css/motion.css`).
+
 ## [26.11.12] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.12.md](releases/v26.11.12.md).

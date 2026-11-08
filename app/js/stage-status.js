@@ -27,11 +27,11 @@ function rows(){
   var cam = chip('h-vcam'), vs = window.KCVcamStatus && window.KCVcamStatus(), s = vs && vs.status;
   if (cam){
     var fps = s && s.state === 'live' && s.fps ? s.fps + ' fps' : '';
-    out.push(row('video', 'Video', cam.tone === 'ok' ? 'ok' : cam.tone, 'FrameDecks vCam' + (cam.text && cam.text !== '—' ? ': ' + cam.text : ''), fps));
+    out.push(row('video', 'Video', cam.tone === 'ok' ? 'ok' : cam.tone, cam.text && cam.text !== '—' ? cam.text : 'FrameDecks vCam', 'FrameDecks vCam' + (fps ? ' \u00b7 ' + fps : '')));
   }
   out.push(row('sound', 'Sound', 'idle', 'From your meeting app', 'FrameDecks sends pictures only'));
   var prog = chip('h-program');
-  if (prog) out.push(row('conn', 'Connection', prog.tone === 'ok' || prog.tone === 'info' ? 'ok' : prog.tone, 'Program: ' + (prog.text || '—')));
+  if (prog) out.push(row('conn', 'Connection', prog.tone === 'ok' || prog.tone === 'info' ? 'ok' : prog.tone, prog.text || '—', 'Program'));
   var rem = chip('h-ipad');
   if (rem && rem.tone !== 'idle' && rem.text && rem.text !== '—') out.push(row('remote', 'Phone remote', rem.tone === 'info' ? 'ok' : rem.tone, rem.text));
   if (st){

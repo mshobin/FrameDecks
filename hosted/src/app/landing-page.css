@@ -88,6 +88,7 @@
 
 .lp-promises li {
   display: grid;
+  align-content: start;
   gap: 6px;
   padding: 16px;
   border: 1px solid var(--hairline);

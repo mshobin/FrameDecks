@@ -1,0 +1,88 @@
+/* FrameDecks 26.11.13 - the Live Stage (Mockup B). The picture takes the room (css/theme.css .stage-row); the column
+ * beside it (#stage-status) says if all is well (js/stage-status.js), what comes next, and has the one button that
+ * matters: Go Live while nothing is on screen, then Next. In Advanced the column also lists the live Frame's
+ * questions and scriptures (a dot for what is on screen, Show for the rest) and the Next button carries Up next.
+ * It reads what the page already shows (the top bar's Go Live and Next, Up next from js/workspace.js) and presses
+ * the same buttons, so every rule (no double takes, the last Frame, a template) stays in one place. No requests. */
+(function(){
+'use strict';
+var Store = window.KCStore, SC = window.KCScenes;
+function $(id){ return document.getElementById(id); }
+var go = $('ls-go'), goT = $('ls-go-t'), goSub = $('ls-go-sub'), list = $('ls-list'), box = $('ls-items');
+if (!go || !Store || !SC) return;
+
+/* ---------- the one button ---------- */
+function paintGo(){
+  var take = $('cb-take'), next = $('lb-next'), st = Store.get();
+  var onAir = !!(st && st.live && st.live.scene);
+  if (!onAir){
+    var what = ($('cb-take-what') || {}).textContent || '';
+    goT.textContent = 'Go Live'; goSub.textContent = what.replace(/^●\s*On air:\s*/, '');
+    go.disabled = !take || take.disabled; go.classList.add('is-take');
+    go.title = 'Go Live: put the selected Frame on screen (T)';
+    return;
+  }
+  go.classList.remove('is-take');
+  var up = $('upnext'), name = ($('un-name') || {}).textContent || '', meta = ($('un-meta') || {}).textContent || '';
+  var warn = up && !up.hidden && $('un-warn') && $('un-warn').firstChild ? ' · ⚠︎ ' + $('un-warn').firstChild.textContent : '';
+  if (!up || up.hidden || !name){
+    goT.textContent = 'Next'; goSub.textContent = 'That’s the last Frame'; go.disabled = true; go.title = 'That’s the last Frame.';
+    return;
+  }
+  goT.textContent = 'Next'; go.disabled = !next || next.disabled;
+  goSub.textContent = name + (meta ? ' · ' + meta.split(' · ').pop() : '') + warn;
+  go.title = 'Next: ' + name + ' (goes live)';
+}
+go.addEventListener('click', function(){
+  var st = Store.get(), b = st && st.live && st.live.scene ? $('lb-next') : $('cb-take');
+  if (b && !b.disabled) b.click();
+});
+
+/* ---------- In this Frame (Advanced) ---------- */
+var sig = '';
+function paintItems(){
+  var st = Store.get(), A = window.KCActions;
+  var sc = st && SC.find(st, st.live && st.live.scene);
+  if (!sc || !A){ box.hidden = true; sig = ''; return; }
+  var rows = [];
+  ['verse', 'question'].forEach(function(k){
+    (A.list(k) || []).forEach(function(it){
+      var o = st[k] || {}, on = !!(o.visible && o.itemId === it.id && String(o.text || '').trim());
+      rows.push({k: k, it: it, on: on, t: k === 'verse' ? (it.ref || 'Scripture') + (it.version ? ' · ' + it.version : '') : (it.text || 'Question')});
+    });
+  });
+  box.hidden = !rows.length;
+  var s = JSON.stringify(rows.map(function(r){ return [r.k, r.it.id, r.on, r.t]; }));
+  if (s === sig) return; sig = s;
+  list.textContent = '';
+  rows.forEach(function(r){
+    var li = document.createElement('li'); li.className = r.on ? 'on' : '';
+    var dot = document.createElement('i'); dot.className = 'ls-dot'; dot.setAttribute('aria-hidden', 'true');
+    var t = document.createElement('span'); t.className = 'ls-t'; t.textContent = r.t; t.title = r.t;
+    li.appendChild(dot); li.appendChild(t);
+    if (r.on){ var on = document.createElement('span'); on.className = 'ls-on'; on.textContent = 'On screen'; li.appendChild(on); }
+    else {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn small'; b.textContent = 'Show';
+      b.setAttribute('aria-label', 'Show ' + r.t);
+      b.addEventListener('click', function(){ window.KCActions.showItem(r.k, r.it); });
+      li.appendChild(b);
+    }
+    list.appendChild(li);
+  });
+}
+
+/* ---------- Up next's picture fills the column's width ---------- */
+var pic = $('un-pic'), fr = $('un-frame');
+function scalePic(){ if (pic && fr && pic.clientWidth) fr.style.transform = 'scale(' + (pic.clientWidth / 1280) + ')'; }
+if (window.ResizeObserver && pic) new ResizeObserver(scalePic).observe(pic);
+
+/* ---------- repaint after the page has drawn the same state (one frame later, at most once per frame) ---------- */
+var raf = 0;
+function later(){ if (!raf) raf = requestAnimationFrame(function(){ raf = 0; paintGo(); paintItems(); scalePic(); }); }
+Store.subscribe(later);
+var watch = new MutationObserver(later);
+['cb-take', 'cb-take-what', 'lb-next', 'upnext'].forEach(function(id){ var e = $(id); if (e) watch.observe(e, {attributes: true, childList: true, subtree: true, characterData: true}); });
+window.addEventListener('resize', later);
+later();
+window.KCLiveStage = {paint: later};
+})();

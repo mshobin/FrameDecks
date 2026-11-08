@@ -67,16 +67,28 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 | Next question | **→** | The round **▶** arrow |
 | Next slide (PowerPoint) | **Page Down** or the slide ▶ button | The round **▶** arrow |
 
-**Up next (Safe Next).** Under the Studio Canvas, the **Up next** strip shows the Frame that **Next** will put on
-screen, before you press it: a small live picture, its name, *Frame 3 of 8*, its transition, and what appears (the
-question, the scripture, text, pictures, video, audio). Before anything is live, Up next is the Frame after the one you
-selected. A gold ⚠ line warns you when:
-- the next Frame shows nothing (no Content in it is set to appear);
-- the black screen or the emergency screen is still on (the audience would still see black or the message);
-- a picture, video or PowerPoint in it has no file chosen yet.
+**The Live Stage.** The picture of what people see takes the room: it is the largest 16:9 the Studio has, and a
+green ring goes round it while it is live. One column beside it holds three things:
+- **is all well**: one sentence, such as *All good. People see “Bible Study”.* (in Advanced, four small tiles: Video,
+  Sound, Connection and what is showing);
+- **Up next (Safe Next)**: the Frame that **Next** will put on screen, before you press it: a small picture, its name,
+  *Frame 3 of 8* and its transition. Before anything is live, Up next is the Frame after the one you selected. A gold
+  ⚠ line warns you when the next Frame shows nothing (no Content in it is set to appear), when the black screen or the
+  emergency screen is still on, or when a picture, video or PowerPoint in it has no file chosen yet;
+- **one big button**: **Go Live** while nothing is on screen, then **Next**. In Advanced, Up next is written on the
+  Next button itself, and **In this Frame** lists the live Frame's scriptures and questions: a green dot for what is
+  on screen, **Show** for the rest.
 
-**Hide preview** keeps only the line (FrameDecks remembers it); **Show preview** brings the picture back. On the last
-Frame the strip goes away.
+**Resize it your way.** Drag the border under the stage: the picture grows or shrinks with it at any window size.
+The border clicks into place where the picture fills the width; double-click it (or choose Layout → **Fit the
+picture**) to jump there. Drag it far up and the Studio changes to a compact layout: a small picture top-left with
+the column under it, and the editor beside them at full height. Drag the border between them to the right, or press
+**Big stage**, for the big picture again. FrameDecks remembers your layout on this PC.
+
+**Simple and Advanced.** The Studio opens in **Simple**: the essentials only. **Advanced** (the switch at the right
+of the editor's bar, which stays there when the editor is folded) shows every control again: Transition and
+Auto-advance in the top bar, the camera numbers, the status tiles, In this Frame and the editor's settings. Nothing
+is renamed or removed; FrameDecks remembers your choice on this PC.
 
 **Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → **Move
 to the next Frame after N seconds**). It only happens while **Auto-advance** in the command bar is on.

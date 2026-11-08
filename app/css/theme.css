@@ -558,19 +558,62 @@ html[data-theme="light"] .un-warn li{color:var(--warn)}
 html[data-theme="light"] .upnext.has-warn{border-color:var(--warn)}
 .un-warn li::before{content:"\26A0\FE0E  "}
 .un-toggle{flex:none}
-/* 26.11.12 the Live Presentation Stage: the picture is the hero; a compact panel of real status beside it (js/stage-status.js);
-   Up next is one slim strip; the editor stays below and scrolls on its own */
-.stage-row{--ss-w:clamp(196px,15cqw,236px);position:relative;flex:1;min-height:0;display:flex;container-type:inline-size;container-name:stagerow}
-.stage-row .canvas-wrap{flex:1;min-width:0;padding:12px 14px}
-/* the stage stays centred; the panel sits in the right-hand margin and the stage never runs under it */
-.stage-row .canvas-frame{width:min(100cqw - 2 * (var(--ss-w) + 16px),100cqh * 16 / 9)}
-/* the camera view (js/studio.js) sizes its own stage from its box: the same centred band, so the panel never covers it */
-.stage-row .studio-host{left:calc(var(--ss-w) + 16px);right:calc(var(--ss-w) + 16px)}
-.ws-center .canvas-wrap{background:radial-gradient(90% 80% at 50% 45%,var(--surface),transparent 72%)}
-html[data-theme="light"] .ws-center .canvas-wrap{background:none}   /* the stage area stays dark in the light theme */
+/* 26.11.13 the Live Stage (Mockup B; js/live-stage.js): the picture takes the room and one column beside it says if all is
+   well, what comes next, and has the one button that matters. Picture and column stay together as one group, centred:
+   the picture is the largest 16:9 the stage allows, so dragging the border below grows or shrinks it at any size. */
+.stage-row{--rail:clamp(236px,21cqw,280px);position:relative;flex:1;min-height:0;display:flex;justify-content:center;gap:16px;padding:12px 14px;
+  container-type:size;container-name:stagerow}
+.stage-row .canvas-wrap{flex:none;width:min(100cqw - var(--rail) - 16px,100cqh * 16 / 9);min-width:0;padding:0}
+.stage-row .studio-host .s2-centre{padding:0}
+.stage-row .canvas-badge{position:absolute;left:10px;top:10px;z-index:3;pointer-events:none}
+.stage-row .canvas-badge:not(.live):not(.bad){background:rgba(var(--rgb-gray-0),.6);color:var(--gray-1000);border-color:transparent}
+.ws-center .canvas-wrap{background:none}
 .ws-center .canvas-frame{box-shadow:0 0 0 1px var(--line),var(--shadow-2)}
-.stage-status{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:var(--ss-w);max-height:calc(100% - 24px);overflow:auto;
-  display:flex;flex-direction:column;gap:12px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:12px;background:var(--surface);z-index:2}
+.stage-status{flex:none;width:var(--rail);min-height:0;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:0}
+.stage-status > *{flex:none}
+.stage-status .canvas-head{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0;min-height:0;border:0;flex:none}
+.stage-status .canvas-tools{margin:0;justify-content:flex-end;flex-wrap:wrap}
+.stage-status .canvas-what{margin:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage-status .canvas-what:has(.canvas-scene:empty){display:none}
+.stage-status .canvas-scene{max-width:none;font-size:13px;color:var(--ink)}
+body.simple .stage-status .canvas-what{display:none}
+/* In this Frame (Advanced): its questions and scriptures, a dot for what is on screen, Show for the rest */
+.stage-status > .ls-items{flex:0 1 auto;min-height:84px;display:flex;flex-direction:column}
+.ls-items[hidden]{display:none}
+.ls-k{margin:0 0 6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ls-list{min-height:0;overflow:auto;list-style:none;margin:0;padding:2px 10px;border:1px solid var(--line-soft);border-radius:12px;background:var(--surface)}
+.ls-list li{display:flex;align-items:center;gap:8px;min-height:34px;border-top:1px solid var(--line-soft);font-size:13px}
+.ls-list li:first-child{border-top:0}
+.ls-list .ls-dot{flex:none;width:7px;height:7px;border-radius:999px;border:1px solid var(--faint)}
+.ls-list li.on .ls-dot{background:var(--live);border-color:var(--live)}
+.ls-list .ls-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.ls-list li.on .ls-t{color:var(--ink)}
+.ls-list .ls-on{font-size:12px;color:var(--faint);padding:0 6px}
+.ls-list .btn{min-height:26px;padding:0 9px;font-size:12px}
+body.simple .ls-items{display:none}
+/* Up next: one card (Simple); in Advanced it lives in the Next button */
+.stage-status .upnext{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:0;padding:8px;border-radius:12px}
+.stage-status .upnext[hidden]{display:none}
+.stage-status .un-pic{width:100%}
+.stage-status .un-body{display:block;white-space:normal}
+.stage-status .un-h{max-width:none;white-space:normal}
+.stage-status .un-h b{display:block;font-size:14px}
+.stage-status .un-items{display:none}
+.stage-status .un-warn{display:block;margin-top:2px}
+.stage-status .un-toggle{display:none}
+body.advanced .stage-status .upnext{display:none}
+/* the one button: Go Live, then Next (with what comes next under it in Advanced) */
+.ls-go{flex:none;margin-top:auto;position:sticky;bottom:0;z-index:1;box-shadow:0 -10px 14px var(--app-bg);display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:48px;padding:10px 14px;
+  border:0;border-radius:12px;background:var(--gold);color:var(--gold-50);font:inherit;text-align:left;cursor:pointer}
+.ls-go:hover{filter:brightness(1.06)}
+.ls-go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ls-go:disabled{background:var(--raised);color:var(--muted);cursor:default;filter:none}
+.ls-go.is-take{background:var(--take);color:var(--take-ink)}
+.ls-go-t{display:flex;width:100%;justify-content:space-between;font-size:16px;font-weight:800}
+.ls-go-t::after{content:"\25B8"}
+.ls-go-sub{font-size:12px;font-weight:600;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.ls-go-sub:empty{display:none}
+body.simple .ls-go-sub{display:none}
 .ss-title{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ss-dot{flex:none;width:8px;height:8px;border-radius:999px;background:var(--faint)}
 .ss-dot.t-live{background:var(--live);box-shadow:0 0 0 3px rgba(var(--rgb-green-500),.22)}
@@ -618,7 +661,22 @@ body.simple .stage-status{gap:10px}
 body.simple:not(.sm-design-open) #insp-body .cs-fold,body.simple:not(.sm-design-open) #insp-body .cs-fold + .cs-sec,
 body.simple:not(.sm-design-open) #insp-body .ip.cs-sheet:has(> .cs-fold),body.simple:not(.sm-design-open) #insp-body > .ip.cs-closed{display:none}
 @media (max-height:860px){ .stage-status .canvas-note,.stage-status .ss-d{display:none} .stage-status{gap:10px} .ss-list{gap:8px} }
-@container stagerow (max-width:760px){ .stage-status{display:none} .stage-row .canvas-frame{width:min(100cqw,100cqh * 16 / 9)} .stage-row .studio-host{left:0;right:0} }
+/* Advanced: the status as four small tiles */
+body.advanced .ss-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+body.advanced .ss-row{padding:7px 9px 7px 22px;border:1px solid var(--line-soft);border-radius:8px;background:var(--surface);gap:1px}
+body.advanced .ss-row::before{left:9px;top:12px;width:7px;height:7px}
+body.advanced .ss-k{font-size:12px;letter-spacing:.04em}
+body.advanced .ss-v{font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body.advanced .ss-d{font-size:12px}
+/* a narrow stage: the column goes under the picture as one strip */
+@container stagerow (max-width:700px){
+  .ws:not(.wrap) .stage-row{flex-direction:column;justify-content:flex-start}
+  .ws:not(.wrap) .stage-row .canvas-wrap{width:100%;flex:1 1 auto}
+  .ws:not(.wrap) .stage-status{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;overflow:visible}
+  .ws:not(.wrap) .stage-status > *{flex:1 1 200px}
+  .ws:not(.wrap) :is(.un-pic,.ls-items,.ss-list,.canvas-note){display:none}
+  .ws:not(.wrap) .ls-go{margin-top:0}
+}
 
 /* Inspector */
 .inspector .insp-head{display:flex;align-items:center;gap:10px;padding:12px 14px 8px;flex:none}
@@ -1014,6 +1072,29 @@ body.kc-resizing iframe{pointer-events:none}
   body.studio-focus .ws-center{grid-column:1;grid-row:1}
   body.studio-focus .kc-split,body.studio-focus .ws-left,body.studio-focus .ws-right{display:none}
 }
+/* 26.11.13 dragged small (js/panels.js .wrap): the picture top-left at a set size, the column under it, the editor beside
+   them at full height; the border between them drags sideways, and far enough to the right brings back the big stage */
+.kc-big{display:none;gap:6px}
+@media (min-width:1081px){
+  body:not(.studio-focus) .ws.wrap{grid-template-columns:var(--kc-left,300px) 6px var(--wrap-w,380px) 6px minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+  body:not(.studio-focus) .ws.wrap.c-left{grid-template-columns:0 14px var(--wrap-w,380px) 6px minmax(0,1fr)}
+  body:not(.studio-focus) .ws.wrap .ws-left,body:not(.studio-focus) .ws.wrap .kc-vsplit{grid-row:1}
+  body:not(.studio-focus) .ws.wrap .ws-center{grid-column:3;grid-row:1}
+  body:not(.studio-focus) .ws.wrap .kc-hsplit{grid-column:4;grid-row:1;cursor:col-resize}
+  body:not(.studio-focus) .ws.wrap .kc-hsplit::after{left:2px;right:auto;top:0;bottom:0;width:2px;height:auto}
+  body:not(.studio-focus) .ws.wrap .ws-right{grid-column:5;grid-row:1;border-top:0}
+  body:not(.studio-focus) .ws.wrap .stage-row{flex-direction:column;justify-content:flex-start;gap:12px;padding:12px 0 12px 12px}
+  body:not(.studio-focus) .ws.wrap .stage-row .canvas-wrap{width:100%;flex:none;aspect-ratio:16/9}
+  body:not(.studio-focus) .ws.wrap .stage-status{width:auto;flex:1 1 auto}
+  body:not(.studio-focus) .ws.wrap :is(.ls-items,.un-pic,.canvas-what,.kc-layout-btn,.s2-under){display:none}
+  body:not(.studio-focus) .ws.wrap .stage-status{overflow:auto}
+  body:not(.studio-focus) .ws.wrap .kc-big{display:inline-flex}
+  /* the editor folded: its bar stays, with Simple | Advanced */
+  .ws.c-insp .ws-right > .insp-tools{display:flex}
+  .ws.c-insp .ws-right > .insp-tools > :not(.sm-seg){display:none}
+}
+.insp-tools .sm-seg{margin-left:8px}
+.insp-tools:not(:has(.fl-acts:not([hidden]))) > :is(.sm-design:not([hidden]),.sm-design[hidden] + .sm-seg){margin-left:auto}
 @container insp (min-width:760px){
   .insp-body > #ip-gen:not([hidden]),.insp-body > .ip:not([hidden]){display:block;columns:2 320px;column-gap:28px}
   .insp-body .ip-sec,.insp-body .field,.insp-body .row,.insp-body .ibox,.insp-body .ip-pin,.insp-body .check,.insp-body .hint,.insp-body .ip-acts{break-inside:avoid}

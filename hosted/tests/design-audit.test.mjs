@@ -100,7 +100,13 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.doesNotMatch(words, /church|sunday|\bobs\b|\bcamo\b/i);
   assert.doesNotMatch(words, />[^<]*FRAMEDECKS/);
   assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Start a free workspace"));
-  assert.match(landing, /data-reveal/);
+  // 26.11.4 the sections below the stage rise in with the scroll and go back down with it (components/landing/rise.tsx)
+  assert.match(landing, /data-rise/);
+  assert.match(landing, /<Rise \/>/);
+  const rise = src("components/landing/rise.tsx");
+  assert.match(rise, /addEventListener\("scroll", kick, \{ passive: true \}\)/);
+  assert.match(rise, /new IntersectionObserver/); // the listener only while a section is near the screen
+  assert.doesNotMatch(rise, /preventDefault/);
   assert.match(words, /data-spotlight/);
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).dependencies.gsap, undefined);
   // 26.11.2 the stage (components/landing/tour.tsx): the meeting builds itself on arrival (Frame, Decks, Content, then
@@ -116,6 +122,14 @@ test("the landing page carries the owner's brief (27 October): approved words, e
     assert.match(tour, new RegExp(`/product/${shot}\\.webp`), shot);
   assert.match(tour, /new IntersectionObserver/); // starts once on screen; the scroll listener only while the stage is near
   assert.match(tour, /addEventListener\("scroll", onScroll, \{ passive: true \}\)/);
+  // 26.11.4 no replay: the flowchart shows for about a second, then the Studio takes over (at once on scroll), and
+  // scrolling back to the top plays it backwards; a spring follows the scroll, and the scroll is never taken over
+  const hold = Number(tour.match(/const HOLD = (\d+);/)?.[1]);
+  assert.ok(hold >= 1000 && hold <= 1500, `HOLD ${hold}`);
+  assert.match(tour, /const TAKE = \d+;/);
+  assert.match(tour, /function spring\(/);
+  for (const text of [tour, src("app/tour.css"), landing]) assert.doesNotMatch(text, /replay|tr-replay/i);
+  assert.doesNotMatch(tour, /preventDefault/);
   assert.match(src("app/tour.css"), /animation: tr-fallback 0s 4s forwards;/);
   assert.match(landing, /FAQ\.slice\(0, 4\)/);
   assert.match(landing, /More questions/);

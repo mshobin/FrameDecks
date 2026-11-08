@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "lucide-react";
@@ -6,6 +5,7 @@ import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "luc
 import { LandingNav } from "@/components/landing/nav";
 import { Keys, Tour, type TourChapter } from "@/components/landing/tour";
 import { FlourishLater } from "@/components/landing/flourish-later";
+import { Rise } from "@/components/landing/rise";
 import { SiteFooter } from "@/components/site-footer";
 import { DOWNLOADS } from "@/lib/pc-setup";
 import "@/app/landing-page.css"; // 8.4 only the landing page loads its own styles
@@ -16,10 +16,10 @@ import "@/app/tour.css";
 // The product tells the story: on arrival a meeting builds itself (Frame, Decks, Content) and lands in the real Studio;
 // the page's scroll then moves through the program's own screens, each with the keys it uses
 // (components/landing/tour.tsx). Apple's way: one idea per screen, the words beside the picture, gold only where the
-// eye should go, the app's own colours. Nothing runs at rest; "reduce motion" and "Reduce effects" are honoured.
+// eye should go, the app's own colours. Below the stage each section rises in with the scroll and goes back down as
+// the page is scrolled back ([data-rise], components/landing/rise.tsx). Nothing runs at rest; "reduce motion" and
+// "Reduce effects" are honoured.
 // No invented quotes, logos or usage numbers.
-
-const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 const HERO = { first: "Prepare with Purpose.", second: "Present with Excellence." };
 
@@ -151,11 +151,11 @@ function Actions() {
   );
 }
 
-function Questions({ list }: Readonly<{ list: readonly { q: string; a: string }[] }>) {
+function Questions({ list, rise }: Readonly<{ list: readonly { q: string; a: string }[]; rise?: boolean }>) {
   return (
     <div className="lp-faq">
-      {list.map((f) => (
-        <details key={f.q} data-spotlight="">
+      {list.map((f, i) => (
+        <details key={f.q} data-spotlight="" data-rise={rise ? i : undefined}>
           <summary>
             {f.q}
             <span className="lp-plus" aria-hidden="true" />
@@ -174,6 +174,7 @@ export function Landing() {
     <div className="fd-landing fd-lp">
       <LandingNav />
       <FlourishLater />
+      <Rise />
 
       <main id="main" tabIndex={-1}>
         <Tour
@@ -193,15 +194,15 @@ export function Landing() {
         />
 
         <section className="lp-section" id="features" aria-labelledby="lp-features-title">
-          <div className="lp-head" data-reveal="">
+          <div className="lp-head" data-rise="">
             <p className="lp-eyebrow">Made for the whole team</p>
             <h2 id="lp-features-title" className="lp-h2">
               Calm on the day. Ready every week.
             </h2>
           </div>
-          <ul className="lp-promises" data-reveal="" data-spotlight="">
-            {FEATURES.map((f) => (
-              <li key={f.title}>
+          <ul className="lp-promises" data-spotlight="">
+            {FEATURES.map((f, i) => (
+              <li key={f.title} data-rise={i}>
                 <span className="lp-icon">
                   <f.icon aria-hidden="true" size={18} />
                 </span>
@@ -213,15 +214,15 @@ export function Landing() {
         </section>
 
         <section className="lp-section" id="questions" aria-labelledby="lp-faq-title">
-          <div className="lp-head" data-reveal="">
+          <div className="lp-head" data-rise="">
             <p className="lp-eyebrow">Questions</p>
             <h2 id="lp-faq-title" className="lp-h2">
               Questions teams ask.
             </h2>
           </div>
-          <div data-reveal="" style={delay(80)}>
-            <Questions list={FAQ.slice(0, 4)} />
-            <details className="lp-faq-more">
+          <div>
+            <Questions list={FAQ.slice(0, 4)} rise />
+            <details className="lp-faq-more" data-rise="2">
               <summary>More questions</summary>
               <Questions list={FAQ.slice(4)} />
             </details>
@@ -229,7 +230,7 @@ export function Landing() {
         </section>
 
         <section className="lp-cta" aria-labelledby="lp-cta-title">
-          <div className="lp-cta-panel" data-reveal="" data-spotlight="">
+          <div className="lp-cta-panel" data-rise="" data-spotlight="">
             <div className="lp-beam lp-beam-cta" aria-hidden="true" />
             <Image className="lp-cta-mark" src="/framedecks-emblem.webp" alt="" width={56} height={56} loading="lazy" unoptimized />
             <p className="lp-promise fd-serif">
@@ -240,11 +241,15 @@ export function Landing() {
               <cite>{VERSE.ref}</cite>
             </blockquote>
             {/* 9.11.2 the closing scene: a Frame, its Deck and its Content come together above the title (flourish.css
-                shows it; without that stylesheet it stays hidden) */}
+                shows it; without that stylesheet it stays hidden); the three come together with the scroll (rise.tsx) */}
             <p className="lp-assemble" style={{ display: "none" }} aria-hidden="true">
-              <span>Frame</span>
-              <span>Deck</span>
-              <span>Content</span>
+              <span data-rise="2" data-rx="-28">
+                Frame
+              </span>
+              <span data-rise="3">Deck</span>
+              <span data-rise="4" data-rx="28">
+                Content
+              </span>
             </p>
             <h2 id="lp-cta-title" className="lp-h2 lp-cta-title" aria-label={CTA_TITLE}>
               {ctaWords.slice(0, -1).join(" ")} <span className="lp-sheen">{ctaWords.at(-1)}</span>

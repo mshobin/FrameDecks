@@ -15,19 +15,20 @@ class LiveStage(unittest.TestCase):
         self.js = (ROOT / "app/js/stage-status.js").read_text(encoding="utf-8")
 
     def test_the_stage_and_its_panel_share_one_row_and_keep_every_id(self):
-        row = self.html.split('id="stage-row"')[1].split("</section>")[0]
+        # 26.11.13 (Mockup B): Up next and the stage's tools moved into the column beside the picture
+        row = self.html.split('id="stage-row"')[1].split('<aside class="ws-right inspector"')[0]
         for el in ('id="canvas-wrap"', 'id="program"', 'id="program-frame"', 'id="program-live"', 'id="canvas-boxes"',
-                   'id="program-badge"', 'id="tab-studio"', 'id="stage-status"', 'id="canvas-note"'):
+                   'id="program-badge"', 'id="tab-studio"', 'id="stage-status"', 'id="canvas-note"', 'id="upnext"',
+                   'id="canvas-tools"', 'id="canvas-title"', 'id="canvas-badge"'):
             self.assertIn(el, row)
-        self.assertLess(self.html.index('id="stage-row"'), self.html.index('id="upnext"'), "Up next under the stage")
-        self.assertLess(self.html.index('id="upnext"'), self.html.index('id="inspector"'), "the editor under both")
+        self.assertLess(self.html.index('id="stage-row"'), self.html.index('id="inspector"'), "the editor under the stage")
         self.assertIn('<script src="js/stage-status.js"></script>', self.html)
 
-    def test_sixteen_by_nine_centred_and_never_under_the_panel(self):
-        self.assertIn(".stage-row .canvas-frame{width:min(100cqw - 2 * (var(--ss-w) + 16px),100cqh * 16 / 9)}", self.css)
-        self.assertIn(".stage-row .studio-host{left:calc(var(--ss-w) + 16px);right:calc(var(--ss-w) + 16px)}", self.css)
+    def test_sixteen_by_nine_and_never_under_the_panel(self):
+        # 26.11.13 the picture is the largest 16:9 beside the column: the two sit side by side, never over each other
+        self.assertIn(".stage-row .canvas-wrap{flex:none;width:min(100cqw - var(--rail) - 16px,100cqh * 16 / 9)", self.css)
         self.assertRegex(self.css, r"\.canvas-frame\{[^}]*aspect-ratio:16/9")
-        self.assertIn("@container stagerow (max-width:760px){ .stage-status{display:none}", self.css)
+        self.assertIn("@container stagerow (max-width:700px){", self.css)
 
     def test_the_panel_reads_real_status_only(self):
         for source in ("'h-vcam'", "'h-program'", "'h-ipad'", "KCVcamStatus", "SC.liveScene", "SC.layerOn", "KCGuard"):

@@ -163,43 +163,49 @@
   </aside>
 
   <section class="ws-center" aria-labelledby="canvas-title">
-    <header class="canvas-head">
-      <h2 id="canvas-title">Studio Canvas</h2><span class="canvas-scene" id="canvas-scene"></span>
-      <span class="canvas-badge" id="canvas-badge">PREVIEW</span>
-      <span class="canvas-sub" id="mt-section"></span>
-      <div class="canvas-tools" id="canvas-tools"></div>
-    </header>
-    <!-- 26.11.12 the Live Presentation Stage: the picture is the hero (16:9, as large as the room allows), with a compact
-         panel of what the program really knows about it (js/stage-status.js); the editor stays below -->
+    <!-- 26.11.13 the Live Stage (Mockup B): the picture takes the room, one column beside it says if all is well, what
+         comes next, and has the one button that matters (Go Live, then Next). Dragged small, the column folds under the
+         picture and the editor sits beside them (js/live-stage.js) -->
     <div class="stage-row" id="stage-row">
     <div class="canvas-wrap" id="canvas-wrap">
       <div class="program-frame canvas-frame" id="program">
         <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
         <img id="program-live" alt="The FrameDecks vCam picture Zoom participants see" hidden>
         <div class="canvas-boxes" id="canvas-boxes" aria-hidden="true"></div>
+        <span class="canvas-badge" id="canvas-badge">PREVIEW</span>
         <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
         <div class="pv-hint" id="pv-hint" hidden>Double-click any card to edit it</div>
       </div>
       <div class="studio-host" id="tab-studio" hidden></div>
     </div>
-    <aside class="stage-status" id="stage-status" aria-labelledby="ss-title">
+    <aside class="stage-status" id="stage-status" aria-labelledby="canvas-title">
+      <header class="canvas-head">
+        <h2 id="canvas-title" class="sr-only">Studio Canvas</h2>
+        <div class="canvas-tools" id="canvas-tools"></div>
+        <p class="canvas-what"><span class="canvas-scene" id="canvas-scene"></span> <span class="canvas-sub" id="mt-section"></span></p>
+      </header>
       <button class="ss-sum" id="ss-sum" type="button" aria-expanded="false" aria-controls="ss-list" title="Show the details"><i class="ss-dot" id="ss-dot2" aria-hidden="true"></i><span id="ss-sentence" aria-live="polite"></span></button>
       <h3 class="ss-title" id="ss-title"><i class="ss-dot" id="ss-dot" aria-hidden="true"></i><span id="ss-state">Output</span></h3>
       <ul class="ss-list" id="ss-list" aria-live="polite"></ul>
       <ul class="ss-warn" id="ss-warn" role="status"></ul>
+      <section class="ls-items" id="ls-items" aria-labelledby="ls-items-h" hidden>
+        <h3 class="ls-k" id="ls-items-h">In this Frame</h3>
+        <ul class="ls-list" id="ls-list"></ul>
+      </section>
+      <!-- 8.9 Safe Next: what Next (or the next Frame) will put on screen, before it does (js/workspace.js renderUpNext) -->
+      <section class="upnext" id="upnext" aria-labelledby="upnext-h" hidden>
+        <div class="un-pic" id="un-pic" aria-hidden="true"><iframe id="un-frame" title="Up next preview" tabindex="-1"></iframe></div>
+        <div class="un-body">
+          <h3 class="un-h" id="upnext-h"><span class="un-k">Up next</span> <b id="un-name"></b> <span class="un-meta" id="un-meta"></span></h3>
+          <ul class="un-items" id="un-items"></ul>
+          <ul class="un-warn" id="un-warn"></ul>
+        </div>
+        <button class="btn small quiet un-toggle" type="button" id="un-toggle" aria-expanded="true" aria-controls="un-pic un-items" title="Hide or show the preview of the next Frame">Hide preview</button>
+      </section>
+      <button class="ls-go" id="ls-go" type="button"><span class="ls-go-t" id="ls-go-t">Go Live</span><span class="ls-go-sub" id="ls-go-sub"></span></button>
       <p class="canvas-note" id="canvas-note"></p>
     </aside>
     </div>
-    <!-- 8.9 Safe Next: what Next (or the next Frame) will put on screen, before it does (js/workspace.js renderUpNext) -->
-    <section class="upnext" id="upnext" aria-labelledby="upnext-h" hidden>
-      <div class="un-pic" id="un-pic" aria-hidden="true"><iframe id="un-frame" title="Up next preview" tabindex="-1"></iframe></div>
-      <div class="un-body">
-        <h3 class="un-h" id="upnext-h"><span class="un-k">Up next</span> <b id="un-name"></b> <span class="un-meta" id="un-meta"></span></h3>
-        <ul class="un-items" id="un-items"></ul>
-        <ul class="un-warn" id="un-warn"></ul>
-      </div>
-      <button class="btn small quiet un-toggle" type="button" id="un-toggle" aria-expanded="true" aria-controls="un-pic un-items" title="Hide or show the preview of the next Frame">Hide preview</button>
-    </section>
   </section>
 
   <aside class="ws-right inspector" id="inspector" aria-labelledby="insp-title">
@@ -614,6 +620,7 @@
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/stage-status.js"></script>
+<script src="js/live-stage.js"></script>
 <script src="js/simple-mode.js"></script>
 <script src="js/annotate.js"></script>
 <script src="js/memory.js"></script>

@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.13': [
+    {title: 'A bigger live picture', text: 'The picture takes the Studio’s room. Beside it: is all well, what comes next, and one button, Go Live then Next.', show: {spot: '#ls-go'}},
+    {title: 'Drag it your way', text: 'Drag the border under the picture to resize it; double-click it to fit. Drag it far up for a compact layout with the editor beside a small picture.', show: {spot: '#stage-row'}},
+    {title: 'Simple or Advanced, in the editor’s bar', text: 'The switch now sits at the right of the editor’s bar and stays there when the editor is folded.', show: {spot: '.sm-seg'}}
+  ],
   '26.11.12': [
     {title: 'Simple by default', text: 'The Studio now shows just what you need to run a meeting, with a bigger live picture. Choose Advanced above the picture for every control.', show: {spot: '.sm-seg'}},
     {title: 'Add a device by scanning', text: 'Settings \u2192 Sync \u2192 Add a device shows a QR code. Scan it with your phone\u2019s camera and it joins your team, with no email or password.', show: {settings: 'account', spot: '#sync-add'}},

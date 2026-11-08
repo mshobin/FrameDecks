@@ -41,7 +41,7 @@ const GUARD = "html.fd-motion:not(.fd-calm)";
 
 test("keyframes move only transform and opacity", () => {
   const frames = moving.filter((d) => d.within.some((w) => w.startsWith("@keyframes")));
-  assert.ok(frames.length > 8);
+  assert.ok(frames.length > 4); // 26.11.4 fewer: the stage and the closing scene now move with the scroll instead
   for (const d of frames) assert.ok(["transform", "opacity"].includes(d.prop), `${d.within.join(" > ")}: ${d.prop}`);
 });
 
@@ -84,7 +84,7 @@ test("the finishing touches load after the page appears, and their hooks are in 
   const landing = read("src/components/landing.tsx");
   assert.match(landing, /<FlourishLater \/>/);
   assert.match(landing, /<p className="lp-assemble" style=\{\{ display: "none" \}\} aria-hidden="true">/);
-  assert.match(landing, /<details key=\{f\.q\} data-spotlight="">/);
+  assert.match(landing, /<details key=\{f\.q\} data-spotlight=""/);
   const download = read("src/components/download-panel.tsx");
   assert.match(download, /<FlourishLater \/>/);
   assert.match(download, /className="fd-dl-card"[^>]*data-spotlight=""/);

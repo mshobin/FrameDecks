@@ -6,7 +6,8 @@
    - an endless loop runs only while its [data-loop] element is on screen ([data-live], components/motion.tsx);
    - one timing language: var(--t-move) (about a third of a second) and var(--ease-out). */
 
-/* ---------- 6. The closing scene: Frame, Deck and Content come together above "Ready to Serve?" ---------- */
+/* ---------- 6. The closing scene: Frame, Deck and Content come together above "Ready to Serve?" (with the scroll:
+   components/landing/rise.tsx) ---------- */
 /* the page draws it with display: none (an inline style, which only !important can override), so without this
    stylesheet the scene simply stays hidden */
 .lp-assemble {
@@ -59,35 +60,5 @@
     transform: translate3d(4px, 0, 0);
   }
 
-  /* ---------- 6. The closing scene comes together as the panel rises in ---------- */
-  html.fd-motion:not(.fd-calm) .lp-cta-panel[data-in] .lp-assemble span {
-    animation: lp-assemble var(--t-move) var(--ease-out) 0.2s backwards;
-  }
-
-  html.fd-motion:not(.fd-calm) .lp-cta-panel[data-in] .lp-assemble span:nth-child(1) {
-    --from: -28px;
-  }
-
-  html.fd-motion:not(.fd-calm) .lp-cta-panel[data-in] .lp-assemble span:nth-child(2) {
-    animation-delay: 0.3s;
-    --from: 0px;
-  }
-
-  html.fd-motion:not(.fd-calm) .lp-cta-panel[data-in] .lp-assemble span:nth-child(3) {
-    animation-delay: 0.4s;
-    --from: 28px;
-  }
-
-  @keyframes lp-assemble {
-    from {
-      opacity: 0;
-      transform: translate3d(var(--from, 0px), 8px, 0);
-    }
-  }
-
-  /* ---------- 3. A gold line runs down the showcase stage's edge as it scrolls past (where the browser can link it to scroll) ---------- */
-  @supports (animation-timeline: view()) {
-  
-}
 
 }

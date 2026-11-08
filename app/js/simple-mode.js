@@ -29,10 +29,10 @@ function set(v, save){
   if (save) fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({studioMode: v})}).catch(function(){});
 }
 
-/* Simple | Advanced, in the stage's header */
+/* Simple | Advanced, in the editor's bar (26.11.13 Mockup B; it stays there while the editor is folded) */
 var seg = null, design = null;
-var tools = document.getElementById('canvas-tools');
-if (tools){
+var tbar = document.getElementById('insp-tools');
+if (tbar){
   seg = document.createElement('div');
   seg.className = 'seg sm-seg'; seg.setAttribute('role', 'radiogroup'); seg.setAttribute('aria-label', 'How much the Studio shows');
   [['simple', 'Simple', 'The essentials: Go Live, Next, Hide all and your words'], ['advanced', 'Advanced', 'Every control: transitions, Auto-advance, camera numbers, layout and look']].forEach(function(o){
@@ -41,11 +41,9 @@ if (tools){
     b.addEventListener('click', function(){ set(o[0], true); });
     seg.appendChild(b);
   });
-  tools.insertBefore(seg, tools.firstChild);
 }
 
 /* the editor's settings (Position and size, Look, Animation, Show on) behind one Design button in Simple */
-var tbar = document.getElementById('insp-tools');
 if (tbar){
   design = document.createElement('button');
   design.type = 'button'; design.className = 'btn small quiet sm-design'; design.id = 'sm-design';
@@ -58,6 +56,7 @@ if (tbar){
     design.setAttribute('aria-expanded', String(open));
   });
   tbar.appendChild(design);
+  if (seg) tbar.appendChild(seg);
 }
 
 /* the program's saved choice wins (another person may have switched this PC) */

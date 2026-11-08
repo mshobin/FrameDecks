@@ -16,10 +16,10 @@
 var ws = document.getElementById('studio-ws'); if (!ws) return;
 var left = ws.querySelector('.ws-left'), center = ws.querySelector('.ws-center'), right = ws.querySelector('.ws-right');
 var scenes = ws.querySelector('.scenes-pane'), layers = ws.querySelector('.layers-pane');
-var KEY = 'kc-layout', DEF = {left: 300, canvas: 66, scenes: 58, c: {left: false, scenes: false, layers: false, insp: false}, autohide: false};
+var KEY = 'kc-layout', DEF = {left: 300, canvas: 66, scenes: 58, c: {left: false, scenes: false, layers: false, insp: false}, autohide: false, wrap: false, wrapW: 380};
 var L = load();
 function load(){ try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') return merge(v); } catch(e){} return merge({}); }
-function merge(v){ return {left: num(v.left, 220, 560, DEF.left), canvas: num(v.canvas, 30, 85, DEF.canvas), scenes: num(v.scenes, 20, 85, DEF.scenes),
+function merge(v){ return {left: num(v.left, 220, 560, DEF.left), canvas: num(v.canvas, 20, 85, DEF.canvas), scenes: num(v.scenes, 20, 85, DEF.scenes), wrap: !!v.wrap, wrapW: num(v.wrapW, 320, 470, DEF.wrapW),
   c: Object.assign({}, DEF.c, v.c || {}), autohide: !!v.autohide}; }
 function num(v, lo, hi, d){ v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(L)); } catch(e){} }
@@ -43,15 +43,29 @@ function apply(){
   ws.style.setProperty('--kc-scenes', L.scenes + '%');
   ['left', 'scenes', 'layers', 'insp'].forEach(function(k){ ws.classList.toggle('c-' + k, !!L.c[k]); });
   ws.classList.toggle('autohide', L.autohide);
+  /* 26.11.13 dragged small, the picture sits top-left with the column under it and the editor beside them */
+  ws.classList.toggle('wrap', L.wrap);
+  ws.style.setProperty('--wrap-w', L.wrapW + 'px');
+  hsplit.setAttribute('aria-orientation', L.wrap ? 'vertical' : 'horizontal');
+  hsplit.title = L.wrap ? 'Drag right for a bigger picture · double-click for the big stage' : 'Drag to resize · double-click to fit the picture · Enter to fold or unfold the Inspector';
   vsplit.setAttribute('aria-valuenow', String(Math.round(L.left))); hsplit.setAttribute('aria-valuenow', String(Math.round(L.canvas))); lsplit.setAttribute('aria-valuenow', String(Math.round(L.scenes)));
   syncButtons();
   void r;
 }
 function refit(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ window.dispatchEvent(new Event('resize')); if (window.KCStudio && window.KCStudio.fit) try { window.KCStudio.fit(); } catch(e){} }); }
+/* 26.11.13 the stage height at which the picture fills its width exactly (css/theme.css .stage-row: inside 14 px of
+ * padding each side and 12 px above and below, the column beside it is clamp(236px, 21%, 280px), 16 px apart) */
+var WRAP_IN = 250, WRAP_OUT = 470;                     // stage heights (px) and picture-column widths for the small layout
+function desk(){ return window.innerWidth >= 1081; }
+function stageW(){ return Math.max(0, ws.clientWidth - (L.c.left ? 14 : L.left + 6)); }
+function fitPx(){ var w = stageW() - 28, rail = Math.min(280, Math.max(236, w * 0.21)); return (w - rail - 16) * 9 / 16 + 24; }
+function pct(px){ var hh = ws.clientHeight || 1; return num(px / hh * 100, 20, 85, L.canvas); }
+function bigStage(){ L.wrap = false; L.canvas = pct(fitPx()); }
 function drag(split, onMove){
   split.addEventListener('pointerdown', function(e){
     if (e.button !== 0 || e.target.closest('.kc-reopen')) return;
     e.preventDefault(); split.setPointerCapture(e.pointerId); split.classList.add('dragging'); document.body.classList.add('kc-resizing');
+    split.dataset.from = String(L.wrap);                  // one drag changes one layout: crossing into the other ends its effect
     var box = ws.getBoundingClientRect(), lbox = left.getBoundingClientRect(), frame = 0, last = e;
     function move(ev){ last = ev; if (frame) return; frame = requestAnimationFrame(function(){ frame = 0; onMove(last, box, lbox); apply(); }); }
     function up(){
@@ -62,16 +76,32 @@ function drag(split, onMove){
   });
 }
 drag(vsplit, function(e, box){ L.c.left = false; L.left = num(e.clientX - box.left, 220, Math.min(560, box.width * 0.45), L.left); });
-drag(hsplit, function(e, box){ L.c.insp = false; L.canvas = num((e.clientY - box.top) / box.height * 100, 30, 85, L.canvas); });
+drag(hsplit, function(e, box){
+  if (hsplit.dataset.from !== String(L.wrap)) return;
+  L.c.insp = false;
+  if (L.wrap){                                            // the border between the small picture and the editor
+    var x = e.clientX - center.getBoundingClientRect().left;
+    if (x > WRAP_OUT) bigStage(); else L.wrapW = num(x, 320, WRAP_OUT, L.wrapW);
+    return;
+  }
+  var y = e.clientY - box.top, fit = fitPx();
+  if (Math.abs(y - fit) < 14) y = fit;                    // the border clicks into the height where the picture fills the width
+  if (y < WRAP_IN && desk() && !document.body.classList.contains('studio-focus')){ L.wrap = true; L.canvas = pct(300); return; }
+  L.canvas = num(y / box.height * 100, 20, 85, L.canvas);
+});
 drag(lsplit, function(e, box, lbox){ L.c.scenes = L.c.layers = false; L.scenes = num((e.clientY - lbox.top) / lbox.height * 100, 20, 85, L.scenes); });
 function keys(split, key, step, lo, hi, toggleKey){
   split.addEventListener('keydown', function(e){
     var d = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -step : e.key === 'ArrowRight' || e.key === 'ArrowDown' ? step : 0;
     if (d){ e.preventDefault(); e.stopPropagation(); L[key] = num(L[key] + d * (e.shiftKey ? 3 : 1), lo, hi, L[key]); if (toggleKey) L.c[toggleKey] = false; apply(); save(); refit(); }
     else if ((e.key === 'Enter' || e.key === ' ') && toggleKey){ e.preventDefault(); e.stopPropagation(); set(toggleKey, !L.c[toggleKey]); }
-    else if (e.key === 'Home'){ e.preventDefault(); L[key] = DEF[key]; apply(); save(); refit(); }
+    else if (e.key === 'Home'){ e.preventDefault(); L[key] = DEF[key]; if (split === hsplit) L.wrap = false; apply(); save(); refit(); }
   });
-  split.addEventListener('dblclick', function(e){ if (e.target.closest('.kc-reopen')) return; L[key] = DEF[key]; if (toggleKey) L.c[toggleKey] = false; apply(); save(); refit(); });
+  split.addEventListener('dblclick', function(e){
+    if (e.target.closest('.kc-reopen')) return;
+    if (split === hsplit){ L.c.insp = false; bigStage(); } else { L[key] = DEF[key]; if (toggleKey) L.c[toggleKey] = false; }
+    apply(); save(); refit();
+  });
 }
 keys(vsplit, 'left', 16, 220, 560, 'left');
 keys(hsplit, 'canvas', 2, 30, 85, 'insp');
@@ -113,6 +143,10 @@ var tools = document.getElementById('canvas-tools'), menuItems = null, menuEl = 
 var layoutBtn = el('button', 'ib kc-layout-btn', {type: 'button', id: 'kc-layout-btn', title: 'Layout: resize, fold and auto-hide panels', 'aria-label': 'Layout', 'aria-haspopup': 'menu'});
 layoutBtn.innerHTML = I('layout-template', 16);
 if (tools) tools.insertBefore(layoutBtn, tools.firstChild);
+var bigBtn = el('button', 'btn small kc-big', {type: 'button', id: 'kc-big', title: 'Back to the big picture'});
+bigBtn.innerHTML = I('maximize-2', 15) + ' Big stage';
+bigBtn.addEventListener('click', function(){ bigStage(); apply(); save(); refit(); });
+if (tools) tools.insertBefore(bigBtn, tools.firstChild);
 function focusMode(on){
   if (on === undefined) on = !document.body.classList.contains('studio-focus');
   var fb = document.getElementById('s2-focus');
@@ -128,6 +162,7 @@ function openMenu(){
     {t: 'Auto-hide the Inspector', ah: true},
     {t: 'Preview only (Focus)', run: function(){ focusMode(); }, icon: 'maximize-2'},
     '-',
+    {t: 'Fit the picture', run: function(){ L.c.insp = false; bigStage(); apply(); save(); refit(); }, icon: 'maximize'},
     {t: 'Reset the layout', run: function(){ L = merge({}); apply(); save(); refit(); }, icon: 'refresh-cw'}];
   menuItems.forEach(function(m){
     if (m === '-'){ menuEl.appendChild(el('hr')); return; }
