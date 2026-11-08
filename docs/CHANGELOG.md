@@ -10,6 +10,20 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.18] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.18.md](releases/v26.11.18.md).
+
+### Fixed
+- The Command Center showed only its search bar on Windows in 26.11.17. `app/js/cc-shape.js` is back to the 26.11.13
+  timing (a few looks while something moves, then one exact shape after 0.8 s); the 26.11.14 frame-by-frame following
+  is removed. Kept: the traced tray curves (`fillets()`, now 11 steps a side), square joins, and a timer-only exact
+  check (120, 500, 1200 ms after opening, then every 2 s when nothing moves); the extras sit in a try/catch so they
+  can never cost the shape.
+
+### Changed
+- The opening pour is gentler (`cc-pour` from translateY(-10px) scaleY(.82); `cc-drop` from -8px).
+
 ## [26.11.17] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.17.md](releases/v26.11.17.md).

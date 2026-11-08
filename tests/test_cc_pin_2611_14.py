@@ -41,14 +41,11 @@ class NoBoxBehind(unittest.TestCase):
     def setUp(self):
         self.js = read("app/js/cc-shape.js")
 
-    def test_the_shape_follows_a_move_frame_by_frame(self):
-        self.assertNotIn("burst", self.js)                                   # never where it was and where it is going at once
-        self.assertIn("send(prev ? union(prev, now) : now);", self.js)
-        self.assertIn("if (still){ prev = null; send(now); return; }", self.js)
-        self.assertIn("return t.iterations !== Infinity && t.activeDuration !== Infinity;", self.js)
-
-    def test_shapes_reach_the_program_in_order(self):
-        self.assertIn("if (busy){ queued = [key, rects]; return; }", self.js)
+    def test_back_to_the_smooth_timing(self):
+        # 26.11.18 the frame-by-frame following of 26.11.14 left the Command Center as a bare bar on a Windows PC:
+        # back to the 26.11.13 timing (a few looks while moving, then one exact shape)
+        self.assertIn("[0, 90, 220, 420].forEach(function(ms){", self.js)
+        self.assertNotIn("function moving()", self.js)
 
     def test_the_draw_pad_is_measured(self):
         css = read("app/css/spotlight.css")

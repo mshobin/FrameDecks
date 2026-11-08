@@ -1,26 +1,24 @@
-## FrameDecks v26.11.17
+## FrameDecks v26.11.18
 
-The Command Center opens like a waterfall again and always shows in full. Download from **framedecks.com/download**,
-or let FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members,
-settings, notes, pinned Memory Cards and recordings.
+The Command Center opens smoothly again. Download from **framedecks.com/download**, or let FrameDecks update itself.
+It installs over every earlier version and keeps all your meetings, members, settings, notes, pinned Memory Cards and
+recordings.
 
 ## What's New
 None in this version.
 
 ## Enhancements
-- **The Command Center pours open.** The chips' drawer unrolls out of the search bar, the chips drop in one after
-  another, and an open panel flows out under them. This happens every time the chips appear, also when a pinned
-  chip opens with the Command Center.
+- **A gentler waterfall.** The chips' drawer flows out of the search bar more softly, and the chips settle in one
+  after another.
 
 ## Fixes
-- **The curved joins where the chips flow out of the search bar are back.** The window's cut-out shape left them out,
-  so the drawer looked like a straight box on Windows.
-- **No small notches** where an open panel meets the chips.
-- **Control is no longer cut off at the bottom.** The window could keep an older, shorter shape after opening, which
-  hid the lower buttons. The shape is now checked again shortly after opening and every 1.5 seconds while open.
+- **The Command Center showed only its search bar** in 26.11.17: the chips and panels did not appear. The window's
+  shape is updated the way it was in 26.11.13 again, which is smooth on every PC.
+- **Kept from 26.11.17:** the curved joins where the chips flow out of the search bar, no notches where a panel meets
+  the chips, and Control is never cut off at the bottom.
 
 ## Performance Improvements
-- The extra shape check costs under a millisecond and sends nothing when the shape has not changed.
+- The window's shape uses fewer pieces, so Windows redraws it with less work.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.

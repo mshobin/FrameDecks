@@ -280,9 +280,9 @@ body.spotlight .pal-meeting .pal-kind{color:var(--gold-strong)} body.spotlight .
 /* 26.11.16 the waterfall: the chips' drawer pours down out of the search bar (from its top edge, through the two curved
    joins), the chips drop into it one after another, then an open panel flows out under them. Transform and opacity
    only (9.10.2) */
-@keyframes cc-pour{from{opacity:0;transform:translateY(-18px) scaleY(.5)}55%{opacity:1}to{opacity:1;transform:none}}
-@keyframes cc-pour-up{from{opacity:0;transform:translateY(18px) scaleY(.5)}55%{opacity:1}to{opacity:1;transform:none}}
-@keyframes cc-drop{from{opacity:0;transform:translateY(-14px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes cc-pour{from{opacity:0;transform:translateY(-10px) scaleY(.82)}60%{opacity:1}to{opacity:1;transform:none}}
+@keyframes cc-pour-up{from{opacity:0;transform:translateY(10px) scaleY(.82)}60%{opacity:1}to{opacity:1;transform:none}}
+@keyframes cc-drop{from{opacity:0;transform:translateY(-8px) scale(.94)}to{opacity:1;transform:none}}
 @keyframes cc-drop-up{from{opacity:0;transform:translateY(14px) scale(.9)}to{opacity:1;transform:none}}
 .cc.cc-enter .cc-panel.in{animation-delay:.24s}
 @keyframes cc-from-right{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}

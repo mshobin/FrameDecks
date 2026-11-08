@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.18': [
+    {title: 'The Command Center opens smoothly again', text: 'The chips flow out of the search bar as before, with the curved joins, and Control shows in full.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.17': [
     {title: 'The Command Center pours open', text: 'Its chips flow out of the search bar like a waterfall again, with the curved joins, and drop in one after another.', show: {settings: 'keys', spot: '#keys-global'}},
     {title: 'Never cut short', text: 'Control always shows in full, down to the last button, also right after the Command Center opens.', show: {settings: 'keys', spot: '#keys-global'}}

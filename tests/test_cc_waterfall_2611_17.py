@@ -23,9 +23,10 @@ class Shape(unittest.TestCase):
         self.js = read("app/js/cc-shape.js")
 
     def test_the_curves_are_in_the_shape(self):
-        self.assertIn("var FILLET = 22, STEPS = 22;", self.js)
+        self.assertIn("var FILLET = 22, STEPS = 11;", self.js)
         self.assertIn("getComputedStyle(t, '::before')", self.js)
-        self.assertIn("out = out.slice(0, 40).concat(fillets());", self.js)
+        self.assertIn("out = out.slice(0, 48).concat(fillets());", self.js)
+        self.assertIn("} catch(e){ out = out.slice(0, 48); }", self.js)       # the extras can never cost the shape
         import desktop_win
         self.assertGreaterEqual(desktop_win.MAX_SHAPES, 40 + 2 * 22)
         css = read("app/css/spotlight.css")
@@ -35,16 +36,16 @@ class Shape(unittest.TestCase):
         self.assertIn("if (above){ a[1] -= a[4]; a[3] += a[4]; }", self.js)
 
     def test_never_left_short(self):
-        self.assertIn("function exact(){ if (open && !document.hidden && !loop) send(boxes()); }", self.js)
-        self.assertIn("setInterval(exact, 1500);", self.js)
-        self.assertIn("[80, 350, 1000].forEach(function(ms){ setTimeout(exact, ms); });", self.js)
+        self.assertIn("function exact(){ if (open && !document.hidden && !chain && !finalT){ burst = null; send(boxes()); } }", self.js)
+        self.assertIn("setInterval(exact, 2000);", self.js)
+        self.assertIn("[120, 500, 1200].forEach(function(ms){ setTimeout(exact, ms); });", self.js)
 
 
 class Motion(unittest.TestCase):
     def test_it_pours_from_the_bar(self):
         css = read("app/css/spotlight.css")
         self.assertIn(".cc.cc-enter .cc-tray{animation:cc-pour", css)
-        self.assertIn("@keyframes cc-pour{from{opacity:0;transform:translateY(-18px) scaleY(.5)}", css)
+        self.assertIn("@keyframes cc-pour{from{opacity:0;transform:translateY(-10px) scaleY(.82)}", css)
         self.assertIn(".cc .cc-tray.cc-unfold .cc-g{animation:cc-drop", css)
         self.assertIn(".cc.cc-enter .cc-panel.in{animation-delay:.24s}", css)
         for name in ("cc-pour", "cc-drop"):

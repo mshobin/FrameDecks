@@ -1,15 +1,19 @@
 /* FrameDecks 26.11.5 - the Command Center's window takes the shape of what it shows. The page measures every box it
- * really paints (the bar, the chips, an open panel, a list, the draw pad, a note) and the program cuts the window to
+ * really paints (the bar, the chips, an open panel, a list, Keep open, a note) and the program cuts the window to
  * exactly those boxes (desktop_win.clip, SetWindowRgn). Outside them there is no window, so nothing can be drawn
  * there: no grey or black box behind the glass on any PC, and clicks there go to the window behind. While something
- * moves the shape follows it frame by frame (26.11.14); when it settles the shape is exact again.
+ * moves the shape covers where it was and where it is going; when it settles the shape is exact again.
+ * 26.11.18 back to the 26.11.13 timing (a few looks while something moves, then one exact shape), which is smooth on
+ * every PC; the 26.11.14 frame-by-frame following is gone. Kept from 26.11.17: the tray's curved joins are traced into
+ * the shape (the waterfall), a piece hanging under another keeps square joins, and a timer-only exact look after
+ * opening and every 2 s while open, so an old, shorter shape can never cut the bottom of Control.
  * 26.11.11 it works while the Command Center is open, focused or not (opened by the shortcut over Zoom the page often
  * has no focus, and a pinned one stays open behind the meeting): the program says when it opens (KCShape.wake, which
  * always sends the shape again) and when it hides (KCShape.rest), so a hidden Command Center still costs nothing. */
 (function(){
 'use strict';
 if (document.body.getAttribute('data-win') !== 'spotlight') return;
-var last = '', open = true, SKIP = {SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, TEMPLATE: 1, BR: 1};
+var last = '', burst = null, open = true, SKIP = {SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, TEMPLATE: 1, BR: 1};
 function alpha(c){
   if (!c || c === 'transparent') return 0;
   var m = /rgba?\(([^)]+)\)/.exec(c);
@@ -65,20 +69,20 @@ function boxes(){
     if (!host){ out.push(a); return; }
     if (Math.abs(host[2] - a[2]) < 3 && Math.abs(host[3] - a[3]) < 3) host[4] = Math.max(host[4], a[4]);   // the same box twice: keep its round corners
   });
-  /* 26.11.16 a piece that hangs under another (the panel under the chips) keeps square top corners in the shape:
-     its rounded top would cut two small notches where they meet */
-  out.forEach(function(a){
-    if (!a[4]) return;
-    var above = out.some(function(o){ return o !== a && Math.abs(o[1] + o[3] - a[1]) <= 3 && o[0] <= a[0] + 1 && o[0] + o[2] >= a[0] + a[2] - 1; });
-    if (above){ a[1] -= a[4]; a[3] += a[4]; }
-  });
-  out = out.slice(0, 40).concat(fillets());
+  try {
+    out.forEach(function(a){                       // a piece under another keeps square joins (no notches where they meet)
+      if (!a[4]) return;
+      var above = out.some(function(o){ return o !== a && Math.abs(o[1] + o[3] - a[1]) <= 3 && o[0] <= a[0] + 1 && o[0] + o[2] >= a[0] + a[2] - 1; });
+      if (above){ a[1] -= a[4]; a[3] += a[4]; }
+    });
+    out = out.slice(0, 48).concat(fillets());
+  } catch(e){ out = out.slice(0, 48); }            // never lose the shape over the extras
   return out.slice(0, 96).map(function(a){ return a.map(function(v){ return Math.round(v * 10) / 10; }); });
 }
 /* 26.11.16 the waterfall: the chip tray flows out of the bar through two small concave curves drawn just outside it
    (css/spotlight.css .cc-tray::before / ::after, 22 px). They are not elements, so they are measured here: each
    curve becomes a few thin steps that follow it, so the shape keeps it and shows nothing transparent */
-var FILLET = 22, STEPS = 22;                  // one step per pixel: the curve stays smooth
+var FILLET = 22, STEPS = 11;                  // 2 px steps: smooth, and few pieces for Windows to combine
 function fillets(){
   var t = document.querySelector('.cc .cc-tray'); if (!t) return [];
   var cs = getComputedStyle(t, '::before');
@@ -94,72 +98,44 @@ function fillets(){
   }
   return outRects;
 }
-/* 26.11.14 one request at a time, the newest shape last: an older shape can never land after a newer one */
-var busy = false, queued = null;
-function post(key, rects){
-  if (busy){ queued = [key, rects]; return; }
-  busy = true;
-  fetch('api/app/win', {method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({win: 'spotlight', op: 'clip', rects: rects, scale: window.devicePixelRatio || 1})})
-    .catch(function(){}).then(function(){ busy = false; if (queued){ var q = queued; queued = null; post(q[0], q[1]); } });
-}
+
 function send(rects){
   if (!rects.length) return;                                                  // nothing shown yet: keep the last shape
   var key = JSON.stringify(rects);
   if (key === last) return;
   last = key;
-  post(key, rects);
-}
-function union(a, b){
-  var seen = {}, out = [];
-  a.concat(b).forEach(function(r){ var k = r.join(); if (!seen[k]){ seen[k] = 1; out.push(r); } });
-  return out.slice(-96);
-}
-/* 26.11.14 while something moves (a chip's panel growing, the draw pad rising, the chips folding) the shape follows it
- * frame by frame: this frame's boxes and the frame before's, never "where it was and where it is going" at once,
- * which showed an empty box behind the glass for most of a second. When nothing moves any more it is exact again. */
-function moving(){
-  if (!document.getAnimations) return false;
-  return document.getAnimations().some(function(an){
-    if (an.playState !== 'running' || !an.effect || !an.effect.getComputedTiming) return false;
-    var t = an.effect.getComputedTiming();
-    return t.iterations !== Infinity && t.activeDuration !== Infinity;        // an endless glow is not a move
-  });
-}
-var prev = null, loop = 0, quietAt = 0;
-function frame(){
-  loop = 0;
-  if (document.hidden || !open){ prev = null; return; }
-  var now = boxes(), still = !moving() && performance.now() > quietAt;
-  if (still){ prev = null; send(now); return; }                               // settled: exactly what shows
-  send(prev ? union(prev, now) : now);
-  prev = now;
-  loop = requestAnimationFrame(frame);
+  fetch('api/app/win', {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({win: 'spotlight', op: 'clip', rects: rects, scale: window.devicePixelRatio || 1})}).catch(function(){});
 }
 function sample(final){
   if (document.hidden || !open) return;
-  if (final){ prev = null; send(boxes()); return; }
-  if (!loop) loop = requestAnimationFrame(frame);
+  var now = boxes();
+  if (final){ burst = null; send(now); return; }
+  burst = (burst || []).concat(now);                                           // where it was and where it is going
+  send(burst.filter(function(a, i){ return burst.findIndex(function(b){ return b.join() === a.join(); }) === i; }).slice(-96));
 }
-function schedule(){                       // follow it while it moves, then one exact shape
+var chain = false, finalT = 0;
+function schedule(){                       // a few looks while things move, then one exact shape (at most 0.8 s later)
   if (!open) return;                       // hidden by the program: live updates cost nothing here
-  quietAt = performance.now() + 120;       // a change without an animation still gets a frame or two to lay out
-  sample(false);
+  if (!finalT) finalT = setTimeout(function(){ finalT = 0; requestAnimationFrame(function(){ sample(true); }); }, 800);
+  if (chain) return;
+  chain = true;
+  [0, 90, 220, 420].forEach(function(ms){ setTimeout(function(){ requestAnimationFrame(function(){ sample(false); }); }, ms); });
+  setTimeout(function(){ chain = false; }, 430);
 }
 new MutationObserver(schedule).observe(document.body, {subtree: true, childList: true, characterData: true,
   attributes: true, attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-expanded', 'data-dir']});
 ['transitionend', 'animationend', 'pointerover', 'pointerout', 'focusin'].forEach(function(t){ document.addEventListener(t, schedule, true); });
 window.addEventListener('resize', schedule);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden){ last = ''; schedule(); } });
-function wake(){ open = true; last = ''; prev = null; schedule();   // opened: send it again
-  [80, 350, 1000].forEach(function(ms){ setTimeout(exact, ms); });   // 26.11.16 also without animation frames
+function wake(){ open = true; last = ''; schedule(); requestAnimationFrame(function(){ sample(true); });   // opened: send it again
+  [120, 500, 1200].forEach(function(ms){ setTimeout(exact, ms); });  // 26.11.18 also without animation frames
 }
-/* 26.11.16 the shape never stays behind what shows: right after opening and then every 1.5 s while open, an exact
-   look on a timer (an animation frame may not come for a window that has just been shown, and an old, shorter shape
-   cut the bottom of Control). The same shape is never sent twice, so this costs one measurement, under a millisecond. */
-function exact(){ if (open && !document.hidden && !loop) send(boxes()); }
-setInterval(exact, 1500);
+/* 26.11.18 an exact look on a timer alone: right after opening and every 2 s while open, unless something is moving
+   (then the looks above are already coming). The same shape is never sent twice, so it costs one measurement. */
+function exact(){ if (open && !document.hidden && !chain && !finalT){ burst = null; send(boxes()); } }
+setInterval(exact, 2000);
 window.addEventListener('focus', wake);
 schedule();
-window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; if (loop){ cancelAnimationFrame(loop); loop = 0; } prev = null; }};
+window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; }};
 })();
