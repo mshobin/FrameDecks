@@ -10,6 +10,20 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.21] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.21.md](releases/v26.11.21.md).
+
+### Added
+- `voiceKey` also takes `lctrl` and your own key(s) `k:<vk>+<vk>` (up to three, `voice_commands.parse_key` /
+  `valid_key`, `KEY_NAMES`), recorded in Settings → Scripture (Your own key…; window capture-phase listener, so the
+  palette's Ctrl+Space does not open while recording).
+
+### Changed
+- The hold key starts listening after `HOLD_DELAY` (0.25 s) held alone; any other key pressed meanwhile (`OTHER_KEYS`)
+  cancels it and the result is dropped without a message (`_hold(..., discard=True)`). `VoiceCommands.key_step` is one
+  look at the key (tested without a keyboard).
+
 ## [26.11.20] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.20.md](releases/v26.11.20.md).

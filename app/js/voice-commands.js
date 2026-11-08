@@ -131,23 +131,80 @@ function renderSettings(){
     var on = h('input', {type: 'checkbox', id: 'vc-on'});
     on.checked = !!s.voiceCommands;
     on.addEventListener('change', function(){
-      post('api/voice-commands', {op: 'enable', value: on.checked}).then(function(){ toast(on.checked ? 'Voice commands: hold ' + keyName(sel.value) + ' and speak, while a Frame is live' : 'Voice commands are off'); }).catch(function(){});
+      post('api/voice-commands', {op: 'enable', value: on.checked}).then(function(){ toast(on.checked ? 'Voice commands: hold ' + keyName(sel.value === 'own' ? own : sel.value) + ' and speak, while a Frame is live' : 'Voice commands are off'); }).catch(function(){});
     });
+    var own = /^k:/.test(s.voiceKey || '') ? s.voiceKey : '';
     var sel = h('select', {id: 'vc-key', 'aria-label': 'Hold this key to talk'}, [
-      h('option', {value: 'rctrl', text: 'Right Ctrl'}), h('option', {value: 'f8', text: 'F8'}), h('option', {value: 'off', text: 'No key (the hold buttons only)'})]);
-    sel.value = s.voiceKey || 'rctrl';
-    sel.addEventListener('change', function(){ saveSetting({voiceKey: sel.value}); });
+      h('option', {value: 'rctrl', text: 'Right Ctrl'}), h('option', {value: 'lctrl', text: 'Left Ctrl'}), h('option', {value: 'f8', text: 'F8'}),
+      h('option', {value: 'own', text: own ? 'Your own: ' + keyName(own) : 'Your own key…'}), h('option', {value: 'off', text: 'No key (the hold buttons only)'})]);
+    sel.value = own ? 'own' : (s.voiceKey || 'rctrl');
+    /* 26.11.21 your own key: press and hold the key (or up to three together, e.g. Ctrl + Space), then let go */
+    var rec = h('button', {cls: 'btn vc-rec', type: 'button', id: 'vc-rec', hidden: sel.value === 'own' ? null : 'hidden', text: own ? 'Record another key' : 'Record your key'});
+    var heard = h('span', {cls: 'hint vc-rec-said', id: 'vc-rec-said', role: 'status', 'aria-live': 'polite', text: own ? 'Hold ' + keyName(own) + ' to talk.' : ''});
+    sel.addEventListener('change', function(){
+      rec.hidden = sel.value !== 'own';
+      if (sel.value === 'own'){ if (own){ saveSetting({voiceKey: own}); heard.textContent = 'Hold ' + keyName(own) + ' to talk.'; } else record(); return; }
+      saveSetting({voiceKey: sel.value}); heard.textContent = '';
+    });
+    rec.addEventListener('click', record);
+    function record(){
+      var keys = [], done = false;
+      rec.disabled = true; rec.textContent = 'Press and hold your key…';
+      heard.textContent = 'Hold the key, or up to three keys together, then let go. Esc cancels.';
+      function down(e){
+        e.preventDefault(); e.stopImmediatePropagation();
+        if (e.repeat) return;
+        if (e.code === 'Escape' && !keys.length){ finish(null); return; }
+        var vk = VK[e.code];
+        if (vk == null){ heard.textContent = 'That key cannot be used. Try another.'; return; }
+        if (keys.indexOf(vk) < 0 && keys.length < 3) keys.push(vk);
+        heard.textContent = keys.map(function(k){ return NAME[k]; }).join(' + ');
+      }
+      function up(e){ e.preventDefault(); e.stopImmediatePropagation(); if (keys.length) finish(keys); }
+      function finish(k){
+        if (done) return; done = true;
+        window.removeEventListener('keydown', down, true); window.removeEventListener('keyup', up, true);
+        rec.disabled = false;
+        if (!k){ rec.textContent = own ? 'Record another key' : 'Record your key'; heard.textContent = own ? 'Hold ' + keyName(own) + ' to talk.' : ''; if (!own) sel.value = s.voiceKey && !/^k:/.test(s.voiceKey) ? s.voiceKey : 'rctrl'; rec.hidden = sel.value !== 'own'; return; }
+        own = 'k:' + k.join('+');
+        saveSetting({voiceKey: own}).then(function(){ toast('Voice commands: hold ' + keyName(own) + ' to talk'); });
+        sel.options[3].text = 'Your own: ' + keyName(own); rec.textContent = 'Record another key';
+        heard.textContent = 'Hold ' + keyName(own) + ' to talk.';
+      }
+      window.addEventListener('keydown', down, true); window.addEventListener('keyup', up, true);   // before any shortcut (the palette's Ctrl+Space)
+    }
     box.appendChild(h('h3', {cls: 'vl-set-h', id: 'vc-set-h', text: 'Voice commands'}));
     box.appendChild(h('p', {cls: 'hint', text: 'Hold a key, say what to do, let go. Only what you say while holding counts, so talking in the meeting never moves anything. It works while a Frame is live, also with Zoom or Teams in front.'}));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Voice'}), h('label', {cls: 'check'}, [on, ' Voice commands'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('label', {cls: 'lbl', 'for': 'vc-key', text: 'Hold to talk'}), sel]));
+    box.appendChild(h('div', {cls: 'row vc-own'}, [h('span', {cls: 'lbl'}), h('div', {cls: 'vc-own-in'}, [rec, heard])]));
+    box.appendChild(h('p', {cls: 'hint', text: 'Listening starts once the key has been held a moment on its own, so a shortcut such as Ctrl+C never turns it on.'}));
     box.appendChild(h('p', {cls: 'hint', text: 'Or hold the microphone button in the Command Center’s Control, or on the phone remote.'}));
     box.appendChild(h('dl', {cls: 'vc-say'}, SAY.reduce(function(a, x){ a.push(h('dt', {text: x[0]}), h('dd', {text: x[1]})); return a; }, [])));
     box.appendChild(h('p', {cls: 'hint', text: 'Go Live, Leave, Share screen and Emergency are never voice commands: they stay a press.'}));
     box.appendChild(h('p', {cls: 'hint vl-private', text: 'Everything is heard on this PC only, with the microphone chosen for Follow my voice. Nothing is recorded or sent anywhere.'}));
   }).catch(function(){});
 }
-function keyName(v){ return v === 'f8' ? 'F8' : v === 'off' ? 'the microphone button' : 'Right Ctrl'; }
+/* 26.11.21 the keys you can choose (Windows virtual-key codes, as src/voice_commands.py KEY_NAMES) */
+var VK = {ControlLeft: 0xA2, ControlRight: 0xA3, ShiftLeft: 0xA0, ShiftRight: 0xA1, AltLeft: 0xA4, AltRight: 0xA5,
+  Space: 0x20, Enter: 0x0D, Tab: 0x09, Backspace: 0x08, Pause: 0x13, CapsLock: 0x14, PageUp: 0x21, PageDown: 0x22, End: 0x23,
+  Home: 0x24, Insert: 0x2D, Delete: 0x2E, MetaLeft: 0x5B, ContextMenu: 0x5D, NumLock: 0x90, ScrollLock: 0x91,
+  Semicolon: 0xBA, Equal: 0xBB, Comma: 0xBC, Minus: 0xBD, Period: 0xBE, Slash: 0xBF, Backquote: 0xC0,
+  BracketLeft: 0xDB, Backslash: 0xDC, BracketRight: 0xDD, Quote: 0xDE};
+var NAME = {0xA2: 'Left Ctrl', 0xA3: 'Right Ctrl', 0xA0: 'Left Shift', 0xA1: 'Right Shift', 0xA4: 'Left Alt', 0xA5: 'Right Alt',
+  0x20: 'Space', 0x0D: 'Enter', 0x09: 'Tab', 0x08: 'Backspace', 0x13: 'Pause', 0x14: 'Caps Lock', 0x21: 'Page Up', 0x22: 'Page Down',
+  0x23: 'End', 0x24: 'Home', 0x2D: 'Insert', 0x2E: 'Delete', 0x5B: 'Windows', 0x5D: 'Menu', 0x90: 'Num Lock', 0x91: 'Scroll Lock',
+  0xBA: ';', 0xBB: '=', 0xBC: ',', 0xBD: '-', 0xBE: '.', 0xBF: '/', 0xC0: '`', 0xDB: '[', 0xDC: '\\', 0xDD: ']', 0xDE: "'"};
+(function(){
+  var i;
+  for (i = 0; i < 26; i++){ VK['Key' + String.fromCharCode(65 + i)] = 65 + i; NAME[65 + i] = String.fromCharCode(65 + i); }
+  for (i = 0; i < 10; i++){ VK['Digit' + i] = 48 + i; NAME[48 + i] = String(i); VK['Numpad' + i] = 0x60 + i; NAME[0x60 + i] = 'Num ' + i; }
+  for (i = 1; i <= 24; i++){ VK['F' + i] = 0x6F + i; NAME[0x6F + i] = 'F' + i; }
+})();
+function keyName(v){
+  if (/^k:/.test(v || '')) return v.slice(2).split('+').map(function(k){ return NAME[+k] || '?'; }).join(' + ');
+  return {f8: 'F8', lctrl: 'Left Ctrl', off: 'the microphone button'}[v] || 'Right Ctrl';
+}
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') setTimeout(renderSettings, 0); });
 
 window.KCVoiceCommands = {state: function(){ return info; }, run: run, commands: Object.keys(RUN)};

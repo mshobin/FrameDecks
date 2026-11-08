@@ -177,7 +177,8 @@ class Wiring(unittest.TestCase):
         import server
         self.assertFalse(server.APP_SETTINGS_DEFAULTS["voiceCommands"])
         self.assertEqual(server.APP_SETTINGS_DEFAULTS["voiceKey"], "rctrl")
-        self.assertEqual(server.APP_SETTING_CHOICES["voiceKey"], ("rctrl", "f8", "off"))
+        self.assertTrue(all(server._valid_setting("voiceKey", v) for v in ("rctrl", "lctrl", "f8", "off", "k:162+32")))
+        self.assertFalse(any(server._valid_setting("voiceKey", v) for v in ("bad", "k:", "k:1", "k:162+162", "k:1+2+3+4")))
         self.assertIn("/api/remote/voice-commands", server.REMOTE_SIGNED_IN)
         self.assertIn("/js/remote-voice.js", server.REMOTE_PUBLIC)
         self.assertNotIn("/api/voice-commands", server.REMOTE_SIGNED_IN | server.REMOTE_PUBLIC)

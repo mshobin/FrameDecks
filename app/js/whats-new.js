@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.21': [
+    {title: 'Your own key for voice commands', text: 'Hold Right Ctrl, Left Ctrl, F8 or a key you choose. A quick shortcut such as Ctrl+C never turns the microphone on.', show: {settings: 'scripture', spot: '#vc-settings'}}
+  ],
   '26.11.20': [
     {title: 'Voice commands: hold to talk', text: 'While live, hold Right Ctrl, say “next frame” or “hide all”, and let go. Switch it on in Settings → Scripture.', show: {settings: 'scripture', spot: '#vc-settings'}},
     {title: 'Every press answers at once', text: 'Next Frame and the chips no longer wait behind the windows’ other requests.'}

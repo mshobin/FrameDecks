@@ -1,34 +1,25 @@
-## FrameDecks v26.11.20
+## FrameDecks v26.11.21
 
-Hold a key and say "next frame", and every press answers at once. Download from **framedecks.com/download**, or let
-FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members, settings,
-notes, pinned Memory Cards and recordings.
+Hold the key you like for voice commands. Download from **framedecks.com/download**, or let FrameDecks update itself.
+It installs over every earlier version and keeps all your meetings, members, settings, notes, pinned Memory Cards and
+recordings.
 
 ## What's New
-- **Voice commands, hold to talk.** Switch them on in Settings → Scripture → Voice commands. While a Frame is live,
-  hold **Right Ctrl** (or F8), say what to do, and let go: "next frame", "go back", "frame three", "next question",
-  "next scripture", "next slide", "show question", "show scripture", "show both", "hide all", "black screen",
-  "picture back", "freeze", "unfreeze", "mute", "camera", or a verse such as "show John three sixteen". It works with
-  Zoom or Teams in front. Only what you say while holding counts, so talking in the meeting never moves anything.
-  Go Live, Leave, Share screen and Emergency are never voice commands: they stay a press.
-- **Hold to talk in the Command Center and on the phone.** Control's header has a microphone to hold, and the phone
-  and tablet remote have a big Hold to talk button in Control. What was heard shows for a moment ("Next Frame ✓").
+- **Your own key for voice commands.** In Settings → Scripture → Voice commands, Hold to talk now offers **Right Ctrl**,
+  **Left Ctrl**, **F8** or **Your own key…**: choose it, then press and hold the key you want (or up to three keys
+  together, such as Ctrl + Space) and let go. The Command Center's microphone and the phone's Hold to talk still work
+  whichever key you choose.
 
 ## Enhancements
-- The Keys list shows the hold-to-talk key.
+- **A shortcut is never a voice command.** Listening starts once the key has been held for a moment on its own, and
+  pressing another key meanwhile lets it go without a word, so Ctrl + C with Left Ctrl as your key never turns the
+  microphone on or shows "Didn't catch that".
 
 ## Fixes
-- **Presses could wait several seconds.** Each FrameDecks window kept several requests waiting at the program (the
-  picture, Listen for scripture, Memory Cards, the companion's remote), and Windows' web view allows only about six
-  for all windows together, so a press such as Next Frame or a chip waited for one to come back: up to 10 seconds.
-  Each window now keeps one, and the rest travel with it. A press answers in a few milliseconds.
-- **The Show and Dismiss buttons of a verse heard** in the Command Center's Control header were drawn as tall as the
-  big buttons in 26.11.19. They are small again and the header stays one line.
+None in this version.
 
 ## Performance Improvements
-- Voice commands use the microphone and speech model Follow my voice and Listen for scripture already share, and hear
-  the command words only while held.
-- The companion's remote waits at the program only while Run from the companion is on.
+None in this version.
 
 ## Known Issues
 - Voice commands hear this PC's microphone and need the FrameDecks app on Windows. The speech model downloads the first

@@ -47,7 +47,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.20"
+APP_VERSION = "26.11.21"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1325,14 +1325,14 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # a Frame is live and offer it ("Auto": put it on screen without asking)
                          "scriptureListen": False,
                          "scriptureAuto": False,
-                         # 26.11.20 Voice commands: hold Right Ctrl (voiceKey) or a hold button, say "next frame"
+                         # 26.11.20 Voice commands: hold Right Ctrl (voiceKey; 26.11.21 also Left Ctrl, F8 or your own
+                         # key) or a hold button, say "next frame"
                          "voiceCommands": False,
                          "voiceKey": "rctrl"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
-                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced"),
-                       "voiceKey": ("rctrl", "f8", "off")}
+                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
@@ -1379,6 +1379,8 @@ def _valid_setting(k, v):
         return isinstance(v, int) and not isinstance(v, bool) and 3 <= v <= 120
     if k == "voiceMic":
         return isinstance(v, int) and not isinstance(v, bool) and -1 <= v <= 31
+    if k == "voiceKey":                  # 26.11.21 rctrl, lctrl, f8, off, or your own key(s) "k:<vk>+<vk>"
+        return isinstance(v, str) and len(v) <= 24 and voice_commands.valid_key(v)
     if k == "voiceSensitivity":
         return isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 5
     return False

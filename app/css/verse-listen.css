@@ -26,3 +26,8 @@
 .vc-say dt{color:var(--muted);font-weight:600}
 .vc-say dd{margin:0;color:var(--ink)}
 .vc-settings select{min-width:200px}
+/* 26.11.21 your own hold-to-talk key: the Record button and what it heard, on one line */
+.vc-own-in{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-width:0}
+.vc-own-in .vc-rec{width:auto;flex:none}
+.vc-own-in .vc-rec[hidden]{display:none}
+.vc-rec-said{margin:0}
