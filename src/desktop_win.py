@@ -386,7 +386,7 @@ def unlayer(hwnd):
         return False
 
 
-MAX_SHAPES = 48
+MAX_SHAPES = 96                     # 26.11.16 room for the waterfall curves, traced at 1 px
 
 
 def shape_boxes(rects, scale=1.0):

@@ -272,11 +272,19 @@ body.spotlight .cc .pal-row[aria-selected="true"]{background:var(--cc-cell-2);bo
 body.spotlight .pal-meeting .pal-kind{color:var(--gold-strong)} body.spotlight .pal-card .pal-kind{color:var(--cc-violet-a)}
 /* opening: the bar springs in, then the chips one after another */
 .cc.cc-enter .pal-top{animation:cc-bar .5s cubic-bezier(.2,.9,.25,1.15) both}
-.cc.cc-enter .cc-tray{animation:cc-rise .5s .06s cubic-bezier(.2,.9,.25,1.15) both}
-.cc.cc-enter .cc-g{animation:cc-chip .55s cubic-bezier(.2,.9,.3,1.3) both;animation-delay:calc(var(--i) * 45ms + 110ms)}
+.cc.cc-enter .cc-tray{animation:cc-pour .52s .06s cubic-bezier(.22,.9,.24,1.06) both;transform-origin:50% 0}
+.cc.cc-enter .cc-g{animation:cc-drop .5s cubic-bezier(.2,.9,.3,1.25) both;animation-delay:calc(var(--i) * 45ms + 150ms)}
 @keyframes cc-bar{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes cc-rise{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes cc-chip{from{opacity:0;transform:translateY(12px) scale(.85)}to{opacity:1;transform:none}}
+/* 26.11.16 the waterfall: the chips' drawer pours down out of the search bar (from its top edge, through the two curved
+   joins), the chips drop into it one after another, then an open panel flows out under them. Transform and opacity
+   only (9.10.2) */
+@keyframes cc-pour{from{opacity:0;transform:translateY(-18px) scaleY(.5)}55%{opacity:1}to{opacity:1;transform:none}}
+@keyframes cc-pour-up{from{opacity:0;transform:translateY(18px) scaleY(.5)}55%{opacity:1}to{opacity:1;transform:none}}
+@keyframes cc-drop{from{opacity:0;transform:translateY(-14px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes cc-drop-up{from{opacity:0;transform:translateY(14px) scale(.9)}to{opacity:1;transform:none}}
+.cc.cc-enter .cc-panel.in{animation-delay:.24s}
 @keyframes cc-from-right{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
 @keyframes cc-from-left{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
 @keyframes cc-pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
@@ -471,9 +479,10 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
    (transform and opacity only); folded, nothing of the tray is laid out or painted. 26.11.14 no tab with an arrow: an
    open chip is pinned (js/command-center.js), and the tray stays while it is open */
 .cc.cc-fold:not(.cc-peek) .cc-tray,.cc.cc-fold:not(.cc-peek) .cc-stage{display:none}
-.cc .cc-tray.cc-unfold{animation:cc-unfold .26s cubic-bezier(.2,.9,.25,1.1) both;transform-origin:50% 0}
+.cc .cc-tray.cc-unfold{animation:cc-pour .4s cubic-bezier(.22,.9,.24,1.06) both;transform-origin:50% 0}
+.cc .cc-tray.cc-unfold .cc-g{animation:cc-drop .42s cubic-bezier(.2,.9,.3,1.25) both;animation-delay:calc(var(--i) * 35ms + 70ms)}
 @keyframes cc-unfold{from{opacity:0;transform:translateY(-10px) scaleY(.9)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} }
+@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold,.cc .cc-tray.cc-unfold .cc-g{animation:none} }
 
 /* ---------- 9.12 Compact: slim chips in one row, a slimmer bar, a narrower Command Center (Settings > Controls >
    General > Command Center). The window keeps its size; only what is drawn in it is smaller. ---------- */
@@ -515,7 +524,8 @@ body.spotlight .pal.cc.cc-bottom{flex-direction:column-reverse;padding:30px 22px
 .cc.cc-bottom .cc-panel{transform-origin:var(--ox,50%) 100%}
 .cc.cc-bottom .cc-panel::before{inset:auto 8% -80px}
 .cc.cc-bottom .cc-panel.in{animation-name:cc-p-up}
-.cc.cc-bottom .cc-tray.cc-unfold{animation-name:cc-unfold-up;transform-origin:50% 100%}
+.cc.cc-bottom .cc-tray.cc-unfold,.cc.cc-bottom.cc-enter .cc-tray{animation-name:cc-pour-up;transform-origin:50% 100%}
+.cc.cc-bottom .cc-tray.cc-unfold .cc-g,.cc.cc-bottom.cc-enter .cc-g{animation-name:cc-drop-up}
 .cc.cc-bottom.cc-enter .pal-top{animation-name:cc-rise}
 @keyframes cc-p-up{from{opacity:0;transform:translateY(8px) scale(.965)}to{opacity:1;transform:none}}
 @keyframes cc-unfold-up{from{opacity:0;transform:translateY(10px) scaleY(.9)}to{opacity:1;transform:none}}

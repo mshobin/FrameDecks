@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.17': [
+    {title: 'The Command Center pours open', text: 'Its chips flow out of the search bar like a waterfall again, with the curved joins, and drop in one after another.', show: {settings: 'keys', spot: '#keys-global'}},
+    {title: 'Never cut short', text: 'Control always shows in full, down to the last button, also right after the Command Center opens.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.16': [
     {title: 'Emergency and the clock, wherever you are', text: 'Emergency screen and the meeting clock are in Control on the Command Center and your phone. Mute and Camera are on the phone too.', show: {spot: '#lc-control'}},
     {title: 'Verses from your plan, instantly', text: 'Say a verse that is in your plan and the planned passage is offered, shown at once, even offline. Earlier keeps the last three verses heard.', show: {settings: 'scripture', spot: '#vl-settings'}},

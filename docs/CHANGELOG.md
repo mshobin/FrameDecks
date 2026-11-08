@@ -10,6 +10,21 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.17] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.17.md](releases/v26.11.17.md).
+
+### Changed
+- The Command Center opens as a waterfall: `cc-pour` (the tray unrolls from the bar, transform-origin top),
+  `cc-drop` (the chips, staggered by `--i`), the panel after them (`.cc.cc-enter .cc-panel.in` delay); the hover
+  unfold uses the same, every time (the 26.11.14 `!open` condition removed); bottom placement pours upward.
+
+### Fixed
+- `app/js/cc-shape.js`: the tray's concave joins (`.cc-tray::before/::after`, 22 px) are traced into the window shape
+  (`fillets()`, 22 steps a side); a piece hanging under another keeps square top corners (no notches); the shape is
+  checked on a timer after opening (80, 350, 1000 ms) and every 1.5 s while open, so an old shorter shape cannot cut
+  Control short. `desktop_win.MAX_SHAPES` 48 → 96.
+
 ## [26.11.16] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.16.md](releases/v26.11.16.md).

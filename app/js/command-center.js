@@ -183,7 +183,7 @@ function peek(on){
   clearTimeout(peekT);
   if (on === box.classList.contains('cc-peek')) return;
   box.classList.toggle('cc-peek', on);
-  if (on && !reduce && !open){ tray.classList.remove('cc-unfold'); void tray.offsetWidth; tray.classList.add('cc-unfold'); }
+  if (on && !reduce){ tray.classList.remove('cc-unfold'); void tray.offsetWidth; tray.classList.add('cc-unfold'); }   // 26.11.16 the waterfall, every time
   paintFold();
 }
 function inDrawer(el, hover){ return !!el && (hover || el !== input) && (top.contains(el) || tray.contains(el) || stage.contains(el)); }

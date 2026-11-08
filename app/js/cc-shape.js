@@ -65,7 +65,34 @@ function boxes(){
     if (!host){ out.push(a); return; }
     if (Math.abs(host[2] - a[2]) < 3 && Math.abs(host[3] - a[3]) < 3) host[4] = Math.max(host[4], a[4]);   // the same box twice: keep its round corners
   });
-  return out.slice(0, 48).map(function(a){ return a.map(function(v){ return Math.round(v * 10) / 10; }); });
+  /* 26.11.16 a piece that hangs under another (the panel under the chips) keeps square top corners in the shape:
+     its rounded top would cut two small notches where they meet */
+  out.forEach(function(a){
+    if (!a[4]) return;
+    var above = out.some(function(o){ return o !== a && Math.abs(o[1] + o[3] - a[1]) <= 3 && o[0] <= a[0] + 1 && o[0] + o[2] >= a[0] + a[2] - 1; });
+    if (above){ a[1] -= a[4]; a[3] += a[4]; }
+  });
+  out = out.slice(0, 40).concat(fillets());
+  return out.slice(0, 96).map(function(a){ return a.map(function(v){ return Math.round(v * 10) / 10; }); });
+}
+/* 26.11.16 the waterfall: the chip tray flows out of the bar through two small concave curves drawn just outside it
+   (css/spotlight.css .cc-tray::before / ::after, 22 px). They are not elements, so they are measured here: each
+   curve becomes a few thin steps that follow it, so the shape keeps it and shows nothing transparent */
+var FILLET = 22, STEPS = 22;                  // one step per pixel: the curve stays smooth
+function fillets(){
+  var t = document.querySelector('.cc .cc-tray'); if (!t) return [];
+  var cs = getComputedStyle(t, '::before');
+  if (!cs || cs.content === 'none' || cs.display === 'none') return [];
+  var r = t.getBoundingClientRect(), v = visible(t, r); if (!v) return [];
+  var sy = r.height ? v[3] / r.height : 1, outRects = [], rad = FILLET - 1;
+  for (var k = 0; k < STEPS; k++){
+    var y0 = k * FILLET / STEPS, y1 = (k + 1) * FILLET / STEPS, dy = FILLET - y1;
+    var x = dy < rad ? Math.sqrt(rad * rad - dy * dy) : 0, w = FILLET - x;       // painted outside the circle
+    if (w < 0.5) continue;
+    var top = r.top + y0 * sy, h = (y1 - y0) * sy;
+    outRects.push([r.left - w, top, w + 1, h, 0], [r.right - 1, top, w + 1, h, 0]);
+  }
+  return outRects;
 }
 /* 26.11.14 one request at a time, the newest shape last: an older shape can never land after a newer one */
 var busy = false, queued = null;
@@ -86,7 +113,7 @@ function send(rects){
 function union(a, b){
   var seen = {}, out = [];
   a.concat(b).forEach(function(r){ var k = r.join(); if (!seen[k]){ seen[k] = 1; out.push(r); } });
-  return out.slice(-48);
+  return out.slice(-96);
 }
 /* 26.11.14 while something moves (a chip's panel growing, the draw pad rising, the chips folding) the shape follows it
  * frame by frame: this frame's boxes and the frame before's, never "where it was and where it is going" at once,
@@ -124,7 +151,14 @@ new MutationObserver(schedule).observe(document.body, {subtree: true, childList:
 ['transitionend', 'animationend', 'pointerover', 'pointerout', 'focusin'].forEach(function(t){ document.addEventListener(t, schedule, true); });
 window.addEventListener('resize', schedule);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden){ last = ''; schedule(); } });
-function wake(){ open = true; last = ''; prev = null; schedule(); }   // opened: send it again
+function wake(){ open = true; last = ''; prev = null; schedule();   // opened: send it again
+  [80, 350, 1000].forEach(function(ms){ setTimeout(exact, ms); });   // 26.11.16 also without animation frames
+}
+/* 26.11.16 the shape never stays behind what shows: right after opening and then every 1.5 s while open, an exact
+   look on a timer (an animation frame may not come for a window that has just been shown, and an old, shorter shape
+   cut the bottom of Control). The same shape is never sent twice, so this costs one measurement, under a millisecond. */
+function exact(){ if (open && !document.hidden && !loop) send(boxes()); }
+setInterval(exact, 1500);
 window.addEventListener('focus', wake);
 schedule();
 window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; if (loop){ cancelAnimationFrame(loop); loop = 0; } prev = null; }};
