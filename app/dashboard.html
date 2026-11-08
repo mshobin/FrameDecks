@@ -169,6 +169,9 @@
       <span class="canvas-sub" id="mt-section"></span>
       <div class="canvas-tools" id="canvas-tools"></div>
     </header>
+    <!-- 26.11.12 the Live Presentation Stage: the picture is the hero (16:9, as large as the room allows), with a compact
+         panel of what the program really knows about it (js/stage-status.js); the editor stays below -->
+    <div class="stage-row" id="stage-row">
     <div class="canvas-wrap" id="canvas-wrap">
       <div class="program-frame canvas-frame" id="program">
         <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
@@ -179,7 +182,13 @@
       </div>
       <div class="studio-host" id="tab-studio" hidden></div>
     </div>
-    <p class="canvas-note" id="canvas-note"></p>
+    <aside class="stage-status" id="stage-status" aria-labelledby="ss-title">
+      <h3 class="ss-title" id="ss-title"><i class="ss-dot" id="ss-dot" aria-hidden="true"></i><span id="ss-state">Output</span></h3>
+      <ul class="ss-list" id="ss-list" aria-live="polite"></ul>
+      <ul class="ss-warn" id="ss-warn" role="status"></ul>
+      <p class="canvas-note" id="canvas-note"></p>
+    </aside>
+    </div>
     <!-- 8.9 Safe Next: what Next (or the next Frame) will put on screen, before it does (js/workspace.js renderUpNext) -->
     <section class="upnext" id="upnext" aria-labelledby="upnext-h" hidden>
       <div class="un-pic" id="un-pic" aria-hidden="true"><iframe id="un-frame" title="Up next preview" tabindex="-1"></iframe></div>
@@ -603,6 +612,7 @@
 <script src="js/audio-player.js"></script>
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
+<script src="js/stage-status.js"></script>
 <script src="js/annotate.js"></script>
 <script src="js/memory.js"></script>
 <script src="js/teleprompter.js"></script>

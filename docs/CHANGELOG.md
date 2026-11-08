@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed
+- Studio: the Live Presentation Stage (owner's request, after three reference pictures). The picture of what Zoom /
+  Teams receive is the hero: 16:9, centred, as large as the room allows (about 20 % wider at 1366x768 and 1920x1080).
+  A compact **Live output** panel sits in the margin beside it (`#stage-status`, `app/js/stage-status.js`), built only
+  from what the program already knows: FrameDecks vCam from the top bar's status chip and its frame rate, the program
+  and phone-remote connections, the live Frame and how many of its Decks are on screen, and warnings (black screen,
+  frozen picture, emergency screen, nothing shown, a very busy PC, a camera problem). Sound is stated plainly: it
+  comes from the meeting app, FrameDecks sends pictures only. The camera view (vCam Studio) keeps the same centred
+  band, so the panel never covers it; below 760 px of stage width the panel steps aside. Up next is a slimmer strip
+  (80 px thumbnail); the stage's default share of the height is 66 % (was 64 %). Same ids, scripts, shortcuts,
+  drag and drop, sidebar, toolbar and editor; the editor scrolls on its own and the page never does.
+  Tests `tests/test_live_stage_2611_12.py`; tests/visual/layout.mjs and a11y.mjs pass.
+
 ## [26.11.11] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.11.md](releases/v26.11.11.md).

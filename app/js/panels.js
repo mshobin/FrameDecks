@@ -16,7 +16,7 @@
 var ws = document.getElementById('studio-ws'); if (!ws) return;
 var left = ws.querySelector('.ws-left'), center = ws.querySelector('.ws-center'), right = ws.querySelector('.ws-right');
 var scenes = ws.querySelector('.scenes-pane'), layers = ws.querySelector('.layers-pane');
-var KEY = 'kc-layout', DEF = {left: 300, canvas: 64, scenes: 58, c: {left: false, scenes: false, layers: false, insp: false}, autohide: false};
+var KEY = 'kc-layout', DEF = {left: 300, canvas: 66, scenes: 58, c: {left: false, scenes: false, layers: false, insp: false}, autohide: false};
 var L = load();
 function load(){ try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') return merge(v); } catch(e){} return merge({}); }
 function merge(v){ return {left: num(v.left, 220, 560, DEF.left), canvas: num(v.canvas, 30, 85, DEF.canvas), scenes: num(v.scenes, 20, 85, DEF.scenes),

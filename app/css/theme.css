@@ -558,6 +558,43 @@ html[data-theme="light"] .un-warn li{color:var(--warn)}
 html[data-theme="light"] .upnext.has-warn{border-color:var(--warn)}
 .un-warn li::before{content:"\26A0\FE0E  "}
 .un-toggle{flex:none}
+/* 26.11.12 the Live Presentation Stage: the picture is the hero; a compact panel of real status beside it (js/stage-status.js);
+   Up next is one slim strip; the editor stays below and scrolls on its own */
+.stage-row{--ss-w:clamp(196px,15cqw,236px);position:relative;flex:1;min-height:0;display:flex;container-type:inline-size;container-name:stagerow}
+.stage-row .canvas-wrap{flex:1;min-width:0;padding:12px 14px}
+/* the stage stays centred; the panel sits in the right-hand margin and the stage never runs under it */
+.stage-row .canvas-frame{width:min(100cqw - 2 * (var(--ss-w) + 16px),100cqh * 16 / 9)}
+/* the camera view (js/studio.js) sizes its own stage from its box: the same centred band, so the panel never covers it */
+.stage-row .studio-host{left:calc(var(--ss-w) + 16px);right:calc(var(--ss-w) + 16px)}
+.ws-center .canvas-wrap{background:radial-gradient(90% 80% at 50% 45%,var(--surface),transparent 72%)}
+html[data-theme="light"] .ws-center .canvas-wrap{background:none}   /* the stage area stays dark in the light theme */
+.ws-center .canvas-frame{box-shadow:0 0 0 1px var(--line),var(--shadow-2)}
+.stage-status{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:var(--ss-w);max-height:calc(100% - 24px);overflow:auto;
+  display:flex;flex-direction:column;gap:12px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:12px;background:var(--surface);z-index:2}
+.ss-title{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ss-dot{flex:none;width:8px;height:8px;border-radius:999px;background:var(--faint)}
+.ss-dot.t-live{background:var(--live);box-shadow:0 0 0 3px rgba(var(--rgb-green-500),.22)}
+.ss-dot.t-warn{background:var(--gold)}
+.ss-dot.t-bad{background:var(--red)}
+.ss-list,.ss-warn{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ss-list{gap:10px}
+.ss-row{position:relative;display:flex;flex-direction:column;gap:2px;padding-left:16px;min-width:0}
+.ss-row::before{content:"";position:absolute;left:0;top:5px;width:8px;height:8px;border-radius:999px;background:var(--faint);opacity:.6}
+.ss-row.t-ok::before{background:var(--live);opacity:1}
+.ss-row.t-info::before{background:var(--accent);opacity:1}
+.ss-row.t-warn::before{background:var(--gold);opacity:1}
+.ss-row.t-bad::before{background:var(--red);opacity:1}
+.ss-k{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.ss-v{font-size:13px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.ss-d{font-size:12px;color:var(--muted)}
+.ss-warn{gap:6px}
+.ss-warn:empty{display:none}
+.ss-warn li{font-size:12px;font-weight:600;line-height:1.4;padding:6px 8px;border-radius:8px;background:var(--gold-soft);color:var(--gold)}
+.ss-warn li.t-bad{background:var(--red-soft);color:var(--red)}
+.stage-status .canvas-note{margin:0;padding:10px 0 0;border-top:1px solid var(--line-soft);font-size:12px;line-height:1.45;color:var(--faint);min-height:0}
+.stage-status .canvas-note:empty{display:none}
+@media (max-height:860px){ .stage-status .canvas-note,.stage-status .ss-d{display:none} .stage-status{gap:10px} .ss-list{gap:8px} }
+@container stagerow (max-width:760px){ .stage-status{display:none} .stage-row .canvas-frame{width:min(100cqw,100cqh * 16 / 9)} .stage-row .studio-host{left:0;right:0} }
 
 /* Inspector */
 .inspector .insp-head{display:flex;align-items:center;gap:10px;padding:12px 14px 8px;flex:none}
@@ -1414,9 +1451,10 @@ html[data-theme="light"]{
 
 /* 9.11 a slimmer Up next: one line beside a small picture (the canvas keeps the room); the same facts, the warning
    first so it is never cut off */
-.upnext{align-items:center;gap:10px;margin:0 14px 8px;padding:6px 10px}
-.un-pic{width:96px}
-.un-pic iframe{transform:scale(.075)}
+.upnext{align-items:center;gap:10px;margin:0 14px 8px;padding:4px 10px 4px 4px}
+.un-pic{width:80px}                               /* 26.11.12 smaller still: the stage takes the room */
+.un-pic iframe{transform:scale(.0625)}
+.upnext.closed{padding-left:12px}
 .un-body{display:flex;align-items:center;gap:12px;min-width:0;overflow:hidden;white-space:nowrap}
 .un-h{flex:none;max-width:45%;order:-2}
 .un-items,.un-warn{display:flex;gap:10px;min-width:0;margin:0;overflow:hidden}
