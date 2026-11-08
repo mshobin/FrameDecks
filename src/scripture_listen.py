@@ -134,6 +134,28 @@ class ScriptureListen:
             self.history = [dict(keep, at=int(now * 1000))] + [h for h in self.history if h["ref"] != ref["ref"]][:HISTORY - 1]
         return ref
 
+    def ask(self, text):
+        """26.11.20 a voice command ("show John three sixteen"): this reference goes on screen now, through the same
+        Show as a suggestion (the Studio does the showing), also when Listen for scripture is off or just offered it."""
+        refs = scripture_speech.find_all(text, settled=True)
+        if not refs:
+            return None
+        ref, now = refs[-1], self.clock()
+        try:
+            plan = self.planned(ref) if self.planned else None
+        except Exception as e:
+            print("Voice commands (plan):", e)
+            plan = None
+        if plan:
+            ref = dict(ref, ref=plan["ref"], label=plan["label"], planned=True)
+        with self.cond:
+            self.recent[ref["ref"]] = now
+            self._n += 1
+            self._set(dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="show", error=""))
+            keep = {k: ref[k] for k in ("ref", "label", "planned") if k in ref}
+            self.history = [dict(keep, at=int(now * 1000))] + [h for h in self.history if h["ref"] != ref["ref"]][:HISTORY - 1]
+        return ref
+
     def _set(self, pending):
         with self.cond:
             self.pending = pending

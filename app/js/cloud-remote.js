@@ -54,12 +54,16 @@ function runAll(list){
   return p.then(function(){ return results; });
 }
 
+/* 26.11.20 it waits at the program (20 s a request) only while Run from the companion is on; off, it looks once every
+   5 s without waiting, so it does not hold one of the browser's few connections (every press waited behind them) */
+var cloudOn = true;
 function loop(){
-  fetch('api/remote-cloud/next?wait=20', {cache: 'no-store'})
+  fetch('api/remote-cloud/next?wait=' + (cloudOn ? 20 : 0), {cache: 'no-store'})
     .then(function(r){ if (r.status === 403) return {stop: true}; if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function(d){
       if (d.stop) return 'stop';                  // another device's view: only the PC's own window runs commands
-      if (!d.commands || !d.commands.length) return null;   // the program waited up to 20 s: ask again
+      cloudOn = !!d.on;
+      if (!d.commands || !d.commands.length) return cloudOn ? null : sleep(5000);    // on: it waited up to 20 s; ask again
       return runAll(d.commands).then(function(results){
         return fetch('api/remote-cloud/done', {method: 'POST', headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({results: results})});

@@ -10,6 +10,26 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.20] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.20.md](releases/v26.11.20.md).
+
+### Added
+- Voice commands, hold to talk (`src/voice_commands.py`): settings `voiceCommands` (off) and `voiceKey` (`rctrl`, `f8`,
+  `off`); a third grammar in `src/voice_worker.py` heard only while `{"hold": true}` (the other grammars hear nothing
+  then); `voice_follow.command_start/hold/stop`; `GET|POST /api/voice-commands` (hold, enable, done, say) and the
+  signed-in `/api/remote/voice-commands` (hold only); the Studio runs commands with the buttons' own steps
+  (`app/js/voice-commands.js`), the Command Center's hold microphone (`app/js/cc-voice.js`), the phone's Hold to talk
+  (`app/js/remote-voice.js`); a spoken verse goes through `ScriptureListen.ask`. `desktop_win.key_down` reads the key
+  only while on and live.
+
+### Fixed
+- Presses waiting seconds: every window held several long-polls (state, verse-listen, Memory Cards, cloud remote) and
+  the shared six-connection limit made other requests queue (measured 0.5 to 9 s). Riders (`Store.ride`, `also=` on
+  `/api/state` and `/api/rev`, `riders_asked` in `src/server.py`): one waiting request per window, with an
+  `{"unchanged": true, "riders": ...}` answer when only a rider moved. `cloud-remote.js` waits only while it is on.
+- The 26.11.19 Control tightening also enlarged the header's Show / Dismiss buttons: now scoped to `.spr`.
+
 ## [26.11.19] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.19.md](releases/v26.11.19.md).

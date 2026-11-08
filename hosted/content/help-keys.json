@@ -5,6 +5,11 @@
     "where": "Anywhere"
   },
   {
+    "keys": "Right Ctrl (hold)",
+    "what": "Voice commands: hold, say “next frame”, let go (while live; Settings → Scripture)",
+    "where": "Anywhere"
+  },
+  {
     "keys": "?",
     "what": "This list of keys",
     "where": "Command Center"

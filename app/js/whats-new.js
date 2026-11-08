@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.20': [
+    {title: 'Voice commands: hold to talk', text: 'While live, hold Right Ctrl, say “next frame” or “hide all”, and let go. Switch it on in Settings → Scripture.', show: {settings: 'scripture', spot: '#vc-settings'}},
+    {title: 'Every press answers at once', text: 'Next Frame and the chips no longer wait behind the windows’ other requests.'}
+  ],
   '26.11.19': [
     {title: 'No box behind the Command Center', text: 'The Command Center keeps its shape on every PC, presses answer sooner while live, and all of Control fits on screen.', show: {settings: 'keys', spot: '#keys-global'}}
   ],

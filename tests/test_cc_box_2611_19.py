@@ -77,7 +77,7 @@ class ControlFits(unittest.TestCase):
     def test_tighter_rows(self):
         css = read("app/css/spotlight.css")
         block = css[css.index("/* 26.11.19 live Control fits"):]
-        for need in (".cc .cc-panel-control .spr-b,.cc .cc-panel-control .spr-mt .spr-b{min-height:70px",
+        for need in (".cc .cc-panel-control .spr .spr-b,.cc .cc-panel-control .spr-mt .spr-b{min-height:70px",
                      ".cc .cc-panel-control .spr-now{min-height:40px", ".cc .cc-panel-control .spr{gap:8px}"):
             self.assertIn(need, block)
 

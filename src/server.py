@@ -44,9 +44,10 @@ from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
+import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.19"
+APP_VERSION = "26.11.20"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -92,12 +93,13 @@ COOKIE = "kc_remote"
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/js/chips.js", "/js/icons.js", "/js/notes-pad.js", "/css/notes-pad.css",   # 9.13 the chips and the Notes pad
                  "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js", "/js/remote-listen.js",
+                 "/js/remote-voice.js",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
                     "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
-                    "/api/remote/meeting-key",
+                    "/api/remote/meeting-key", "/api/remote/voice-commands",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
@@ -788,6 +790,69 @@ VERSE_LISTEN = scripture_listen.ScriptureListen(VOICE, settings=lambda: app_sett
 VERSE_MODES = {"off": (False, False), "ask": (True, False), "auto": (True, True)}
 
 
+# ---------- 26.11.20 Voice commands, hold to talk (src/voice_commands.py) ----------
+def _key_down():
+    try:
+        import desktop_win
+        return desktop_win.key_down if desktop_win.IS_WIN else None
+    except Exception:
+        return None
+
+
+VOICE_CMD = voice_commands.VoiceCommands(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live,
+                                         show_verse=lambda text: VERSE_LISTEN.ask(text) is not None, key_down=_key_down())
+
+
+def voice_commands_action(d, remote=False):
+    """POST /api/voice-commands (this PC) and /api/remote/voice-commands (a signed-in phone or tablet):
+    {op: "hold", on: bool} (the hold buttons) · {op: "enable", value: bool} · {op: "done", n, ok, msg} (the Studio ran
+    it) · {op: "say", text} (as if it had been said: tests, this PC only). The phone may only hold."""
+    d = d if isinstance(d, dict) else {}
+    op = str(d.get("op") or "")
+    if op == "hold":
+        return VOICE_CMD.hold(bool(d.get("on")), "phone" if remote else "button")
+    if remote:
+        raise ValueError("Not available from the remote.")
+    if op == "enable":
+        save_app_settings({"voiceCommands": bool(d.get("value"))})
+        VOICE_CMD.tick()
+        return VOICE_CMD.body()
+    if op == "done":
+        try:
+            n = int(d.get("n"))
+        except (TypeError, ValueError):
+            raise ValueError("Which command?")
+        return VOICE_CMD.done(n, bool(d.get("ok", True)), d.get("msg"))
+    if op == "say":
+        VOICE_CMD.heard(str(d.get("text") or "")[:300], True)
+        return VOICE_CMD.body()
+    raise ValueError("Unknown action.")
+# ---------- end 26.11.20 Voice commands ----------
+
+
+# ---------- 26.11.20 riders: small change counters that travel with a window's one waiting request for the state ----
+RIDERS = {"vl": lambda: VERSE_LISTEN.seq, "vc": lambda: VOICE_CMD.seq, "mem": lambda: MEMORY.rev}
+RIDER_SLICE = 0.12        # how often a waiting request looks at the riders (they change on other threads)
+
+
+def riders_asked(text):
+    """"vl:5,vc:-1,mem:7" -> {"vl": "5", ...}: what the page last saw of each (only known names; this PC only)."""
+    out = {}
+    for part in str(text or "").split(",")[:8]:
+        name, _, seen = part.partition(":")
+        if name in RIDERS:
+            out[name] = seen[:20]
+    return out
+
+
+def riders_now(asked):
+    return {name: RIDERS[name]() for name in asked}
+
+
+def riders_moved(asked):
+    return any(str(RIDERS[name]()) != seen for name, seen in asked.items())
+
+
 def verse_listen_action(d, remote=False):
     """POST /api/verse-listen (this PC) and /api/remote/verse-listen (a signed-in phone or tablet). 26.11.14 the same
     switch on every surface: {op: "mode", value: "off" | "ask" | "auto"} (Ask: a reference is offered first; Auto: it
@@ -1259,11 +1324,15 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # 26.11.14 Listen for scripture (src/scripture_listen.py): hear a spoken Bible reference while
                          # a Frame is live and offer it ("Auto": put it on screen without asking)
                          "scriptureListen": False,
-                         "scriptureAuto": False}
+                         "scriptureAuto": False,
+                         # 26.11.20 Voice commands: hold Right Ctrl (voiceKey) or a hold button, say "next frame"
+                         "voiceCommands": False,
+                         "voiceKey": "rctrl"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
-                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced")}
+                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced"),
+                       "voiceKey": ("rctrl", "f8", "off")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
@@ -2863,11 +2932,29 @@ class Handler(BaseHTTPRequestHandler):
                 wait = min(25.0, max(1.0, float(q.get("wait", ["25"])[0])))
             except ValueError:
                 wait = 25.0
+            riders = riders_asked(q.get("also", [""])[0]) if self.is_local() else {}
             with cond:
                 if since is not None:
-                    # Long-poll: answer as soon as something changes (or after `wait` seconds, at most 25)
-                    cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
+                    # Long-poll: answer as soon as something changes (or after `wait` seconds, at most 25).
+                    # 26.11.20 also when a rider moved (Listen for scripture, Voice commands, Memory Cards): one
+                    # waiting request per window instead of one each, which had filled the browser's 6 connections
+                    # and made every press wait for one to come back (up to 10 s)
+                    if riders:
+                        end = time.monotonic() + wait
+                        while str(state.get("rev")) == since and not riders_moved(riders):
+                            left = end - time.monotonic()
+                            if left <= 0:
+                                break
+                            cond.wait(min(RIDER_SLICE, left))
+                    else:
+                        cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
                 snap = (state, LIBRARY["rev"])
+            if riders:
+                now = riders_now(riders)
+                if since is not None and str(snap[0].get("rev")) == since:      # only a rider moved: no state sent
+                    return self.reply(200, json.dumps({"unchanged": True, "rev": snap[0].get("rev"), "riders": now}), TYPES[".json"])
+                body = state_body(q.get("librev", [None])[0], snap)
+                return self.reply(200, '{"riders":' + json.dumps(now) + "," + body.lstrip()[1:], TYPES[".json"])
             body = state_body(q.get("librev", [None])[0], snap)    # made outside the lock (M10)
             return self.reply(200, body, TYPES[".json"])
         if path == "/api/pointer":                      # 9.4 the follow Spotlight (long-poll on seq)
@@ -2912,6 +2999,16 @@ class Handler(BaseHTTPRequestHandler):
                 after, wait = -1, 0.0
             body = VERSE_LISTEN.body(after if after >= 0 else None, wait)
             return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path in ("/api/voice-commands", "/api/remote/voice-commands"):   # 26.11.20 Voice commands: what is heard
+            if path == "/api/voice-commands" and not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            try:
+                after, wait = int(q.get("after", ["-1"])[0]), float(q.get("wait", ["0"])[0])
+            except ValueError:
+                after, wait = -1, 0.0
+            body = VOICE_CMD.body(after if after >= 0 else None, wait)
+            return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/voice":                        # 26.11 Follow my voice: what was heard (this PC only; never cached)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2944,7 +3041,11 @@ class Handler(BaseHTTPRequestHandler):
                 MEMORY.wait(since, wait)
             return self.reply(200, json.dumps(memory_body()), TYPES[".json"])
         if path == "/api/rev":
-            return self.reply(200, json.dumps({"rev": state.get("rev", 0)}), TYPES[".json"])
+            riders = riders_asked(parse_qs(url.query).get("also", [""])[0]) if self.is_local() else {}
+            out = {"rev": state.get("rev", 0)}
+            if riders:
+                out["riders"] = riders_now(riders)                # 26.11.20 the riders, for pages that poll
+            return self.reply(200, json.dumps(out), TYPES[".json"])
         if path == "/api/presence":
             now = time.time()
             counts = {}
@@ -3407,6 +3508,14 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path in ("/api/voice-commands", "/api/remote/voice-commands"):   # 26.11.20 hold / enable / done (/ say)
+            if path == "/api/voice-commands" and not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                res = voice_commands_action(data, remote=path != "/api/voice-commands")
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/voice":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3622,6 +3731,7 @@ def start_main_server():
     CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
     DOORBELL.start()                                            # checks in only while linked; listens only while needed
     VERSE_LISTEN.start()                                        # 26.11.14 the microphone only while switched on and live
+    VOICE_CMD.start()                                           # 26.11.20 voice commands: the same, plus the hold key
     try:
         memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
     except Exception as e:

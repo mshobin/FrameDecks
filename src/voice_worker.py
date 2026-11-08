@@ -17,6 +17,11 @@ Talks over stdin / stdout, one JSON object per line.
        Teleprompter stopped; scripture listening goes on)
   out: {"t": "final" | "partial", "text": ..., "g": "scripture"} ("[unk]" kept, so unrelated words are never joined);
        "ready" too. 26.11.14 partials as well, so a reference is seen while the speaker carries on talking
+26.11.20 Voice commands (hold to talk) share it too, with a third grammar that hears only while it is held:
+  in:  {"command": [...]} (its words: src/voice_commands.py)   {"command": null} (stop)   {"hold": true | false}
+  out: {"t": "partial", "text": ..., "g": "command"} while held, then one {"t": "final", "text": ..., "g": "command"}
+       when it is let go (also empty: nothing was understood). While held the other grammars hear nothing: what is
+       said to FrameDecks never moves the script or offers a verse.
 
     voice_worker.py --lib DIR --model DIR [--device N] [--sensitivity 3] [--wav FILE] [--words-file FILE]
 --wav reads a 16 kHz mono WAV file instead of the microphone (tests, tools/voice_e2e.py); --words-file gives the first
@@ -257,6 +262,8 @@ class Listener:
         self.quit = False
         self.script_on = False
         self.scripture = None                     # 26.11.14 the second recognizer (Listen for scripture), when on
+        self.cmd, self.cmd_words, self.cmd_hold = None, [], False    # 26.11.20 voice commands: heard only while held
+        self.cmd_said = []                        # what was settled while still held (a pause in the middle)
 
     @property
     def has_words(self):
@@ -284,6 +291,28 @@ class Listener:
         elif "scripture" in msg and msg["scripture"] is None:
             with self.lock:
                 self.scripture = None
+        if isinstance(msg.get("command"), list):
+            with self.lock:
+                twin = self.cmd or self.engine.sibling()
+                known, unknown = twin.grammar(msg["command"])
+                self.cmd, self.cmd_words = twin, list(msg["command"])
+            say({"t": "ready", "known": known, "unknown": unknown, "g": "command"})
+        elif "command" in msg and msg["command"] is None:
+            with self.lock:
+                self.cmd, self.cmd_hold = None, False
+        if msg.get("hold") is True:
+            with self.lock:
+                if self.cmd is not None:
+                    self.cmd.grammar(self.cmd_words)          # a fresh start: nothing of the last saying is left
+                    self.cmd_said, self.cmd_hold = [], True
+        elif msg.get("hold") is False:
+            text = None
+            with self.lock:
+                if self.cmd is not None and self.cmd_hold:
+                    self.cmd_hold = False
+                    text = " ".join(t for t in self.cmd_said + [self.cmd.finish()] if t).strip()
+            if text is not None:
+                self._say("final", text, "command")
 
     def _feed(self, data):
         """Give the sound to every grammar that is on: [(kind, text, g)]."""
@@ -312,6 +341,7 @@ class Listener:
     def run(self):
         quiet, talking, last_partial, last_level, before = 0.0, False, "", 0.0, None
         last_sp = ""                              # 26.11.14 the scripture listener's last partial (sent only when it changes)
+        last_cmd = ""                             # 26.11.20 the command listener's last partial
         while not self.quit:
             data = self.source.read()
             if data is None:
@@ -324,6 +354,21 @@ class Listener:
             if now - last_level >= 0.25:
                 say({"t": "level", "v": round(min(1.0, level / 3000.0), 2)})
                 last_level = now
+            if self.cmd_hold:                     # 26.11.20 held: every sound goes to the commands, and only there
+                text = None
+                with self.lock:
+                    if self.cmd_hold and self.cmd is not None:
+                        kind, text = self.cmd.feed(data)
+                        if kind == "final" and text:
+                            self.cmd_said.append(text)
+                            text = ""
+                        text = " ".join(t for t in self.cmd_said + [text] if t)
+                if text and text != last_cmd:
+                    self._say("partial", text, "command")
+                    last_cmd = text
+                talking, quiet, last_partial, last_sp = False, 0.0, "", ""
+                continue
+            last_cmd = ""
             if not self.has_words:
                 continue
             if level < self.threshold:

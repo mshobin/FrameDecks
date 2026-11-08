@@ -31,6 +31,17 @@ NAMED_KEYS = {"space": 0x20, "enter": 0x0D, "tab": 0x09, "pageup": 0x21, "pagedo
 NAMED_KEYS.update({"f%d" % i: 0x6F + i for i in range(1, 13)})
 
 
+def key_down(vk):
+    """26.11.20 is this key held right now (Voice commands' hold to talk: Right Ctrl or F8), whatever window is in
+    front. Read only while voice commands are on and a Frame is live."""
+    if not IS_WIN:
+        return False
+    try:
+        return bool(user32.GetAsyncKeyState(int(vk)) & 0x8000)
+    except Exception:
+        return False
+
+
 def parse_hotkey(text):
     """'Ctrl+Alt+Space' -> (modifiers, virtual key) or None. Needs at least one of Ctrl, Alt or Win (a plain key or
     Shift+key would take that key away from every other program)."""

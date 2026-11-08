@@ -714,8 +714,20 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc .cc-panel-control .cc-switch{padding-top:6px;padding-bottom:6px}
 .cc .cc-panel-control .spr{gap:8px}
 .cc .cc-panel-control .spr-now{min-height:40px;padding-top:4px;padding-bottom:4px}
-.cc .cc-panel-control .spr-b,.cc .cc-panel-control .spr-mt .spr-b{min-height:70px;gap:2px;padding:6px 6px 4px}
+.cc .cc-panel-control .spr .spr-b,.cc .cc-panel-control .spr-mt .spr-b{min-height:70px;gap:2px;padding:6px 6px 4px}
 .cc .cc-panel-control .spr-ic{width:28px;height:28px}
 .cc .cc-panel-control .spr-step{min-height:48px;padding-top:4px;padding-bottom:4px}
 .cc .cc-panel-control .spr-mt{padding-top:4px}
 .cc .cc-panel-control .spr-mt .spr-seg .spr-b{min-height:0;padding:0}
+/* 26.11.20 Voice commands: hold the microphone in Control's header line to talk; what was heard shows in its place */
+.cc-vc-btn{flex:none;display:grid;place-items:center;width:30px;height:30px;margin-left:6px;padding:0;border:1px solid var(--cc-rim);border-radius:999px;background:var(--cc-cell);color:var(--muted);cursor:pointer;touch-action:none;transition:background .15s,color .15s,transform .15s}
+.cc-vc-btn[hidden]{display:none}
+.cc-vc-btn:hover:not(:disabled){color:var(--ink);background:var(--cc-cell-2)}
+.cc-vc-btn:disabled{opacity:.45;cursor:default}
+.cc-vc-btn.on{background:var(--live);border-color:var(--live);color:var(--gray-1000);transform:scale(1.08)}
+.cc-vc-said{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--ink)}
+.cc-vc-said[hidden]{display:none}
+.cc-vc-said.on{color:var(--live)}
+.cc-vc-said.bad{color:var(--muted)}
+.cc-head.cc-vc-has > small,.cc-head.cc-vc-has .cc-vl-earlier,.cc-head.cc-vc-has .cc-vl-heard{display:none}
+@media (prefers-reduced-motion: reduce){.cc-vc-btn{transition:none}.cc-vc-btn.on{transform:none}}

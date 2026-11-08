@@ -100,9 +100,14 @@ class VoiceFollow:
         self.proc, self.want, self.words_now, self.asked = None, False, [], 0.0
         self.downloading = False
         self.want_s, self.scripture_words, self.on_scripture = False, [], None     # 26.11.14 Listen for scripture
+        self.want_c, self.command_words, self.on_command = False, [], None         # 26.11.20 Voice commands
 
     def _wanted(self):
-        return self.want or self.want_s
+        return self.want or self.want_s or self.want_c
+
+    def _others(self):
+        """26.11.20 Listen for scripture or Voice commands keep the process when the Teleprompter stops."""
+        return self.want_s or self.want_c
 
     # ---------- files ----------
     @property
@@ -180,7 +185,7 @@ class VoiceFollow:
             self.downloading = False
             if err:
                 self._set("error", err)
-                self.want = self.want_s = False
+                self.want = self.want_s = self.want_c = False
                 return
             if not self._wanted():
                 self._set("off")
@@ -228,12 +233,15 @@ class VoiceFollow:
                 return
             proc, words = self.proc, list(self.words_now)
             script, scripture = self.want, (list(self.scripture_words) if self.want_s else None)
+            command = list(self.command_words) if self.want_c else None
         threading.Thread(target=self._read, args=(proc,), name="voice-read", daemon=True).start()
         threading.Thread(target=self._watch, args=(proc,), name="voice-watch", daemon=True).start()
         if script:
             self._send(proc, {"words": words})
         if scripture is not None:
             self._send(proc, {"scripture": scripture})
+        if command is not None:
+            self._send(proc, {"command": command})
 
     def _send(self, proc, msg):
         try:
@@ -253,7 +261,12 @@ class VoiceFollow:
                 if proc is not self.proc:
                     break
                 t = ev.get("t")
-                if ev.get("g") == "scripture":              # 26.11.14 never shown to the Teleprompter
+                if ev.get("g") == "command":                # 26.11.20 never shown to the Teleprompter either
+                    if t == "ready":
+                        self._set("listening")
+                    elif t in ("final", "partial") and self.want_c:
+                        tell = self.on_command
+                elif ev.get("g") == "scripture":              # 26.11.14 never shown to the Teleprompter
                     if t == "ready":
                         self._set("listening")
                     elif t in ("final", "partial") and self.want_s:
@@ -284,7 +297,7 @@ class VoiceFollow:
                 self.proc = None
                 if self.state not in ("error", "off"):
                     self._set("error", "Listening stopped unexpectedly (%s)." % code)
-                self.want = self.want_s = False
+                self.want = self.want_s = self.want_c = False
 
     def _watch(self, proc):
         """Stop when the Teleprompter has stopped asking (closed, crashed, or the PC went to sleep)."""
@@ -294,7 +307,7 @@ class VoiceFollow:
                 if proc is not self.proc:
                     return
                 idle = self.want and time.monotonic() - self.asked > IDLE_STOP
-                if idle and self.want_s:                # scripture still listens: only the Teleprompter's part ends
+                if idle and self._others():             # scripture or commands still listen: only the Teleprompter's part ends
                     self.want = False
                     self.events.clear()
                     self._send(proc, {"words": None})
@@ -344,7 +357,7 @@ class VoiceFollow:
     def stop(self):
         """The Teleprompter stops. 26.11.14 when Listen for scripture is on, the process goes on for it alone."""
         with self.lock:
-            if self.want_s and (self.proc or self.downloading):
+            if self._others() and (self.proc or self.downloading):
                 self.want = False
                 self.events.clear()
                 if self.proc:
@@ -355,7 +368,7 @@ class VoiceFollow:
     def shutdown(self):
         """Everything stops (leaving the app, removing the voice files)."""
         with self.lock:
-            self.want = self.want_s = False
+            self.want = self.want_s = self.want_c = False
             proc, self.proc = self.proc, None
             self.events.clear()
             self.level = 0.0
@@ -402,10 +415,10 @@ class VoiceFollow:
             if not self.want_s:
                 return {"state": "off"}
             self.want_s = False
-            if self.want and self.proc:
+            if (self.want or self.want_c) and self.proc:
                 self._send(self.proc, {"scripture": None})
                 return {"state": "off"}
-            if self.want:
+            if self.want or self.want_c:
                 return {"state": "off"}
         return self.shutdown()
 
@@ -414,6 +427,61 @@ class VoiceFollow:
             on = self.want_s
             return {"state": self.state if on or self.state in ("error", "memory") else "off", "message": self.message,
                     "progress": self.progress, "level": round(self.level, 2) if on else 0}
+
+    # ---------- 26.11.20 what Voice commands calls (src/voice_commands.py) ----------
+    def command_start(self, words, on_heard):
+        """Load the command words; they are heard only while held (command_hold). on_heard(text, final) on the
+        reading thread: partials while held, one final when let go."""
+        with self.lock:
+            self.command_words = [str(w)[:40] for w in (words or [])[:1500] if isinstance(w, str)]
+            self.on_command = on_heard
+            if not self.available:
+                return {"state": "unavailable"}
+            if self.proc:
+                self.want_c = True
+                self._send(self.proc, {"command": self.command_words})
+                return self.command_body()
+            if self.downloading:
+                self.want_c = True
+                return self.command_body()
+            free = free_memory_mb()
+            if free is not None and free < MIN_FREE_MB:
+                return {"state": "memory", "free": free}
+            self.want_c = True
+            if not self.files_ready():
+                self.downloading = True
+                self.progress = 0
+                self._set("downloading")
+                threading.Thread(target=self._download_then_launch, name="voice-download", daemon=True).start()
+                return self.command_body()
+        self._launch()
+        return self.command_body()
+
+    def command_hold(self, on):
+        """Held: hear the command words now. Let go: say what was heard (the final result)."""
+        with self.lock:
+            if self.want_c and self.proc:
+                self._send(self.proc, {"hold": bool(on)})
+                return True
+        return False
+
+    def command_stop(self):
+        with self.lock:
+            if not self.want_c:
+                return {"state": "off"}
+            self.want_c = False
+            if (self.want or self.want_s) and self.proc:
+                self._send(self.proc, {"command": None})
+                return {"state": "off"}
+            if self.want or self.want_s:
+                return {"state": "off"}
+        return self.shutdown()
+
+    def command_body(self):
+        with self.lock:
+            on = self.want_c
+            return {"state": self.state if on or self.state in ("error", "memory") else "off", "message": self.message,
+                    "progress": self.progress}
 
     def state_body(self):
         return {"state": self.state, "message": self.message, "progress": self.progress, "level": round(self.level, 2), "seq": self.seq}

@@ -179,5 +179,9 @@ function initPopup(){
 }
 
 if (POPUP) initPopup(); else initPane();
-poll();
+/* 26.11.20 in the Studio it rides on the one waiting request for the state (js/store.js Store.ride); the popup window,
+   which has no state loop, keeps its own */
+if (!(window.KCStore && KCStore.ride && KCStore.ride('mem', function(){
+  fetch('api/memory', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){});
+}))) poll();
 })();

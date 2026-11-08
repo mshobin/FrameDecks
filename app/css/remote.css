@@ -466,4 +466,15 @@ html,body{background:radial-gradient(90% 55% at 50% -8%,rgba(122,152,255,.2),tra
 .vlc-earlier[hidden]{display:none}
 .vlc-earlier > span{color:var(--muted);font-size:14px}
 .vlc-earlier .cm-btn{min-height:38px;padding:0 14px;font-size:14px}
+/* 26.11.20 Voice commands: one big hold-to-talk button; what was heard under it */
+.vcc{padding:12px}
+.vcc[hidden]{display:none}
+.vcc .sec-head{margin-bottom:8px}
+.vcc-hold{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:16px;background:var(--lv-frame-soft2,rgba(255,255,255,.06));color:var(--ink);font:inherit;font-size:16px;font-weight:700;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.vcc-hold svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vcc-hold:disabled{opacity:.5}
+.vcc-hold.on{background:var(--live);border-color:var(--live);color:#06210f}
+.vcc-said{min-height:20px;margin:8px 2px 0;font-size:14px;color:var(--muted)}
+.vcc-said.ok{color:var(--ink)}
+.vcc-said.on{color:var(--live)}
 @media (prefers-reduced-motion:reduce){ .panel.slide-l,.panel.slide-r{animation:none} .nav-btn{transition:none} .nav-btn:active:not(:disabled){transform:none} }

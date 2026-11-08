@@ -6,6 +6,7 @@
 'use strict';
 var KEYS = [
   {keys: 'Alt+Space', what: 'Open the Command Center', where: 'Anywhere'},
+  {keys: 'Right Ctrl (hold)', what: 'Voice commands: hold, say “next frame”, let go (while live; Settings → Scripture)', where: 'Anywhere'},
   {keys: '?', what: 'This list of keys', where: 'Command Center'},
   {keys: 'Alt+1 … Alt+5', what: 'Open a chip: Prepare, Engage, Control, Notes, More', where: 'Command Center'},
   {keys: 'Alt+→ / Alt+←', what: 'Next / previous Frame', where: 'Command Center'},

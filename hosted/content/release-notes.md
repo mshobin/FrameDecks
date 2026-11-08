@@ -1,31 +1,37 @@
-## FrameDecks v26.11.19
+## FrameDecks v26.11.20
 
-No black box behind the Command Center, quicker presses, and all of Control on screen. Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all
-your meetings, members, settings, notes, pinned Memory Cards and recordings.
+Hold a key and say "next frame", and every press answers at once. Download from **framedecks.com/download**, or let
+FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members, settings,
+notes, pinned Memory Cards and recordings.
 
 ## What's New
-None in this version.
+- **Voice commands, hold to talk.** Switch them on in Settings → Scripture → Voice commands. While a Frame is live,
+  hold **Right Ctrl** (or F8), say what to do, and let go: "next frame", "go back", "frame three", "next question",
+  "next scripture", "next slide", "show question", "show scripture", "show both", "hide all", "black screen",
+  "picture back", "freeze", "unfreeze", "mute", "camera", or a verse such as "show John three sixteen". It works with
+  Zoom or Teams in front. Only what you say while holding counts, so talking in the meeting never moves anything.
+  Go Live, Leave, Share screen and Emergency are never voice commands: they stay a press.
+- **Hold to talk in the Command Center and on the phone.** Control's header has a microphone to hold, and the phone
+  and tablet remote have a big Hold to talk button in Control. What was heard shows for a moment ("Next Frame ✓").
 
 ## Enhancements
-- **All of Control fits the Command Center.** While live, the Meeting row (Mute, Camera, Share screen, Leave) and the
-  volume were below the bottom edge of the window. The rows sit a little closer now, with the same buttons, keys and
-  colours, so everything is on screen, also on a laptop screen at 150 %.
+- The Keys list shows the hold-to-talk key.
 
 ## Fixes
-- **The black box behind the Command Center.** The window is cut to the shape of the bar, the chips and the open panel.
-  On some PCs Windows handed out a handle that FrameDecks did not accept when it tidied up a piece of that shape, so
-  the new shape was never put on: the window kept an old shape (only the search bar in 26.11.17) or none at all (a
-  black box). Every piece is now handed over the right way, tidying up can never stop the shape, and the newest shape
-  always goes on last.
+- **Presses could wait several seconds.** Each FrameDecks window kept several requests waiting at the program (the
+  picture, Listen for scripture, Memory Cards, the companion's remote), and Windows' web view allows only about six
+  for all windows together, so a press such as Next Frame or a chip waited for one to come back: up to 10 seconds.
+  Each window now keeps one, and the rest travel with it. A press answers in a few milliseconds.
+- **The Show and Dismiss buttons of a verse heard** in the Command Center's Control header were drawn as tall as the
+  big buttons in 26.11.19. They are small again and the header stays one line.
 
 ## Performance Improvements
-- **Chips open their panel at once.** Every chip waited a quarter of a second before its panel even began to
-  appear (a pause meant only for the Command Center's first opening). Now a panel shows about three times sooner.
-- **Presses answer sooner while live.** The meeting clock ticks every second, and each tick made the Command Center
-  measure itself five times. Words that change in place (the clock, "Frame 3 of 13") no longer do, and the panel only
-  writes what really changed: about six times less work while live.
+- Voice commands use the microphone and speech model Follow my voice and Listen for scripture already share, and hear
+  the command words only while held.
+- The companion's remote waits at the program only while Run from the companion is on.
 
 ## Known Issues
+- Voice commands hear this PC's microphone and need the FrameDecks app on Windows. The speech model downloads the first
+  time it is used (as for Follow my voice).
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

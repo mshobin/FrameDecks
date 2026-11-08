@@ -161,7 +161,10 @@ function loop(){
     .then(function(d){ if (!d){ setTimeout(loop, 5000); return; } take(d); if (Date.now() - t0 > 250) loop(); else setTimeout(loop, 250); })
     .catch(function(){ setTimeout(loop, 5000); });
 }
-loop();
+/* 26.11.20 it rides on the Studio's one waiting request for the state (js/store.js Store.ride): asked only when the
+   suggestion changes; its own waiting loop only where there is none */
+function refresh(){ fetch('api/verse-listen', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(take).catch(function(){}); }
+if (Store.ride && Store.ride('vl', refresh)) refresh(); else loop();
 
 /* ---------- Settings > Scripture: the two switches ---------- */
 function saveSetting(o){ return fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(o)}).catch(function(){}); }

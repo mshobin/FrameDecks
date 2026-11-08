@@ -90,7 +90,11 @@ function loop(){
     .then(function(d){ if (!d){ setTimeout(loop, 5000); return; } take(d); if (Date.now() - t0 > 250) loop(); else setTimeout(loop, 250); })
     .catch(function(){ setTimeout(loop, 5000); });
 }
-function wake(){ awake = true; seq = -1; if (!loopOn) loop(); }
+/* 26.11.20 it rides on the Command Center's one waiting request for the state (js/store.js Store.ride): asked only
+   when something changed, and only while open; its own waiting loop only where there is none */
+var riding = !!(window.KCStore && KCStore.ride && KCStore.ride('vl', function(){ if (awake && !document.hidden) refresh(); }));
+function refresh(){ fetch('api/verse-listen', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(take).catch(function(){}); }
+function wake(){ awake = true; seq = -1; if (riding){ refresh(); return; } if (!loopOn) loop(); }
 /* Control's header is made the first time Control opens (js/command-center.js keeps it): put the switch in it then */
 function place(){
   var pal = document.querySelector('.pal'), head = pal && pal.dataset.group === 'control' && document.querySelector('#cc-panel .cc-head');

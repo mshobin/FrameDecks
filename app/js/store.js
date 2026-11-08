@@ -1162,12 +1162,32 @@ function shareParent(){
 /* ---------- Local program mode ---------- */
 /* Quick checks several times a second. Each request finishes instantly, so no connection is
  * ever held open (browsers only allow about six per address, shared by every overlay). */
+/* 26.11.20 riders: small change counters (Listen for scripture "vl", Voice commands "vc", Memory Cards "mem") that
+ * travel with this page's one request for the state, so a window holds one waiting connection, not one per feature:
+ * the browser allows about six per address for every window together, and when they were all waiting, a press
+ * (Next Frame, a chip) waited for one to come back, up to 10 s. A rider's fn runs when its counter moves; it then
+ * asks its own endpoint once, at once. */
+var riders = {}, looping = false;
+function alsoQuery(){
+  var k = Object.keys(riders);
+  return k.length ? 'also=' + k.map(function(n){ return n + ':' + (riders[n].seq == null ? -1 : riders[n].seq); }).join(',') : '';
+}
+function ridersMoved(now){
+  if (!now) return;
+  Object.keys(now).forEach(function(n){
+    var r = riders[n]; if (!r || String(r.seq) === String(now[n])) return;
+    r.seq = now[n];
+    try { r.fn(now[n]); } catch(e){}
+  });
+}
 function serverLoop(){
   loopT = null;
-  fetch('api/rev', {cache: 'no-store'})
+  var also = alsoQuery();
+  fetch('api/rev' + (also ? '?' + also : ''), {cache: 'no-store'})
     .then(function(r){ if (r.status === 401 || r.status === 403){ Store.authFailed = true; if (Store.onAuthFailed) Store.onAuthFailed(); } if (!r.ok) throw new Error(r.status); Store.authFailed = false; return r.json(); })
     .then(function(v){
       Store.online = true;
+      ridersMoved(v.riders);
       if (started && v.rev === state.rev) return;
       return fetch('api/state', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(function(data){ var next = normalize(data); var changed = !started || next.rev !== state.rev; started = true; if (changed){ state = next; emit(); } });
@@ -1193,12 +1213,16 @@ function longLoop(){
   lpAbort = ctl;
   if (ctl) guard = setTimeout(function(){ ctl.abort(); }, 15000);
   var q = started ? '?since=' + encodeURIComponent(state.rev) + '&wait=10' + (libRev != null ? '&librev=' + encodeURIComponent(libRev) : '') : '';
+  var also = alsoQuery(); if (also) q += (q ? '&' : '?') + also;
   fetch('api/state' + q, {cache: 'no-store', signal: ctl ? ctl.signal : undefined})
     .then(function(r){ if (r.status === 401 || r.status === 403){ Store.authFailed = true; if (Store.onAuthFailed) Store.onAuthFailed(); } if (!r.ok) throw new Error(r.status); Store.authFailed = false; return r.json(); })
     .then(function(data){
       clearTimeout(guard); Store.online = true;
+      var moved = data && data.riders; if (data) delete data.riders;
+      if (data && data.unchanged){ ridersMoved(moved); if (lpAbort === ctl) loopT = setTimeout(longLoop, 0); return; }
       var next = adopt(data), changed = !started || next.rev !== state.rev;
       started = true; if (changed){ state = next; emit(); }
+      ridersMoved(moved);
       if (lpAbort === ctl) loopT = setTimeout(longLoop, 0);
     })
     .catch(function(){
@@ -1277,9 +1301,17 @@ var Store = {
     }
     return attempt();
   },
+  /* 26.11.20 ride(name, fn): fn(seq) whenever that counter moves (see riders above). → false when this page has no
+     state loop of its own (it then keeps its own requests) */
+  ride: function(name, fn){
+    if (!served || !looping) return false;
+    riders[name] = {seq: null, fn: fn};
+    if (longPoll && lpAbort) restartLongLoop();             // ask with it now, not after the current wait
+    return true;
+  },
   /* opts.longPoll: event-driven updates (used by the phone remote) */
   start: function(opts){
-    if (served){ if (!shareParent()){ longPoll = !!(opts && opts.longPoll); if (longPoll) longLoop(); else serverLoop(); } }
+    if (served){ if (!shareParent()){ looping = true; longPoll = !!(opts && opts.longPoll); if (longPoll) longLoop(); else serverLoop(); } }
     else fileStart();
   },
   pace: pace,

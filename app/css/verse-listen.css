@@ -21,3 +21,8 @@
 /* 26.11.15 "Earlier": the last verses heard, one tap to show */
 .vl-earlier{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
 .vl-earlier > span{font-size:12px;color:var(--muted)}
+/* 26.11.20 Settings → Scripture: Voice commands, what to say */
+.vc-say{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:8px 0;font-size:13px}
+.vc-say dt{color:var(--muted);font-weight:600}
+.vc-say dd{margin:0;color:var(--ink)}
+.vc-settings select{min-width:200px}
