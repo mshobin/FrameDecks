@@ -35,6 +35,11 @@
     "where": "Command Center"
   },
   {
+    "keys": "Alt+F",
+    "what": "Freeze the picture",
+    "where": "Command Center"
+  },
+  {
     "keys": "Alt+P",
     "what": "Play or pause the video",
     "where": "Command Center"

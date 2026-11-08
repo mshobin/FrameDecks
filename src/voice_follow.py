@@ -256,7 +256,7 @@ class VoiceFollow:
                 if ev.get("g") == "scripture":              # 26.11.14 never shown to the Teleprompter
                     if t == "ready":
                         self._set("listening")
-                    elif t == "final" and self.want_s:
+                    elif t in ("final", "partial") and self.want_s:
                         tell = self.on_scripture
                 elif t == "ready":
                     self._set("listening")
@@ -270,7 +270,7 @@ class VoiceFollow:
                     self._set("error", str(ev.get("msg", ""))[:200] or "Listening stopped.")
             if tell:
                 try:
-                    tell(str(ev.get("text", ""))[:500])
+                    tell(str(ev.get("text", ""))[:500], ev.get("t") == "final")
                 except Exception as e:                    # a problem in the listener never stops the listening
                     print("Listen for scripture:", e)
         code = proc.wait()

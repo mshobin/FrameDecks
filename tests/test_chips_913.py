@@ -67,7 +67,7 @@ class OneDefinition(unittest.TestCase):
         # the Command Center makes only actions offered there; the top bar likewise
         c = chips()
         cc = set(re.findall(r"^  (\w+): function\(\)\{ return T\('", read("app/js/command-center.js"), re.M))
-        offered = {a["id"] for a in c["all"] if "cc" in a["on"] and not a.get("pinned")} - {"content", "meetingapp", "black", "notes"}   # these four: the Control remote and the Notes pad
+        offered = {a["id"] for a in c["all"] if "cc" in a["on"] and not a.get("pinned")} - {"content", "meetingapp", "black", "freeze", "listen", "notes"}   # the Control remote and the Notes pad
         self.assertEqual(cc, offered)
 
 

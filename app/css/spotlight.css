@@ -671,3 +671,19 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc.cc-compact .cc-dp-tool,.cc.cc-compact .cc-dp-act{gap:4px;padding:0 6px}
 .cc.cc-compact .cc-dp-cols{gap:4px;margin:0 2px}
 .cc.cc-compact .cc-dp-bar{gap:2px}
+/* 26.11.14 Listen for scripture in Control's header line (js/cc-listen.js): Off · Ask · Auto at the right, a dot that is
+   green while it listens, and a verse just heard (Show, Dismiss) in place of the header's one-line description */
+.cc-vl{flex:none;display:inline-flex;align-items:center;gap:8px;margin-left:auto}
+.cc-vl-name{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.cc-vl .spr-kinds button{min-height:30px;padding:0 10px}
+.cc-vl-dot{width:8px;height:8px;border-radius:999px;background:var(--faint);opacity:.5}
+.cc-vl-dot.on{background:var(--live);opacity:1}
+.cc-head.cc-vl-has > small{display:none}
+.cc-vl-heard{flex:1;min-width:0;display:inline-flex;align-items:center;gap:8px;padding:2px 2px 2px 12px;border-radius:999px;background:var(--gold-soft);font-size:13px;color:var(--ink)}
+.cc-vl-heard[hidden]{display:none}
+.cc-vl-heard > span{color:var(--muted)}
+.cc-vl-ref{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc-vl-heard .spr-b{min-height:28px;padding:0 12px;color:var(--ink)}
+.cc-panel .cc-vl-heard .spr-b.gold{background:var(--gold);color:var(--gold-ink)}
+.cc-panel .cc-vl-heard .spr-b.gold:disabled{opacity:.6}
+.cc.cc-compact .cc-vl-name{display:none}

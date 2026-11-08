@@ -38,6 +38,11 @@ var DO = {
   spot: function(){ share('spot'); },
   clear: function(){ if (window.KCPresenterTools && window.KCPresenterTools.clear) window.KCPresenterTools.clear(); toast('Drawings cleared'); },
   hidecards: function(){ post('api/memory', {action: 'hideall'}).then(function(){ toast('Cards hidden'); }).catch(function(){}); },
+  // 26.11.14 Listen for scripture: on (asks first) or off here; Auto is in the Command Center, on the phone and in Settings
+  listen: function(){
+    var V = window.KCVerseListen, st = V && V.state(); if (!V) return;
+    V.mode(st && st.enabled ? 'off' : 'ask').then(function(d){ if (d) toast(d.enabled ? 'Listening for scripture while a Frame is live' : 'Listen for scripture is off'); });
+  },
   sync: function(){ runKey('set:account'); }, output: function(){ runKey('set:output'); }, phone: function(){ runKey('set:ipad'); },
   brand: function(){ runKey('set:meeting'); }, keys: function(){ runKey('set:keys'); },
   all: function(){ if (window.KCSetTab) window.KCSetTab('settings'); }, help: function(){ runKey('cmd:welcome'); }};
@@ -140,6 +145,12 @@ function paint(){
   var dOn = useShare() ? shareMode === 'draw' : draw && st.tool !== 'spot', sOn = useShare() ? shareMode === 'spot' : !!(st.annotating && st.tool === 'spot');
   [['lc-draw', dOn], ['lc-spot', sOn]].forEach(function(x){ var b = $(x[0]); if (b){ b.setAttribute('aria-pressed', String(x[1])); b.classList.toggle('on', x[1]); } });
   draw = draw || dOn || sOn;
+  var vl = window.KCVerseListen && window.KCVerseListen.state(), lb = $('lc-listen');
+  if (lb && vl){
+    lb.setAttribute('aria-pressed', String(!!vl.enabled)); lb.classList.toggle('on', !!vl.enabled);
+    var sm = lb.querySelector('small'), t = !vl.enabled ? 'Off · say a verse, it is offered' : vl.auto ? 'On · Auto' : 'On · asks first';
+    if (sm && sm.textContent !== t) sm.textContent = t;
+  }
   var ctl = $('lc-control'), eng = $('lc-engage');
   if (ctl){ ctl.classList.toggle('alert', black || em); ctl.classList.toggle('held', !black && !em && frz);
     ctl.querySelector('.lc-l').textContent = black ? 'Black screen on' : em ? 'Emergency on' : frz ? 'Frozen' : 'Control'; }
@@ -147,6 +158,7 @@ function paint(){
 }
 var mo = new MutationObserver(paint);
 ['lb-blackout', 'lb-emergency', 'lb-freeze', 'lb-annotate', 'lb-capture'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, {attributes: true, attributeFilter: ['aria-pressed']}); });
+document.addEventListener('kc-verse-listen', function(){ paint(); });
 if (window.KCStore) window.KCStore.subscribe(function(){ paint(); if (open === 'notes' && notesPad) notesPad.paint(); });
 paint();
 /* Settings > Controls > Phone & iPad Remote > Notes on the phone (9.13) */

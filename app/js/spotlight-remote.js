@@ -9,7 +9,7 @@
  * phone remote (js/store.js KCScenes).
  * The search results appear only once you type, and the window grows to show them (desktop_app win op 'fit').
  * Keys (in Spotlight): Alt+→ / Alt+← Frames · Alt+↓ / Alt+↑ the Content · Alt+P video · Alt+H Hide all ·
- * Alt+B Black screen · Alt+L Spotlight · Alt+D Draw · Alt+M mute · Alt+V camera · Alt+S share · Alt+= / Alt+- volume.
+ * Alt+B Black screen · Alt+F Freeze · Alt+L Spotlight · Alt+D Draw · Alt+M mute · Alt+V camera · Alt+S share · Alt+= / Alt+- volume.
  * Nothing moves on its own; presses answer at once. */
 (function(){
 'use strict';
@@ -54,6 +54,8 @@ function setQS(m, said){
 }
 function hideAll(){ update(function(n){ SC.hideAll(n); }, 'Everything hidden'); }
 function black(){ var on = live && live.live.blackout; update(function(n){ n.live.blackout = !n.live.blackout; }, on ? 'Picture back' : 'Black screen'); }
+// 26.11.14 Freeze the picture, as in the Studio and on the phone: people keep seeing what is there now
+function freeze(){ var on = live && live.live.freeze; update(function(n){ n.live.freeze = !n.live.freeze; }, on ? 'Picture moving again' : 'Picture frozen'); }
 var leaveArm = 0;
 function meeting(act){
   if (act === 'leave'){
@@ -148,7 +150,8 @@ function build(){
       btn('next', 'Next Frame', 'chevron-right', 'Alt+→', function(){ step(1); }, 'gold wide'),
       btn('play', 'Play', 'play', 'Alt+P', video),
       btn('hide', 'Hide all', 'eye-off', 'Alt+H', hideAll, 'red'),
-      btn('black', 'Black screen', 'square', 'Alt+B', black)]),
+      btn('black', 'Black screen', 'square', 'Alt+B', black),
+      btn('freeze', 'Freeze', 'pause', 'Alt+F', freeze)]),
     h('div', {cls: 'spr-step', id: 'spr-step', role: 'group', 'aria-labelledby': 'spr-c-title', hidden: 'hidden'}, [
       h('div', {cls: 'spr-kinds', id: 'spr-kinds', role: 'radiogroup', 'aria-label': 'What the arrows move through'}),
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-prev', title: 'Previous (Alt+↑)', 'aria-label': 'Previous', 'aria-keyshortcuts': 'Alt+ArrowUp', html: I('chevron-left', 20), onclick: function(){ contentStep(-1); }}),
@@ -225,6 +228,7 @@ function render(){
   var pb = $('spr-play'); pb.disabled = !m;
   pb.querySelector('.spr-ic').innerHTML = I(playing ? 'pause' : 'play'); setText(pb.querySelector('.spr-l'), playing ? 'Pause' : 'Play');
   var bl = $('spr-black'); bl.classList.toggle('on', !!L.blackout); bl.setAttribute('aria-pressed', String(!!L.blackout));
+  var fz = $('spr-freeze'); fz.classList.toggle('on', !!L.freeze); fz.setAttribute('aria-pressed', String(!!L.freeze));
   // the Content, one by one
   var ks = ls ? kinds() : [], k = ls ? curKind() : null;
   $('spr-step').hidden = !k;
@@ -260,7 +264,7 @@ function render(){
   var lv = $('spr-leave'); lv.classList.toggle('armed', Date.now() - leaveArm < 3000); setText(lv.querySelector('.spr-l'), Date.now() - leaveArm < 3000 ? 'Leave now' : 'Leave');
 }
 var KEYS = {'Alt+ArrowRight': function(){ step(1); }, 'Alt+ArrowLeft': function(){ step(-1); }, 'Alt+ArrowDown': function(){ contentStep(1); }, 'Alt+ArrowUp': function(){ contentStep(-1); },
-  'Alt+p': video, 'Alt+h': hideAll, 'Alt+b': black, 'Alt+l': function(){ openTool('spot'); }, 'Alt+d': function(){ openTool('draw'); },
+  'Alt+p': video, 'Alt+h': hideAll, 'Alt+b': black, 'Alt+f': freeze, 'Alt+l': function(){ openTool('spot'); }, 'Alt+d': function(){ openTool('draw'); },
   'Alt+m': function(){ meeting('mute'); }, 'Alt+v': function(){ meeting('camera'); }, 'Alt+s': function(){ meeting('share'); },
   'Alt+=': function(){ meeting('vol-up'); }, 'Alt+-': function(){ meeting('vol-down'); }};
 document.addEventListener('keydown', function(e){

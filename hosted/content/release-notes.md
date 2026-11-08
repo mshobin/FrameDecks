@@ -1,39 +1,35 @@
-## FrameDecks v26.11.14
+## FrameDecks v26.11.15
 
-Draw on the meeting without sharing a window, say a verse and see it offered, and know how long you have. Download
-from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps
-all your meetings, members, settings, notes, pinned Memory Cards and recordings.
+Listen for scripture that catches every verse, a switch for it wherever you are, and the same chips on every screen.
+Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
+keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **The draw pad.** In the Command Center, **Draw** and **Spotlight** now open a small pad under the bar with the live
-  picture in it: Pen, Highlight, Arrow and Spotlight, in gold, red or white, with Undo and Clear. What you draw shows
-  on your camera picture in Zoom or Teams straight away, and nothing has to be shared. **Done** or **Esc** closes it.
-  With **How people see it** set to **Share a window**, Draw and Spotlight still use the Share Window.
-- **Listen for scripture.** Turn it on in Settings → Content → Scripture. While a Frame is live, say a reference such
-  as "Romans eight thirty-eight to thirty-nine" and a card at the top of the Live Stage column offers it: **Show** adds
-  the passage to the live Frame's Scripture Deck and puts it on screen, **Dismiss** lets it go. With **Auto** on it is
-  shown straight away. Everything is heard on this PC only; nothing is recorded or sent anywhere.
-- **The run sheet.** The Frames list shows the meeting clock from your first Go Live (click it to start it again).
-  The live Frame shows how long it has been on screen, against its **Planned time** when it has one, in gold once it
-  runs over. Other Frames show their plan. Set a Frame's Planned time in its settings.
+- **Listen for scripture in Control, everywhere.** The Command Center's **Control** chip has **Off · Ask · Auto** at the
+  right of its header. A verse just heard shows there with **Show** and **Dismiss**, so you never need the Studio in
+  front during the meeting. The same switch and the verse are in **Control** on the phone and tablet remote, and
+  **Listen for scripture** is in the top bar's **Control** chip. Settings → Content → Scripture still has it too.
 
 ## Enhancements
-- **The Command Center: a chip is its own pin.** Click a chip and its panel opens and stays, also the next time you
-  open the Command Center. Click the same chip again, or press **Esc**, to close it. The small arrow tab under the bar
-  is gone: point at the bar to see the chips.
-- **A grip on the border under the stage**, so it is plain that it can be dragged.
-- **One word each:** a Frame on screen is **Live**; its Decks and Content are **On screen**.
-- **A quieter top bar while live:** Control comes forward and the planning chips step back; before Go Live it is the
-  other way round.
+- **Listen for scripture catches more.** A new verse said in the same breath as an earlier one is no longer missed.
+  It is offered while you carry on talking, not only after a pause. It understands more ways of saying it
+  ("Romans eight, starting at verse thirty-eight", "Psalm one nineteen, verse one oh five"). The same verse can be
+  offered again after about 20 seconds.
+- **The same chips on every screen.** **Freeze** is in the Command Center's Control (**Alt+F**). **Hide the cards**
+  is on the phone remote. The phone's chat section is called **Memory Cards**, as everywhere else.
 
 ## Fixes
-- **No box behind the Command Center** while a chip's panel opens or closes, or the draw pad opens: the window's
-  shape now follows what moves, frame by frame.
+- **A verse said while the Studio was behind Zoom** could take a minute or more to be offered, because Windows slows
+  a hidden window's timers. The Studio now picks it up within a moment.
+- **Listen for scripture no longer stops for the rest of the meeting** after a hiccup in the listener. It tries again
+  by itself after 15 seconds.
+- **A passage that cannot be fetched** (for example offline) is offered again with **Try again**, and **Dismiss**
+  always works.
+- **The search** no longer lists two commands under one name.
 
 ## Performance Improvements
-- The meeting clock ticks only while a Frame is live, and listening for scripture uses the microphone only while the
-  setting is on and a Frame is live. It shares Follow my voice's listener, so there is one microphone and one speech
-  model in memory.
+- The Command Center and the phone ask the PC about Listen for scripture only while they are open: one small request
+  every 10 seconds when nothing changes.
 
 ## Known Issues
 - Listen for scripture hears this PC's microphone, not the people in Zoom or Teams, and needs the FrameDecks app on

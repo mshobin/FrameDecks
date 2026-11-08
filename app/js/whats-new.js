@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.15': [
+    {title: 'Listen for scripture, sharper', text: 'A new verse is caught even mid-sentence, and the same verse again a little later. It also works while the Studio is behind Zoom.', show: {settings: 'scripture', spot: '#vl-settings'}},
+    {title: 'Off, Ask or Auto, wherever you are', text: 'Switch Listen for scripture and Show or Dismiss a verse from the Command Center\u2019s Control, the top bar or your phone.', show: {spot: '#lc-control'}},
+    {title: 'The same chips everywhere', text: 'Freeze is in the Command Center (Alt+F), and Hide the cards is on the phone remote.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.14': [
     {title: 'Draw and Spotlight without sharing', text: 'In the Command Center, Draw and Spotlight open a small pad with the live picture. What you draw shows on your camera picture in Zoom or Teams.', show: {settings: 'keys', spot: '#keys-global'}},
     {title: 'Say the verse, show the verse', text: 'Turn on Listen for scripture: say a reference like Romans 8:38 while live and FrameDecks offers to show it.', show: {settings: 'scripture', spot: '#vl-settings'}},

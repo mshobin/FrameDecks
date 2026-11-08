@@ -100,6 +100,13 @@
           <div class="sec-head"><h2 class="sec" id="decks-title">On this Frame</h2><span class="count" id="decks-count"></span></div>
           <ul class="dlist" id="dlist" aria-label="Decks of the Frame on screen"></ul>
         </section>
+        <!-- 26.11.14 Listen for scripture: Off · Ask · Auto, as in the Command Center's Control (js/remote-listen.js) -->
+        <section class="card vlc" id="vlc" aria-labelledby="vlc-title">
+          <div class="sec-head"><h2 class="sec" id="vlc-title">Listen for scripture</h2><span class="count" id="vlc-state"></span></div>
+          <div class="seg" id="vlc-mode" role="radiogroup" aria-labelledby="vlc-title">
+            <button type="button" role="radio" data-vl="off" aria-checked="false">Off</button><button type="button" role="radio" data-vl="ask" aria-checked="false">Ask</button><button type="button" role="radio" data-vl="auto" aria-checked="false">Auto</button></div>
+          <div class="vlc-heard" id="vlc-heard" role="status" aria-live="polite" hidden><span>Heard</span><b id="vlc-ref"></b><button class="cm-btn gold" type="button" id="vlc-show">Show</button><button class="cm-btn" type="button" id="vlc-dismiss">Dismiss</button></div>
+        </section>
         <div class="tools tools-2">
           <button class="tool warn" type="button" id="t-black" aria-pressed="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></span><span class="tl">Black screen</span></button>
           <button class="tool" type="button" id="t-freeze" aria-pressed="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></span><span class="tl">Freeze</span></button>
@@ -135,7 +142,7 @@
         </div>
         <p class="note" id="note" role="status"></p>
         <section class="cm" id="cm" aria-labelledby="cm-title">
-          <div class="sec-head"><h2 class="sec" id="cm-title">Capture Memory</h2><span class="count" id="cm-count"></span></div>
+          <div class="sec-head"><h2 class="sec" id="cm-title">Memory Cards</h2><span class="count" id="cm-count"></span><button class="cm-btn" type="button" id="cm-hideall">Hide the cards</button></div>
           <form class="cm-add" id="cm-add" autocomplete="off">
             <textarea id="cm-text" rows="2" maxlength="4000" placeholder="Paste a message from WhatsApp, Teams, Zoom, Messages…" aria-label="Message to show"></textarea>
             <div class="cm-row"><button class="cm-btn" type="button" id="cm-paste" hidden>Paste</button><button class="cm-btn gold" type="submit" id="cm-go">Show on screen</button></div>
@@ -194,5 +201,6 @@
 <script src="js/teleprompter.js"></script>
 <script src="js/remote.js"></script>
 <script src="js/remote-memory.js"></script>
+<script src="js/remote-listen.js"></script>
 </body>
 </html>

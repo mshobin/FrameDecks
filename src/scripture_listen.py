@@ -19,6 +19,7 @@ How it fits together:
     ?after=<seq>&wait=<s> waits up to 10 s for a change.
   * POST /api/verse-listen {op, id?, text?}:
         "dismiss" (id)  not now: the suggestion goes away (the same reference is not offered again for REPEAT s)
+        "failed" (id, text)  the Studio could not show it (e.g. offline): it is offered again, with the reason
         "show" (id)     another screen (the Command Center, the phone remote) asks the Studio to show it
         "shown" (id)    the Studio has put it on screen
         "hear" (text)   as if these words had been heard (tests, and a typed reference from this PC)
@@ -29,7 +30,9 @@ import time
 import scripture_speech
 
 POLL = 2.0          # seconds between checks of the setting and the live Frame
-REPEAT = 45.0       # the same reference is not suggested again within this many seconds
+REPEAT = 20.0       # the same reference is not suggested again within this many seconds (26.11.14 was 45: saying a
+                    # verse again a little later must work; 20 s still covers reading it aloud right after it shows)
+RETRY = 15.0        # 26.11.14 after the listener stopped by itself (an error), try again this many seconds later
 WAIT_MAX = 10.0
 
 
@@ -41,6 +44,7 @@ class ScriptureListen:
         self.listening, self.failed, self.last = False, False, {"state": "off"}
         self._n = 0
         self._thread = None
+        self._retry_at = 0.0
 
     # ---------- start / stop the microphone ----------
     def _want(self):
@@ -63,14 +67,18 @@ class ScriptureListen:
 
     def _tick(self):
         want = self._want()
+        if want and self.failed and self.last.get("state") == "error" and time.monotonic() >= self._retry_at:
+            self.failed = False                               # a hiccup (not missing or too little memory): try again
         if want and not self.listening and not self.failed:
             self.listening = True
             self.last = self.voice.scripture_start(scripture_speech.grammar_words(), self.heard) or {}
             if self.last.get("state") in ("unavailable", "memory", "error"):
                 self.listening, self.failed = False, True
+                self._retry_at = time.monotonic() + RETRY
         elif want and self.listening and not self.voice.want_s:
-            self.listening, self.failed = False, True        # it stopped by itself (an error): wait for a fresh start
-            self.last = self.voice.scripture_body()
+            self.listening, self.failed = False, True        # it stopped by itself (an error): try again in RETRY s
+            self.last = dict(self.voice.scripture_body() or {}, state="error")
+            self._retry_at = time.monotonic() + RETRY
         elif not want:
             if self.listening:
                 self.voice.scripture_stop()
@@ -94,16 +102,22 @@ class ScriptureListen:
             self._thread.start()
 
     # ---------- what was heard ----------
-    def heard(self, text):
-        """A phrase from the listener (or the 'hear' test hook): a reference in it becomes the suggestion."""
-        ref = scripture_speech.find(text)
-        if not ref:
+    def heard(self, text, final=True):
+        """A phrase from the listener (or the 'hear' test hook): the newest reference in it becomes the suggestion.
+        26.11.14: every reference in the phrase is read, not only the first, so a verse said earlier in the same
+        breath ("Romans 8:38 ... now John 3:16") never hides a new one; final=False is a phrase still being said (a
+        partial result): a reference counts once other words follow it, so the card shows while the speaker goes on."""
+        refs = scripture_speech.find_all(text, settled=final)
+        if not refs:
             return None
         now = self.clock()
         with self.cond:
             self.recent = {k: t for k, t in self.recent.items() if now - t < REPEAT}
-            if (self.pending and self.pending["ref"] == ref["ref"]) or ref["ref"] in self.recent:
-                return ref
+            fresh = [r for r in refs if r["ref"] not in self.recent and not (self.pending and self.pending["ref"] == r["ref"])]
+            if not fresh:
+                return refs[-1]
+            ref = fresh[-1]
+            self.recent[ref["ref"]] = now                     # its partial and final results are one saying, not two
             self._n += 1
             self._set(dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="waiting"))
         return ref
@@ -118,13 +132,15 @@ class ScriptureListen:
         if op == "hear":
             ref = self.heard(str(text or "")[:500])
             return dict(self.body(), heard=ref)
-        if op not in ("dismiss", "show", "shown"):
+        if op not in ("dismiss", "show", "shown", "failed"):
             raise ValueError("Unknown action.")
         with self.cond:
             p = self.pending
             if p and (pid is None or pid == p["id"]):
                 if op == "show":
-                    self._set(dict(p, status="show"))
+                    self._set(dict(p, status="show", error=""))
+                elif op == "failed":                          # 26.11.14 the Studio could not show it: offer it again
+                    self._set(dict(p, status="waiting", error=str(text or "The scripture could not be fetched.")[:200]))
                 else:
                     self.recent[p["ref"]] = self.clock()
                     self._set(None)

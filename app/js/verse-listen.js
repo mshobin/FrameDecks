@@ -113,7 +113,9 @@ function show(p){
     });
   }).catch(function(e){
     failed = p.id;
-    toast((e && e.message) || 'The scripture could not be fetched.', true);
+    var why = (e && e.message) || 'The scripture could not be fetched.';
+    toast(why, true);
+    post({op: 'failed', id: p.id, text: why});                // 26.11.14 every screen offers Show again
   }).then(function(){ busy = ''; render(); });
 }
 function dismiss(p){ post({op: 'dismiss', id: p.id}).then(function(d){ if (d) take(d); }); }
@@ -123,15 +125,20 @@ function take(d){
   if (!d) return;
   info = d; seq = d.seq;
   var p = d.pending;
-  if (p && !busy && p.id !== failed && (p.status === 'show' || (p.status === 'waiting' && d.auto))) show(p);
+  // a Show asked for on another screen is tried again even after a failure; Auto tries a verse once
+  if (p && !busy && (p.status === 'show' || (p.status === 'waiting' && d.auto && p.id !== failed))) show(p);
   render();
+  try { document.dispatchEvent(new CustomEvent('kc-verse-listen', {detail: d})); } catch(e){}   // the top bar's Control chip
 }
 function loop(){
   if (!Store.served) return;
-  var wait = document.hidden ? 0 : 8;
-  fetch('api/verse-listen?after=' + seq + '&wait=' + wait, {cache: 'no-store'})
+  /* 26.11.14 the program holds the request until something changes (up to 10 s), visible or not, and the next one
+     follows at once: no timer between them, because a Studio hidden behind Zoom has its timers slowed to once a
+     minute, and a verse said then waited that long (or was never seen). Idle, it is one small request every 10 s. */
+  var t0 = Date.now();
+  fetch('api/verse-listen?after=' + seq + '&wait=10', {cache: 'no-store'})
     .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(d){ take(d); setTimeout(loop, document.hidden ? 4000 : 300); })
+    .then(function(d){ if (!d){ setTimeout(loop, 5000); return; } take(d); if (Date.now() - t0 > 250) loop(); else setTimeout(loop, 250); })
     .catch(function(){ setTimeout(loop, 5000); });
 }
 loop();
@@ -160,5 +167,10 @@ function renderSettings(){
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') renderSettings(); });
 
-window.KCVerseListen = {state: function(){ return info; }, show: function(){ if (info && info.pending) show(info.pending); }};
+/* 26.11.14 Off · Ask · Auto, the same switch as in the Command Center and on the phone */
+function setMode(m){
+  return fetch('api/verse-listen', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'mode', value: m})})
+    .then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d) take(d); return d; }).catch(function(){ return null; });
+}
+window.KCVerseListen = {state: function(){ return info; }, show: function(){ if (info && info.pending) show(info.pending); }, mode: setMode};
 })();

@@ -189,7 +189,8 @@ class Worker(unittest.TestCase):
         self.assertIn({"t": "final", "text": "hello there"}, finals)
         self.assertIn({"t": "final", "text": "john three sixteen", "g": "scripture"}, finals)
         self.assertEqual(eng.twin.words, ["john", "three"])
-        self.assertTrue(all("g" not in e for e in ev if e["t"] == "partial"))     # partials only for the Teleprompter
+        # 26.11.14 scripture reads partials too, always tagged, so they never reach the Teleprompter
+        self.assertTrue(all(e.get("g") in (None, "scripture") for e in ev if e["t"] == "partial"))
         self.assertIn({"t": "ready", "known": 2, "unknown": 0, "g": "scripture"}, ev)
 
     def test_scripture_alone_after_the_teleprompter_stops(self):
@@ -250,12 +251,16 @@ class SharedProcess(unittest.TestCase):
         (self.v.model_dir / "conf").mkdir(parents=True)
         self.heard = []
 
+    def final(self, text, final=True):                    # 26.11.14 partials come too: these tests read whole phrases
+        if final:
+            self.heard.append(text)
+
     def tearDown(self):
         self.v.shutdown()
         self.env.stop()
 
     def test_scripture_phrases_go_to_scripture_only(self):
-        self.v.scripture_start(["john"], self.heard.append)
+        self.v.scripture_start(["john"], self.final)
         self.assertTrue(until(lambda: self.heard))
         self.assertEqual(self.heard[0], "john three sixteen")
         self.v.start(["good", "evening"])
@@ -267,7 +272,7 @@ class SharedProcess(unittest.TestCase):
     def test_one_process_and_either_can_stop_alone(self):
         self.v.start(["good"])
         proc = self.v.proc
-        self.v.scripture_start(["john"], self.heard.append)
+        self.v.scripture_start(["john"], self.final)
         self.assertIs(self.v.proc, proc)                                 # the same process: one microphone, one model
         self.assertEqual(self.v.stop()["state"], "off")                 # the Teleprompter stops ...
         self.assertIs(self.v.proc, proc)                                 # ... scripture goes on
@@ -278,7 +283,7 @@ class SharedProcess(unittest.TestCase):
 
     def test_scripture_stopping_leaves_the_teleprompter_listening(self):
         self.v.start(["good"])
-        self.v.scripture_start(["john"], self.heard.append)
+        self.v.scripture_start(["john"], self.final)
         proc = self.v.proc
         self.v.scripture_stop()
         self.assertIs(self.v.proc, proc)
@@ -289,7 +294,7 @@ class SharedProcess(unittest.TestCase):
     def test_the_teleprompter_idle_stop_keeps_scripture(self):
         with mock.patch.object(voice_follow, "IDLE_STOP", 0.2):
             self.v.start(["good"])
-            self.v.scripture_start(["john"], self.heard.append)
+            self.v.scripture_start(["john"], self.final)
             self.v.asked = time.monotonic() - 10
             self.assertTrue(until(lambda: not self.v.want, 6))
             self.assertIsNotNone(self.v.proc)
@@ -429,11 +434,11 @@ class Server(unittest.TestCase):
 
     def test_this_pc_only_and_never_cached(self):
         src = read("src/server.py")
-        get = src[src.index('if path == "/api/verse-listen":                 # 26.11.14 Listen for scripture: the suggestion'):]
-        self.assertIn("if not self.is_local():", get[:250])
+        get = src[src.index('if path in ("/api/verse-listen", "/api/remote/verse-listen"):   # 26.11.14 Listen for scripture: the suggestion'):]
+        self.assertIn('if path == "/api/verse-listen" and not self.is_local():', get[:300])
         self.assertIn('("Cache-Control", "no-store")', get[:900])
-        post = src[src.index('if path == "/api/verse-listen":                 # 26.11.14 Listen for scripture: dismiss'):]
-        self.assertIn("if not self.is_local():", post[:250])
+        post = src[src.index('if path in ("/api/verse-listen", "/api/remote/verse-listen"):   # 26.11.14 mode / dismiss'):]
+        self.assertIn('if path == "/api/verse-listen" and not self.is_local():', post[:300])
         import server
         self.assertNotIn("/api/verse-listen", set(server.REMOTE_PUBLIC) | set(server.REMOTE_SIGNED_IN))
         self.assertIn("VERSE_LISTEN.start()", src[src.index("def start_main_server"):])

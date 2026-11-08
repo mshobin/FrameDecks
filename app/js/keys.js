@@ -12,6 +12,7 @@ var KEYS = [
   {keys: 'Alt+↓ / Alt+↑', what: 'Next / previous Content (question, verse)', where: 'Command Center'},
   {keys: 'Alt+H', what: 'Hide all', where: 'Command Center'},
   {keys: 'Alt+B', what: 'Black screen', where: 'Command Center'},
+  {keys: 'Alt+F', what: 'Freeze the picture', where: 'Command Center'},
   {keys: 'Alt+P', what: 'Play or pause the video', where: 'Command Center'},
   {keys: 'Alt+L', what: 'Spotlight', where: 'Command Center'},
   {keys: 'Alt+D', what: 'Draw on the picture', where: 'Command Center'},

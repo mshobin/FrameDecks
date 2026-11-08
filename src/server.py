@@ -46,7 +46,7 @@ import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only w
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.14"
+APP_VERSION = "26.11.15"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -91,12 +91,12 @@ COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/js/chips.js", "/js/icons.js", "/js/notes-pad.js", "/css/notes-pad.css",   # 9.13 the chips and the Notes pad
-                 "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js",
+                 "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js", "/js/remote-listen.js",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
-                    "/api/remote/memory", "/api/pointer", "/api/remote/notes",
+                    "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
@@ -754,6 +754,26 @@ def _frame_is_live():
 
 
 VERSE_LISTEN = scripture_listen.ScriptureListen(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live)
+VERSE_MODES = {"off": (False, False), "ask": (True, False), "auto": (True, True)}
+
+
+def verse_listen_action(d, remote=False):
+    """POST /api/verse-listen (this PC) and /api/remote/verse-listen (a signed-in phone or tablet). 26.11.14 the same
+    switch on every surface: {op: "mode", value: "off" | "ask" | "auto"} (Ask: a reference is offered first; Auto: it
+    goes on screen at once), and Show / Dismiss for the waiting suggestion. The phone cannot type words in ("hear") or
+    report a passage shown ("shown"): only the Studio shows it."""
+    d = d if isinstance(d, dict) else {}
+    op = str(d.get("op") or "")
+    if op == "mode":
+        mode = VERSE_MODES.get(str(d.get("value") or ""))
+        if not mode:
+            raise ValueError("Choose off, ask or auto.")
+        save_app_settings({"scriptureListen": mode[0], "scriptureAuto": mode[1]})
+        VERSE_LISTEN.tick()                                    # start or stop listening now, not at the next check
+        return VERSE_LISTEN.body()
+    if remote and op not in ("show", "dismiss"):        # never "hear", "shown" or "failed": only this PC
+        raise ValueError("Not available from the remote.")
+    return VERSE_LISTEN.act(op, d.get("id"), d.get("text"))
 # ---------- end 26.11.14 Listen for scripture ----------
 
 
@@ -2844,8 +2864,8 @@ class Handler(BaseHTTPRequestHandler):
             q = parse_qs(url.query)
             body = remote_notes_body(q.get("meeting", [""])[0], q.get("peek", [""])[0] != "1")
             return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
-        if path == "/api/verse-listen":                 # 26.11.14 Listen for scripture: the suggestion (this PC only)
-            if not self.is_local():
+        if path in ("/api/verse-listen", "/api/remote/verse-listen"):   # 26.11.14 Listen for scripture: the suggestion
+            if path == "/api/verse-listen" and not self.is_local():   # (the phone: /api/remote/verse-listen, signed in)
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             q = parse_qs(url.query)
             try:
@@ -3331,12 +3351,11 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
-        if path == "/api/verse-listen":                 # 26.11.14 Listen for scripture: dismiss / show / shown / hear
-            if not self.is_local():
+        if path in ("/api/verse-listen", "/api/remote/verse-listen"):   # 26.11.14 mode / dismiss / show (/ shown / hear)
+            if path == "/api/verse-listen" and not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            d = data if isinstance(data, dict) else {}
             try:
-                res = VERSE_LISTEN.act(str(d.get("op") or ""), d.get("id"), d.get("text"))
+                res = verse_listen_action(data, remote=path != "/api/verse-listen")
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])

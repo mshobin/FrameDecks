@@ -125,6 +125,20 @@ A Frame with a Question or Scripture list shows one item at a time.
 
 ![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
 
+### Listen for scripture
+
+Say a Bible reference while a Frame is live, such as "John three sixteen" or "Romans eight, starting at verse
+thirty-eight", and FrameDecks offers it: **Heard Romans 8:38 · Show · Dismiss**. **Show** adds the passage to the live
+Frame's Scripture Deck and puts it on screen. The same switch is in four places, so you never need the Studio in front
+during the meeting: **Off · Ask · Auto** in the Command Center's **Control** header, in **Control** on the phone and
+tablet remote, **Listen for scripture** in the top bar's **Control** chip, and Settings → Content → Scripture.
+**Auto** shows a verse as soon as it is said, without asking.
+
+- It catches a new verse even mid-sentence, and the same verse again after about 20 seconds.
+- It hears this PC's microphone only (the one chosen for the Teleprompter's Follow my voice), not people in Zoom or
+  Teams, and only while a Frame is live. Nothing is recorded or sent anywhere.
+- If a passage cannot be fetched (for example offline), **Show** reads **Try again**; **Dismiss** always works.
+
 ## Transitions
 
 | Setting | Where | Effect |
@@ -416,7 +430,7 @@ five chips folded away under it.
 |---|---|
 | **Prepare** | Meetings (switch the meeting this PC shows), Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
 | **Engage** | Memory Cards, Capture copies, Draw and Spotlight (on a draw pad right in the Command Center), Clear drawings, Hide the cards |
-| **Control** | **Go Live** as a switch, and while you are live the meeting remote (below) |
+| **Control** | **Go Live** as a switch, **Listen for scripture** (Off · Ask · Auto, at the right of its header), and while you are live the meeting remote (below), with **Freeze** (**Alt+F**) beside Black screen |
 | **Notes** | Your private notes for this meeting (below) |
 | **More** | Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
 

@@ -10,6 +10,36 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.15] - 2026-11-08
+
+Full notes: [docs/releases/v26.11.15.md](releases/v26.11.15.md).
+
+### Added
+- Listen for scripture on every surface, in Control (chips.js `listen`, on cc, app and phone): the Command Center's
+  Control header (`app/js/cc-listen.js`: Off / Ask / Auto, a listening dot, the verse just heard with Show and
+  Dismiss in place of the header's description, because the 720 px window is full while live), the top bar's Control
+  chip (`chip-bar.js` `DO.listen`, Ask / Off), the phone and tablet remote (`app/js/remote-listen.js`, a card in
+  Control) and the palette (`cmd:listen`). One action for all: `{op: "mode", value: "off" | "ask" | "auto"}` on
+  `POST /api/verse-listen` and the new signed-in `/api/remote/verse-listen` (show and dismiss only; never hear,
+  shown or failed), `server.verse_listen_action`.
+- Freeze in the Command Center's Control remote (`spr-freeze`, Alt+F, `app/js/keys.js`); Hide the cards on the phone
+  (`#cm-hideall`, `api/remote/memory` `hideall`).
+
+### Changed
+- `scripture_speech.find_all(text, settled)`: up to four filler words or `[unk]` may stand before "verse" or
+  "chapter"; "one oh five" is 105; "Psalm one nineteen" is 119 when a verse follows; `settled=False` (a partial
+  result) takes a reference only once other words follow it.
+- `scripture_listen.heard(text, final)`: the newest new reference in a phrase, not the first; partial results count
+  (the worker now sends tagged scripture partials, `voice_worker.py`, routed by `voice_follow.py`); REPEAT 45 → 20 s
+  and a suggested reference is remembered, so its partial and final results are one suggestion; an `error` stop is
+  retried after RETRY (15 s); new op `failed` (from the Studio) offers it again with the reason.
+- `app/js/verse-listen.js`: the Studio waits on the program with no timer between requests (a hidden Studio's timers
+  are slowed to once a minute); a Show asked on another screen is tried again after a failure.
+- The phone's "Capture Memory" heading reads Memory Cards.
+
+### Fixed
+- The palette had two commands keyed `guide`; the website guide one is now `helpguide`.
+
 ## [26.11.14] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.14.md](releases/v26.11.14.md).

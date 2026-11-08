@@ -63,6 +63,9 @@ function commands(){
     ['hideall', 'Hide all Content', 'clear escape', function(){ click($('hide-all') || document.querySelector('[data-cb="hideAll"]')); }, 'Esc'],
     ['blackout', 'Black screen on / off', 'blackout', function(){ if (PT) PT.blackout(); }, 'K'],
     ['freeze', 'Freeze the picture on / off', 'hold', function(){ if (PT) PT.freeze(); }, 'F'],
+    // 26.11.14 Listen for scripture: Ask when off, Off when on (Auto: Command Center, phone, Settings → Scripture)
+    ['listen', 'Listen for scripture on / off', 'scripture verse bible reference spoken voice microphone listen hear auto', function(){
+      var V = window.KCVerseListen, st = V && V.state(); if (V) V.mode(st && st.enabled ? 'off' : 'ask').then(function(d){ if (d) toast(d.enabled ? 'Listening for scripture while a Frame is live' : 'Listen for scripture is off'); }); }],
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
     ['sharedraw', 'Draw on the Share Window', 'draw pen ink annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'draw'}); }],   /* 9.7 */
     ['sharespot', 'Spotlight on the Share Window', 'spotlight pointer point laser annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'spot'}); }],
@@ -70,7 +73,7 @@ function commands(){
     ['capture', 'Capture copies on / off (Memory Cards)', 'memory card chat overlay copy clipboard capture zoom teams chatgpt claude copilot slack discord', function(){ if (window.KCMemory) window.KCMemory.toggleCapture(); }],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['frameimport', 'Import Frame File (.frame)', 'import frame file offline service pc website plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); }],
-    ['guide', 'Step-by-step guide (framedecks.com/help)', 'help guide how to start learn tutorial', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); }],
+    ['helpguide', 'Step-by-step guide (framedecks.com/help)', 'help guide how to start learn tutorial', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); }],
     ['resync', 'Sync now', 'sync now resync linked pcs workspace cloud latest changes', function(){ if (window.KCResync) window.KCResync(); else settings('account'); }],
     ['frameexport', 'Export Frame File (.frame)', 'export frame file offline save plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.exportFile) window.KCFrameFile.exportFile(); }],
     ['excel', 'Meeting from Excel (Settings → Data / Backup)', 'import export template workbook xlsx', function(){ settings('data'); }],   /* 6.11: Excel lives in Settings */

@@ -15,7 +15,8 @@ Talks over stdin / stdout, one JSON object per line.
 26.11.14 Listen for scripture shares this one process (one microphone, one model in memory) with a second, small grammar:
   in:  {"scripture": [...]} (its words: src/scripture_speech.py)   {"scripture": null} (stop)   {"words": null} (the
        Teleprompter stopped; scripture listening goes on)
-  out: {"t": "final", "text": ..., "g": "scripture"} ("[unk]" kept, so unrelated words are never joined); "ready" too
+  out: {"t": "final" | "partial", "text": ..., "g": "scripture"} ("[unk]" kept, so unrelated words are never joined);
+       "ready" too. 26.11.14 partials as well, so a reference is seen while the speaker carries on talking
 
     voice_worker.py --lib DIR --model DIR [--device N] [--sensitivity 3] [--wav FILE] [--words-file FILE]
 --wav reads a 16 kHz mono WAV file instead of the microphone (tests, tools/voice_e2e.py); --words-file gives the first
@@ -310,6 +311,7 @@ class Listener:
 
     def run(self):
         quiet, talking, last_partial, last_level, before = 0.0, False, "", 0.0, None
+        last_sp = ""                              # 26.11.14 the scripture listener's last partial (sent only when it changes)
         while not self.quit:
             data = self.source.read()
             if data is None:
@@ -336,7 +338,7 @@ class Listener:
                     for kind, text, g in ends:
                         if text:
                             self._say("final", text, g)
-                    talking, last_partial = False, ""
+                    talking, last_partial, last_sp = False, "", ""
                     continue
             else:
                 quiet = 0.0
@@ -353,9 +355,14 @@ class Listener:
                         self._say("final", text, g)
                     if not g:
                         last_partial = ""
-                elif not g and text and text != last_partial:     # partials only for the Teleprompter
+                    else:
+                        last_sp = ""
+                elif not g and text and text != last_partial:
                     say({"t": "partial", "text": text})
                     last_partial = text
+                elif g and text and text != last_sp:      # 26.11.14 scripture reads partials too: it need not wait for a pause
+                    self._say("partial", text, g)
+                    last_sp = text
 
 
 def _below_normal():

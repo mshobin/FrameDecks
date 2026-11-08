@@ -60,7 +60,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.6: the Command Center's window cut to the shape it shows (SetWindowRgn), so no grey box on any PC | Released |
 | 26.11.7: the meeting guard (measure in meetings, lighter FrameDecks, before-you-go-live line, busy hint); Teleprompter in Engage | Released; owner's report: camera 4 fps, FrameDecks 37-87 % GPU, 1.3 GB |
 | 26.11.8: Branding Background slider; sharper meeting meter (GPU by process and kind, windows open and in front, page names); meeting mode in every window; Up next hidden not reloaded; memory figure fixed | Released; owner's report: GPU fixed (22-29 %), camera 30.7 in / 7.5 out, 133 ms per frame (blur) |
-| 26.11.14: draw pad, Listen for scripture (microphone), run sheet, stage grip, Live / On screen, quieter top bar, Command Center chip pins + no box while moving | On `main`; owner tags `v26.11.14` |
+| 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | On `main`; owner tags `v26.11.15` |
+| 26.11.14: draw pad, Listen for scripture (microphone), run sheet, stage grip, Live / On screen, quieter top bar, Command Center chip pins + no box while moving | Released |
 | 26.11.13: Live Stage (Mockup B), resize + wrap layout, switch fix, landing flowchart and scroll motion | Released |
 | 26.11.12: Scan to join (0018), Live Presentation Stage, How people see it, Simple by default | Released; owner runs 0018, enables anonymous sign-ins, adds the code to the Magic Link email |
 | 26.11.11: Command Center shape no longer needs page focus (grey box over Zoom fixed again) | Released |

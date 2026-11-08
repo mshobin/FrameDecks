@@ -37,15 +37,17 @@ var ACTIONS = [
   A('engage', 'draw', 'Draw', 'pencil', 'On the picture', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'spot', 'Spotlight', 'circle-dot', 'Double-click a word', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'clear', 'Clear drawings', 'eraser', 'Everywhere at once', ['cc', 'app', 'phone']),
-  A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app']),
+  A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone']),
   // Control (Previous, Next, Go Live and Hide all are pinned in plain view on every surface)
   A('control', 'golive', 'Go Live', 'radio', 'On air or off air', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'prevnext', 'Previous and Next', 'chevron-right', 'The Frames in order', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'hideall', 'Hide all', 'eye-off', 'Everything off screen', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'content', 'The Content one by one', 'list', 'Questions, scriptures, slides', ['cc', 'phone']),
+  // 26.11.14 say a Bible reference while live and it is offered (or shown, with Auto): Off, Ask or Auto
+  A('control', 'listen', 'Listen for scripture', 'book-open', 'Say a verse, it is offered', ['cc', 'app', 'phone'], {toggle: true}),
   A('control', 'hidelayer', 'Hide the selected Content', 'eye-off', 'Just this one', ['app']),
   A('control', 'black', 'Black screen', 'square', 'A black picture', ['cc', 'app', 'phone'], {toggle: true}),
-  A('control', 'freeze', 'Freeze the picture', 'pause', 'Hold what people see', ['app', 'phone'], {toggle: true}),
+  A('control', 'freeze', 'Freeze the picture', 'pause', 'Hold what people see', ['cc', 'app', 'phone'], {toggle: true}),
   A('control', 'emergency', 'Emergency screen', 'circle-alert', 'Your message, full screen', ['app'], {toggle: true}),
   A('control', 'meetingapp', 'Meeting app', 'mic', 'Mute, Camera, Share, Leave', ['cc']),
   // Notes
