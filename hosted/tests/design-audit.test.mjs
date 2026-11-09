@@ -113,12 +113,17 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   // the real Studio), then one real screenshot of the program per chapter, each with the app's own keys
   const tour = src("components/landing/tour.tsx");
   assert.match(landing, /<Tour/);
-  for (const k of ["Alt+Space", "Alt+→", "Alt+H", "Alt+B", "Alt+D"]) assert.ok(landing.includes(`k="${k}"`), k);
+  // 26.11.26 three chapters after the Studio: Voice, Control, Together
+  for (const k of ["V", "Right Ctrl", "Alt+Space", "Alt+→", "Alt+H"]) assert.ok(landing.includes(`k="${k}"`), k);
+  assert.equal((landing.match(/^    id: "/gm) || []).length, 3);
+  // the verse heard arrives on the meeting screen with the program's own word-in (app/css/overlay.css)
+  assert.match(tour, /className="tr-vo"/);
+  assert.match(src("app/tour.css"), /@keyframes tr-word-in/);
   assert.match(tour, /className="tr-band"/);
   // 26.11.3 Memory Cards: copied chat messages pop up as bubbles on the camera picture, the program's own overlay style
   assert.match(tour, /className="tr-mc-list"/);
   assert.ok(landing.includes('k="Ctrl+C"'), "Ctrl+C"); // the Teleprompter is the one live piece, in the program's own style
-  for (const shot of ["studio", "cc-bar", "annotate", "cc-control", "phone-remote"])
+  for (const shot of ["studio", "cc-control", "follow"])
     assert.match(tour, new RegExp(`/product/${shot}\\.webp`), shot);
   assert.match(tour, /new IntersectionObserver/); // starts once on screen; the scroll listener only while the stage is near
   assert.match(tour, /addEventListener\("scroll", onScroll, \{ passive: true \}\)/);

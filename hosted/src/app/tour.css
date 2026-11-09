@@ -189,25 +189,10 @@
   --g: rgba(195, 166, 255, 0.18);
 }
 
-.tr-glows i:nth-child(5) {
-  --g: rgba(94, 214, 200, 0.15);
-}
-
-.tr-glows i:nth-child(6) {
-  --g: rgba(52, 209, 124, 0.13);
-}
-
-.tr-glows i:nth-child(7) {
-  --g: rgba(143, 179, 255, 0.18);
-}
-
 .tr-stage[data-ch="0"] .tr-glows i:nth-child(1),
 .tr-stage[data-ch="1"] .tr-glows i:nth-child(2),
 .tr-stage[data-ch="2"] .tr-glows i:nth-child(3),
-.tr-stage[data-ch="3"] .tr-glows i:nth-child(4),
-.tr-stage[data-ch="4"] .tr-glows i:nth-child(5),
-.tr-stage[data-ch="5"] .tr-glows i:nth-child(6),
-.tr-stage[data-ch="6"] .tr-glows i:nth-child(7) {
+.tr-stage[data-ch="3"] .tr-glows i:nth-child(4) {
   opacity: 1;
 }
 
@@ -258,15 +243,10 @@
   transform: none;
 }
 
-/* after the Studio, each screen stands on the page alone (the phone keeps the Studio beside it, as on the day) */
+/* after the Studio, each screen stands on the page alone */
 .tr-stage:not([data-ch="0"]) .tr-base {
   opacity: 0;
   transform: scale(0.97);
-}
-
-.tr-stage[data-ch="6"] .tr-base {
-  opacity: 0.55;
-  transform: translate3d(-120px, 0, 0) scale(0.84);
 }
 
 /* before the component has started, the build waits (the finished Studio shows after 4 s if it never does) */
@@ -535,33 +515,33 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 }
 
 /* the Command Center is see-through, captured with nothing behind it: it sits on the page's own background */
-.tr-sc-cc img,
 .tr-sc-live img {
   border: 0;
   border-radius: 0;
   box-shadow: none;
 }
 
-.tr-sc-cc {
-  top: 120px;
-  left: 40px;
-  width: 920px;
-  height: 303px;
-}
-
 .tr-sc-tp {
   top: 16px;
-  left: 53px;
-  width: 894px;
+  left: 23px;
+  width: 954px;
   height: 520px;
+}
+
+.tr-voice {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 /* the Teleprompter, in the program's own style (app/css/speaker.css): the script, the gold reading band with its gold
    edge, read words at half strength */
 .tr-tp {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 548px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
@@ -582,8 +562,8 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 }
 
 .tr-tp-text {
-  padding: 0 34px;
-  font-size: 29px;
+  padding: 0 30px;
+  font-size: 28px;
   font-weight: 600;
   line-height: 1.45;
 }
@@ -620,13 +600,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   font-weight: 700;
 }
 
-.tr-sc-an {
-  top: 36px;
-  left: 30px;
-  width: 940px;
-  height: 461px;
-}
-
 .tr-sc-live {
   top: 12px;
   left: 192px;
@@ -634,16 +607,233 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   height: 540px;
 }
 
-.tr-sc-phone {
-  top: 26px;
-  right: 110px;
-  width: 271px;
-  height: 572px;
+/* ---------- 26.11.26 the voice runs the meeting: beside the Teleprompter, the meeting screen ---------- */
+.tr-vo {
+  position: absolute;
+  top: 34px;
+  left: 576px;
+  width: 378px;
+  font-family: var(--font);
 }
 
-.tr-sc-phone img {
-  border: 6px solid #1f2639;
-  border-radius: 36px;
+.tr-vo-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--tr-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tr-vo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d17c;
+  box-shadow: 0 0 10px rgba(52, 209, 124, 0.7);
+}
+
+.tr-vo-frame {
+  position: relative;
+  display: inline-grid;
+  margin-left: auto;
+  color: var(--tr-ink);
+}
+
+.tr-vo-frame b {
+  grid-area: 1 / 1;
+  font-weight: 700;
+}
+
+.tr-vo-frame b + b,
+.is-next .tr-vo-frame b:first-child {
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+}
+
+.is-next .tr-vo-frame b + b {
+  opacity: 1;
+  transform: none;
+}
+
+/* the meeting screen, as the camera picture or the shared window shows it */
+.tr-vo-screen {
+  position: relative;
+  height: 236px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background:
+    radial-gradient(70% 60% at 50% 0%, rgba(227, 183, 90, 0.1), transparent 70%),
+    linear-gradient(180deg, #121a31, #0a1022);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.75);
+}
+
+.tr-vo-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 30px;
+  text-align: center;
+  opacity: 0;
+}
+
+.tr-vo-card p {
+  margin: 0;
+  color: #fbf6ea;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.tr-vo-label {
+  color: var(--tr-gold);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* the program's scripture card (overlay.css .card-verse): gold label, a rule, the words, the reference between lines */
+.tr-vo-rule {
+  width: 120px;
+  height: 1px;
+  margin: 10px 0 14px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.tr-vw {
+  display: inline-block;
+}
+
+.tr-vo-verse p {
+  font-family: var(--font-serif, "EB Garamond", Georgia, serif);
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.tr-vo-ref {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--tr-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tr-vo-ref::before,
+.tr-vo-ref::after {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.tr-vo-q .tr-vo-label {
+  margin-bottom: 12px;
+}
+
+.tr-vo-title,
+.is-shown .tr-vo-verse,
+.is-next .tr-vo-q {
+  opacity: 1;
+}
+
+.is-shown .tr-vo-title {
+  opacity: 0;
+}
+
+.is-next .tr-vo-verse {
+  opacity: 0;
+}
+
+/* heard in what was read, and offered: Show */
+.tr-vo-offer,
+.tr-vo-say {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 9px 10px 9px 14px;
+  border: 1px solid var(--tr-line);
+  border-radius: 14px;
+  background: rgba(15, 23, 43, 0.92);
+  color: var(--tr-muted);
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+}
+
+.tr-vo-offer b {
+  color: var(--tr-ink);
+}
+
+.tr-vo-ear {
+  padding: 2px 9px 2px 20px;
+  border-radius: 999px;
+  background: rgba(52, 209, 124, 0.14) radial-gradient(circle at 10px 50%, #34d17c 3px, transparent 3.5px);
+  color: #7fe3ad;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tr-vo-show {
+  margin-left: auto;
+  padding: 5px 14px;
+  border-radius: 9px;
+  background: var(--tr-gold);
+  color: #1a1306;
+  font-weight: 800;
+}
+
+.tr-vo-show::after {
+  content: "Show";
+}
+
+.is-shown .tr-vo-show::after {
+  content: "On screen";
+}
+
+.is-shown .tr-vo-show {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--tr-gold);
+  color: var(--tr-gold);
+}
+
+.tr-vo-say kbd {
+  margin: 0;
+}
+
+.tr-vo-mic {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+}
+
+.tr-vo-mic i {
+  width: 3px;
+  height: 8px;
+  border-radius: 2px;
+  background: #34d17c;
+}
+
+.tr-vo-mic i:nth-child(2) {
+  height: 14px;
+}
+
+.is-heard .tr-vo-offer,
+.is-say .tr-vo-say {
+  opacity: 1;
+  transform: none;
 }
 
 /* ---------- 26.11.3 Memory Cards: the chat, the camera picture, the bubbles (overlay.css .chat-list) ---------- */
@@ -934,6 +1124,39 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   pointer-events: none;
 }
 
+/* 26.11.26 then the chat makes way for a member's phone, following the meeting screen (framedecks.com/follow) */
+.tr-mc-phone {
+  position: absolute;
+  top: -4px;
+  left: 40px;
+  width: 268px;
+  height: 405px;
+  overflow: hidden;
+  border: 6px solid #1f2639;
+  border-radius: 34px;
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transform: translate3d(0, 40px, 0) scale(0.96);
+}
+
+.tr-sc .tr-mc-phone img {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  object-fit: cover;
+  object-position: top;
+}
+
+.tr-mc.is-phone .tr-mc-phone {
+  opacity: 1;
+  transform: none;
+}
+
+.tr-mc.is-phone .tr-mc-chat {
+  opacity: 0;
+  transform: translate3d(-40px, 0, 0);
+}
+
 .tr-sc-mc .tr-callouts {
   bottom: -14px;
 }
@@ -948,12 +1171,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   transform: translate3d(-50%, 0, 0);
 }
 
-.tr-sc-cc .tr-callouts {
-  bottom: -64px;
-}
-
-.tr-sc-tp .tr-callouts,
-.tr-sc-an .tr-callouts {
+.tr-sc-tp .tr-callouts {
   bottom: -60px;
 }
 
@@ -971,9 +1189,8 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   font-weight: 600;
 }
 
-/* the movement over the screenshots: a pointer or a fingertip, a press, a ring on the chips, a pen stroke */
+/* the movement over the screenshot: a pointer and its press */
 .tr-ptr,
-.tr-ring,
 .tr-tap {
   position: absolute;
   top: 0;
@@ -986,15 +1203,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
 }
 
-.tr-ptr-finger {
-  width: 46px;
-  height: 46px;
-  margin: -23px 0 0 -23px;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
-}
-
 .tr-tap {
   width: 44px;
   height: 44px;
@@ -1002,26 +1210,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   border: 3px solid var(--tr-gold);
   border-radius: 50%;
   opacity: 0;
-}
-
-.tr-ring {
-  width: 74px;
-  height: 74px;
-  margin: -37px 0 0 -37px;
-  border: 2px solid var(--tr-gold);
-  border-radius: 20px;
-  box-shadow: 0 0 24px rgba(227, 183, 90, 0.45);
-}
-
-.tr-sweep {
-  position: absolute;
-  z-index: 3;
-  height: 4px;
-  border-radius: 3px;
-  background: #f4d58e;
-  box-shadow: 0 0 14px rgba(244, 213, 142, 0.9);
-  transform: scaleX(0);
-  transform-origin: left;
 }
 
 .tr-callouts > span.is-hot {
@@ -1105,8 +1293,57 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
       opacity 0.2s var(--ease-out);
   }
 
-  html.fd-motion:not(.fd-calm) .tr-ring {
-    transition: transform 0.3s var(--ease-out);
+  /* 26.11.26 the voice chapter: the program's word-in (overlay.css), one word after another; the page moves only
+     transform and opacity, so each word rises a little where the program unblurs it */
+  html.fd-motion:not(.fd-calm) .tr-vw {
+    opacity: 0;
+  }
+
+  html.fd-motion:not(.fd-calm) .is-shown .tr-vw {
+    animation: tr-word-in 0.6s ease forwards;
+    animation-delay: calc(var(--i) * 70ms + 150ms);
+  }
+
+  @keyframes tr-word-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0.25em, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-vo-card,
+  html.fd-motion:not(.fd-calm) .tr-vo-frame b,
+  html.fd-motion:not(.fd-calm) .tr-vo-offer,
+  html.fd-motion:not(.fd-calm) .tr-vo-say {
+    transition:
+      opacity 0.45s var(--ease-out),
+      transform 0.45s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .is-say .tr-vo-mic i {
+    animation: tr-level 0.5s ease-in-out 8 alternate;
+  }
+
+  html.fd-motion:not(.fd-calm) .is-say .tr-vo-mic i:nth-child(2) {
+    animation-delay: -0.25s;
+  }
+
+  @keyframes tr-level {
+    to {
+      transform: scaleY(0.4);
+    }
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-mc-phone,
+  html.fd-motion:not(.fd-calm) .tr-mc-chat {
+    transition:
+      opacity 0.5s var(--ease-out),
+      transform 0.6s var(--ease-out);
   }
 
   html.fd-motion:not(.fd-calm) .tr-tap.is-tap {
@@ -1137,7 +1374,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     transition: opacity 0.35s var(--ease-out);
   }
 
-  html.fd-motion:not(.fd-calm) .tr-stage[data-ch="2"] .tr-band {
+  html.fd-motion:not(.fd-calm) .tr-stage[data-ch="1"] .tr-band {
     animation: tr-breathe 2.4s ease-in-out 6 alternate;
   }
 

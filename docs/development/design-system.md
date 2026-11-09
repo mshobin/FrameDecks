@@ -156,6 +156,13 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      stage fills as you go and jumps to a chapter. Each screenshot chapter moves with the scroll, drawn over the
      picture and never into it: a gold ring walks the chips, a pointer goes to the real control and presses it (one
      ripple, its key lights below), a pen stroke runs along the real underline, a fingertip taps Next on the phone.
+     **26.11.26 three chapters after the Studio** (owner, 9 November: "2 or 3 slides"), each a whole part of the
+     meeting: **Voice** (the Teleprompter following the scroll as Follow my voice follows the presenter; once the
+     reading passes "Psalm 119:105" it is heard and offered, Show puts it on the meeting screen beside it in the
+     program's scripture card, its words arriving one by one as overlay.css word-in does; then Right Ctrl held and
+     "next frame" brings the question), **Control** (cc-control.webp: the pointer presses Go Live, Next Frame and
+     Hide all; Alt+Space pressed as it rises in) and **Together** (Memory Cards from the chat, then the chat makes
+     way for a member's phone following the meeting, follow.webp). The older chapters above are folded into these.
   3. Features: four promises on one row.
   4. Questions: the first four; the rest behind **More questions**.
   5. Ready to Serve?: the serif promise, the verse, both buttons → footer.

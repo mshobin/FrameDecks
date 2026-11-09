@@ -23,80 +23,52 @@ import "@/app/tour.css";
 
 const HERO = { first: "Prepare with Purpose.", second: "Present with Excellence." };
 
-// After the Studio, one chapter per screen of the program (tools/make_product_shots.py); every key is the app's own
+// 26.11.26 after the Studio, three chapters: what the leader does during the meeting, each a whole part of it
+// (components/landing/tour.tsx); every key is the app's own
 const CHAPTERS: readonly TourChapter[] = [
   {
-    id: "command-center",
-    label: "Command Center",
-    eyebrow: "Alt + Space",
-    title: "Everything, one shortcut away.",
+    id: "voice",
+    label: "Voice",
+    eyebrow: "Follow my voice · Voice commands",
+    title: "Run the meeting with your voice.",
     text: (
       <>
-        Press <Keys k="Alt+Space" /> over Zoom, PowerPoint or any app. One search and five chips: Prepare, Engage, Control, Notes and More.
-      </>
-    ),
-  },
-  {
-    id: "prepare",
-    label: "Prepare",
-    eyebrow: "Engage · Teleprompter",
-    title: "A Teleprompter that follows your voice.",
-    text: (
-      <>
-        Your script, where only you can see it. Press <Keys k="R" /> to show it and <Keys k="V" /> to have it follow your voice. It listens on your PC only.
-      </>
-    ),
-  },
-  {
-    id: "engage",
-    label: "Engage",
-    eyebrow: "Engage · Spotlight",
-    title: "Point it out. Everyone sees it.",
-    text: (
-      <>
-        Press <Keys k="Ctrl" /> twice and a soft spotlight lands on the word under your pointer; <Keys k="Alt+D" /> draws on the live picture. In the room
-        and on the stream at the same moment.
-      </>
-    ),
-  },
-  {
-    id: "memory-cards",
-    label: "Memory Cards",
-    eyebrow: "Engage · Memory Cards",
-    title: "Their words, right beside you.",
-    text: (
-      <>
-        With Capture on, copy a message from the meeting chat with <Keys k="Ctrl+C" /> and it becomes a Memory Card. Show it and it pops up beside you on the
-        camera, in the order you copied, while your picture makes room.
+        Press <Keys k="V" /> and the Teleprompter keeps your place as you speak. Read a verse and it is offered, ready to show. Hold <Keys k="Right Ctrl" /> and say
+        “next frame”. It listens on your PC only.
       </>
     ),
   },
   {
     id: "control",
     label: "Control",
-    eyebrow: "Control · Live",
-    title: "Go Live, then just press Next.",
+    eyebrow: "Command Center",
+    title: "Everything, one shortcut away.",
     text: (
       <>
-        <Keys k="T" /> puts the Frame on screen; <Keys k="Alt+→" /> moves to the next one. <Keys k="Alt+H" /> hides everything and <Keys k="Alt+B" /> goes to a
-        black screen.
+        Press <Keys k="Alt+Space" /> over Zoom, Teams or any app. Go Live, <Keys k="Alt+→" /> for the next Frame, <Keys k="Alt+H" /> to hide everything; press{" "}
+        <Keys k="Ctrl" /> twice for a spotlight on any word.
       </>
     ),
   },
   {
-    id: "phone",
-    label: "Phone",
-    eyebrow: "Phone remote",
-    title: "Then run it from your seat.",
-    text: "Your phone becomes the remote: what is on screen, Previous and Next, Hide all and the meeting plan, on the local Wi-Fi or from across town.",
+    id: "together",
+    label: "Together",
+    eyebrow: "Memory Cards · Members’ phones",
+    title: "Bring everyone in.",
+    text: (
+      <>
+        Copy a chat message with <Keys k="Ctrl+C" /> and it pops up beside you on camera. With one code, members follow the screen on their phones, send
+        prayer requests to you alone and get the sermon notes afterwards.
+      </>
+    ),
   },
 ];
 
 const FEATURES = [
   {
     icon: Smartphone,
-    title: "Guided from your phone",
-    text: "Previous, Next, Hide all and a black screen from any phone, on the local Wi-Fi or across town.",
+    title: "Run it from your seat",
+    text: "Your phone is the remote: Previous, Next, Hide all and the meeting plan, on the local Wi-Fi or across town.",
   },
   {
     icon: Quote,
@@ -105,13 +77,13 @@ const FEATURES = [
   },
   {
     icon: Users,
-    title: "Your whole team",
-    text: "People, groups and reminders in one list, kept the same on the website and the presenting PC.",
+    title: "After the meeting",
+    text: "A summary of what was shown and prayed for, and sermon notes members keep on their phones.",
   },
   {
     icon: ShieldCheck,
     title: "Private by design",
-    text: "Works without internet. Pictures, video and the camera never leave your PC. No adverts, no tracking.",
+    text: "Works without internet. Your voice, pictures, video and the camera never leave your PC. No adverts, no tracking.",
   },
 ] as const;
 

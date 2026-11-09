@@ -7,11 +7,10 @@ import Image from "next/image";
 // On arrival, with no scrolling, a meeting builds itself: a Frame, its Decks, their Content, joined by lines in the
 // app's own level colours; a moment later (HOLD), or as soon as the page is scrolled, each card flies to its place in
 // the real Studio and the screenshot takes over. Scrolling back to the top turns the Studio back into the flowchart.
-// From there the page's scroll moves through the program, one real screenshot per chapter (tools/make_product_shots.py
-// writes them all): the Command Center (Alt+Space), Spotlight on the live picture, the Command Center's Control chip
-// while live, and the phone remote. The Teleprompter is the one live piece (owner's choice, 6 November): drawn in the
-// app's own Teleprompter style (speaker.css: the type, the gold reading band, read words fading), it follows the
-// page's scroll word by word, as Follow my voice follows the presenter. Every key shown is the app's own.
+// From there the page's scroll moves through three chapters (26.11.26): Voice, the Teleprompter drawn in the app's own
+// style (speaker.css) following the page's scroll word by word as Follow my voice follows the presenter, with the verse
+// it hears arriving on the meeting screen; Control, the Command Center's real screenshot (tools/make_product_shots.py);
+// and Together, Memory Cards from the chat and a member's phone following the meeting. Every key shown is the app's own.
 // 26.11.4 every movement after the build is the scroll's own, forwards and backwards: no button to see it
 // again and no one-off timers; scrolling back up plays it again.
 // A spring follows the scroll (FOLLOW), so a trackpad's stream of small steps reads as one movement; the page's own
@@ -49,7 +48,7 @@ const CARDS: readonly Card[] = [
   { cls: "tr-frame", at: [380, 108, 240, 66], tall: [140, 0, 240, 66], to: [9, 174, 207, 78], kind: "Frame 1", text: "Bible Study" },
   { cls: "tr-deck", at: [150, 236, 200, 44], tall: [0, 110, 250, 44], to: [9, 338, 207, 40], kind: "", text: "Scripture" },
   { cls: "tr-deck", at: [610, 236, 220, 44], tall: [270, 110, 250, 44], to: [9, 381, 207, 40], kind: "", text: "Question" },
-  { cls: "tr-item tr-verse", at: [150, 330, 200, 92], tall: [20, 194, 230, 92], to: [470, 117, 279, 60], kind: "Psalm 119:105", text: "Thy word is a lamp unto my feet, and a light unto my path." },
+  { cls: "tr-item tr-verse", at: [150, 330, 200, 92], tall: [20, 194, 230, 92], to: [455, 124, 307, 67], kind: "Psalm 119:105", text: "Thy word is a lamp unto my feet, and a light unto my path." },
   { cls: "tr-item", at: [470, 330, 160, 92], tall: [290, 194, 230, 84], to: [240, 392, 312, 48], kind: "Question 1", text: "What does this passage reveal about the character of God?" },
   { cls: "tr-item", at: [640, 330, 160, 92], tall: [290, 290, 230, 84], to: [558, 392, 313, 48], kind: "Question 2", text: "Which phrase in this passage stood out to you most, and why?" },
   { cls: "tr-item", at: [810, 330, 160, 92], tall: [290, 386, 230, 84], to: [877, 392, 312, 48], kind: "Question 3", text: "Think of a situation you are facing right now." },
@@ -71,10 +70,12 @@ const LINES = [
   ["tr-a2", "M720 280 C720 305 890 305 890 330", "M280 154 V428 H290"],
 ] as const;
 
-// One real screenshot per chapter after the Studio, with the keys that chapter is about. The movement on it is drawn
-// over the picture, never into it: a pointer or a fingertip that goes to the real control (in % of the picture) and
-// presses it, a ring that walks the chips, a pen stroke along the real underline. The page's scroll drives it.
-type Move = { at: number; x: number; y: number; tap?: boolean; hot?: number };
+// 26.11.26 three chapters after the Studio (owner, 9 November: "2 or 3 slides"), each one a whole part of the meeting:
+// Voice (the Teleprompter following the voice, a verse heard and put on screen, a spoken "next frame"), Control (the
+// Command Center over any app) and Together (Memory Cards from the chat, members following on their phones). The movement
+// is drawn over the picture, never into it: a pointer that goes to the real control (in % of the picture) and presses
+// it. The page's scroll drives it; `hot` lights each key's callout from that point of the chapter on.
+type Move = { at: number; x: number; y: number; tap?: boolean };
 type Scene = {
   src: string;
   w: number;
@@ -82,74 +83,58 @@ type Scene = {
   cls: string;
   alt: string;
   keys: readonly (readonly [string, string])[];
-  pointer?: "cursor" | "finger";
+  hot: readonly number[];
   moves?: readonly Move[];
-  ring?: readonly (readonly [number, number])[];
-  sweep?: readonly [number, number, number];
   draw?: "tp" | "mc"; // drawn live in the program's own style instead of a screenshot (Teleprompter, Memory Cards)
 };
 const SCENES: readonly Scene[] = [
   {
-    src: "/product/cc-bar.webp",
-    w: 820,
-    h: 270,
-    cls: "tr-sc-cc",
-    alt: "The Command Center: a search bar and the chips Prepare, Engage, Control, Notes and More",
-    keys: [["Alt+Space", "opens it anywhere"]],
-    ring: [
-      [15.7, 54],
-      [32.9, 54],
-      [50, 54],
+    src: "",
+    w: 0,
+    h: 0,
+    cls: "tr-sc-tp",
+    alt: "",
+    draw: "tp",
+    keys: [
+      ["V", "Follow my voice"],
+      ["Right Ctrl", "hold: voice commands"],
     ],
+    hot: [0, 0.8],
   },
-  { src: "", w: 0, h: 0, cls: "tr-sc-tp", alt: "", draw: "tp", keys: [["R", "Teleprompter"], ["V", "Follow my voice"]] },
-  {
-    src: "/product/annotate.webp",
-    w: 1000,
-    h: 490,
-    cls: "tr-sc-an",
-    alt: "A soft spotlight on a word of the live scripture, and an underline",
-    keys: [["Ctrl", "twice: Spotlight"], ["Alt+D", "Draw"]],
-    pointer: "cursor",
-    moves: [
-      { at: 0, x: 82, y: 90 },
-      { at: 0.32, x: 47, y: 40, tap: true, hot: 0 },
-      { at: 0.5, x: 47, y: 40 },
-      { at: 0.62, x: 28, y: 86, hot: 1 },
-      { at: 0.92, x: 47, y: 86 },
-    ],
-    sweep: [28, 86.4, 19],
-  },
-  { src: "", w: 0, h: 0, cls: "tr-sc-mc", alt: "", draw: "mc", keys: [["Ctrl+C", "a copied message becomes a Memory Card"]] },
   {
     src: "/product/cc-control.webp",
     w: 820,
     h: 720,
     cls: "tr-sc-live",
-    alt: "The Command Center's Control chip while a Frame is live: Go Live, Previous, Next Frame, Hide all and Black",
-    keys: [["Alt+→", "Next Frame"], ["Alt+H", "Hide all"], ["Alt+B", "Black screen"]],
-    pointer: "cursor",
+    alt: "The Command Center's Control chip while a Frame is live: Go Live, Previous, Next Frame, Hide all and Black screen",
+    keys: [
+      ["Alt+Space", "over any app"],
+      ["Alt+→", "Next Frame"],
+      ["Alt+H", "Hide all"],
+    ],
+    hot: [0, 0.42, 0.72],
     moves: [
       { at: 0, x: 70, y: 92 },
-      { at: 0.25, x: 87.5, y: 41.5, tap: true },
-      { at: 0.4, x: 87.5, y: 41.5 },
-      { at: 0.62, x: 35.5, y: 64.5, tap: true, hot: 0 },
-      { at: 1, x: 35.5, y: 64.5 },
+      { at: 0.2, x: 86.8, y: 44.9, tap: true },
+      { at: 0.3, x: 86.8, y: 44.9 },
+      { at: 0.42, x: 31.2, y: 63.6, tap: true },
+      { at: 0.58, x: 31.2, y: 63.6 },
+      { at: 0.72, x: 48.6, y: 62, tap: true },
+      { at: 1, x: 48.6, y: 62 },
     ],
   },
   {
-    src: "/product/phone-remote.webp",
-    w: 390,
-    h: 844,
-    cls: "tr-sc-phone",
-    alt: "The phone remote: what is on screen, Previous and Next, and the meeting plan",
-    keys: [],
-    pointer: "finger",
-    moves: [
-      { at: 0, x: 80, y: 62 },
-      { at: 0.42, x: 67, y: 27.4, tap: true },
-      { at: 1, x: 67, y: 27.4 },
+    src: "",
+    w: 0,
+    h: 0,
+    cls: "tr-sc-mc",
+    alt: "",
+    draw: "mc",
+    keys: [
+      ["Ctrl+C", "a chat message becomes a Memory Card"],
+      ["", "Members' phones: one code for everyone"],
     ],
+    hot: [0, 0.66],
   },
 ];
 
@@ -164,8 +149,9 @@ const CHAT: readonly Chat[] = [
   { who: "Samuel", ini: "S", c: "#8a5cc7", text: "How do we stay faithful when the path is unclear?" },
 ];
 const COPIED = [1, 3, 0] as const; // the rows copied, in copy order (the bubbles keep this order)
-const COPY_AT = [0.08, 0.34, 0.6] as const; // where in the chapter each copy happens
-const PIN_AT = 0.84; // ...and when the prayer request is pinned
+const COPY_AT = [0.04, 0.2, 0.36] as const; // where in the chapter each copy happens
+const PIN_AT = 0.56; // ...when the prayer request is pinned
+const PHONE_AT = 0.66; // ...and when the chat makes way for a member's phone following the meeting (/follow)
 
 // The Teleprompter's script (the same words as the program's own capture)
 const SCRIPT = [
@@ -176,9 +162,18 @@ const SCRIPT = [
   "Then we will close in prayer.",
 ];
 const BAND = 170; // where the reading line sits in the Teleprompter (as in the program, about a third of the way down)
+// 26.11.26 the voice runs the meeting: once the reading passes the reference it is heard and offered (Show), shown on
+// the meeting screen in the program's own scripture card (overlay.css: gold label, rule, words arriving softly), then a
+// spoken "next frame" (Right Ctrl held) brings the question
+const VERSE = "Thy word is a lamp unto my feet, and a light unto my path.";
+const HEARD = SCRIPT.join(" ").split(" ").findIndex((w) => w.startsWith("119:105")); // the word after which it is heard
+const SHOW_AT = 4; // words after that, Show is pressed
+const SAY_AT = 0.8; // where in the chapter "next frame" is said...
+const NEXT_AT = 0.9; // ...and the next Frame is on screen
 
-const TPI = SCENES.findIndex((s) => s.draw === "tp") + 1; // the chapter numbers of the two drawn chapters
+const TPI = SCENES.findIndex((s) => s.draw === "tp") + 1; // the chapter numbers of the drawn chapters and the Command Center
 const MCI = SCENES.findIndex((s) => s.draw === "mc") + 1;
+const CCI = SCENES.findIndex((s) => s.cls === "tr-sc-live") + 1;
 // 26.11.4 the build on arrival, brisk (owner, 8 November): ms after the stage is on screen for the Frame, its name
 // typed a letter at a time, the Decks, the Content, and the moment the flowchart is complete
 const BUILD = [80, 180, 600, 850, 1100] as const;
@@ -240,6 +235,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
     // Memory Cards: the copied rows, their bubbles and the card that flies between them (positions in stage pixels)
     const mcRoot = st.querySelector<HTMLElement>(".tr-mc");
     const mc = mcRoot && {
+      root: mcRoot,
       rows: Array.from(mcRoot.querySelectorAll<HTMLElement>(".tr-mc-row")),
       msgs: Array.from(mcRoot.querySelectorAll<HTMLElement>(".tr-mc-msg")),
       ghost: mcRoot.querySelector<HTMLElement>(".tr-mc-ghost")!,
@@ -269,6 +265,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         if (f > 0 && f < 1) [fly, g] = [k, f];
       });
       mc.msgs[2].classList.toggle("is-pin", t >= PIN_AT);
+      mc.root.classList.toggle("is-phone", t >= PHONE_AT);
       mc.pic.classList.toggle("is-room", t >= COPY_AT[0] + 0.15);
       // the copied card lifts off the chat and arcs onto the picture (only with motion; otherwise the bubbles simply appear)
       if (fly < 0 || !fluid()) {
@@ -288,25 +285,22 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       mc.ghost.style.opacity = (g < 0.85 ? 1 : (1 - g) / 0.15).toFixed(3);
       mc.ghost.style.transform = `translate3d(${gx.toFixed(1)}px, ${gy.toFixed(1)}px, 0) rotate(${(-6 * Math.sin(Math.PI * e)).toFixed(2)}deg) scale(${(1 - 0.25 * e).toFixed(3)})`;
     };
-    // the movement on each screenshot (Scene.moves / ring / sweep), driven by the chapter's own progress
+    // the movement on each screen (Scene.moves), and the callout of the key in use (Scene.hot), driven by the
+    // chapter's own progress
     const kit = scenes.map((fig, i) => ({
       fig,
       s: SCENES[i],
       ptr: fig.querySelector<HTMLElement>(".tr-ptr"),
       tap: fig.querySelector<HTMLElement>(".tr-tap"),
-      ring: fig.querySelector<HTMLElement>(".tr-ring"),
-      sweep: fig.querySelector<HTMLElement>(".tr-sweep"),
       calls: Array.from(fig.querySelectorAll<HTMLElement>(".tr-callouts > span")),
       fired: new Set<number>(),
     }));
     const px = (fig: HTMLElement, x: number, y: number) => [(x / 100) * fig.offsetWidth, (y / 100) * fig.offsetHeight];
     const move = (k: (typeof kit)[number], t: number) => {
       const { s, fig } = k;
-      if (s.ring && k.ring) {
-        const [x, y] = px(fig, ...(s.ring[Math.min(s.ring.length - 1, Math.floor(t * s.ring.length))] as [number, number]));
-        k.ring.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-      }
-      if (s.sweep && k.sweep) k.sweep.style.transform = `scaleX(${clamp((t - 0.62) / 0.3).toFixed(3)})`;
+      let hot = 0;
+      s.hot.forEach((h, i) => void (t >= h && (hot = i)));
+      k.calls.forEach((c, i) => c.classList.toggle("is-hot", i === hot));
       if (!s.moves || !k.ptr) return;
       const m = s.moves;
       let j = 0;
@@ -316,9 +310,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       const f = b === a ? 0 : ease(clamp((t - a.at) / (b.at - a.at)));
       const [x, y] = px(fig, a.x + (b.x - a.x) * f, a.y + (b.y - a.y) * f);
       k.ptr.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-      let hot = -1;
       m.forEach((p, i) => {
-        if (p.hot !== undefined && p.at <= t) hot = p.hot;
         if (!p.tap) return;
         if (t < p.at) k.fired.delete(i);
         else if (!k.fired.has(i) && t - p.at < 0.2 && k.tap) {
@@ -331,7 +323,17 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
           k.tap.classList.add("is-tap");
         } else if (!k.fired.has(i)) k.fired.add(i);
       });
-      k.calls.forEach((c, i) => c.classList.toggle("is-hot", i === hot));
+    };
+    // the voice running the meeting beside the Teleprompter: heard, Show, on screen, "next frame", the next Frame
+    const vo = st.querySelector<HTMLElement>(".tr-vo");
+    const voice = (said: number, t: number) => {
+      if (!vo) return;
+      const heard = said > HEARD;
+      const shown = said > HEARD + SHOW_AT;
+      vo.classList.toggle("is-heard", heard && t < NEXT_AT);
+      vo.classList.toggle("is-shown", shown);
+      vo.classList.toggle("is-say", t >= SAY_AT);
+      vo.classList.toggle("is-next", t >= NEXT_AT);
     };
 
     // ---- size: the stage is drawn at 1000 × 620 and scaled to the room it has. On a tall screen (a phone) the
@@ -490,11 +492,10 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         layers.forEach((l, i) => {
           const a = i === 0 ? studio : clamp((x - i + MIX / 2) / MIX);
           const b = i === n - 1 ? 1 : clamp((i + 1 + MIX / 2 - x) / MIX);
-          let o = Math.min(a, b);
+          const o = Math.min(a, b);
           const rise = i && a < 1 ? 1 - a : b - 1;
-          let y = rise * RISE + (i === TPI ? 0 : -14 * clamp(x - i));
-          let tx = 0;
-          let sc = i === 0 && a < 1 ? 1.03 - 0.03 * a : 0.97 + 0.03 * o;
+          const y = rise * RISE + (i === TPI ? 0 : -14 * clamp(x - i));
+          const sc = i === 0 && a < 1 ? 1.03 - 0.03 * a : 0.97 + 0.03 * o;
           const cap = caps.current[i];
           if (cap) {
             const co = i === 0 ? b : o;
@@ -502,17 +503,12 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
             cap.style.transform = `translate3d(0, ${(rise * 24).toFixed(1)}px, 0)`;
             cap.style.visibility = co > 0.002 ? "visible" : "hidden";
           }
-          if (i === 0) {
-            // the phone chapter brings the Studio back beside the phone, quieter, as on the day
-            const p = clamp((x - (n - 1) + MIX / 2) / MIX);
-            if (p > 0) [o, y, tx, sc] = [0.55 * p, (1 - p) * RISE, -120, 0.84];
-          }
           l.style.opacity = (o * o).toFixed(3); // eased: two screens never sit half and half on each other
-          l.style.transform = `translate3d(${tx}px, ${y.toFixed(1)}px, 0) scale(${sc.toFixed(4)})`;
+          l.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) scale(${sc.toFixed(4)})`;
           l.style.visibility = o > 0.002 ? "visible" : "hidden";
         });
         // Alt+Space: the keys are pressed as the Command Center rises in, and lift away as it settles
-        const kp = clamp((x - 1 + MIX / 2 + 0.05) / 0.45);
+        const kp = clamp((x - CCI + MIX / 2 - 0.02) / 0.45);
         keys.style.opacity = (Math.sin(Math.PI * kp) ** 2).toFixed(3);
         keys.style.transform = `translate3d(-50%, ${(-50 - 40 * kp).toFixed(1)}%, 0)`;
         keys.classList.toggle("is-press", kp > 0.3 && kp < 0.6);
@@ -537,6 +533,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
           const next = words[Math.min(n, words.length - 1)];
           script.style.transform = `translate3d(0, ${BAND - next.offsetTop}px, 0)`;
         }
+        voice(said, t);
       }
     };
     function kick() {
@@ -649,47 +646,23 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
                 ) : s.src ? (
                   <Image src={s.src} alt={s.alt} width={s.w} height={s.h} unoptimized />
                 ) : (
-                  <div className="tr-tp" role="img" aria-label="The Teleprompter following the presenter's voice: the words already read fade, the next word waits on the gold reading line">
-                    <span className="tr-tp-live">Following your voice</span>
-                    <span className="tr-band" />
-                    <div className="tr-tp-text" aria-hidden="true">
-                      {SCRIPT.map((line) => (
-                        <p key={line}>
-                          {line.split(" ").map((w, i) => (
-                            <span key={i} className="tr-w">
-                              {w}{" "}
-                            </span>
-                          ))}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {s.ring && <span className="tr-ring" aria-hidden="true" />}
-                {s.sweep && (
-                  <span
-                    className="tr-sweep"
-                    aria-hidden="true"
-                    style={{ left: `${s.sweep[0]}%`, top: `${s.sweep[1]}%`, width: `${s.sweep[2]}%` }}
-                  />
+                  <Voice />
                 )}
                 {s.moves && (
                   <>
                     <span className="tr-tap" aria-hidden="true" />
-                    <span className={`tr-ptr tr-ptr-${s.pointer}`} aria-hidden="true">
-                      {s.pointer === "cursor" && (
-                        <svg width="22" height="26" viewBox="0 0 22 26">
-                          <path d="M2 2 L2 21 L7.5 16 L11 24 L14.5 22.5 L11 14.8 L18.5 14.8 Z" fill="#fff" stroke="#0b1020" strokeWidth="1.6" strokeLinejoin="round" />
-                        </svg>
-                      )}
+                    <span className="tr-ptr" aria-hidden="true">
+                      <svg width="22" height="26" viewBox="0 0 22 26">
+                        <path d="M2 2 L2 21 L7.5 16 L11 24 L14.5 22.5 L11 14.8 L18.5 14.8 Z" fill="#fff" stroke="#0b1020" strokeWidth="1.6" strokeLinejoin="round" />
+                      </svg>
                     </span>
                   </>
                 )}
                 {s.keys.length > 0 && (
                   <figcaption className="tr-callouts">
                     {s.keys.map(([k, what]) => (
-                      <span key={k}>
-                        <Keys k={k} /> {what}
+                      <span key={what}>
+                        {k && <Keys k={k} />} {what}
                       </span>
                     ))}
                   </figcaption>
@@ -713,6 +686,81 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         </nav>
       </div>
     </section>
+  );
+}
+
+/** The Voice chapter: the Teleprompter following the voice (app/css/speaker.css), and beside it the meeting screen,
+ *  where the verse it heard arrives in the program's own scripture card (app/css/overlay.css .card-verse, word-in). */
+function Voice() {
+  return (
+    <div
+      className="tr-voice"
+      role="img"
+      aria-label="The Teleprompter follows the presenter's voice. When the presenter reads Psalm 119:105 it is heard and offered; shown, the verse arrives on the meeting screen word by word. Holding Right Ctrl and saying next frame brings the first question."
+    >
+      <div className="tr-tp" aria-hidden="true">
+        <span className="tr-tp-live">Following your voice</span>
+        <span className="tr-band" />
+        <div className="tr-tp-text">
+          {SCRIPT.map((line) => (
+            <p key={line}>
+              {line.split(" ").map((w, i) => (
+                <span key={i} className="tr-w">
+                  {w}{" "}
+                </span>
+              ))}
+            </p>
+          ))}
+        </div>
+      </div>
+      <div className="tr-vo" aria-hidden="true">
+        <p className="tr-vo-head">
+          <span className="tr-vo-dot" />
+          On screen
+          <span className="tr-vo-frame">
+            <b>Frame 1</b>
+            <b>Frame 2</b>
+          </span>
+        </p>
+        <div className="tr-vo-screen">
+          <div className="tr-vo-card tr-vo-title">
+            <span className="tr-vo-label">Bible Study</span>
+            <p>Small faithful steps, taken together</p>
+          </div>
+          <div className="tr-vo-card tr-vo-verse">
+            <span className="tr-vo-label">Scripture</span>
+            <i className="tr-vo-rule" />
+            <p>
+              {VERSE.split(" ").map((w, i) => (
+                <Fragment key={i}>
+                  <span className="tr-vw" style={{ "--i": i } as CSSProperties}>
+                    {w}
+                  </span>{" "}
+                </Fragment>
+              ))}
+            </p>
+            <span className="tr-vo-ref">Psalm 119:105</span>
+          </div>
+          <div className="tr-vo-card tr-vo-q">
+            <span className="tr-vo-label">Question 1</span>
+            <p>What does this passage reveal about the character of God?</p>
+          </div>
+        </div>
+        <div className="tr-vo-offer">
+          <span className="tr-vo-ear">Heard</span>
+          <b>Psalm 119:105</b>
+          <span className="tr-vo-show" />
+        </div>
+        <div className="tr-vo-say">
+          <span className="tr-vo-mic">
+            <i />
+            <i />
+            <i />
+          </span>
+          <kbd>Right Ctrl</kbd> “next frame”
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -771,6 +819,10 @@ function MemoryCards() {
       </div>
       <div className="tr-mc-ghost" aria-hidden="true">
         <span />
+      </div>
+      {/* 26.11.26 then the chat makes way for a member's phone following the meeting screen (framedecks.com/follow) */}
+      <div className="tr-mc-phone">
+        <Image src="/product/follow.webp" alt="" width={560} height={847} unoptimized />
       </div>
     </div>
   );
