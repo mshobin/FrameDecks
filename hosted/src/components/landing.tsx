@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "lucide-react";
@@ -233,6 +234,8 @@ export function Landing() {
       </main>
 
       <SiteFooter />
+      {/* 26.11.28 everything after the stage is one free-scrolling area for the stage's snap points (tour.css) */}
+      <i className="tr-snap-rest" aria-hidden="true" style={{ "--n": CHAPTERS.length + 1 } as CSSProperties} />
     </div>
   );
 }

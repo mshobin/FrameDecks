@@ -128,13 +128,22 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.match(tour, /new IntersectionObserver/); // starts once on screen; the scroll listener only while the stage is near
   assert.match(tour, /addEventListener\("scroll", onScroll, \{ passive: true \}\)/);
   // 26.11.4 no replay: the flowchart shows for about a second, then the Studio takes over (at once on scroll), and
-  // scrolling back to the top plays it backwards; a spring follows the scroll, and the scroll is never taken over
+  // scrolling back to the top plays it backwards; a spring follows the scroll
   const hold = Number(tour.match(/const HOLD = (\d+);/)?.[1]);
   assert.ok(hold >= 1000 && hold <= 1500, `HOLD ${hold}`);
   assert.match(tour, /const TAKE = \d+;/);
   assert.match(tour, /function spring\(/);
   for (const text of [tour, src("app/tour.css"), landing]) assert.doesNotMatch(text, /replay|tr-replay/i);
-  assert.doesNotMatch(tour, /preventDefault/);
+  // 26.11.28 one gesture, one chapter (owner, 9 November): the page snaps to each chapter, a wheel, trackpad or finger
+  // on the stage steps exactly one, each chapter's story then plays by itself, and after the stage the page scrolls freely
+  assert.match(tour, /className="tr-snap"/);
+  assert.match(landing, /className="tr-snap-rest"/);
+  assert.match(src("app/tour.css"), /scroll-snap-type: y mandatory;/);
+  assert.match(src("app/tour.css"), /scroll-snap-stop: always;/);
+  assert.match(tour, /on\(\s*"wheel",/);
+  assert.match(tour, /on\(\s*"touchmove",/);
+  assert.match(tour, /signal: off\.signal/); // removed with the stage
+  assert.match(tour, /const STORY = [\d.]+;/);
   assert.match(src("app/tour.css"), /animation: tr-fallback 0s 4s forwards;/);
   assert.match(landing, /FAQ\.slice\(0, 4\)/);
   assert.match(landing, /More questions/);

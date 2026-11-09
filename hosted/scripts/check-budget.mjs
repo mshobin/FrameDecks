@@ -17,7 +17,9 @@ import { gzipSync } from "node:zlib";
 // The About dialog's own styles now load when it is first opened, not with every page.
 // 5 November (9.11.2): the website's finishing touches (app/flourish.css) load just after a page appears, linked by no
 // page. Each stylesheet loaded that way is held to its own small budget, so "later" cannot become a back door.
-const BUDGET = { pageJsKB: 320, totalJsKB: 400, largestJsKB: 90, cssKB: 24, laterCssKB: 3 };
+// 9 November (26.11.28): one gesture, one chapter on the front page's stage (wheel, trackpad and touch) adds 0.25 KB to the
+// total; the heaviest page is unchanged.
+const BUDGET = { pageJsKB: 320, totalJsKB: 401, largestJsKB: 90, cssKB: 24, laterCssKB: 3 };
 const dir = fileURLToPath(new URL("../out/_next/static/chunks/", import.meta.url)); // a real path on Windows too (not "/C:/…")
 // the scripts browsers that run modules never load (<script noModule>): not counted
 const noModule = new Set();

@@ -8,10 +8,10 @@ import Image from "next/image";
 // app's own level colours; a moment later (HOLD), or as soon as the page is scrolled, each card flies to its place in
 // the real Studio and the screenshot takes over. Scrolling back to the top turns the Studio back into the flowchart.
 // From there the Studio stays, and the page's scroll moves one camera over it through three chapters (26.11.27, below).
-// 26.11.4 every movement after the build is the scroll's own, forwards and backwards: no button to see it
-// again and no one-off timers; scrolling back up plays it again.
-// A spring follows the scroll (FOLLOW), so a trackpad's stream of small steps reads as one movement; the page's own
-// scrolling is never held back or taken over.
+// 26.11.28 one scroll, one chapter (owner, 9 November: "it should feel seamless"): the page snaps to each chapter
+// (tour.css .tr-snap, the browser's own scroll snapping, so wheels, trackpads, keys and touch all work as usual), a
+// spring carries the camera there (FOLLOW), and the chapter's story then plays by itself (STORY). Scrolling back goes
+// straight to where the chapter before ended.
 // Light on resources: one passive scroll listener, attached only while the stage is on screen; one animation frame
 // loop that runs only while the stage is still catching up and stops when it has settled; only transform and opacity
 // move. "Reduce effects" (html.fd-calm) shows the finished Studio at once; with less motion asked for (no
@@ -238,6 +238,7 @@ const MIX = 0.3; // 26.11.3 how much of the scroll two neighbouring chapters sha
 // many small steps and a mouse wheel's few big ones both become one continuous movement, a little behind the page
 const FOLLOW = 12;
 const TAKEOVER = 8; // the flowchart-to-Studio flight is slower, so it reads as one gesture
+const STORY = 2.6; // 26.11.28 seconds a chapter's story takes to play once the camera has arrived
 
 const clamp = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const ease = (v: number) => (v < 0.5 ? 2 * v * v : 1 - (-2 * v + 2) ** 2 / 2);
@@ -453,14 +454,24 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         auto = 0;
         timers.forEach(clearTimeout);
       }
-      const goal = clamp(down / (tr.offsetHeight - innerHeight)) * n;
+      // 26.11.28 the chapter the page is on; the stage goes to where its story ends (the last one to the very end)
+      const k = Math.min(n - 1, Math.floor(clamp(down / (tr.offsetHeight - innerHeight)) * n));
+      const goal = k === 0 ? 0 : k === n - 1 ? n : k + 1 - MIX / 2;
+      const edge = Math.max(0, k) + MIX / 2; // where the camera has arrived and the story begins
       const take = Math.max(auto, clamp(down / TAKE));
       const flow = fluid();
       let busy = false;
       if (prev < 0)
         [X.x, S.x] = [goal, take]; // the first picture is where the page is: no sweep from the top
       else if (flow) {
-        const a = spring(X, goal, FOLLOW, dt);
+        // back: straight to the chapter before's end; on: the camera springs to the chapter, then its story plays
+        let a = false;
+        if (goal <= X.x || X.x < edge - 1e-3) a = spring(X, goal <= X.x ? goal : edge, FOLLOW, dt) || goal > X.x;
+        else if (X.x < goal) {
+          X.v = 0;
+          X.x = Math.min(goal, X.x + (dt * (1 - MIX)) / STORY);
+          a = X.x < goal;
+        }
         busy = spring(S, take, TAKEOVER, dt) || a;
       } else {
         X.x = goal;
@@ -579,6 +590,62 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       if (!raf) raf = requestAnimationFrame(frame);
     }
     const onScroll = kick;
+    // 26.11.28 one gesture on the stage moves exactly one chapter, with a wheel, a trackpad or a finger: the browser's
+    // snapping alone would send a small turn back where it was, and a long swipe further than one. A trackpad's glide
+    // after the step is spent waiting, so one gesture is one step; after the stage, the page scrolls as usual.
+    let quiet = 0; // when the last wheel event arrived
+    let stepped = 0; // when the last step was
+    let y0 = -1; // where a finger went down (-1: none, or the page's own scrolling)
+    let dy = 0;
+    /** Where a gesture going `dir` (1 down, -1 up) takes the page, or -1 where the page's own scrolling applies. */
+    const target = (dir: number) => {
+      const h = tr.offsetHeight;
+      const down = -tr.getBoundingClientRect().top;
+      const stops = Array.from({ length: n }, (_, i) => ((h - innerHeight) * (i && i + 0.5)) / n);
+      stops.push(h - 65);
+      let at = 0;
+      stops.forEach((p, i) => void (Math.abs(p - down) < Math.abs(stops[at] - down) && (at = i)));
+      const to = at + dir;
+      return down < -2 || down > h - 63 || to < 0 || to > n ? -1 : scrollY - down + stops[to];
+    };
+    const step = (top: number) => {
+      stepped = performance.now();
+      scrollTo({ top, behavior: fluid() ? "smooth" : "auto" });
+    };
+    const off = new AbortController();
+    const on = (t: string, f: (e: never) => void, passive = true) => tr.addEventListener(t, f as EventListener, { passive, signal: off.signal });
+    on(
+      "wheel",
+      (e: WheelEvent) => {
+        const top = target(Math.sign(e.deltaY));
+        if (e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX) || top < 0) return;
+        e.preventDefault();
+        const now = performance.now();
+        if (now - quiet > 120 && now - stepped > 500) step(top); // a pause, then a new gesture
+        quiet = now;
+      },
+      false,
+    );
+    // a finger: the stage holds still under it, and a swipe of 30 px or more up or down moves one chapter
+    on("touchstart", (e: TouchEvent) => {
+      y0 = e.touches.length === 1 ? e.touches[0].clientY : -1;
+      dy = 0;
+    });
+    on(
+      "touchmove",
+      (e: TouchEvent) => {
+        if (y0 < 0) return;
+        dy = y0 - e.touches[0].clientY;
+        if (e.touches.length > 1 || target(Math.sign(dy)) < 0) y0 = -1;
+        else if (e.cancelable) e.preventDefault();
+      },
+      false,
+    );
+    on("touchend", () => {
+      const top = y0 < 0 || Math.abs(dy) < 30 ? -1 : target(Math.sign(dy));
+      y0 = -1;
+      if (top >= 0) step(top);
+    });
     const near = new IntersectionObserver(([e]) => {
       if (e.isIntersecting) {
         addEventListener("scroll", onScroll, { passive: true });
@@ -598,22 +665,16 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       near.disconnect();
       mode.disconnect();
       removeEventListener("scroll", onScroll);
+      off.abort();
       document.removeEventListener("visibilitychange", begin);
       timers.forEach(clearTimeout);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [n]);
 
-  const go = (i: number) => {
-    const tr = track.current;
-    if (!tr) return;
-    const span = tr.offsetHeight - innerHeight;
-    const top = tr.getBoundingClientRect().top + scrollY + span * ((i + 0.2) / n);
-    scrollTo({
-      top,
-      behavior: document.documentElement.classList.contains("fd-motion") ? "smooth" : "auto",
-    });
-  };
+  // a chapter's own snap point (.tr-snap below)
+  const go = (i: number) =>
+    track.current?.querySelectorAll(".tr-snap")[i]?.scrollIntoView({ behavior: document.documentElement.classList.contains("fd-motion") ? "smooth" : "auto" });
 
   const labels = ["Studio", ...chapters.map((c) => c.label)];
 
@@ -720,6 +781,10 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
           ))}
         </nav>
       </div>
+      {/* 26.11.28 one snap point per chapter (tour.css .tr-snap): one scroll moves one chapter */}
+      {labels.map((l, i) => (
+        <i key={l} className="tr-snap" aria-hidden="true" style={{ "--at": i ? (i + 0.5) / n : 0 } as CSSProperties} />
+      ))}
     </section>
   );
 }

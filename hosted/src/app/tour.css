@@ -1474,3 +1474,46 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     font-size: 15px;
   }
 }
+
+/* 26.11.28 one scroll, one chapter: the page snaps to each chapter of the stage (the browser's own scroll snapping, so a
+   wheel, a trackpad, the keys and touch all behave as usual) and cannot fly past one. Everything after the stage is one
+   snap area taller than the window, so it scrolls freely. */
+html:has(.tr-snap) {
+  scroll-snap-type: y mandatory;
+}
+
+.tr-snap,
+.tr-snap-rest {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  pointer-events: none;
+  scroll-snap-align: start;
+}
+
+.tr-snap {
+  top: calc((100% - 100vh) * var(--at));
+  height: 1px;
+  scroll-snap-stop: always;
+}
+
+/* from where the stage ends (the page's bar overlaps it by 65 px) to the bottom of the page */
+.fd-lp:has(> .tr-snap-rest) {
+  position: relative;
+}
+
+.tr-snap-rest {
+  top: calc(var(--n) * 90vh + 100vh - 65px);
+  bottom: 0;
+}
+
+/* ...and at the very bottom of the page (a layout rounding can leave the area a fraction short of it) */
+.tr-snap-rest::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: end;
+}
