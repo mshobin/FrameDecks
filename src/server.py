@@ -42,12 +42,14 @@ import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
+import meeting_log  # 26.11.23 what was shown, for the meeting summary
+import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.22"
+APP_VERSION = "26.11.23"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -356,6 +358,8 @@ def save_state(new):
                 DISK["timer"].daemon = True
                 DISK["timer"].start()
         cond.notify_all()
+        if "MEETING_LOG" in globals():
+            MEETING_LOG.observe(state)     # 26.11.23 the meeting summary: what went on screen, and when
         if mem_before != mem_after and "MEMORY" in globals():
             if mem_before and not mem_after and not _MEM.get("syncing"):
                 MEMORY.hide_all()          # Hide all / Esc in the Studio emptied the chat overlay
@@ -449,6 +453,17 @@ def update_state(change):
 # ---------- 9.0 Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
 MEMORY = memory.Memory(DATA / "kc-memory.json")
 NOTES = meeting_notes.Notes(str(DATA / "notes"))   # 9.12 one file per meeting, this PC only
+MEETING_LOG = meeting_log.MeetingLog(str(DATA / "meetings-log"))   # 26.11.23 one file per meeting run, this PC only
+atexit.register(MEETING_LOG.flush)
+
+
+def meeting_summary(rid="latest"):
+    """26.11.23 the one-page summary of a meeting run (the last one by default), with each Frame's planned minutes."""
+    plan = {}
+    for sc in state.get("scenes") or []:
+        if isinstance(sc, dict) and sc.get("name") and isinstance(sc.get("plan"), (int, float)) and sc.get("plan") > 0:
+            plan.setdefault(sc["name"], sc["plan"])
+    return meeting_log.summary(MEETING_LOG.get(rid), plan)
 _MEM = {"watcher": None, "timer": None, "lock": threading.Lock(), "syncing": False}
 
 
@@ -862,7 +877,8 @@ def voice_commands_action(d, remote=False):
 
 
 # ---------- 26.11.20 riders: small change counters that travel with a window's one waiting request for the state ----
-RIDERS = {"vl": lambda: VERSE_LISTEN.seq, "vc": lambda: VOICE_CMD.seq, "mem": lambda: MEMORY.rev}
+RIDERS = {"vl": lambda: VERSE_LISTEN.seq, "vc": lambda: VOICE_CMD.seq, "mem": lambda: MEMORY.rev,
+          "pr": lambda: PRAYER.rev}   # 26.11.23 the prayer wall's list
 RIDER_SLICE = 0.12        # how often a waiting request looks at the riders (they change on other threads)
 
 
@@ -957,12 +973,14 @@ def memory_action(data):
         res = {"item": need(MEMORY.edit(item_id, data.get("title"), data.get("text")))}
     elif act == "show":
         res = {"item": need(MEMORY.show(item_id, data.get("full")))}
+        MEETING_LOG.count("memory")
     elif act == "showmany":                            # 9.1 Show on several selected cards
         ids = data.get("ids") if isinstance(data.get("ids"), list) else []
         shown = MEMORY.show_many(ids[:memory.MAX_ITEMS])
         if not shown:
             raise ValueError("Those cards are no longer there.")
         res = {"shown": len(shown)}
+        MEETING_LOG.count("memory", len(shown))
     elif act == "pin":
         res = {"item": need(MEMORY.pin(item_id, data.get("on")))}
     elif act == "hide":
@@ -997,6 +1015,55 @@ def memory_action(data):
         raise ValueError("Unknown action")
     memory_sync()
     return res
+
+
+# ---------- 26.11.23 the prayer requests wall (src/prayer_wall.py; 0019_prayer_wall.sql) ----------
+PRAYER = prayer_wall.PrayerWall(lambda: SYNC._team(), on_received=lambda n: MEETING_LOG.count("prayer.received", n))
+
+
+def _prayer_card(title, text):
+    """A request (or the "We're praying for" list) on screen, as a Memory Card with this title and text."""
+    status, item = MEMORY.add(text, source="phone", show=False)
+    if not item:
+        raise ValueError("That could not be shown.")
+    MEMORY.edit(item["id"], title, text)
+    MEMORY.show(item["id"], True)
+    memory_sync()
+    return item["id"]
+
+
+def prayer_action(data):
+    """POST /api/prayer {op: open|close|show|done|again|list, id?, name?} (this PC only). Nothing is shown unless the
+    leader chooses it; a name only when the leader chooses to show it and the person gave one."""
+    op, item_id = str(data.get("op") or ""), str(data.get("id") or "")
+    if op == "open":
+        try:
+            return PRAYER.open(data.get("hours") or 4)
+        except cloud_sync.Refused as e:
+            if getattr(e, "code", "") == "42501" or "not connected" in str(e):
+                raise ValueError("The prayer wall needs this PC connected to your FrameDecks workspace: "
+                                 "Settings \u2192 Sync \u2192 Add a device.")
+            raise ValueError(str(e))
+    if op == "close":
+        return PRAYER.close()
+    if op == "show":
+        title, text = PRAYER.card(item_id, bool(data.get("name")))
+        _prayer_card(title, text)
+        PRAYER.mark(item_id, "shown")
+        MEETING_LOG.count("prayer.shown")
+    elif op in ("done", "again"):
+        PRAYER.mark(item_id, "done" if op == "done" else "new")
+    elif op == "list":
+        _prayer_card(*PRAYER.praying_for())
+    elif op == "invite":                               # the code on screen, for people on Zoom or Teams
+        b = PRAYER.body()
+        if not b["open"]:
+            raise ValueError("Open the prayer wall first.")
+        _prayer_card("Send a prayer request", "Go to %s and type the code %s" % (
+            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]))
+    else:
+        raise ValueError("Unknown action.")
+    return PRAYER.body()
 
 
 if isinstance(state.get("live"), dict):
@@ -3058,6 +3125,20 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError:
                 after, wait = 0, 0.0
             return self.reply(200, json.dumps(VOICE.heard(after, wait)), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/prayer":                       # 26.11.23 the prayer wall (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(PRAYER.body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path in ("/api/summary", "/api/summary/list"):   # 26.11.23 the meeting summary (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            if path == "/api/summary/list":
+                return self.reply(200, json.dumps({"runs": MEETING_LOG.runs()}), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+            s = meeting_summary(q.get("run", ["latest"])[0])
+            if q.get("format", [""])[0] == "text":
+                return self.reply(200, meeting_log.as_text(s), "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps({"summary": s}), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/notes":                        # 9.12 the leader's notes (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3567,6 +3648,16 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/prayer":                       # 26.11.23 the prayer wall (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                res = prayer_action(data if isinstance(data, dict) else {})
+            except cloud_sync.Offline as e:
+                return self.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
+            except (ValueError, OSError) as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"])
         if path == "/api/notes":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

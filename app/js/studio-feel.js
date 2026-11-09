@@ -39,7 +39,8 @@ function renderGeneral(){
     box.appendChild(h('h3', {cls: 'vl-set-h', id: 'feel-h', text: 'Running the meeting'}));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Smart Next'}), h('label', {cls: 'check'}, [smart, ' Next shows the live Frame’s questions, then its scriptures, then the next Frame'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Sounds'}), h('label', {cls: 'check'}, [snd, ' A soft chime on Go Live and Next (only you hear it)'])]));
-    box.appendChild(h('p', {cls: 'hint', text: 'Next, Previous, Hide all, Black screen and Emergency off can be undone for 5 seconds.'}));
+    box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Meeting summary'}), h('button', {cls: 'btn ghost small', type: 'button', id: 'feel-summary', text: 'Open the last meeting’s summary', onclick: function(){ if (window.KCSummary) KCSummary.open('latest'); }})]));
+    box.appendChild(h('p', {cls: 'hint', text: 'Next, Previous, Hide all, Black screen and Emergency off can be undone for 5 seconds. When a meeting ends, its summary is offered: print it, save it as a PDF or email it.'}));
   }).catch(function(){});
 }
 

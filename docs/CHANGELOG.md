@@ -10,6 +10,23 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.23] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.23.md](releases/v26.11.23.md).
+
+### Added
+- Meeting summary: `src/meeting_log.py` (one JSON file per run in `<data>/meetings-log/`, this PC only) watches every
+  save (`MEETING_LOG.observe` in `save_state`); `GET /api/summary?run=latest|<id>[&format=text]` and
+  `/api/summary/list`; `app/js/meeting-summary.js` (dialog, print sheet `#sum-print`, Copy, Email via `mailto:`).
+- Prayer requests wall: migration `0019_prayer_wall.sql` (+ rollback): `pc_prayer_open/close/take` by the PC's key,
+  `prayer_peek` / `prayer_send` for anyone with the code (limited per network and like wrong join codes); requests are
+  deleted as the PC takes them and after 24 h. Website `/pray` (`PrayerPanel` in `join-panel.tsx`, one shared chunk).
+  PC: `src/prayer_wall.py` (in memory only), `POST /api/prayer {op: open|close|show|done|again|list|invite}`, rider
+  `pr`; `app/js/prayer-wall.js` (Engage → Prayer requests); shown requests are Memory Cards.
+
+### Fixed
+- `KCScenes.take` clears `live.smart`, so Smart Next starts from what a Frame shows when it is taken again.
+
 ## [26.11.22] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.22.md](releases/v26.11.22.md).

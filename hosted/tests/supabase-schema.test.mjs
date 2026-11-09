@@ -24,6 +24,7 @@ test("every table has at least one policy and none is open to anon", () => {
     "workspace_sync", "computer_links", "computer_link_failures", "trusted_devices", "security_events", "live_push", "workspace_bells",
     "help_votes", // 0017: votes go in through help_vote() and are read only in the SQL editor
     "join_codes", "join_failures", "recovery_codes", // 0018: only the scan-to-join functions touch them
+    "prayer_walls", "prayer_requests", // 0019: only the prayer wall functions touch them
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -60,6 +61,10 @@ const ANON_BY_DESIGN = [
   "pc_join_request_allow",
   "pc_devices",
   "pc_device_remove",
+  // 0019: the church PC opens and closes its prayer wall and takes the requests in, by its key
+  "pc_prayer_open",
+  "pc_prayer_close",
+  "pc_prayer_take",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
@@ -70,12 +75,15 @@ const BEFORE_A_SESSION = ["magic_link_requested", "check_trusted_session",
   "join_code_peek", "join_request_peek"];
 // 0017: the public Help pages' "Was this helpful?": it reads nothing, only adds a checked article name and a yes or no.
 const PUBLIC_HELP = ["help_vote"];
+// 0019: people in the meeting send a prayer request with only the wall's code (no account); they read nothing back
+// but whether the wall is open (and the team's name), limited per network and like wrong codes.
+const PUBLIC_PRAYER = ["prayer_peek", "prayer_send"];
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];
   for (const [, name] of definers) {
     if (["is_org_member", "is_org_admin", "add_creator_as_owner"].includes(name)) continue;
-    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name) || PUBLIC_HELP.includes(name)) continue;
+    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name) || PUBLIC_HELP.includes(name) || PUBLIC_PRAYER.includes(name)) continue;
     assert.match(sql, new RegExp(`revoke execute on function public\\.${name}\\([^)]*\\) from public, anon`), name);
   }
 });
@@ -113,4 +121,13 @@ test("every table the companion reads or writes directly is granted to signed-in
   const grants = [...sql.matchAll(/grant ([^;]+?) on table ([^;]+?) to authenticated;/gi)].map((m) => m[2]).join(",");
   for (const table of used) assert.match(grants, new RegExp(`public\\.${table}\\b`), table);
   assert.doesNotMatch(sql, /grant [^;]* on (table|all tables)[^;]* to anon/i);
+});
+
+test("the prayer wall's public functions never return a request", () => {
+  for (const name of PUBLIC_PRAYER) {
+    const body = sql.split(`create or replace function public.${name}(`)[1].split("$$;")[0];
+    assert.match(body, /returns jsonb/, name);
+    assert.match(body, /public\.join_blocked\(/, name);
+    assert.doesNotMatch(body, /select [^;]*\bbody\b[^;]* from public\.prayer_requests/, name);
+  }
 });

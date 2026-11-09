@@ -903,6 +903,7 @@ var Scenes = {
     var now = Date.now();                                    // 26.11.14 the meeting clock starts with the first Go Live (or after 6 quiet hours)
     if (!n.live.scene || !n.live.since || now - (n.live.at || 0) > 6 * 3600e3) n.live.since = now;
     n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = now; n.live.tx = tx.type; n.live.txMs = tx.ms;
+    delete n.live.smart;                                     // 26.11.23 a Frame taken again starts Smart Next from what it shows
     return true;
   },
   /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */

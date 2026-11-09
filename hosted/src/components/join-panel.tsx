@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { codeFromHash, codeProblem, guessDeviceName, isShortCode, tidyCode, type JoinRole } from "@/lib/join-code";
 import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
 import { TERMS_VERSION } from "@/lib/legal";
+import { PRAYER_MAX, PRAYER_NAME_MAX, isPrayerCode, prayerCodeFromHash, tidyPrayerCode } from "@/lib/prayer-code";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession, useSessionAtArrival } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
@@ -220,6 +221,161 @@ export function JoinPanel() {
           />
           <Button className="auth-primary" type="submit" disabled={checking || !typed.trim()}>
             {checking ? "Checking…" : "Check the code"}
+          </Button>
+        </form>
+      )}
+
+      {problem && (
+        <p className="auth-error" role="alert">
+          {problem}
+        </p>
+      )}
+      {checking && (
+        <p className="auth-message" role="status">
+          Checking the code…
+        </p>
+      )}
+    </>
+  );
+}
+
+// 26.11.23 /pray lives here too: the same kind of page (a code from the church PC's screen), one shared chunk.
+type PrayerPeek = { status: "open"; team: string } | { status: "closed" | "unknown" };
+
+const PRAYER_TOO_MANY = "Too many wrong codes from this network. Wait an hour, then try again.";
+
+/** 26.11.23 /pray: someone in the meeting sends a prayer request to the leader, with only the code on the screen.
+ * No account and no sign-in. The leader reads every request first and chooses what is shared; nothing is kept online. */
+export function PrayerPanel() {
+  const supabase = browserSupabase();
+  const [code, setCode] = useState<string | null>(null);
+  const [typed, setTyped] = useState("");
+  const [peek, setPeek] = useState<PrayerPeek | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [body, setBody] = useState("");
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const look = useCallback(
+    async (c: string) => {
+      if (!supabase) return;
+      setChecking(true);
+      setProblem(null);
+      const { data, error } = await supabase.rpc("prayer_peek", { code: c });
+      setChecking(false);
+      if (error) {
+        setPeek(null);
+        setProblem(codeProblem(error) === "too-many" ? PRAYER_TOO_MANY : userSafeError(error, "Couldn’t check the code. Check your connection and try again."));
+        return;
+      }
+      setCode(c);
+      setPeek(data as PrayerPeek);
+    },
+    [supabase],
+  );
+
+  useEffect(() => {
+    const c = takeHashCode(prayerCodeFromHash);      // read once; the code is not kept in the address bar
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (c) void look(c);
+  }, [look]);
+
+  function checkTyped(e: FormEvent) {
+    e.preventDefault();
+    if (!isPrayerCode(typed)) {
+      setProblem("That isn’t a prayer code. It has 6 letters and numbers, shown on the meeting screen.");
+      return;
+    }
+    void look(tidyPrayerCode(typed));
+  }
+
+  async function send(e: FormEvent) {
+    e.preventDefault();
+    if (!supabase || !code || busy) return;
+    setBusy(true);
+    setProblem(null);
+    const { error } = await supabase.rpc("prayer_send", { code, body: body.trim(), name: name.trim() || null });
+    setBusy(false);
+    if (error) {
+      setProblem(userSafeError(error, "Couldn’t send your request. Check your connection and try again."));
+      return;
+    }
+    setSent(true);
+    setBody("");
+  }
+
+  if (!supabase) {
+    return <p className="auth-message">Prayer requests are not available here right now.</p>;
+  }
+
+  if (sent) {
+    return (
+      <>
+        <h1 className="fd-auth-title">Thank you</h1>
+        <p className="auth-message" role="status">
+          Your request is with the leader. They read it first and choose what is shared{name.trim() ? "" : ", without your name"}.
+        </p>
+        <Button className="auth-primary" type="button" onClick={() => setSent(false)}>
+          Send another
+        </Button>
+      </>
+    );
+  }
+
+  const open = peek?.status === "open";
+  return (
+    <>
+      <h1 className="fd-auth-title">{open ? `Pray with ${peek.team}` : "Send a prayer request"}</h1>
+      {peek?.status === "closed" && <p className="auth-message">This prayer wall is closed now. Thank you for wanting to share.</p>}
+      {peek?.status === "unknown" && <p className="auth-message">That code isn’t open. Check the code on the meeting screen.</p>}
+
+      {open && (
+        <form onSubmit={send}>
+          <label className="jc-field">
+            Your prayer request
+            <textarea
+              value={body}
+              maxLength={PRAYER_MAX}
+              rows={5}
+              required
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="What would you like us to pray for?"
+            />
+            <span className="jc-count" aria-live="polite">
+              {PRAYER_MAX - body.length} characters left
+            </span>
+          </label>
+          <label className="jc-field">
+            Your first name (optional)
+            <input value={name} maxLength={PRAYER_NAME_MAX} autoComplete="given-name" onChange={(e) => setName(e.target.value)} />
+          </label>
+          <p className="auth-message">
+            Leave your name empty to stay anonymous. The leader reads every request first; nothing is kept online.
+          </p>
+          <Button className="auth-primary" type="submit" disabled={busy || body.trim().length < 2}>
+            {busy ? "Sending…" : "Send my request"}
+          </Button>
+        </form>
+      )}
+
+      {!open && (
+        <form className="auth-form" onSubmit={checkTyped}>
+          <label htmlFor="pray-code">{peek ? "Try another code" : "Type the code on the meeting screen"}</label>
+          <input
+            id="pray-code"
+            className="jc-type"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={8}
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            placeholder="K7PM2X"
+          />
+          <Button className="auth-primary" type="submit" disabled={checking || !typed.trim()}>
+            {checking ? "Checking…" : "Open the prayer wall"}
           </Button>
         </form>
       )}

@@ -32,6 +32,7 @@ var ACTIONS = [
   A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app']),
   // Engage
   A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone']),
+  A('engage', 'prayer', 'Prayer requests', 'hand-heart', 'From phones in the meeting', ['app']),   // 26.11.23 the leader reads them first
   // 26.11.15 the Teleprompter is used live, so it lives in Engage only (Command Center, top bar and phone alike)
   A('engage', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone']),
   A('engage', 'capture', 'Capture copies', 'copy', 'Each Ctrl+C is a card', ['cc', 'app'], {toggle: true}),

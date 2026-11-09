@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.23': [
+    {title: 'A summary of every meeting', text: 'When a meeting ends: each Frame and how long it was on, the questions and scriptures, to print, save as PDF or email.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Prayer requests from phones', text: 'Engage → Prayer requests: people scan a code and send a request. You read each one first and choose what is shown.', show: {settings: 'general', spot: '#feel-settings'}}
+  ],
   '26.11.22': [
     {title: 'Undo for 5 seconds', text: 'Next, Previous, Hide all, Black screen and Emergency off show Undo for 5 seconds, in the Studio and the Command Center.', show: {settings: 'general', spot: '#feel-settings'}},
     {title: 'Smart Next', text: 'Next can show the live Frame’s questions, then its scriptures, then the next Frame. Switch it on in Settings → General.', show: {settings: 'general', spot: '#feel-settings'}},

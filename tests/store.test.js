@@ -92,6 +92,9 @@ console.log('store: OK');
   assert.strictEqual(seen.join(), 'question,question,verse,verse,verse,frame', 'Take shows question 1; then the rest');
   assert.strictEqual(s.live.scene, 'sc_b');
   assert.strictEqual(SC.smartNext(s), null, 'the last of the meeting');
+  SC.take(s, 'sc_a', 'cut');                                // taken again: Smart Next starts from what it shows
+  assert.strictEqual(s.live.smart, undefined);
+  assert.notStrictEqual(SC.smartNext(s).kind, 'frame');
   // the place survives the normaliser (it is saved with the state)
   const kept = env.Store.normalize({live: {scene: 'sc_a', smart: {scene: 'sc_a', at: 2}}});
   assert.strictEqual(JSON.stringify(kept.live.smart), JSON.stringify({scene: 'sc_a', at: 2}));

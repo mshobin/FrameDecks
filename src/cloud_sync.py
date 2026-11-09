@@ -412,6 +412,16 @@ class CloudApi:
     def pc_join_request_allow(self, code, wanted):
         return self._rpc("pc_join_request_allow", {"code": code, "wanted": wanted})
 
+    # 26.11.23 the prayer requests wall (0019_prayer_wall.sql), with this PC's own key
+    def pc_prayer_open(self, hours=4):
+        return self._rpc("pc_prayer_open", {"hours": hours})
+
+    def pc_prayer_close(self):
+        return self._rpc("pc_prayer_close", {})
+
+    def pc_prayer_take(self):
+        return self._rpc("pc_prayer_take", {})
+
     def pc_devices(self):
         return self._rpc("pc_devices", {})
 
