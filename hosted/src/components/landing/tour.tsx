@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  useEffect,
-  useRef,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { Fragment, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import Image from "next/image";
 
 // 26.11.2 the front page's stage (owner's brief, 6 November; app/tour.css, docs/development/design-system.md "Landing").
@@ -133,16 +127,8 @@ function cardStyle(c: Card, i: number) {
 
 // the lines between them: [level, wide, tall]
 const LINES = [
-  [
-    "tr-a1",
-    "M500 174 C500 205 250 205 250 236",
-    "M260 66 C260 88 125 88 125 110",
-  ],
-  [
-    "tr-a1",
-    "M500 174 C500 205 720 205 720 236",
-    "M260 66 C260 88 395 88 395 110",
-  ],
+  ["tr-a1", "M500 174 C500 205 250 205 250 236", "M260 66 C260 88 125 88 125 110"],
+  ["tr-a1", "M500 174 C500 205 720 205 720 236", "M260 66 C260 88 395 88 395 110"],
   ["tr-a2", "M250 280 C250 305 250 305 250 330", "M10 154 V240 H20"],
   ["tr-a2", "M720 280 C720 305 550 305 550 330", "M280 154 V236 H290"],
   ["tr-a2", "M720 280 C720 305 720 305 720 330", "M280 154 V332 H290"],
@@ -198,18 +184,8 @@ const SAY_AT = 0.62; // Command Center: where Right Ctrl is held...
 const SAID_AT = 0.8; // ...and "next frame" is heard and done
 
 // the camera over the Studio, per chapter: where the Studio's centre goes on the stage, its scale, and how far it dims
-const cam = (cx: number, cy: number, sc: number, veil: number) => [
-  cx - 500 * sc,
-  cy - 110 - 200 * sc,
-  sc,
-  veil,
-];
-const CAM = [
-  cam(500, 310, 1, 0),
-  cam(500, 330, 0.94, 0.62),
-  [322 - 507 * 1.3, 300 - 110 - 159 * 1.3, 1.3, 0],
-  cam(500, 300, 0.56, 0),
-];
+const cam = (cx: number, cy: number, sc: number, veil: number) => [cx - 500 * sc, cy - 110 - 200 * sc, sc, veil];
+const CAM = [cam(500, 310, 1, 0), cam(500, 330, 0.94, 0.62), [322 - 507 * 1.3, 300 - 110 - 159 * 1.3, 1.3, 0], cam(500, 300, 0.56, 0)];
 const SCREEN = [302, 44, 411, 231] as const; // the Studio's live picture, in the screenshot's place on the stage (1000 px wide)
 
 // The Teleprompter's script (the same words as the program's own capture)
@@ -266,12 +242,7 @@ const TAKEOVER = 8; // the flowchart-to-Studio flight is slower, so it reads as 
 const clamp = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const ease = (v: number) => (v < 0.5 ? 2 * v * v : 1 - (-2 * v + 2) ** 2 / 2);
 /** One step of a critically damped spring towards `to`; false once it has settled there. */
-function spring(
-  m: { x: number; v: number },
-  to: number,
-  w: number,
-  dt: number,
-) {
+function spring(m: { x: number; v: number }, to: number, w: number, dt: number) {
   m.v += (w * w * (to - m.x) - 2 * w * m.v) * dt;
   m.x += m.v * dt;
   if (Math.abs(to - m.x) > 2e-4 || Math.abs(m.v) > 2e-3) return true;
@@ -281,10 +252,7 @@ function spring(
 }
 
 /** The pinned stage and its chapters. `intro` is the first chapter's words (the page's headline and actions). */
-export function Tour({
-  intro,
-  chapters,
-}: Readonly<{ intro: ReactNode; chapters: readonly TourChapter[] }>) {
+export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters: readonly TourChapter[] }>) {
   const track = useRef<HTMLElement>(null);
   const fit = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -299,8 +267,7 @@ export function Tour({
     if (!st || !box || !tr) return;
     const html = document.documentElement;
     const calm = html.classList.contains("fd-calm");
-    const q = <T extends Element = HTMLElement>(s: string) =>
-      Array.from(st.querySelectorAll<T & HTMLElement>(s));
+    const q = <T extends Element = HTMLElement>(s: string) => Array.from(st.querySelectorAll<T & HTMLElement>(s));
     const name = st.querySelector(".tr-name") as HTMLElement;
     const build = st.querySelector(".tr-build") as HTMLElement;
     const keys = st.querySelector(".tr-bigkeys") as HTMLElement;
@@ -318,18 +285,9 @@ export function Tour({
     const still = matchMedia("(prefers-reduced-motion: reduce)");
     // 26.11.3 one flow: with motion allowed, the page's scroll itself carries the camera and each chapter in and out;
     // otherwise the chapters change in place, without movement
-    const fluid = () =>
-      !still.matches &&
-      html.classList.contains("fd-motion") &&
-      !html.classList.contains("fd-calm");
+    const fluid = () => !still.matches && html.classList.contains("fd-motion") && !html.classList.contains("fd-calm");
     const loose = () =>
-      [...scenes, ...sats, ...caps.current, keys].forEach(
-        (l) =>
-          l &&
-          ["opacity", "transform", "visibility"].forEach((k) =>
-            l.style.removeProperty(k),
-          ),
-      );
+      [...scenes, ...sats, ...caps.current, keys].forEach((l) => l && ["opacity", "transform", "visibility"].forEach((k) => l.style.removeProperty(k)));
     let said = -1;
     // the pointer on the Command Center (Scene.moves), and the callout of the key in use (Scene.hot), driven by the
     // chapter's own progress
@@ -338,15 +296,10 @@ export function Tour({
       box: fig.querySelector<HTMLElement>(".tr-cc") ?? fig,
       ptr: fig.querySelector<HTMLElement>(".tr-ptr"),
       tap: fig.querySelector<HTMLElement>(".tr-tap"),
-      calls: Array.from(
-        fig.querySelectorAll<HTMLElement>(".tr-callouts > span"),
-      ),
+      calls: Array.from(fig.querySelectorAll<HTMLElement>(".tr-callouts > span")),
       fired: new Set<number>(),
     }));
-    const px = (el: HTMLElement, x: number, y: number) => [
-      (x / 100) * el.offsetWidth,
-      (y / 100) * el.offsetHeight,
-    ];
+    const px = (el: HTMLElement, x: number, y: number) => [(x / 100) * el.offsetWidth, (y / 100) * el.offsetHeight];
     const move = (k: (typeof kit)[number], t: number) => {
       const { s, box } = k;
       let hot = 0;
@@ -377,20 +330,18 @@ export function Tour({
     };
     // the suite: each piece rises out of the Studio's middle to its own place (worked out once the stage has a size)
     let homes: number[][] = [];
-    const place = () =>
-      (homes = sats.map((el) => [
-        (500 - el.offsetLeft - el.offsetWidth / 2) * 0.55,
-        (300 - el.offsetTop - el.offsetHeight / 2) * 0.55,
-      ]));
+    const place = () => (homes = sats.map((el) => [(500 - el.offsetLeft - el.offsetWidth / 2) * 0.55, (300 - el.offsetTop - el.offsetHeight / 2) * 0.55]));
 
     // ---- size: the stage is drawn at 1000 × 620 and scaled to the room it has. On a tall screen (a phone) the
     // flowchart takes its narrower shape at its own, larger scale, and each card's flight is worked out from there ----
     let flight: number[][] = [];
     let drawn = -1;
+    const view = { s: 1, w: 0, h: 0, tall: false };
     const size = () => {
       const w = box.clientWidth;
       const h = box.clientHeight;
       const s = Math.max(0.2, Math.min(w / 1000, h / 620));
+      Object.assign(view, { s, w, h, tall: w / h < 1.2 });
       const sx = (w - 1000 * s) / 2;
       const sy = Math.max(0, (h - 620 * s) / 2);
       st.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
@@ -400,11 +351,7 @@ export function Tour({
       if (tall) {
         const [tw, th, tt] = TALL;
         const b = Math.min(w / (tw + 20), h / (th + 30), 1.3);
-        [k, bx, by] = [
-          b / s,
-          ((w - tw * b) / 2 - sx) / s,
-          ((h - th * b) / 2 + tt * b - sy) / s,
-        ];
+        [k, bx, by] = [b / s, ((w - tw * b) / 2 - sx) / s, ((h - th * b) / 2 + tt * b - sy) / s];
         build.style.transform = `translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0) scale(${k.toFixed(4)})`;
       } else build.style.removeProperty("transform");
       paths.forEach((p, i) => p.setAttribute("d", LINES[i][tall ? 2 : 1]));
@@ -418,12 +365,7 @@ export function Tour({
           height: `${ch}px`,
         });
         const [X, Y, W, H] = c.to;
-        return [
-          (X * r - bx) / k - x,
-          (SHOT.top + Y * r - by) / k - y,
-          (W * r) / k / cw,
-          (H * r) / k / ch,
-        ];
+        return [(X * r - bx) / k - x, (SHOT.top + Y * r - by) / k - y, (W * r) / k / cw, (H * r) / k / ch];
       });
       drawn = -1;
       place();
@@ -436,8 +378,7 @@ export function Tour({
     let built = calm;
     let auto = calm ? 1 : 0; // 1 once HOLD has passed: the Studio shows without scrolling
     const set = (cls: string, on = true) => st.classList.toggle(cls, on);
-    const at = (ms: number, f: () => void) =>
-      timers.push(window.setTimeout(f, ms));
+    const at = (ms: number, f: () => void) => timers.push(window.setTimeout(f, ms));
     const word = "Bible Study";
     const finish = () => {
       if (built) return;
@@ -452,17 +393,12 @@ export function Tour({
     };
     const play = () => {
       at(BUILD[0], () => set("is-frame"));
-      for (let i = 1; i <= word.length; i++)
-        at(BUILD[1] + i * 35, () => (name.textContent = word.slice(0, i)));
+      for (let i = 1; i <= word.length; i++) at(BUILD[1] + i * 35, () => (name.textContent = word.slice(0, i)));
       at(BUILD[2], () => set("is-decks"));
       at(BUILD[3], () => set("is-items"));
       at(BUILD[4], finish);
     };
-    [
-      "is-studio",
-      "is-done",
-      ...(calm ? [] : ["is-frame", "is-decks", "is-items"]),
-    ].forEach((p) => set(p, false));
+    ["is-studio", "is-done", ...(calm ? [] : ["is-frame", "is-decks", "is-items"])].forEach((p) => set(p, false));
     if (!calm) name.textContent = "";
     st.setAttribute("data-ready", "");
     let played = calm;
@@ -495,10 +431,7 @@ export function Tour({
       st.style.setProperty("--s", s.toFixed(3));
       // each card lifts out of the flowchart and lands on its own place in the Studio, a moment after the one before
       bs.forEach((b, i) => {
-        if (s <= 0.001)
-          return ["transform", "opacity", "--c"].forEach((k) =>
-            b.style.removeProperty(k),
-          );
+        if (s <= 0.001) return ["transform", "opacity", "--c"].forEach((k) => b.style.removeProperty(k));
         const f = ease(clamp((s - i * 0.035) / 0.6));
         const [dx, dy, kx, ky] = flight[i];
         b.style.transform = `translate3d(${(dx * f).toFixed(1)}px, ${(dy * f).toFixed(1)}px, 0) scale(${(1 + (kx - 1) * f).toFixed(4)}, ${(1 + (ky - 1) * f).toFixed(4)})`;
@@ -551,31 +484,35 @@ export function Tour({
         });
         prev = ch;
       }
-      rail.current.forEach((b, i) =>
-        b?.style.setProperty("--f", String(i < ch ? 1 : i === ch ? t : 0)),
-      );
+      rail.current.forEach((b, i) => b?.style.setProperty("--f", String(i < ch ? 1 : i === ch ? t : 0)));
       // the camera: each chapter's place, handed over across MIX of the scroll around each boundary
-      const w = CAM.map((_, k) =>
-        k === 0
-          ? 1
-          : flow
-            ? ease(clamp((x - k + MIX / 2) / MIX))
-            : x >= k
-              ? 1
-              : 0,
-      );
-      const [cx, cy, cs, cv] = [0, 1, 2, 3].map((j) =>
-        CAM.reduce(
-          (v, c, k) => (k ? v + w[k] * (c[j] - CAM[k - 1][j]) : c[j]),
-          0,
-        ),
-      );
+      const w = CAM.map((_, k) => (k === 0 ? 1 : flow ? ease(clamp((x - k + MIX / 2) / MIX)) : x >= k ? 1 : 0));
+      const [cx, cy, cs, cv] = [0, 1, 2, 3].map((j) => CAM.reduce((v, c, k) => (k ? v + w[k] * (c[j] - CAM[k - 1][j]) : c[j]), 0));
       const studio = flow ? clamp((S.x - 0.35) / 0.6) : 1;
       const o0 = studio < 1 ? 1.03 - 0.03 * studio : 1; // the Studio settles as the flowchart lands on it
       base.style.transform = `translate3d(${(cx + (1 - o0) * 500).toFixed(1)}px, ${(cy + (1 - o0) * 200).toFixed(1)}px, 0) scale(${(cs * o0).toFixed(4)})`;
       if (flow) base.style.opacity = (studio * studio).toFixed(3);
       else base.style.removeProperty("opacity");
       veil.style.opacity = cv.toFixed(3);
+      if (view.tall) {
+        // the phone's view: each chapter's zoom and focus, the Teleprompter's turning to the picture once the verse is
+        // heard, and the suite followed from left to right as it pops out, then seen whole
+        // 26.11.27 on a phone (a tall stage) the whole 1000 px stage would be small, so the view moves too: per chapter
+        // how far it zooms in and where it looks (stage pixels), following what happens within the chapter
+        const go = (k: number, from: number, len: number) => ease(clamp((x - k - from) / len));
+        const out = go(3, 0.74, 0.2);
+        const pan = 180 + 640 * go(3, 0.18, 0.5);
+        const at = (k: number) =>
+          [
+            [1 + 0.3 * studio, 500, 310], // the Studio, a little closer once it has landed
+            [1.75, 500, 280],
+            [1.65, 795 - 473 * go(2, 0.48, 0.2), 300],
+            [1.6 - 0.52 * out, pan + (500 - pan) * out, 300],
+          ][k];
+        const [vz, vx, vy] = [0, 1, 2].map((j) => [0, 1, 2, 3].reduce((v, k) => (k ? v + w[k] * (at(k)[j] - at(k - 1)[j]) : at(0)[j]), 0));
+        const vs = view.s * vz;
+        st.style.transform = `translate3d(${(view.w / 2 - vx * vs).toFixed(1)}px, ${Math.max(0, view.h / 2 - vy * vs).toFixed(1)}px, 0) scale(${vs.toFixed(4)})`;
+      }
       screen.style.opacity = (w[2] - w[3]).toFixed(3);
       if (flow) {
         st.dataset.fluid = "";
@@ -616,10 +553,7 @@ export function Tour({
       // 2 the Teleprompter follows the page as Follow my voice follows the presenter: read words fade, the next word
       // stays on the reading line; the reference read is heard, offered, and shown on the Studio's picture
       const tt = ch === 2 ? t : ch > 2 ? 1 : 0;
-      const nw = Math.min(
-        words.length,
-        Math.floor(clamp(tt * 1.15) * words.length),
-      );
+      const nw = Math.min(words.length, Math.floor(clamp(tt * 1.15) * words.length));
       if (nw !== said && words.length) {
         words.forEach((wd, i) => wd.classList.toggle("is-said", i < nw));
         said = nw;
@@ -639,9 +573,7 @@ export function Tour({
         }
         el.classList.toggle("is-on", p > 0.5);
       });
-      msgs.forEach((m, i) =>
-        m.classList.toggle("is-pop", t3 >= 0.3 + i * 0.07),
-      );
+      msgs.forEach((m, i) => m.classList.toggle("is-pop", t3 >= 0.3 + i * 0.07));
       msgs[2]?.classList.toggle("is-pin", t3 >= 0.62);
       room?.classList.toggle("is-room", t3 >= 0.28);
     };
@@ -678,41 +610,24 @@ export function Tour({
     const tr = track.current;
     if (!tr) return;
     const span = tr.offsetHeight - innerHeight;
-    const top =
-      tr.getBoundingClientRect().top + scrollY + span * ((i + 0.2) / n);
+    const top = tr.getBoundingClientRect().top + scrollY + span * ((i + 0.2) / n);
     scrollTo({
       top,
-      behavior: document.documentElement.classList.contains("fd-motion")
-        ? "smooth"
-        : "auto",
+      behavior: document.documentElement.classList.contains("fd-motion") ? "smooth" : "auto",
     });
   };
 
   const labels = ["Studio", ...chapters.map((c) => c.label)];
 
   return (
-    <section
-      className="tr"
-      id="how"
-      ref={track}
-      aria-label="FrameDecks, from planning to presenting"
-      style={{ "--n": n } as CSSProperties}
-    >
+    <section className="tr" id="how" ref={track} aria-label="FrameDecks, from planning to presenting" style={{ "--n": n } as CSSProperties}>
       <div className="tr-pin">
         <div className="tr-caps">
-          <div
-            className="tr-cap is-on"
-            ref={(el) => void (caps.current[0] = el)}
-          >
+          <div className="tr-cap is-on" ref={(el) => void (caps.current[0] = el)}>
             {intro}
           </div>
           {chapters.map((c, i) => (
-            <div
-              className="tr-cap"
-              key={c.id}
-              id={c.id}
-              ref={(el) => void (caps.current[i + 1] = el)}
-            >
+            <div className="tr-cap" key={c.id} id={c.id} ref={(el) => void (caps.current[i + 1] = el)}>
               <p className="lp-eyebrow">{c.eyebrow}</p>
               <h2 className="tr-h">{c.title}</h2>
               <p className="tr-text">{c.text}</p>
@@ -721,12 +636,7 @@ export function Tour({
         </div>
 
         <div className="tr-fit" ref={fit}>
-          <div
-            className="tr-stage is-frame is-decks is-items is-studio is-done"
-            ref={stage}
-            data-ch="0"
-            style={{ "--s": 1 } as CSSProperties}
-          >
+          <div className="tr-stage is-frame is-decks is-items is-studio is-done" ref={stage} data-ch="0" style={{ "--s": 1 } as CSSProperties}>
             <div className="tr-glows" aria-hidden="true">
               {labels.map((l) => (
                 <i key={l} />
@@ -760,22 +670,13 @@ export function Tour({
               <span className="tr-lv tr-l1">Frame</span>
               <span className="tr-lv tr-l2">Decks</span>
               <span className="tr-lv tr-l3">Content</span>
-              <svg
-                className="tr-links"
-                viewBox="0 0 1000 620"
-                width="1000"
-                height="620"
-              >
+              <svg className="tr-links" viewBox="0 0 1000 620" width="1000" height="620">
                 {LINES.map(([c, d]) => (
                   <path key={d} className={c} pathLength={1} d={d} />
                 ))}
               </svg>
               {CARDS.map((c, i) => (
-                <div
-                  key={c.text}
-                  className={`tr-b ${c.cls}`}
-                  style={cardStyle(c, i)}
-                >
+                <div key={c.text} className={`tr-b ${c.cls}`} style={cardStyle(c, i)}>
                   {c.cls === "tr-deck" && <i />}
                   {c.kind && <span className="tr-bk">{c.kind}</span>}
                   {c.cls === "tr-frame" ? (
@@ -793,13 +694,7 @@ export function Tour({
             {/* the chapters, on the Studio and around it */}
             {SCENES.map((s) => (
               <figure key={s.cls} className={`tr-sc ${s.cls}`}>
-                {s.cls === "tr-sc-cc" ? (
-                  <Command />
-                ) : s.cls === "tr-sc-tp" ? (
-                  <Prompter />
-                ) : (
-                  <Suite />
-                )}
+                {s.cls === "tr-sc-cc" ? <Command /> : s.cls === "tr-sc-tp" ? <Prompter /> : <Suite />}
                 {s.keys.length > 0 && (
                   <figcaption className="tr-callouts">
                     {s.keys.map(([k, what]) => (
@@ -820,13 +715,7 @@ export function Tour({
 
         <nav className="tr-rail" aria-label="Chapters">
           {labels.map((l, i) => (
-            <button
-              key={l}
-              type="button"
-              className={i === 0 ? "is-on" : undefined}
-              ref={(el) => void (rail.current[i] = el)}
-              onClick={() => go(i)}
-            >
+            <button key={l} type="button" className={i === 0 ? "is-on" : undefined} ref={(el) => void (rail.current[i] = el)} onClick={() => go(i)}>
               <i />
               {l}
             </button>
@@ -843,11 +732,7 @@ export function Tour({
 function Screen() {
   const [l, tp, w, h] = SCREEN;
   return (
-    <div
-      className="tr-screen"
-      aria-hidden="true"
-      style={{ left: l, top: tp, width: w, height: h }}
-    >
+    <div className="tr-screen" aria-hidden="true" style={{ left: l, top: tp, width: w, height: h }}>
       <span className="tr-screen-live">Live</span>
       <div className="tr-vo-card tr-vo-title">
         <span className="tr-vo-label">Bible Study</span>
@@ -887,13 +772,7 @@ function Command() {
         <span className="tr-tap" aria-hidden="true" />
         <span className="tr-ptr" aria-hidden="true">
           <svg width="22" height="26" viewBox="0 0 22 26">
-            <path
-              d="M2 2 L2 21 L7.5 16 L11 24 L14.5 22.5 L11 14.8 L18.5 14.8 Z"
-              fill="#fff"
-              stroke="#0b1020"
-              strokeWidth="1.6"
-              strokeLinejoin="round"
-            />
+            <path d="M2 2 L2 21 L7.5 16 L11 24 L14.5 22.5 L11 14.8 L18.5 14.8 Z" fill="#fff" stroke="#0b1020" strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
         </span>
       </div>
@@ -915,7 +794,7 @@ function Prompter() {
   return (
     <div
       role="img"
-      aria-label="The Teleprompter follows the presenter's voice. When the presenter reads Psalm 119:105 it is heard and offered; shown, the verse arrives on the live picture word by word."
+      aria-label="The Teleprompter follows the presenter's voice; Psalm 119:105, read aloud, is offered and shown on the live picture word by word."
     >
       <div className="tr-tp" aria-hidden="true">
         <span className="tr-tp-live">Following your voice</span>
@@ -948,7 +827,7 @@ function Suite() {
   return (
     <div
       role="img"
-      aria-label="Around the Studio: chat messages as Memory Cards beside the presenter on camera, a prayer request in the corner card, the phone remote, a member's phone following the meeting, and the sermon notes"
+      aria-label="Around the Studio: Memory Cards on camera, a prayer request in the corner card, the phone remote, a member's phone and the sermon notes"
     >
       <div className="tr-sat tr-sat-mem">
         <span className="tr-sat-tag">
@@ -977,6 +856,19 @@ function Suite() {
           </ul>
         </div>
       </div>
+      <div className="tr-sat tr-sat-remote">
+        <span className="tr-sat-tag">Phone remote</span>
+        <Image src="/product/phone-remote.webp" alt="" width={390} height={844} unoptimized />
+      </div>
+      <div className="tr-sat tr-sat-notes">
+        <p className="tr-ac-kick">Sermon notes · shared to members’ phones</p>
+        <p className="tr-notes-v">
+          <b>Psalm 119:105</b> Thy word is a lamp unto my feet…
+        </p>
+        <p className="tr-notes-v">
+          <b>Question</b> What does this passage reveal about the character of God?
+        </p>
+      </div>
       <div className="tr-sat tr-sat-card">
         <span className="tr-sat-tag">Corner card, over Zoom or Teams</span>
         <p className="tr-ac-kick">🙏 Prayer request · 1 waiting</p>
@@ -987,35 +879,9 @@ function Suite() {
           <span>Later</span>
         </p>
       </div>
-      <div className="tr-sat tr-sat-remote">
-        <span className="tr-sat-tag">Phone remote</span>
-        <Image
-          src="/product/phone-remote.webp"
-          alt=""
-          width={390}
-          height={844}
-          unoptimized
-        />
-      </div>
       <div className="tr-sat tr-sat-follow">
         <span className="tr-sat-tag">Members’ phones</span>
-        <Image
-          src="/product/follow.webp"
-          alt=""
-          width={560}
-          height={847}
-          unoptimized
-        />
-      </div>
-      <div className="tr-sat tr-sat-notes">
-        <p className="tr-ac-kick">Sermon notes · shared to members’ phones</p>
-        <p className="tr-notes-v">
-          <b>Psalm 119:105</b> Thy word is a lamp unto my feet…
-        </p>
-        <p className="tr-notes-v">
-          <b>Question</b> What does this passage reveal about the character of
-          God?
-        </p>
+        <Image src="/product/follow.webp" alt="" width={560} height={847} unoptimized />
       </div>
     </div>
   );
