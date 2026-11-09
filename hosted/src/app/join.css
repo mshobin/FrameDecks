@@ -14,7 +14,6 @@
 .jc-field{display:grid;gap:6px;margin:0 0 14px;color:var(--text-2);font-size:13px}
 .jc-field input,.jc-field select{min-height:46px;padding:0 12px;border-radius:12px;font-size:15px}
 .jc-field textarea{min-height:120px;padding:10px 12px;border-radius:12px;font:inherit;font-size:15px;line-height:1.5;resize:vertical}
-.jc-count{justify-self:end;font-size:12px;color:var(--text-3)}
 .fd-auth .auth-form input.jc-type,.fd-page input.jc-type{font:700 20px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase}
 .jc-roles{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:0;border:0}
 .jc-roles legend{margin:0 0 6px;padding:0;color:var(--text-2);font-size:13px}
@@ -30,3 +29,31 @@
 @media (max-width:520px){.jc-card{grid-template-columns:1fr;justify-items:center;text-align:center}.jc-qr{width:min(220px,70vw)}}
 @media print{body *{visibility:hidden}.jc-recovery,.jc-recovery *{visibility:visible}.jc-recovery{position:absolute;inset:0 auto auto 0;width:100%;border-color:#000;color:#000}.jc-recovery .jc-code{color:#000}.jc-recovery button{visibility:hidden}}
 .jc-back{display:inline-block;margin:0 0 14px;font-size:14px}
+/* 26.11.24 /follow: members' phones. What is on the meeting screen, read comfortably on a phone; the sermon notes as a
+ * calm reading page that also prints (Save as PDF) on its own. */
+.fl{display:grid;gap:14px}
+.fl-team{display:flex;align-items:center;gap:8px;margin:0;color:var(--text-2);font-size:14px}
+.fl-live{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;background:var(--green-soft);color:var(--green);font-size:12px;font-weight:700}
+.fl-live::before{content:"";width:7px;height:7px;border-radius:999px;background:currentColor}
+.fl-tabs{display:flex;gap:4px;padding:4px;border:1px solid var(--hairline);border-radius:999px}
+.fl-tabs button{flex:1;min-height:40px;border:0;border-radius:999px;background:none;color:var(--text-2);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.fl-tabs button[aria-selected="true"]{background:var(--gold-soft);color:var(--text)}
+.fl-screen{display:grid;gap:14px}
+.fl-frame{margin:0;color:var(--text-3);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fl-verse,.fl-notes blockquote{margin:0;padding:16px 18px;border-left:3px solid var(--gold);border-radius:0 12px 12px 0;background:var(--gold-soft)}
+.fl-verse p,.fl-notes blockquote p{margin:0 0 8px;color:var(--text);font-family:var(--serif);font-size:21px;line-height:1.5}
+.fl-verse cite,.fl-notes cite{color:var(--text-2);font-size:14px;font-style:normal;font-weight:700}
+.fl-q{margin:0;color:var(--text);font-size:19px;line-height:1.5}
+.fl-q p{margin:0}
+.fl-q .fl-q-label{margin:0 0 4px;color:var(--text-3);font-size:13px;font-weight:700}
+.fl-quiet{margin:8px 0;color:var(--text-2);font-size:15px;line-height:1.55}
+.fl-notes{display:grid;gap:4px}
+.fl-notes-title{margin:0;font-family:var(--serif);font-size:28px;line-height:1.2}
+.fl-notes-sub{margin:0 0 10px;color:var(--text-3);font-size:14px}
+.fl-sec{display:grid;gap:10px;padding:14px 0;border-top:1px solid var(--hairline)}
+.fl-sec h3{margin:0;font-size:18px}
+.fl-sec>p{margin:0;color:var(--text);font-size:16px;line-height:1.65}
+.fl-sec>.fl-reflect{margin:4px 0 0;color:var(--text-3);font-size:13px;font-weight:700}
+.fl-sec ul{margin:0;padding-left:20px;color:var(--text);line-height:1.6}
+.fl-print{margin-top:10px}
+@media print{body *{visibility:hidden}.fl-notes,.fl-notes *{visibility:visible}.fl-notes{position:absolute;inset:0 auto auto 0;width:100%}.fl-print{display:none}}

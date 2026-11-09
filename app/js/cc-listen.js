@@ -66,7 +66,7 @@ function paint(){
   }
   var head = said.parentNode; if (head) head.classList.toggle('cc-vl-has', !!p || earlier.length > 0);
   if (p){
-    heard.textContent = p.label + (p.planned ? ' · in your plan' : '');
+    heard.textContent = p.label + (p.planned ? ' · in your plan' : '') + (p.from === 'meeting' ? ' · said in the meeting' : '');   // 26.11.24
     var asked = p.status === 'show' || busy;
     showB.disabled = asked;                                  // Dismiss always works, also if showing fails
     showB.textContent = asked ? 'Showing…' : p.error ? 'Try again' : 'Show';

@@ -90,11 +90,14 @@ class MeetingLog:
                 pass
 
     # ---------- watching the state (server.save_state calls this after every save) ----------
-    def _add(self, kind, label, text="", now=None):
+    def _add(self, kind, label, text="", now=None, sid=""):
         r = self.run
         if r is None or len(r["events"]) >= MAX_EVENTS:
             return
-        r["events"].append({"t": int((now or self.clock()) * 1000), "kind": kind, "label": _s(label, 120), "text": _s(text, 600)})
+        ev = {"t": int((now or self.clock()) * 1000), "kind": kind, "label": _s(label, 120), "text": _s(text, 2000)}
+        if sid:
+            ev["id"] = sid                       # 26.11.24 the Frame, for its Teleprompter script in the sermon notes
+        r["events"].append(ev)
 
     def observe(self, st):
         """Look at the state as saved: a Frame went live, changed, or the meeting ended; a question or scripture shown."""
@@ -124,7 +127,7 @@ class MeetingLog:
                 changed = False
                 if sid != last.get("scene"):
                     sc = _scene(st, sid) or {}
-                    self._add("frame", sc.get("name") or "Frame", now=now)
+                    self._add("frame", sc.get("name") or "Frame", now=now, sid=sid)
                     changed = True
                 if qk and qk != last.get("q"):
                     self._add("question", q.get("label") or "Question", q.get("text"), now=now)
@@ -200,7 +203,7 @@ def summary(run, plan=None):
         if e["kind"] == "frame":
             if cur:
                 cur["ms"] = e["t"] - cur["at"]
-            cur = {"name": e["label"], "at": e["t"], "ms": 0, "questions": [], "verses": []}
+            cur = {"name": e["label"], "id": e.get("id", ""), "at": e["t"], "ms": 0, "questions": [], "verses": []}
             frames.append(cur)
         elif cur is not None:
             key = "questions" if e["kind"] == "question" else "verses" if e["kind"] == "verse" else None
@@ -242,3 +245,57 @@ def as_text(s):
     lines.append("%d questions · %d scriptures · %d Memory Cards shown · %d prayer requests" % (
         s["questionCount"], s["verseCount"], s["memory"], s["prayer"].get("received", 0)))
     return "\n".join(lines)
+
+
+# ---------- 26.11.24 the sermon notes: a page for members, made from what was presented ----------
+def sermon_notes(s, state, with_script=True):
+    """The summary of a run -> the sermon notes: for each Frame shown (once, in order), what the leader planned to say
+    there (its Teleprompter script, when with_script), the scriptures read in full and the questions to reflect on.
+    Nothing to fill in. Frames with nothing to say are left out."""
+    if not s:
+        return None
+    scenes = [x for x in (state or {}).get("scenes") or [] if isinstance(x, dict)]
+    by_id = {x.get("id"): x for x in scenes}
+    by_name = {}
+    for x in scenes:
+        by_name.setdefault(x.get("name"), x)
+    meeting = (state or {}).get("meeting") if isinstance((state or {}).get("meeting"), dict) else {}
+    sections, seen = [], {}
+    for f in s["frames"]:
+        key = f.get("id") or f["name"]
+        if key in seen:                          # a Frame shown twice is one section
+            sec = seen[key]
+        else:
+            sc = by_id.get(f.get("id")) or by_name.get(f["name"]) or {}
+            script = str(sc.get("notes") or "").replace("\r\n", "\n").strip() if with_script else ""
+            sec = {"frame": f["name"], "script": script[:6000], "verses": [], "questions": []}
+            seen[key] = sec
+            sections.append(sec)
+        for v in f["verses"]:
+            if v["label"] not in [x["ref"] for x in sec["verses"]]:
+                sec["verses"].append({"ref": v["label"], "text": v["text"] if v["text"] != v["label"] else ""})
+        for q in f["questions"]:
+            if q["text"] not in sec["questions"]:
+                sec["questions"].append(q["text"])
+    sections = [x for x in sections if x["script"] or x["verses"] or x["questions"]]
+    return {"v": 1, "title": s["meeting"], "date": s["started"], "presenter": _s(meeting.get("presenter"), 80),
+            "sections": sections}
+
+
+def notes_text(n):
+    """The sermon notes as plain text (Copy and Email)."""
+    if not n:
+        return ""
+    lines = [n["title"], time.strftime("%A %d %B %Y", time.localtime(n["date"] / 1000))
+             + (" \u00b7 " + n["presenter"] if n.get("presenter") else ""), ""]
+    for sec in n["sections"]:
+        lines += [sec["frame"].upper(), ""]
+        if sec["script"]:
+            lines += [sec["script"], ""]
+        for v in sec["verses"]:
+            lines += [v["ref"] + (": " + v["text"] if v["text"] else ""), ""]
+        if sec["questions"]:
+            lines.append("To reflect on:")
+            lines += ["- " + q for q in sec["questions"]]
+            lines.append("")
+    return "\n".join(lines).strip() + "\n"

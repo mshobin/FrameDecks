@@ -44,12 +44,13 @@ from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import meeting_log  # 26.11.23 what was shown, for the meeting summary
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
+import member_room  # 26.11.24 members' phones: follow along and the sermon notes
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.23"
+APP_VERSION = "26.11.24"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -360,6 +361,8 @@ def save_state(new):
         cond.notify_all()
         if "MEETING_LOG" in globals():
             MEETING_LOG.observe(state)     # 26.11.23 the meeting summary: what went on screen, and when
+        if "ROOM" in globals():
+            ROOM.poke()                    # 26.11.24 members' phones follow the screen
         if mem_before != mem_after and "MEMORY" in globals():
             if mem_before and not mem_after and not _MEM.get("syncing"):
                 MEMORY.hide_all()          # Hide all / Esc in the Studio emptied the chat overlay
@@ -878,7 +881,7 @@ def voice_commands_action(d, remote=False):
 
 # ---------- 26.11.20 riders: small change counters that travel with a window's one waiting request for the state ----
 RIDERS = {"vl": lambda: VERSE_LISTEN.seq, "vc": lambda: VOICE_CMD.seq, "mem": lambda: MEMORY.rev,
-          "pr": lambda: PRAYER.rev}   # 26.11.23 the prayer wall's list
+          "pr": lambda: "%s.%s" % (PRAYER.rev, ROOM.rev)}   # 26.11.23 the prayer wall; 26.11.24 members' phones
 RIDER_SLICE = 0.12        # how often a waiting request looks at the riders (they change on other threads)
 
 
@@ -1032,20 +1035,74 @@ def _prayer_card(title, text):
     return item["id"]
 
 
+ROOM = member_room.MemberRoom(lambda: SYNC._team(), lambda: state,
+                              prayer_code=lambda: PRAYER.code if PRAYER.is_open() else "")
+
+
+def _linked(call):
+    """A workspace call from the leader's dialog: "not connected" says where to connect."""
+    try:
+        return call()
+    except cloud_sync.Refused as e:
+        if getattr(e, "code", "") == "42501" or "not connected" in str(e):
+            raise ValueError("Members' phones need this PC connected to your FrameDecks workspace: "
+                             "Settings \u2192 Sync \u2192 Add a device.")
+        raise ValueError(str(e))
+
+
+def members_body():
+    return {"room": ROOM.body(), "prayer": PRAYER.body()}
+
+
+def members_action(data):
+    """POST /api/members {op: open|close|prayer|share-notes|unshare-notes, on?, run?, script?} (this PC only).
+    26.11.24 one code for members' phones: follow along, prayer requests and the sermon notes."""
+    op = str(data.get("op") or "")
+    if op == "open":
+        _linked(lambda: ROOM.open(data.get("hours") or 6))
+        if data.get("prayer") and not PRAYER.is_open():
+            _linked(lambda: PRAYER.open(6))
+    elif op == "close":
+        if PRAYER.is_open():
+            PRAYER.close()
+        ROOM.close()
+    elif op == "prayer":
+        if data.get("on"):
+            if not PRAYER.is_open():
+                _linked(lambda: PRAYER.open(6))
+        elif PRAYER.is_open():
+            PRAYER.close()
+    elif op == "share-notes":
+        notes = meeting_log.sermon_notes(meeting_summary(str(data.get("run") or "latest")), state, data.get("script", True) is not False)
+        if not notes or not notes["sections"]:
+            raise ValueError("There is nothing to share yet: notes are made from a meeting that was live.")
+        ROOM.share_notes(notes)
+    elif op == "unshare-notes":
+        ROOM.unshare_notes()
+    elif op == "invite":                               # the code on screen, for people on Zoom or Teams
+        b = ROOM.body()
+        if not b["open"]:
+            raise ValueError("Open members' phones first.")
+        _prayer_card("Follow along on your phone", "Go to %s and type the code %s" % (
+            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]))
+    else:
+        raise ValueError("Unknown action.")
+    ROOM.poke()
+    return members_body()
+
+
 def prayer_action(data):
     """POST /api/prayer {op: open|close|show|done|again|list, id?, name?} (this PC only). Nothing is shown unless the
     leader chooses it; a name only when the leader chooses to show it and the person gave one."""
     op, item_id = str(data.get("op") or ""), str(data.get("id") or "")
     if op == "open":
-        try:
-            return PRAYER.open(data.get("hours") or 4)
-        except cloud_sync.Refused as e:
-            if getattr(e, "code", "") == "42501" or "not connected" in str(e):
-                raise ValueError("The prayer wall needs this PC connected to your FrameDecks workspace: "
-                                 "Settings \u2192 Sync \u2192 Add a device.")
-            raise ValueError(str(e))
+        res = _linked(lambda: PRAYER.open(data.get("hours") or 4))
+        ROOM.poke()
+        return res
     if op == "close":
-        return PRAYER.close()
+        res = PRAYER.close()
+        ROOM.poke()
+        return res
     if op == "show":
         title, text = PRAYER.card(item_id, bool(data.get("name")))
         _prayer_card(title, text)
@@ -1055,12 +1112,6 @@ def prayer_action(data):
         PRAYER.mark(item_id, "done" if op == "done" else "new")
     elif op == "list":
         _prayer_card(*PRAYER.praying_for())
-    elif op == "invite":                               # the code on screen, for people on Zoom or Teams
-        b = PRAYER.body()
-        if not b["open"]:
-            raise ValueError("Open the prayer wall first.")
-        _prayer_card("Send a prayer request", "Go to %s and type the code %s" % (
-            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]))
     else:
         raise ValueError("Unknown action.")
     return PRAYER.body()
@@ -1430,6 +1481,9 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # Frame (off: Next always goes to the next Frame); and soft sounds on Go Live and Next (off)
                          "smartNext": False,
                          "uiSounds": False,
+                         # 26.11.24 Listen for scripture also hears the meeting's own sound (members on Zoom or Teams);
+                         # what they say is always offered first, never shown by Auto
+                         "scriptureMeeting": False,
                          "voiceKey": "rctrl"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
@@ -3129,6 +3183,18 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(PRAYER.body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/members":                      # 26.11.24 members' phones (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(members_body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/summary/notes":                # 26.11.24 the sermon notes (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            n = meeting_log.sermon_notes(meeting_summary(q.get("run", ["latest"])[0]), state, q.get("script", ["1"])[0] != "0")
+            if q.get("format", [""])[0] == "text":
+                return self.reply(200, meeting_log.notes_text(n), "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps({"notes": n, "shared": ROOM.body()}), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path in ("/api/summary", "/api/summary/list"):   # 26.11.23 the meeting summary (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3648,11 +3714,12 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
-        if path == "/api/prayer":                       # 26.11.23 the prayer wall (this PC only)
+        if path in ("/api/prayer", "/api/members"):     # 26.11.23 the prayer wall; 26.11.24 members' phones
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             try:
-                res = prayer_action(data if isinstance(data, dict) else {})
+                act = prayer_action if path == "/api/prayer" else members_action
+                res = act(data if isinstance(data, dict) else {})
             except cloud_sync.Offline as e:
                 return self.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
             except (ValueError, OSError) as e:

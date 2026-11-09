@@ -1,22 +1,18 @@
-// 26.11.23 Prayer requests wall (migration 0019): the code the church PC shows, read from /pray#c=CODE or typed.
-// Six characters from the same alphabet as join codes (no 0/O, 1/I/L).
-const PRAYER = /^[A-HJ-NP-Z2-9]{6}$/;
+// 26.11.23/24 the members' room code the church PC shows (0019 prayer wall, 0020 members' phones), read from
+// /follow#c=CODE or typed: six characters from the same alphabet as join codes (no 0/O, 1/I/L), tidied the same way.
+import { tidyCode } from "@/lib/join-code";
 
-export function tidyPrayerCode(text: string): string {
-  return (text ?? "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-}
+const ROOM = /^[A-HJ-NP-Z2-9]{6}$/;
+
+export const tidyPrayerCode = tidyCode;
 
 export function isPrayerCode(text: string): boolean {
-  return PRAYER.test(tidyPrayerCode(text));
+  return ROOM.test(tidyCode(text));
 }
 
 export function prayerCodeFromHash(hash: string): string | null {
-  const code = tidyPrayerCode(new URLSearchParams((hash ?? "").replace(/^#/, "")).get("c") ?? "");
-  return PRAYER.test(code) ? code : null;
-}
-
-export function prayUrl(origin: string, code: string): string {
-  return `${origin.replace(/\/+$/, "")}/pray#c=${tidyPrayerCode(code)}`;
+  const code = tidyCode(new URLSearchParams((hash ?? "").replace(/^#/, "")).get("c") ?? "");
+  return ROOM.test(code) ? code : null;
 }
 
 export const PRAYER_MAX = 500;

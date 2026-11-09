@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.24': [
+    {title: 'Members’ phones', text: 'Engage → Members’ phones: one QR for everyone. Their phone follows the meeting screen and can send you a prayer request.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Sermon notes', text: 'When a meeting ends, its summary has Sermon notes: your script, the scriptures and the questions, to print, email or share with members’ phones.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'A verse said by a member', text: 'Settings → Scripture → Members: when someone on Zoom or Teams says a verse, you are asked whether to show it.', show: {settings: 'scripture', spot: '#vl-settings'}}
+  ],
   '26.11.23': [
     {title: 'A summary of every meeting', text: 'When a meeting ends: each Frame and how long it was on, the questions and scriptures, to print, save as PDF or email.', show: {settings: 'general', spot: '#feel-settings'}},
     {title: 'Prayer requests from phones', text: 'Engage → Prayer requests: people scan a code and send a request. You read each one first and choose what is shown.', show: {settings: 'general', spot: '#feel-settings'}}

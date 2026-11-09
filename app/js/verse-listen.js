@@ -44,9 +44,10 @@ function render(){
   var c = cardEl(); if (!c) return;
   var p = info && info.pending, on = !!(info && info.enabled && info.live);
   c.innerHTML = '';
-  if (p && ((p.status === 'waiting' && !info.auto) || p.id === failed)){
+  var member = p && p.from === 'meeting';                         // 26.11.24 a member said it: always asked
+  if (p && ((p.status === 'waiting' && (!info.auto || member)) || p.id === failed)){
     c.className = 'vl-card vl-ask';
-    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
+    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: member ? 'Heard in the meeting' : 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
     c.appendChild(h('div', {cls: 'vl-acts'}, [
       h('button', {cls: 'btn primary small', type: 'button', id: 'vl-show', text: busy === p.id ? 'Showing…' : 'Show', disabled: busy ? 'disabled' : null, onclick: function(){ show(p); }}),
       h('button', {cls: 'btn quiet small', type: 'button', id: 'vl-dismiss', text: 'Dismiss', disabled: busy ? 'disabled' : null, onclick: function(){ dismiss(p); }})]));
@@ -57,6 +58,7 @@ function render(){
     var st = info.state || 'off', words = STATE_WORDS[st] || '';
     if (st === 'downloading' && info.progress) words += ' (' + info.progress + '%)';
     if (st === 'error' && info.message) words += ': ' + info.message;
+    if (st === 'listening' && info.meeting) words += info.meetingError ? ' · not hearing the meeting: ' + info.meetingError : ' · and the meeting';
     if (!words){ c.hidden = true; return; }
     c.className = 'vl-card vl-quiet' + (st === 'listening' ? ' vl-on' : '');
     c.appendChild(h('p', {cls: 'vl-line', title: 'Heard on this PC only. Nothing is recorded or sent.'}, [h('i', {cls: 'vl-dot', 'aria-hidden': 'true'}), words + (info.auto && st === 'listening' ? ' · Auto' : '')]));
@@ -146,7 +148,7 @@ function take(d){
   info = d; seq = d.seq;
   var p = d.pending;
   // a Show asked for on another screen is tried again even after a failure; Auto tries a verse once
-  if (p && !busy && (p.status === 'show' || (p.status === 'waiting' && d.auto && p.id !== failed))) show(p);
+  if (p && !busy && (p.status === 'show' || (p.status === 'waiting' && d.auto && p.from !== 'meeting' && p.id !== failed))) show(p);   // 26.11.24 never Auto for a member
   render();
   try { document.dispatchEvent(new CustomEvent('kc-verse-listen', {detail: d})); } catch(e){}   // the top bar's Control chip
 }
@@ -176,16 +178,19 @@ function renderSettings(){
   fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     var s = d.settings || {};
     box.innerHTML = '';
-    var on = h('input', {type: 'checkbox', id: 'vl-on'}), auto = h('input', {type: 'checkbox', id: 'vl-auto'});
+    var on = h('input', {type: 'checkbox', id: 'vl-on'}), auto = h('input', {type: 'checkbox', id: 'vl-auto'}), meet = h('input', {type: 'checkbox', id: 'vl-meeting'});
     on.checked = !!s.scriptureListen; auto.checked = !!s.scriptureAuto; auto.disabled = !on.checked;
-    on.addEventListener('change', function(){ auto.disabled = !on.checked; saveSetting({scriptureListen: on.checked}).then(function(){ toast(on.checked ? 'Listening for scripture while a Frame is live' : 'Listen for scripture is off'); }); });
+    meet.checked = !!s.scriptureMeeting; meet.disabled = !on.checked;
+    on.addEventListener('change', function(){ auto.disabled = meet.disabled = !on.checked; saveSetting({scriptureListen: on.checked}).then(function(){ toast(on.checked ? 'Listening for scripture while a Frame is live' : 'Listen for scripture is off'); }); });
     auto.addEventListener('change', function(){ saveSetting({scriptureAuto: auto.checked}); });
+    meet.addEventListener('change', function(){ saveSetting({scriptureMeeting: meet.checked}).then(function(){ toast(meet.checked ? 'Also listening to the meeting for scripture: you are asked first' : 'Listening to this PC’s microphone only'); }); });
     box.appendChild(h('h3', {cls: 'vl-set-h', id: 'vl-set-h', text: 'Listen for scripture'}));
     box.appendChild(h('p', {cls: 'hint', text: 'When you or the leader say a Bible reference, such as “John three sixteen” or “Romans eight, verses thirty-eight to thirty-nine”, FrameDecks offers to show it. It listens only while a Frame is live.'}));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Listen'}), h('label', {cls: 'check'}, [on, ' Listen for scripture'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Auto'}), h('label', {cls: 'check'}, [auto, ' Show it at once, without asking first'])]));
+    box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Members'}), h('label', {cls: 'check'}, [meet, ' Also hear the meeting: when a member says a verse on Zoom or Teams, you are asked first (never Auto)'])]));
     box.appendChild(h('p', {cls: 'hint vl-private', text: 'Everything is heard on this PC only. Nothing is recorded or sent anywhere.'}));
-    box.appendChild(h('p', {cls: 'hint', text: 'It uses the microphone chosen for the Teleprompter’s Follow my voice. The voice files download once (about 40 MB) the first time. It hears this PC’s microphone only, not the other people in Zoom or Teams.'}));
+    box.appendChild(h('p', {cls: 'hint', text: 'It uses the microphone chosen for the Teleprompter’s Follow my voice. The voice files download once (about 40 MB) the first time. With Members on, it also hears what this PC plays (the others in Zoom or Teams), for Bible references only: nothing else they say is kept or understood.'}));
   }).catch(function(){});
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') renderSettings(); });

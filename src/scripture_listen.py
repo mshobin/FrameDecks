@@ -70,6 +70,9 @@ class ScriptureListen:
 
     def _tick(self):
         want = self._want()
+        if want and self.listening and hasattr(self.voice, "scripture_meeting"):
+            # 26.11.24 also the meeting's own sound (members saying a verse), when that is switched on
+            self.voice.scripture_meeting(bool((self.settings() or {}).get("scriptureMeeting")))
         if want and self.failed and self.last.get("state") == "error" and time.monotonic() >= self._retry_at:
             self.failed = False                               # a hiccup (not missing or too little memory): try again
         if want and not self.listening and not self.failed:
@@ -105,7 +108,7 @@ class ScriptureListen:
             self._thread.start()
 
     # ---------- what was heard ----------
-    def heard(self, text, final=True):
+    def heard(self, text, final=True, source="leader"):
         """A phrase from the listener (or the 'hear' test hook): the newest reference in it becomes the suggestion.
         26.11.14: every reference in the phrase is read, not only the first, so a verse said earlier in the same
         breath ("Romans 8:38 ... now John 3:16") never hides a new one; final=False is a phrase still being said (a
@@ -129,7 +132,10 @@ class ScriptureListen:
             if plan:                                          # 26.11.15 said "Romans 8:38", the plan has 8:38-39
                 ref = dict(ref, ref=plan["ref"], label=plan["label"], planned=True)
             self._n += 1
-            self._set(dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="waiting"))
+            offer = dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="waiting")
+            if source == "meeting":
+                offer["from"] = "meeting"                     # 26.11.24 a member said it: always asked, never Auto
+            self._set(offer)
             keep = {k: ref[k] for k in ("ref", "label", "planned") if k in ref}
             self.history = [dict(keep, at=int(now * 1000))] + [h for h in self.history if h["ref"] != ref["ref"]][:HISTORY - 1]
         return ref
@@ -201,6 +207,8 @@ class ScriptureListen:
             earlier = [dict(x) for x in self.history if not (pending and x["ref"] == pending["ref"])]
         cfg = self.settings() or {}
         st = self.voice.scripture_body() if self.listening else dict(self.last)
+        meeting_error = getattr(self.voice, "meeting_error", "") if self.listening else ""
         return {"enabled": bool(cfg.get("scriptureListen")), "auto": bool(cfg.get("scriptureAuto")), "live": bool(self.is_live()),
+                "meeting": bool(cfg.get("scriptureMeeting")), "meetingError": meeting_error,
                 "state": st.get("state", "off"), "message": st.get("message", ""), "progress": st.get("progress", 0),
                 "level": st.get("level", 0), "seq": seq, "pending": pending, "earlier": earlier}

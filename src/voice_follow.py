@@ -101,6 +101,7 @@ class VoiceFollow:
         self.downloading = False
         self.want_s, self.scripture_words, self.on_scripture = False, [], None     # 26.11.14 Listen for scripture
         self.want_c, self.command_words, self.on_command = False, [], None         # 26.11.20 Voice commands
+        self.want_m, self.meeting_error = False, ""                                 # 26.11.24 also the meeting's sound
 
     def _wanted(self):
         return self.want or self.want_s or self.want_c
@@ -233,6 +234,7 @@ class VoiceFollow:
                 return
             proc, words = self.proc, list(self.words_now)
             script, scripture = self.want, (list(self.scripture_words) if self.want_s else None)
+            meeting = self.want_m and scripture is not None
             command = list(self.command_words) if self.want_c else None
         threading.Thread(target=self._read, args=(proc,), name="voice-read", daemon=True).start()
         threading.Thread(target=self._watch, args=(proc,), name="voice-watch", daemon=True).start()
@@ -240,6 +242,8 @@ class VoiceFollow:
             self._send(proc, {"words": words})
         if scripture is not None:
             self._send(proc, {"scripture": scripture})
+        if meeting:
+            self._send(proc, {"meeting": True})
         if command is not None:
             self._send(proc, {"command": command})
 
@@ -271,6 +275,14 @@ class VoiceFollow:
                         self._set("listening")
                     elif t in ("final", "partial") and self.want_s:
                         tell = self.on_scripture
+                elif ev.get("g") == "meeting":                # 26.11.24 the meeting's own sound: scripture only
+                    if t == "error":
+                        self.meeting_error = str(ev.get("msg", ""))[:200]
+                    elif t == "ready":
+                        self.meeting_error = ""
+                    elif t in ("final", "partial") and self.want_s and self.want_m and self.on_scripture:
+                        on = self.on_scripture
+                        tell = (lambda text, final, on=on: on(text, final, "meeting"))
                 elif t == "ready":
                     self._set("listening")
                 elif t in ("partial", "final"):
@@ -421,6 +433,18 @@ class VoiceFollow:
             if self.want or self.want_c:
                 return {"state": "off"}
         return self.shutdown()
+
+    def scripture_meeting(self, on):
+        """26.11.24 hear the meeting's own sound too (for scripture only), or stop. Kept across a restart."""
+        with self.lock:
+            on = bool(on)
+            if on == self.want_m:
+                return
+            self.want_m = on
+            if not on:
+                self.meeting_error = ""
+            if self.proc and self.want_s:
+                self._send(self.proc, {"meeting": on})
 
     def scripture_body(self):
         with self.lock:

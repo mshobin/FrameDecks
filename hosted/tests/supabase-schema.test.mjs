@@ -25,6 +25,7 @@ test("every table has at least one policy and none is open to anon", () => {
     "help_votes", // 0017: votes go in through help_vote() and are read only in the SQL editor
     "join_codes", "join_failures", "recovery_codes", // 0018: only the scan-to-join functions touch them
     "prayer_walls", "prayer_requests", // 0019: only the prayer wall functions touch them
+    "member_rooms", // 0020: only the members' phones functions touch it
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -65,6 +66,10 @@ const ANON_BY_DESIGN = [
   "pc_prayer_open",
   "pc_prayer_close",
   "pc_prayer_take",
+  // 0020: the church PC opens its members' room, publishes the screen and the notes, and closes it, by its key
+  "pc_room_open",
+  "pc_room_publish",
+  "pc_room_close",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
@@ -78,12 +83,15 @@ const PUBLIC_HELP = ["help_vote"];
 // 0019: people in the meeting send a prayer request with only the wall's code (no account); they read nothing back
 // but whether the wall is open (and the team's name), limited per network and like wrong codes.
 const PUBLIC_PRAYER = ["prayer_peek", "prayer_send"];
+// 0020: people in the meeting read one room (what is already on the meeting screen, and notes the leader shared) with
+// only its code; wrong codes are limited.
+const PUBLIC_ROOM = ["room_view"];
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];
   for (const [, name] of definers) {
     if (["is_org_member", "is_org_admin", "add_creator_as_owner"].includes(name)) continue;
-    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name) || PUBLIC_HELP.includes(name) || PUBLIC_PRAYER.includes(name)) continue;
+    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name) || PUBLIC_HELP.includes(name) || PUBLIC_PRAYER.includes(name) || PUBLIC_ROOM.includes(name)) continue;
     assert.match(sql, new RegExp(`revoke execute on function public\\.${name}\\([^)]*\\) from public, anon`), name);
   }
 });

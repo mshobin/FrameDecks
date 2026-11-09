@@ -422,6 +422,16 @@ class CloudApi:
     def pc_prayer_take(self):
         return self._rpc("pc_prayer_take", {})
 
+    # 26.11.24 members' phones (0020_member_room.sql), with this PC's own key
+    def pc_room_open(self, hours=6):
+        return self._rpc("pc_room_open", {"hours": hours})
+
+    def pc_room_publish(self, screen, notes=None, set_notes=False):
+        return self._rpc("pc_room_publish", {"screen": screen, "notes": notes, "set_notes": bool(set_notes)})
+
+    def pc_room_close(self):
+        return self._rpc("pc_room_close", {})
+
     def pc_devices(self):
         return self._rpc("pc_devices", {})
 

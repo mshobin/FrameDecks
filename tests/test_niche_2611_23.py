@@ -145,21 +145,13 @@ class PrayerWall(unittest.TestCase):
             server.prayer_action({"op": "nope"})
         with self.assertRaises(ValueError):
             server.prayer_action({"op": "show", "id": "missing"})
-        with self.assertRaises(ValueError):
-            server.prayer_action({"op": "invite"})                    # the wall is not open
         src = read("src/server.py")
         self.assertIn('if path == "/api/prayer":', src)
         self.assertNotIn("/api/prayer", " ".join(server.REMOTE_PUBLIC | server.REMOTE_SIGNED_IN))   # this PC only
         dash = read("app/dashboard.html")
-        for s in ("js/meeting-summary.js", "js/prayer-wall.js"):
-            self.assertIn('<script src="%s"></script>' % s, dash)
-        self.assertLess(dash.index("vendor/qrcode.js"), dash.index("js/prayer-wall.js"))
-        js = read("app/js/prayer-wall.js")
-        self.assertIn("Store.ride('pr', refresh)", js)
-        self.assertIn("Close the prayer wall?", js)
-        self.assertIn("A('engage', 'prayer', 'Prayer requests'", read("app/js/chips.js"))
-        self.assertIn("prayer: function(){ if (window.KCPrayer) window.KCPrayer.open(); }", read("app/js/chip-bar.js"))
-
+        self.assertIn('<script src="js/meeting-summary.js"></script>', dash)
+        # 26.11.24 the prayer wall's dialog became Members' phones (tests/test_members_2611_24.py)
+        self.assertIn("KCPrayer = window.KCMembers", read("app/js/members-phones.js"))
 
 class OnScreen(unittest.TestCase):
     def test_a_request_shown_is_a_memory_card_and_closing_forgets(self):
@@ -173,8 +165,6 @@ class OnScreen(unittest.TestCase):
             server.prayer_action({"op": "show", "id": pid, "name": True})
             card = next(i for i in server.MEMORY.items if i["text"] == "Healing for Grace")
             self.assertEqual(card["title"], "Prayer request \u00b7 Sam")
-            server.prayer_action({"op": "invite"})
-            self.assertTrue(any(i["text"] == "Go to framedecks.com/pray and type the code K7PM2X" for i in server.MEMORY.items))
             self.assertEqual(server.prayer_action({"op": "list"})["items"][0]["status"], "shown")
             self.assertEqual(server.prayer_action({"op": "close"})["items"], [])
         finally:
@@ -194,9 +184,8 @@ class Cloud(unittest.TestCase):
 
     def test_the_pray_page(self):
         panel = read("hosted/src/components/join-panel.tsx")
-        self.assertIn('supabase.rpc("prayer_send"', panel)
+        self.assertIn('supabase.rpc("prayer_send"', panel)          # 26.11.24 on /follow (the /pray page folded in)
         self.assertIn("takeHashCode(prayerCodeFromHash)", panel)
-        self.assertIn('pageMetadata("Send a prayer request", "/pray", { private: true })', read("hosted/src/app/pray/page.tsx"))
         import cloud_sync
         for fn in ("pc_prayer_open", "pc_prayer_close", "pc_prayer_take"):
             self.assertTrue(hasattr(cloud_sync.CloudApi, fn), fn)

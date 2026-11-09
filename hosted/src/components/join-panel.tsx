@@ -20,6 +20,7 @@ type Peek =
   | { status: "expired" | "unknown" };
 
 const TOO_MANY = "Too many wrong codes from this device or network. Wait an hour, then try again.";
+const CHECK_FAILED = "Couldn’t check the code. Check your connection and try again.";
 
 /** 26.11.12 /join: a phone scanned the QR code shown by the church PC or by a device already in (/join#c=CODE), or a
  * code is typed. The code is looked at first, with no session, so a wrong code never makes a new device. */
@@ -28,7 +29,6 @@ export function JoinPanel() {
   const session = useSession();
   const arrived = useSessionAtArrival(session);
   const [code, setCode] = useState<string | null>(null);
-  const [typed, setTyped] = useState("");
   const [peek, setPeek] = useState<Peek | null>(null);
   const [checking, setChecking] = useState(false);
   const [name, setName] = useState("");
@@ -50,7 +50,7 @@ export function JoinPanel() {
       setChecking(false);
       if (error) {
         setPeek(null);
-        setProblem(codeProblem(error) === "too-many" ? TOO_MANY : userSafeError(error, "Couldn’t check the code. Check your connection and try again."));
+        setProblem(codeProblem(error) === "too-many" ? TOO_MANY : userSafeError(error, CHECK_FAILED));
         return;
       }
       setCode(c);
@@ -77,16 +77,6 @@ export function JoinPanel() {
   const fresh = arrived === false;                      // a new device: no session on this browser when it came
   const needTerms = fresh || termsAsked;
   const ready = peek?.status === "invite" || peek?.status === "pc";
-
-  async function checkTyped(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!isShortCode(typed)) {
-      setProblem("Codes have 8 letters and numbers, as shown on the other screen. Spaces don’t matter. (FD-CLD-01)");
-      return;
-    }
-    setTyped("");
-    await look(tidyCode(typed));
-  }
 
   async function join(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -206,23 +196,15 @@ export function JoinPanel() {
       )}
 
       {!ready && (
-        <form className="auth-form" onSubmit={checkTyped}>
-          <label htmlFor="join-code">{peek ? "Try another code" : "Type the code from the other screen"}</label>
-          <input
-            id="join-code"
-            className="jc-type"
-            autoComplete="off"
-            autoCapitalize="characters"
-            spellCheck={false}
-            maxLength={12}
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            placeholder="K7PM 2XQ9"
-          />
-          <Button className="auth-primary" type="submit" disabled={checking || !typed.trim()}>
-            {checking ? "Checking…" : "Check the code"}
-          </Button>
-        </form>
+        <CodeBox
+          prompt={peek ? "Try another code" : "Type the code from the other screen"}
+          button="Check the code"
+          placeholder="K7PM 2XQ9"
+          busy={checking}
+          read={(t) => (isShortCode(t) ? tidyCode(t) : null)}
+          onCode={(c) => void look(c)}
+          onBad={() => setProblem("Codes have 8 letters and numbers, as shown on the other screen. Spaces don’t matter. (FD-CLD-01)")}
+        />
       )}
 
       {problem && (
@@ -240,60 +222,20 @@ export function JoinPanel() {
 }
 
 // 26.11.23 /pray lives here too: the same kind of page (a code from the church PC's screen), one shared chunk.
-type PrayerPeek = { status: "open"; team: string } | { status: "closed" | "unknown" };
 
-const PRAYER_TOO_MANY = "Too many wrong codes from this network. Wait an hour, then try again.";
-
-/** 26.11.23 /pray: someone in the meeting sends a prayer request to the leader, with only the code on the screen.
- * No account and no sign-in. The leader reads every request first and chooses what is shared; nothing is kept online. */
-export function PrayerPanel() {
+/** 26.11.24 the prayer request form on /follow (the room passes the open prayer wall's code; 26.11.23's /pray page is
+ * folded into /follow: one page and one code for members). */
+function PrayerForm({ code }: Readonly<{ code: string }>) {
   const supabase = browserSupabase();
-  const [code, setCode] = useState<string | null>(null);
-  const [typed, setTyped] = useState("");
-  const [peek, setPeek] = useState<PrayerPeek | null>(null);
-  const [checking, setChecking] = useState(false);
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-
-  const look = useCallback(
-    async (c: string) => {
-      if (!supabase) return;
-      setChecking(true);
-      setProblem(null);
-      const { data, error } = await supabase.rpc("prayer_peek", { code: c });
-      setChecking(false);
-      if (error) {
-        setPeek(null);
-        setProblem(codeProblem(error) === "too-many" ? PRAYER_TOO_MANY : userSafeError(error, "Couldn’t check the code. Check your connection and try again."));
-        return;
-      }
-      setCode(c);
-      setPeek(data as PrayerPeek);
-    },
-    [supabase],
-  );
-
-  useEffect(() => {
-    const c = takeHashCode(prayerCodeFromHash);      // read once; the code is not kept in the address bar
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (c) void look(c);
-  }, [look]);
-
-  function checkTyped(e: FormEvent) {
-    e.preventDefault();
-    if (!isPrayerCode(typed)) {
-      setProblem("That isn’t a prayer code. It has 6 letters and numbers, shown on the meeting screen.");
-      return;
-    }
-    void look(tidyPrayerCode(typed));
-  }
 
   async function send(e: FormEvent) {
     e.preventDefault();
-    if (!supabase || !code || busy) return;
+    if (!supabase || busy) return;
     setBusy(true);
     setProblem(null);
     const { error } = await supabase.rpc("prayer_send", { code, body: body.trim(), name: name.trim() || null });
@@ -302,94 +244,231 @@ export function PrayerPanel() {
       setProblem(userSafeError(error, "Couldn’t send your request. Check your connection and try again."));
       return;
     }
-    setSent(true);
+    setSent(name.trim());
     setBody("");
   }
 
-  if (!supabase) {
-    return <p className="auth-message">Prayer requests are not available here right now.</p>;
-  }
-
-  if (sent) {
+  if (sent !== null) {
     return (
-      <>
-        <h1 className="fd-auth-title">Thank you</h1>
-        <p className="auth-message" role="status">
-          Your request is with the leader. They read it first and choose what is shared{name.trim() ? "" : ", without your name"}.
-        </p>
-        <Button className="auth-primary" type="button" onClick={() => setSent(false)}>
-          Send another
-        </Button>
-      </>
+      <p className="auth-message" role="status">
+        Thank you. The leader reads it first and chooses what is shared{sent ? "" : ", without your name"}.
+      </p>
     );
   }
-
-  const open = peek?.status === "open";
   return (
-    <>
-      <h1 className="fd-auth-title">{open ? `Pray with ${peek.team}` : "Send a prayer request"}</h1>
-      {peek?.status === "closed" && <p className="auth-message">This prayer wall is closed now. Thank you for wanting to share.</p>}
-      {peek?.status === "unknown" && <p className="auth-message">That code isn’t open. Check the code on the meeting screen.</p>}
-
-      {open && (
-        <form onSubmit={send}>
-          <label className="jc-field">
-            Your prayer request
-            <textarea
-              value={body}
-              maxLength={PRAYER_MAX}
-              rows={5}
-              required
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="What would you like us to pray for?"
-            />
-            <span className="jc-count" aria-live="polite">
-              {PRAYER_MAX - body.length} characters left
-            </span>
-          </label>
-          <label className="jc-field">
-            Your first name (optional)
-            <input value={name} maxLength={PRAYER_NAME_MAX} autoComplete="given-name" onChange={(e) => setName(e.target.value)} />
-          </label>
-          <p className="auth-message">
-            Leave your name empty to stay anonymous. The leader reads every request first; nothing is kept online.
-          </p>
-          <Button className="auth-primary" type="submit" disabled={busy || body.trim().length < 2}>
-            {busy ? "Sending…" : "Send my request"}
-          </Button>
-        </form>
-      )}
-
-      {!open && (
-        <form className="auth-form" onSubmit={checkTyped}>
-          <label htmlFor="pray-code">{peek ? "Try another code" : "Type the code on the meeting screen"}</label>
-          <input
-            id="pray-code"
-            className="jc-type"
-            autoComplete="off"
-            autoCapitalize="characters"
-            spellCheck={false}
-            maxLength={8}
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            placeholder="K7PM2X"
-          />
-          <Button className="auth-primary" type="submit" disabled={checking || !typed.trim()}>
-            {checking ? "Checking…" : "Open the prayer wall"}
-          </Button>
-        </form>
-      )}
-
+    <form onSubmit={send}>
+      <label className="jc-field">
+        Your prayer request
+        <textarea value={body} maxLength={PRAYER_MAX} rows={5} required onChange={(e) => setBody(e.target.value)} placeholder="What would you like us to pray for?" />
+      </label>
+      <label className="jc-field">
+        Your first name (optional)
+        <input value={name} maxLength={PRAYER_NAME_MAX} autoComplete="given-name" onChange={(e) => setName(e.target.value)} />
+      </label>
+      <p className="auth-message">Leave your name empty to stay anonymous. The leader reads it first; nothing is kept online.</p>
+      <Button className="auth-primary" type="submit" disabled={busy || body.trim().length < 2}>
+        {busy ? "Sending…" : "Send my request"}
+      </Button>
       {problem && (
         <p className="auth-error" role="alert">
           {problem}
         </p>
       )}
-      {checking && (
-        <p className="auth-message" role="status">
-          Checking the code…
-        </p>
+    </form>
+  );
+}
+
+/** The code box of /join (8 characters) and /follow (6): what was typed is tidied by read(), or refused. */
+function CodeBox(p: Readonly<{ prompt: string; button: string; placeholder: string; busy: boolean; read: (t: string) => string | null; onCode: (c: string) => void; onBad: () => void }>) {
+  const [typed, setTyped] = useState("");
+  return (
+    <form
+      className="auth-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const c = p.read(typed);
+        if (!c) return p.onBad();
+        setTyped("");
+        p.onCode(c);
+      }}
+    >
+      <label htmlFor="code-in">{p.prompt}</label>
+      <input id="code-in" className="jc-type" autoComplete="off" autoCapitalize="characters" spellCheck={false} maxLength={12} value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={p.placeholder} />
+      <Button className="auth-primary" type="submit" disabled={p.busy || !typed.trim()}>
+        {p.busy ? "Checking…" : p.button}
+      </Button>
+    </form>
+  );
+}
+
+// ---------- 26.11.24 /follow: members' phones (0020_member_room.sql) ----------
+type Screen = {
+  live?: boolean;
+  black?: boolean;
+  meeting?: string;
+  frame?: string;
+  prayer?: string;
+  question?: { label: string; text: string };
+  verse?: { ref: string; text: string };
+};
+type Notes = {
+  title: string;
+  date: number;
+  presenter?: string;
+  sections: { frame: string; script: string; verses: { ref: string; text: string }[]; questions: string[] }[];
+};
+type Room = { status: "open" | "closed" | "unknown"; rev?: number; team?: string; screen?: Screen; notes?: Notes | null; same?: boolean };
+
+function NotesView({ notes }: Readonly<{ notes: Notes }>) {
+  return (
+    <article className="fl-notes">
+      <p className="fd-kicker">Sermon notes</p>
+      <h2 className="fl-notes-title">{notes.title}</h2>
+      <p className="fl-notes-sub">
+        {new Date(notes.date).toLocaleDateString(undefined, { dateStyle: "full" })}
+        {notes.presenter ? ` · ${notes.presenter}` : ""}
+      </p>
+      {notes.sections.map((s, i) => (
+        <section key={i} className="fl-sec">
+          <h3>{s.frame}</h3>
+          {s.script.split(/\n\s*\n/).map((para, j) => (para.trim() ? <p key={j}>{para.trim()}</p> : null))}
+          {s.verses.map((v) => (
+            <blockquote key={v.ref}>
+              {v.text && <p>{v.text}</p>}
+              <cite>{v.ref}</cite>
+            </blockquote>
+          ))}
+          {s.questions.length > 0 && (
+            <>
+              <p className="fl-reflect">To reflect on</p>
+              <ul>
+                {s.questions.map((q) => (
+                  <li key={q}>{q}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+      ))}
+      <Button className="auth-primary fl-print" type="button" onClick={() => window.print()}>
+        Save as PDF or print
+      </Button>
+    </article>
+  );
+}
+
+function ScreenView({ s }: Readonly<{ s: Screen }>) {
+  if (!s.live) return <p className="fl-quiet">Nothing on screen yet. This page follows the meeting screen.</p>;
+  if (s.black) return <p className="fl-quiet">The meeting screen is dark for a moment.</p>;
+  return (
+    <div className="fl-screen" aria-live="polite">
+      <p className="fl-frame">{s.frame}</p>
+      {s.verse && (
+        <blockquote className="fl-verse">
+          {s.verse.text && <p>{s.verse.text}</p>}
+          <cite>{s.verse.ref}</cite>
+        </blockquote>
       )}
-    </>
+      {s.question && (
+        <div className="fl-q">
+          <p className="fl-q-label">{s.question.label}</p>
+          <p>{s.question.text}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 26.11.24 /follow: everyone in the meeting, on their own phone, with only the code: what is on the meeting screen as
+ * it changes, a prayer request when the leader takes them, and the sermon notes once shared. Asks every 3 seconds while
+ * the page is in view (a tiny answer when nothing changed); nothing is stored. */
+export function FollowPanel() {
+  const supabase = browserSupabase();
+  const [code, setCode] = useState<string | null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
+  const [tab, setTab] = useState<"screen" | "pray" | "notes">("screen");
+  const [checking, setChecking] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const look = useCallback(
+    async (c: string, rev = 0) => {
+      if (!supabase) return;
+      if (!rev) setChecking(true);
+      const { data, error } = await supabase.rpc("room_view", { code: c, after: rev });
+      setChecking(false);
+      if (error) {
+        if (!rev) setProblem(codeProblem(error) === "too-many" ? TOO_MANY : userSafeError(error, CHECK_FAILED));
+        return;
+      }
+      setProblem(null);
+      setCode(c);
+      const r = data as Room;
+      setRoom((old) => (r.same && old ? old : r));
+    },
+    [supabase],
+  );
+
+  useEffect(() => {
+    const c = takeHashCode(prayerCodeFromHash);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (c) void look(c);
+  }, [look]);
+
+  const rev = room?.status === "open" ? (room.rev ?? 0) : -1;
+  useEffect(() => {
+    if (!code || rev < 0) return;
+    const t = window.setInterval(() => {
+      if (document.visibilityState === "visible") void look(code, rev);
+    }, 3000);
+    return () => window.clearInterval(t);
+  }, [code, rev, look]);
+
+  if (!supabase) return <p className="auth-message">Following the meeting is not available here right now.</p>;
+  if (!room || room.status !== "open" || !code) {
+    return (
+      <>
+        <h1 className="fd-auth-title">Follow the meeting</h1>
+        {room && <p className="auth-message">{room.status === "closed" ? "This meeting page is closed. Thank you for joining." : "That code isn’t open. Check the code on the meeting screen."}</p>}
+        <CodeBox
+          prompt={room ? "Try another code" : "Type the code on the meeting screen"}
+          button="Follow the meeting"
+          placeholder="K7PM2X"
+          busy={checking}
+          read={(t) => (isPrayerCode(t) ? tidyPrayerCode(t) : null)}
+          onCode={(c) => void look(c)}
+          onBad={() => setProblem("Meeting codes have 6 letters and numbers, shown on the meeting screen.")}
+        />
+        {problem && (
+          <p className="auth-error" role="alert">
+            {problem}
+          </p>
+        )}
+      </>
+    );
+  }
+  const s = room.screen ?? {};
+  const tabs: ["screen" | "pray" | "notes", string][] = [["screen", "On screen"]];
+  if (s.prayer) tabs.push(["pray", "Prayer"]);
+  if (room.notes) tabs.push(["notes", "Notes"]);
+  const shown = tabs.some(([k]) => k === tab) ? tab : "screen";
+  return (
+    <div className="fl">
+      <p className="fl-team">
+        {s.live && <span className="fl-live">Live</span>}
+        {s.meeting || room.team}
+      </p>
+      {tabs.length > 1 && (
+        <div className="fl-tabs" role="tablist">
+          {tabs.map(([k, label]) => (
+            <button key={k} type="button" role="tab" aria-selected={shown === k} onClick={() => setTab(k)}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+      {shown === "screen" && <ScreenView s={s} />}
+      {shown === "pray" && s.prayer && <PrayerForm code={s.prayer} />}
+      {shown === "notes" && room.notes && <NotesView notes={room.notes} />}
+    </div>
   );
 }

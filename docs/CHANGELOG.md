@@ -10,6 +10,28 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.24] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.24.md](releases/v26.11.24.md). 26.11.23 was not released on its own; its meeting
+summary and prayer requests reach users with this version.
+
+### Added
+- Members' phones: migration `0020_member_room.sql` (+ rollback): `pc_room_open/publish/close` by the PC's key and
+  `room_view(code, after)` for anyone with the code (`{"same": true}` when nothing changed; an open room is read without
+  touching the wrong-code counters). PC: `src/member_room.py` (`screen_of`: only what is visible on the meeting screen;
+  publishes at most once a second, only on change; `server.save_state` pokes it), `GET/POST /api/members`, rider `pr`
+  now `PRAYER.rev.ROOM.rev`, `app/js/members-phones.js` (replaces `prayer-wall.js`; Engage → Members' phones). Website
+  `/follow` (`FollowPanel` in `join-panel.tsx`; polls every 3 s while visible).
+- Sermon notes: `meeting_log.sermon_notes` / `notes_text` (frame events now carry the Frame id for its Teleprompter
+  script), `GET /api/summary/notes`, the summary dialog's Sermon notes view; `members_action share-notes`.
+- Scripture said by members: `src/loopback.py` (WASAPI loopback with ctypes COM; `Resampler` to 16 kHz mono),
+  `voice_worker.Listener.meeting()` (a second scripture-only listener tagged `meeting`), `voice_follow.scripture_meeting`,
+  setting `scriptureMeeting` (off); offers carry `from: "meeting"` and are never shown by Auto.
+
+### Changed
+- `/pray` is folded into `/follow` (one page and one code for members); the website's code box is shared by /join and
+  /follow. Birthday greetings are not sent to phones.
+
 ## [26.11.23] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.23.md](releases/v26.11.23.md).

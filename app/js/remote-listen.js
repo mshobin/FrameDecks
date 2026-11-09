@@ -28,7 +28,7 @@ function paint(){
   var p = info && info.pending;
   $('vlc-heard').hidden = !p;
   if (p){
-    $('vlc-ref').textContent = p.label + (p.planned ? ' · in your plan' : '');
+    $('vlc-ref').textContent = p.label + (p.planned ? ' · in your plan' : '') + (p.from === 'meeting' ? ' · said in the meeting' : '');   // 26.11.24
     var asked = busy || p.status === 'show';
     $('vlc-show').disabled = asked;                          // Dismiss always works, also if showing fails
     $('vlc-show').textContent = asked ? 'Showing…' : p.error ? 'Try again' : 'Show';

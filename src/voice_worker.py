@@ -23,6 +23,10 @@ Talks over stdin / stdout, one JSON object per line.
        when it is let go (also empty: nothing was understood). While held the other grammars hear nothing: what is
        said to FrameDecks never moves the script or offers a verse.
 
+26.11.24 the meeting's own sound (src/loopback.py: what this PC plays) can be heard too, for scripture only:
+  in:  {"meeting": true | false} (after {"scripture": [...]})
+  out: {"t": "final" | "partial", "text": ..., "g": "meeting"}, {"t": "ready" | "error", "g": "meeting"}
+
     voice_worker.py --lib DIR --model DIR [--device N] [--sensitivity 3] [--wav FILE] [--words-file FILE]
 --wav reads a 16 kHz mono WAV file instead of the microphone (tests, tools/voice_e2e.py); --words-file gives the first
 script (otherwise it waits for one on stdin). Nothing is written to disk and nothing leaves the PC."""
@@ -256,8 +260,13 @@ class WavFile:
 
 # ---------- the loop ----------
 class Listener:
-    def __init__(self, engine, source, sensitivity=3):
+    def __init__(self, engine, source, sensitivity=3, tag="scripture", levels=True):
+        """26.11.24 tag: the name the scripture grammar's results carry ("meeting" for the meeting's own sound);
+        levels: send the sound level (the microphone's listener only)."""
         self.engine, self.source, self.lock = engine, source, threading.Lock()
+        self.tag, self.levels = tag, levels
+        self.scripture_words = None               # 26.11.24 kept so the meeting's listener gets the same grammar
+        self.ear = None                           # 26.11.24 the meeting's listener (a second Listener on its own thread)
         self.threshold = THRESHOLDS.get(int(sensitivity), THRESHOLDS[3])
         self.quit = False
         self.script_on = False
@@ -272,6 +281,7 @@ class Listener:
     def command(self, msg):
         if msg.get("quit"):
             self.quit = True
+            self.meeting(False)
         if isinstance(msg.get("sensitivity"), int):
             self.threshold = THRESHOLDS.get(msg["sensitivity"], self.threshold)
         if isinstance(msg.get("words"), list):
@@ -286,11 +296,14 @@ class Listener:
             with self.lock:
                 twin = self.scripture or self.engine.sibling()
                 known, unknown = twin.grammar(msg["scripture"])
-                self.scripture = twin
+                self.scripture, self.scripture_words = twin, list(msg["scripture"])
             say({"t": "ready", "known": known, "unknown": unknown, "g": "scripture"})
         elif "scripture" in msg and msg["scripture"] is None:
             with self.lock:
                 self.scripture = None
+            self.meeting(False)
+        if "meeting" in msg:
+            self.meeting(bool(msg["meeting"]))
         if isinstance(msg.get("command"), list):
             with self.lock:
                 twin = self.cmd or self.engine.sibling()
@@ -314,13 +327,48 @@ class Listener:
             if text is not None:
                 self._say("final", text, "command")
 
+    def meeting(self, on, source=None):
+        """26.11.24 also hear the meeting's own sound (what this PC plays: the members on Zoom or Teams), for
+        scripture only: a second listener with its own copy of the scripture grammar, on its own thread. Its results
+        carry g "meeting"; the leader is always asked before one is shown (src/scripture_listen.py)."""
+        if not on:
+            ear, self.ear = self.ear, None
+            if ear:
+                ear.quit = True
+            return
+        if self.ear or not self.scripture_words:
+            return
+        try:
+            if source is None:
+                import loopback
+                source = loopback.Loopback()
+            twin = self.engine.sibling()
+            twin.grammar(self.scripture_words)
+        except Exception as e:                    # no speakers, not Windows...: the microphone goes on as before
+            say({"t": "error", "msg": str(e)[:200], "g": "meeting"})
+            return
+        ear = Listener(twin, source, tag="meeting", levels=False)
+        ear.scripture = twin
+        self.ear = ear
+
+        def run():
+            try:
+                ear.run()
+            finally:
+                try:
+                    ear.source.close()
+                except Exception:
+                    pass
+        threading.Thread(target=run, name="meeting-ear", daemon=True).start()
+        say({"t": "ready", "g": "meeting"})
+
     def _feed(self, data):
         """Give the sound to every grammar that is on: [(kind, text, g)]."""
         out = []
         if self.script_on:
             out.append(self.engine.feed(data) + (None,))
         if self.scripture is not None:
-            out.append(self.scripture.feed(data) + ("scripture",))
+            out.append(self.scripture.feed(data) + (self.tag,))
         return out
 
     def _finish(self):
@@ -328,7 +376,7 @@ class Listener:
         if self.script_on:
             out.append(("final", self.engine.finish(), None))
         if self.scripture is not None:
-            out.append(("final", self.scripture.finish(), "scripture"))
+            out.append(("final", self.scripture.finish(), self.tag))
         return out
 
     @staticmethod
@@ -345,13 +393,16 @@ class Listener:
         while not self.quit:
             data = self.source.read()
             if data is None:
-                say({"t": "error", "msg": "The microphone stopped sending sound."})
+                if self.tag == "meeting":
+                    say({"t": "error", "msg": "The meeting's sound stopped.", "g": "meeting"})
+                else:
+                    say({"t": "error", "msg": "The microphone stopped sending sound."})
                 return
             if not data:
                 return                            # the test file is over
             level = rms(data)
             now = time.monotonic()
-            if now - last_level >= 0.25:
+            if self.levels and now - last_level >= 0.25:
                 say({"t": "level", "v": round(min(1.0, level / 3000.0), 2)})
                 last_level = now
             if self.cmd_hold:                     # 26.11.20 held: every sound goes to the commands, and only there
