@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.27': [
+    {title: 'Say a Frame’s name', text: 'Hold Right Ctrl and say “go to Welcome”, or the name of a Deck in the live Frame. Let go and it happens, with Undo.', show: {settings: 'scripture', spot: '#vc-settings'}},
+    {title: 'A verse asks first', text: 'Hold Right Ctrl and say “show John three sixteen”: it comes up as “You asked for”, with Show. Press it, or say “show it”.', show: {settings: 'scripture', spot: '#vc-settings'}}
+  ],
   '26.11.26': [
     {title: 'Add a device opens your workspace', text: 'Settings → Sync → Add a device: scan the code with your phone and it opens your workspace as you. Nothing to type, nobody to approve.', show: {settings: 'account', spot: '#sync-add'}},
     {title: 'Connect this PC from the website', text: 'On framedecks.com, Home → Connect this PC. FrameDecks asks once here: choose Connect. No code to type.', show: {settings: 'account', spot: '#sync-add'}}

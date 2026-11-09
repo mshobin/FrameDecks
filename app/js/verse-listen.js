@@ -7,7 +7,8 @@
  * Frame's Scripture Deck (a Scripture Deck is added to the Frame if it has none) and puts it on screen with the same
  * action as any scripture in the list. With "Auto" on (Settings > Scripture) it is shown without asking.
  * Another screen may ask for a suggestion to be shown (status "show" from /api/verse-listen); the Studio does it here.
- * Settings > Scripture also holds the two switches. Nothing heard is kept. */
+ * Settings > Scripture also holds the two switches. Nothing heard is kept.
+ * 26.11.27 a verse asked for by voice ("show John three sixteen") is always offered first: "You asked for". */
 (function(){
 'use strict';
 var Store = window.KCStore, SC = window.KCScenes;
@@ -44,10 +45,10 @@ function render(){
   var c = cardEl(); if (!c) return;
   var p = info && info.pending, on = !!(info && info.enabled && info.live);
   c.innerHTML = '';
-  var member = p && p.from === 'meeting';                         // 26.11.24 a member said it: always asked
+  var member = p && (p.from === 'meeting' || p.from === 'voice');  // 26.11.24 a member said it, 26.11.27 or you asked by voice: always asked
   if (p && ((p.status === 'waiting' && (!info.auto || member)) || p.id === failed)){
     c.className = 'vl-card vl-ask';
-    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: member ? 'Heard in the meeting' : 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
+    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: p.from === 'voice' ? 'You asked for' : member ? 'Heard in the meeting' : 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
     c.appendChild(h('div', {cls: 'vl-acts'}, [
       h('button', {cls: 'btn primary small', type: 'button', id: 'vl-show', text: busy === p.id ? 'Showing…' : 'Show', disabled: busy ? 'disabled' : null, onclick: function(){ show(p); }}),
       h('button', {cls: 'btn quiet small', type: 'button', id: 'vl-dismiss', text: 'Dismiss', disabled: busy ? 'disabled' : null, onclick: function(){ dismiss(p); }})]));
@@ -148,7 +149,7 @@ function take(d){
   info = d; seq = d.seq;
   var p = d.pending;
   // a Show asked for on another screen is tried again even after a failure; Auto tries a verse once
-  if (p && !busy && (p.status === 'show' || (p.status === 'waiting' && d.auto && p.from !== 'meeting' && p.id !== failed))) show(p);   // 26.11.24 never Auto for a member
+  if (p && !busy && (p.status === 'show' || (p.status === 'waiting' && d.auto && !p.from && p.id !== failed))) show(p);   // never Auto for a member (26.11.24) or a voice command (26.11.27)
   render();
   try { document.dispatchEvent(new CustomEvent('kc-verse-listen', {detail: d})); } catch(e){}   // the top bar's Control chip
 }

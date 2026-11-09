@@ -2,8 +2,9 @@
  * Ctrl (or a hold button in the Command Center or on the phone) is held (src/voice_commands.py) and the Studio runs
  * it here, with the same steps as the buttons: Next / Previous Frame, "frame three", the next or previous question,
  * scripture or slide, Show question / scripture / both, Hide all, Black screen, Picture back, Freeze, Unfreeze, Mute,
- * Camera. Never Go Live, Leave, Share screen or Emergency: those stay a press. "Show John three sixteen" is shown by
- * Listen for scripture's Show (js/verse-listen.js).
+ * Camera. Never Go Live, Leave, Share screen or Emergency: those stay a press. "Show John three sixteen" is offered by
+ * Listen for scripture (js/verse-listen.js, 26.11.27: "You asked for", Show); "show it" shows it (the program does both).
+ * 26.11.27 a Frame by its name ("go to Welcome": goto), a Deck of the live Frame by its name (show-question/-verse).
  * Like verse-listen.js it waits on the program for a change (up to 10 s a request) with no timer in between, so a
  * Studio hidden behind Zoom still answers at once. Also Settings → Scripture → Voice commands. */
 (function(){
@@ -74,6 +75,11 @@ var RUN = {
   },
   prev: function(st){ return step(st, -1); },
   frame: function(st, c){ return frameNo(st, c.frame); },
+  goto: function(st, c){                                   // 26.11.27 a Frame by its name
+    var sc = SC.order(st).filter(function(x){ return x.id === c.scene; })[0];
+    if (!sc) throw new Error('That Frame is not in this meeting.');
+    return update(function(n){ SC.take(n, sc.id, null); });
+  },
   'next-question': function(st){ return contentStep(st, 'question', 1); },
   'prev-question': function(st){ return contentStep(st, 'question', -1); },
   'next-verse': function(st){ return contentStep(st, 'verse', 1); },
@@ -92,7 +98,7 @@ var RUN = {
   camera: function(){ return post('api/app/meeting-key', {act: 'camera'}); }
 };
 
-var UNDO = {next: 1, prev: 1, frame: 1, hide: 1, black: 1, unblack: 1, 'show-question': 1, 'show-verse': 1, 'show-both': 1,
+var UNDO = {next: 1, prev: 1, frame: 1, goto: 1, hide: 1, black: 1, unblack: 1, 'show-question': 1, 'show-verse': 1, 'show-both': 1,
   'next-question': 1, 'prev-question': 1, 'next-verse': 1, 'prev-verse': 1};       // 26.11.22 Undo for 5 s
 function run(last){
   ran = last.n;
@@ -111,7 +117,7 @@ function take(d){
   if (!d) return;
   info = d; seq = d.seq;
   var last = d.last;
-  if (last && last.status === 'queued' && last.cmd && last.cmd !== 'verse' && last.n > ran) run(last);
+  if (last && last.status === 'queued' && last.cmd && last.cmd !== 'verse' && last.cmd !== 'show-offer' && last.n > ran) run(last);   // those two the program does
 }
 function loop(){
   var t0 = Date.now();
@@ -129,9 +135,9 @@ function start(){ if (!(Store.ride && Store.ride('vc', refresh))) loop(); }
 
 /* ---------- Settings → Scripture: Voice commands ---------- */
 function saveSetting(o){ return post('api/app/settings', o).catch(function(){}); }
-var SAY = [['Next Frame', '“next frame”, “go back”, “frame three”'], ['The Content', '“next question”, “next scripture”, “next slide”'],
+var SAY = [['Next Frame', '“next frame”, “go back”, “frame three”'], ['By name', '“go to Welcome”, a Deck’s own name'], ['The Content', '“next question”, “next scripture”, “next slide”'],
   ['What shows', '“show question”, “show scripture”, “show both”'], ['The screen', '“hide all”, “black screen”, “picture back”, “freeze”'],
-  ['A verse', '“show John three sixteen”'], ['Your meeting app', '“mute”, “camera”']];
+  ['A verse', '“show John three sixteen”, then Show (or “show it”)'], ['Your meeting app', '“mute”, “camera”']];
 function renderSettings(){
   var after = $('vl-settings') || ($('scripture-body') && $('scripture-body').closest('section.box'));
   if (!after) return;

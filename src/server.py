@@ -51,7 +51,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.26"
+APP_VERSION = "26.11.27"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -849,8 +849,21 @@ def _key_down():
         return None
 
 
+def _voice_names():
+    """26.11.27 what a voice command may name: every Frame (not the templates), and the live Frame's Scripture and
+    Question Decks by their own names."""
+    st = state if isinstance(state, dict) else {}
+    scenes = [x for x in st.get("scenes") or [] if isinstance(x, dict) and not x.get("tpl")]
+    live_id = (st.get("live") or {}).get("scene") if isinstance(st.get("live"), dict) else ""
+    live = next((x for x in scenes if x.get("id") == live_id), None) or {}
+    return {"frames": [{"id": x.get("id"), "name": x.get("name")} for x in scenes[:300]],
+            "decks": [{"kind": l.get("kind"), "name": l.get("name")} for l in live.get("layers") or []
+                      if isinstance(l, dict) and l.get("kind") in ("scripture", "question")]}
+
+
 VOICE_CMD = voice_commands.VoiceCommands(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live,
-                                         show_verse=lambda text: VERSE_LISTEN.ask(text) is not None, key_down=_key_down())
+                                         show_verse=lambda text: (VERSE_LISTEN.ask(text) or {}).get("label"),
+                                         confirm=VERSE_LISTEN.confirm, names=_voice_names, key_down=_key_down())
 
 
 def voice_commands_action(d, remote=False):

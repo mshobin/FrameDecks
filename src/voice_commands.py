@@ -17,6 +17,12 @@ How it fits together:
     stay a press. "Show John three sixteen" puts a verse on screen through Listen for scripture's Show.
   * The Studio runs the command (app/js/voice-commands.js), with the same steps as the buttons, and says it is done.
     GET /api/voice-commands?after=<seq>&wait=<s> is the state every screen shows ("Listening…", "Heard: Next Frame").
+26.11.27 (owner, 9 November: hands-free, but never a surprise):
+  * A Frame or a Deck by its name: "go to Welcome", "open Bible Study", "Discussion" (a Scripture or Question Deck of
+    the live Frame by its own name). The names' words join the listener's words while you are live (names()), and
+    change with the plan.
+  * A verse said ("show John three sixteen") is offered, never shown by itself: it comes up in the Studio and the
+    corner card as "You asked for John 3:16" with Show, one press (or, still holding, "show it").
 Nothing heard is recorded, kept or sent anywhere."""
 import threading
 import time
@@ -83,22 +89,57 @@ COMMANDS = (
     ("mute", "Mute / unmute", ("mute", "unmute", "mute me", "unmute me", "microphone")),
     ("camera", "Camera on / off", ("camera", "camera on", "camera off", "video on", "video off")),
 )
-NEVER = ("golive", "leave", "share", "emergency")                  # stay a press, never a voice command
+NEVER = ("golive", "leave", "share", "emergency", "end", "delete")  # stay a press, never a voice command
 SHOW_WORDS = {"show", "put", "display", "open", "read"}
+CONFIRM = ("show it", "show that", "yes show it", "show the verse now", "yes")      # 26.11.27 the verse just offered
+GO_WORDS = ("go to", "go", "open", "frame", "show", "the", "to")                    # may come before a name
+DECK_CMD = {"scripture": ("show-verse", "the scripture"), "question": ("show-question", "the question")}
 
 
 def _words(text):
     return [w for w in str(text or "").lower().replace("-", " ").split() if w and w != "[unk]"]
 
 
-def grammar_words():
-    """Every word the command listener needs: the commands, "frame" numbers, and Bible references."""
-    out = set(SHOW_WORDS) | {"frame", "go", "to", "number"}
+def _name_words(name):
+    """A Frame or Deck name as the words it is said with ("Bible Study!" -> ["bible", "study"])."""
+    return [w for w in "".join(c if c.isalnum() or c == "'" else " " for c in str(name or "").lower()).split() if w][:8]
+
+
+def grammar_words(names=None):
+    """Every word the command listener needs: the commands, "frame" numbers, Bible references and (26.11.27) the
+    names of the Frames and the live Frame's Decks."""
+    out = set(SHOW_WORDS) | {"frame", "go", "to", "number", "the", "it", "that", "yes", "now"}
     for _, _, phrases in COMMANDS:
         for p in phrases:
             out.update(p.split())
     out.update(scripture_speech.grammar_words())
+    for item in (names or {}).get("frames", []) + (names or {}).get("decks", []):
+        out.update(_name_words(item.get("name")))
     return sorted(out)
+
+
+def _by_name(words, names):
+    """The Frame or Deck whose whole name was said, with only "go to (the)", "open" or "please" around it:
+    (name length, result) or None. The longest name wins; a Frame wins over a Deck of the same length."""
+    best = None
+    for kind, items in (("frame", (names or {}).get("frames", [])), ("deck", (names or {}).get("decks", []))):
+        for it in items:
+            nw = _name_words(it.get("name"))
+            if not nw or not _find(words, nw):
+                continue
+            i = next(i for i in range(len(words) - len(nw) + 1) if words[i:i + len(nw)] == nw)
+            rest = words[:i] + words[i + len(nw):]
+            if len(rest) > 3 or any(w not in " ".join(GO_WORDS).split() + ["please"] for w in rest):
+                continue
+            if kind == "frame":
+                r = {"cmd": "goto", "label": "Go to " + str(it.get("name"))[:60], "scene": str(it.get("id"))}
+            elif it.get("kind") in DECK_CMD:
+                r = {"cmd": DECK_CMD[it["kind"]][0], "label": "Show " + str(it.get("name"))[:60]}
+            else:
+                continue
+            if not best or len(nw) > best[0]:
+                best = (len(nw), r)
+    return best
 
 
 def _find(seq, sub):
@@ -106,13 +147,16 @@ def _find(seq, sub):
     return any(seq[i:i + n] == sub for i in range(len(seq) - n + 1))
 
 
-def match(text):
-    """What was said -> {"cmd", "label", ...} or None. A Bible reference wins ("show John three sixteen"), then
-    "frame <n>" (go to that Frame), then the longest command phrase heard. A phrase counts only when it is nearly all
-    that was said (two words more at most), so a sentence that merely contains "go back" is not a command."""
+def match(text, names=None):
+    """What was said -> {"cmd", "label", ...} or None. A Bible reference wins ("show John three sixteen"), then "show
+    it" (the verse just offered), then "frame <n>" (go to that Frame), then a Frame or Deck by its name or the longest
+    command phrase heard (the longer of the two; a command on a tie). A phrase counts only when it is nearly all that
+    was said (two words more at most), so a sentence that merely contains "go back" is not a command."""
     words = _words(text)
     if not words:
         return None
+    if " ".join(words) in CONFIRM:
+        return {"cmd": "show-offer", "label": "Show the verse"}
     ref = scripture_speech.find(" ".join(words))
     if ref:
         return {"cmd": "verse", "label": "Show " + ref["label"], "ref": ref["ref"], "text": " ".join(words)}
@@ -121,6 +165,7 @@ def match(text):
         num = scripture_speech.number(words, i + 1) if i + 1 < len(words) else None
         if num and num[0] <= 200:
             return {"cmd": "frame", "label": "Frame %d" % num[0], "frame": num[0]}
+    named = _by_name(words, names)
     best = None
     for cid, label, phrases in COMMANDS:
         for p in phrases:
@@ -131,15 +176,20 @@ def match(text):
                 continue
             if not best or len(pw) > best[0]:
                 best = (len(pw), cid, label)
+    if named and (not best or named[0] > best[0]):
+        return named[1]
     if best:
         return {"cmd": best[1], "label": best[2]}
     return None
 
 
 class VoiceCommands:
-    def __init__(self, voice, settings, is_live, show_verse=None, key_down=None, clock=time.time):
+    def __init__(self, voice, settings, is_live, show_verse=None, key_down=None, clock=time.time, names=None, confirm=None):
         self.voice, self.settings, self.is_live, self.clock = voice, settings, is_live, clock
-        self.show_verse = show_verse              # text -> True when a verse was asked to show (Listen for scripture)
+        self.show_verse = show_verse              # text -> a label when a verse was offered (Listen for scripture)
+        self.names = names                        # 26.11.27 () -> {"frames": [{id, name}], "decks": [{kind, name}]}
+        self.confirm = confirm                    # 26.11.27 () -> a label when the verse offered is now shown
+        self._loaded = None                       # the words the listener has
         self.key_down = key_down                  # vk -> bool (Windows), or None
         self.cond = threading.Condition()
         self.seq, self.n = 0, 0
@@ -159,9 +209,15 @@ class VoiceCommands:
         want = self._want()
         if want and not self.listening and not self.failed:
             self.listening = True
-            self.last = self.voice.command_start(grammar_words(), self.heard) or {}
+            self._loaded = grammar_words(self._names())
+            self.last = self.voice.command_start(self._loaded, self.heard) or {}
             if self.last.get("state") in ("unavailable", "memory", "error"):
                 self.listening, self.failed = False, True
+        elif want and self.listening and self.voice.want_c and not self.holding:
+            words = grammar_words(self._names())          # 26.11.27 a Frame renamed or added: the new words, at once
+            if words != self._loaded:
+                self._loaded = words
+                self.voice.command_start(words, self.heard)
         elif want and self.listening and not self.voice.want_c:
             self.listening, self.failed = False, True        # it stopped by itself: tried again when switched on again
             self.last = dict(self.voice.command_body() or {}, state="error")
@@ -174,6 +230,13 @@ class VoiceCommands:
             if self.last.get("state") != "unavailable":
                 self.last = {"state": "off"}
         self._bump()
+
+    def _names(self):
+        try:
+            return (self.names() if self.names else None) or {}
+        except Exception as e:                            # never stop listening over the plan
+            print("Voice commands (names):", e)
+            return {}
 
     def _bump(self):
         st = self.voice.command_body() if self.listening else self.last
@@ -281,7 +344,7 @@ class VoiceCommands:
                 self.seq += 1
                 self.cond.notify_all()
                 return None
-        m = match(text) if text else None
+        m = match(text, self._names()) if text else None
         now = self.clock()
         with self.cond:
             self.n += 1
@@ -294,13 +357,21 @@ class VoiceCommands:
             self.seq += 1
             self.cond.notify_all()
             item = dict(self.heard_last)
-        if m and m["cmd"] == "verse":
-            ok = False
+        if m and m["cmd"] in ("verse", "show-offer"):    # 26.11.27 done here: offered, or the offer shown
+            got = None
             try:
-                ok = bool(self.show_verse and self.show_verse(m["text"]))
+                fn = self.show_verse if m["cmd"] == "verse" else self.confirm
+                got = fn(m["text"]) if fn and m["cmd"] == "verse" else (fn() if fn else None)
             except Exception as e:
                 print("Voice commands (verse):", e)
-            self.done(item["n"], ok, "" if ok else "That verse could not be shown.")
+            with self.cond:
+                h = self.heard_last
+                if got and h and h["n"] == item["n"]:
+                    said = got if isinstance(got, str) else m["label"].replace("Show ", "", 1)
+                    h["label"] = ("%s offered: press Show" % said) if m["cmd"] == "verse" else ("Show " + said)
+            msg = "That verse could not be offered." if m["cmd"] == "verse" else "No verse is waiting to be shown."
+            self.done(item["n"], bool(got), "" if got else msg)
+            item = dict(self.heard_last)
         return item
 
     def done(self, n, ok=True, msg=""):

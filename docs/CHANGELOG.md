@@ -10,6 +10,26 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.27] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.27.md](releases/v26.11.27.md).
+
+### Added
+- Voice commands by name (`src/voice_commands.py`): "go to <Frame>" / "open <Frame>" (every Frame but templates) and a
+  Scripture or Question Deck of the live Frame by its own name (`server._voice_names`, `match(text, names)`); the
+  names' words join the listener's words while live and are reloaded when the plan changes. The Studio runs `goto`
+  (`app/js/voice-commands.js`), with Undo.
+- "show it" (and "show that", "yes") while holding shows the verse waiting to be shown (`ScriptureListen.confirm`).
+
+### Changed
+- A verse asked for by voice ("show John three sixteen") is offered, never shown by itself, not even with Auto:
+  status `waiting`, `from: "voice"`, "You asked for" in the Studio (`app/js/verse-listen.js`) and the corner card
+  (`app/js/alert-card.js`, `src/leader_alerts.py`).
+- `voice_commands.NEVER` also names ending the meeting and deleting.
+- Website: the features heading reads "Prepared before. Confident during."; the front page's stage moves one chapter
+  per gesture (`.tr-snap` snap points; wheel and touch stepping in `components/landing/tour.tsx`), each chapter's story
+  then plays by itself (`STORY`); the total JS budget is 401 KB.
+
 ## [26.11.26] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.26.md](releases/v26.11.26.md).

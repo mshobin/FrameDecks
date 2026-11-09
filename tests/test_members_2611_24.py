@@ -262,7 +262,7 @@ class MeetingEar(unittest.TestCase):
         self.assertIn('elif ev.get("g") == "meeting":', vf)
         self.assertIn('on(text, final, "meeting")', vf)
         js = read("app/js/verse-listen.js")
-        self.assertIn("p.from !== 'meeting'", js)              # Auto never shows what a member said
+        self.assertIn("d.auto && !p.from", js)                  # Auto never shows what a member said (26.11.27: nor a voice command)
         self.assertIn("Heard in the meeting", js)
 
 

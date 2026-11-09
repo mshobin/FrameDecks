@@ -68,7 +68,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.23: Meeting summary (print, PDF, email) and prayer requests wall (migration 0019) | Not tagged: released in 26.11.24 |
 | 26.11.24: Members' phones (/follow, migration 0020), sermon notes, scripture said by members (meeting audio, ask-only) | Released with 26.11.25 (or tagged on its own) |
 | 26.11.25: the leader's corner card (a verse heard, prayer requests) while the Studio is behind the meeting | Released (v26.11.25) |
-| 26.11.26: joining without typing: Add a device signs the phone in as you, Connect this PC from the website, passkeys, Google/Apple/Microsoft | On `main`; owner runs 0021, deploys `device-sign-in`, switches on Passkeys, tags `v26.11.26` |
+| 26.11.26: joining without typing: Add a device signs the phone in as you, Connect this PC from the website, passkeys, Google/Apple/Microsoft | Released with 26.11.27 (or tagged on its own); owner steps done |
+| 26.11.27: voice commands by name, a spoken verse asks first, website heading "Prepared before. Confident during." | On `main`; owner tags `v26.11.27` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

@@ -170,7 +170,7 @@ export function Landing() {
           <div className="lp-head" data-rise="">
             <p className="lp-eyebrow">Made for the whole team</p>
             <h2 id="lp-features-title" className="lp-h2">
-              Calm on the day. Ready every week.
+              Prepared before. Confident during.
             </h2>
           </div>
           <ul className="lp-promises" data-spotlight="">

@@ -141,8 +141,9 @@ class ScriptureListen:
         return ref
 
     def ask(self, text):
-        """26.11.20 a voice command ("show John three sixteen"): this reference goes on screen now, through the same
-        Show as a suggestion (the Studio does the showing), also when Listen for scripture is off or just offered it."""
+        """26.11.20 a voice command ("show John three sixteen"), also when Listen for scripture is off or just offered
+        it. 26.11.27 it is offered, never shown by itself (not even with Auto): "You asked for John 3:16" with Show, one
+        press, or "show it" while still holding (confirm())."""
         refs = scripture_speech.find_all(text, settled=True)
         if not refs:
             return None
@@ -157,10 +158,19 @@ class ScriptureListen:
         with self.cond:
             self.recent[ref["ref"]] = now
             self._n += 1
-            self._set(dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="show", error=""))
+            self._set(dict(ref, id="s%d-%d" % (int(now), self._n), at=int(now * 1000), status="waiting", error="", **{"from": "voice"}))
             keep = {k: ref[k] for k in ("ref", "label", "planned") if k in ref}
             self.history = [dict(keep, at=int(now * 1000))] + [h for h in self.history if h["ref"] != ref["ref"]][:HISTORY - 1]
         return ref
+
+    def confirm(self):
+        """26.11.27 "show it" (a voice command): the verse waiting to be shown goes on screen. Its label, or None."""
+        with self.cond:
+            p = self.pending
+            if not p or p.get("status") != "waiting":
+                return None
+            self._set(dict(p, status="show", error=""))
+            return p.get("label") or p.get("ref")
 
     def _set(self, pending):
         with self.cond:

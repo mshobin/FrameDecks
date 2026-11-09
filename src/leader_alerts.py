@@ -39,7 +39,7 @@ class LeaderAlerts:
         except Exception:
             v = {}
         p = v.get("pending")
-        if p and p.get("status") == "waiting" and (not v.get("auto") or p.get("from") == "meeting"):
+        if p and p.get("status") == "waiting" and (not v.get("auto") or p.get("from") in ("meeting", "voice")):   # 26.11.27 voice: always asked
             out.append({"kind": "verse", "id": p.get("id"), "label": p.get("label") or p.get("ref"), "ref": p.get("ref"),
                         "from": p.get("from") or "leader", "planned": bool(p.get("planned")), "error": p.get("error") or ""})
         try:
