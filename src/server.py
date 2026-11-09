@@ -51,7 +51,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.27"
+APP_VERSION = "26.11.28"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -868,7 +868,8 @@ VOICE_CMD = voice_commands.VoiceCommands(VOICE, settings=lambda: app_settings(),
 
 def voice_commands_action(d, remote=False):
     """POST /api/voice-commands (this PC) and /api/remote/voice-commands (a signed-in phone or tablet):
-    {op: "hold", on: bool} (the hold buttons) · {op: "enable", value: bool} · {op: "done", n, ok, msg} (the Studio ran
+    {op: "hold", on: bool} (the hold buttons) · {op: "search", on, words} (26.11.28 the Command Center's search box) ·
+    {op: "enable", value: bool} · {op: "done", n, ok, msg} (the Studio ran
     it) · {op: "say", text} (as if it had been said: tests, this PC only). The phone may only hold."""
     d = d if isinstance(d, dict) else {}
     op = str(d.get("op") or "")
@@ -876,6 +877,9 @@ def voice_commands_action(d, remote=False):
         return VOICE_CMD.hold(bool(d.get("on")), "phone" if remote else "button")
     if remote:
         raise ValueError("Not available from the remote.")
+    if op == "search":                                  # 26.11.28 the Command Center's search box has focus (or not)
+        words = d.get("words") if isinstance(d.get("words"), list) else []
+        return VOICE_CMD.search(bool(d.get("on")), [str(w)[:200] for w in words[:600]])
     if op == "enable":
         save_app_settings({"voiceCommands": bool(d.get("value"))})
         VOICE_CMD.tick()
@@ -1108,8 +1112,22 @@ def alerts_action(data):
     raise ValueError("Unknown action.")
 
 
+def moment_notes(m):
+    """26.11.28 the summary's Moment -> sermon notes members' phones already show: one section, "This week", with the
+    verse, the question to carry into the week and when the meeting is next."""
+    m = m if isinstance(m, dict) else {}
+    v = m.get("verse") if isinstance(m.get("verse"), dict) else None
+    verse = {"ref": str(v.get("ref") or "")[:80], "text": str(v.get("text") or "")[:2000]} if v and v.get("ref") else None
+    q, nxt = str(m.get("question") or "").strip()[:500], str(m.get("next") or "").strip()[:120]
+    if not verse and not q:
+        raise ValueError("A moment needs a scripture or a question that was shown in this meeting.")
+    return {"v": 1, "title": str(m.get("title") or "This week").strip()[:120] or "This week", "date": int(time.time() * 1000),
+            "presenter": "", "sections": [{"frame": "This week", "script": nxt, "verses": [verse] if verse else [],
+                                           "questions": [q] if q else []}]}
+
+
 def members_action(data):
-    """POST /api/members {op: open|close|prayer|share-notes|unshare-notes, on?, run?, script?} (this PC only).
+    """POST /api/members {op: open|close|prayer|share-notes|share-moment|unshare-notes, on?, run?, script?, moment?} (this PC only).
     26.11.24 one code for members' phones: follow along, prayer requests and the sermon notes."""
     op = str(data.get("op") or "")
     if op == "open":
@@ -1131,6 +1149,8 @@ def members_action(data):
         if not notes or not notes["sections"]:
             raise ValueError("There is nothing to share yet: notes are made from a meeting that was live.")
         ROOM.share_notes(notes)
+    elif op == "share-moment":                         # 26.11.28 the summary's Moment, as a one-section set of notes
+        ROOM.share_notes(moment_notes(data.get("moment")))
     elif op == "unshare-notes":
         ROOM.unshare_notes()
     elif op == "invite":                               # the code on screen, for people on Zoom or Teams
@@ -2011,6 +2031,34 @@ STUDIO_VERSION = 1
 FILE_KINDS = ("image", "video", "pdf", "audio")
 AUDIO_TYPES = {".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".wav": "audio/wav", ".ogg": "audio/ogg"}   # M-D4 Audio Content
 AUDIO_TYPES_EXT = tuple(AUDIO_TYPES)
+
+
+def ready_report():
+    """26.11.28 the ready check (src/ready_check.py): what is read now, on this PC. Asking keeps the webcam on for a
+    few seconds and has it look at the light and framing (src/vcam/hints.py)."""
+    import meeting_guard
+    import meeting_keys
+    import ready_check
+    eng = VCAM.get("engine")
+    if eng is not None:
+        eng.want_hints(8.0)
+    try:
+        from voice_worker import microphones
+        mics = microphones() if os.name == "nt" else None
+    except Exception:
+        mics = None
+    try:
+        meeting = meeting_keys.status()
+    except Exception:
+        meeting = None
+    try:
+        guard = _guard().checks()
+    except Exception:
+        guard = {}
+    st = state if isinstance(state, dict) else {}
+    return ready_check.build(vcam=vcam_status(lite=True), hints=eng.hints.get() if eng is not None else None, mics=mics,
+                             meeting=meeting, scenes=ready_check.meeting_scenes(st), missing=media_check(st), guard=guard,
+                             memory=meeting_guard.system_memory())
 
 
 def media_check(st):
@@ -3047,6 +3095,10 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(update_info()), TYPES[".json"])
+        if path == "/api/app/ready":                     # 26.11.28 the ready check, before you go live (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(ready_report()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/app/guard":                     # 26.11.7 the meeting guard: what is in the way, how busy
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

@@ -2,7 +2,9 @@
  * When the meeting goes off live, the Studio offers a one-page summary: how long it ran, each Frame and how long it
  * was on (against the plan), the questions asked and the scriptures read, and what people sent (Memory Cards shown,
  * prayer requests). Print / Save as PDF, Copy, or Email. Past meetings stay on this PC (src/meeting_log.py).
- * 26.11.24 a second view: the sermon notes for members, shareable on members' phones. */
+ * 26.11.24 a second view: the sermon notes for members, shareable on members' phones.
+ * 26.11.28 a third: the moment, one picture to share after the meeting (the verse, a question to carry into the week,
+ * when you meet next), in the meeting's own colours and season: Save the picture, Copy it, WhatsApp, members' phones. */
 (function(){
 'use strict';
 var Store = window.KCStore;
@@ -116,12 +118,128 @@ function share(){
     .catch(function(e){ toast(e.message, true); });
 }
 
+/* ---------- 26.11.28 the moment: one picture (1080 × 1350) made on this PC ---------- */
+var mo = {verse: 0, question: 0, next: null};
+function allOf(k){ var out = []; (notes ? notes.sections : []).forEach(function(sec){ sec[k].forEach(function(x){ out.push(x); }); }); return out; }
+function nextMeeting(){
+  var st = Store.get(), SC = window.KCScenes, after = cur.started + 12 * 36e5, best = null;
+  (SC ? SC.meetings(st) : []).forEach(function(m){ var t = Date.parse(m.date || ''); if (!isNaN(t) && t > after && (best === null || t < best)) best = t; });
+  var d = new Date(best === null ? cur.started + 7 * 864e5 : best);
+  return 'We meet again ' + d.toLocaleDateString(undefined, {weekday: 'long', day: 'numeric', month: 'long'});
+}
+function momentData(){
+  var vs = allOf('verses'), qs = allOf('questions'), st = Store.get(), b = st.brand || {};
+  var withText = vs.filter(function(v){ return v.text; });
+  var v = (withText.length ? withText : vs)[Math.min(mo.verse, Math.max(0, (withText.length ? withText : vs).length - 1))] || null;
+  return {verse: v, verses: withText.length ? withText : vs, question: qs[Math.min(mo.question, Math.max(0, qs.length - 1))] || '', questions: qs,
+    next: mo.next != null ? mo.next : nextMeeting(), title: b.meeting || cur.meeting, org: b.org || ''};
+}
+function colours(){
+  var st = Store.get(), SC = window.KCScenes, look = SC && SC.lookSurface ? SC.lookSurface(st) : null, pal = SC ? SC.brandPalette((st.brand || {}).color) : null;
+  var sea = SC && SC.season ? SC.season(st) : null;
+  function hex(rgb){ return 'rgb(' + rgb + ')'; }
+  return {a: look ? hex(look.a) : '#182c54', b: look ? hex(look.b) : '#0c1a38', gold: pal ? pal.g2 : '#e3b75a', text: pal ? pal.text : '#f2c35b', season: sea ? sea.id : ''};
+}
+function wrap(ctx, text, x, y, max, lh, lines){
+  var words = String(text || '').split(/\s+/), line = '', out = [];
+  words.forEach(function(w){ var t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > max && line){ out.push(line); line = w; } else line = t; });
+  if (line) out.push(line);
+  if (out.length > lines){ out = out.slice(0, lines); out[lines - 1] = out[lines - 1].replace(/\s*\S*$/, '') + '…'; }
+  out.forEach(function(l, i){ ctx.fillText(l, x, y + i * lh); });
+  return y + out.length * lh;
+}
+function paint(cv, m){
+  var W = 1080, H = 1350, c = colours(), ctx = cv.getContext('2d');
+  cv.width = W; cv.height = H;
+  var g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, c.a); g.addColorStop(1, c.b);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  if (c.season === 'christmas'){                              // a gentle snowfall
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    for (var i = 0; i < 140; i++){ var sx = (i * 397) % W, sy = (i * 211 + (i % 7) * 53) % H; ctx.beginPath(); ctx.arc(sx, sy, 1.5 + (i % 3), 0, 6.3); ctx.fill(); }
+  }
+  ctx.strokeStyle = c.gold; ctx.lineWidth = 6; ctx.strokeRect(48, 48, W - 96, H - 96);
+  var x = 120, max = W - 240, y = 190;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = c.text; ctx.font = '600 34px "Segoe UI", system-ui, sans-serif';
+  ctx.fillText(('This week · ' + m.title).toUpperCase().slice(0, 48), x, y);
+  y += 110;
+  if (m.verse){
+    ctx.fillStyle = '#fbf6ea'; ctx.font = '500 58px Georgia, "Times New Roman", serif';
+    y = wrap(ctx, m.verse.text ? '“' + m.verse.text + '”' : m.verse.ref, x, y, max, 76, 7);
+    ctx.fillStyle = c.text; ctx.font = '600 38px "Segoe UI", system-ui, sans-serif';
+    if (m.verse.text) { y += 30; ctx.fillText(m.verse.ref, x, y); }
+    y += 80;
+  }
+  if (m.question){
+    ctx.fillStyle = c.gold; ctx.fillRect(x, y, 90, 5); y += 70;
+    ctx.fillStyle = c.text; ctx.font = '600 30px "Segoe UI", system-ui, sans-serif'; ctx.fillText('TO CARRY INTO THE WEEK', x, y); y += 64;
+    ctx.fillStyle = '#ffffff'; ctx.font = '500 44px "Segoe UI", system-ui, sans-serif';
+    y = wrap(ctx, m.question, x, y, max, 60, 4);
+  }
+  ctx.fillStyle = '#ffffff'; ctx.font = '600 38px "Segoe UI", system-ui, sans-serif';
+  wrap(ctx, m.next, x, H - 200, max, 50, 2);
+  if (m.org){ ctx.fillStyle = c.text; ctx.font = '500 30px "Segoe UI", system-ui, sans-serif'; ctx.fillText(m.org.slice(0, 60), x, H - 110); }
+}
+function momentPage(){
+  var m = momentData();
+  if (!m.verse && !m.question) return [h('p', {cls: 'kc-dlg-kicker', text: 'Moment'}), h('h2', {id: 'sum-title', text: cur.meeting}),
+    h('p', {cls: 'sum-empty', text: 'A moment needs a scripture or a question that was shown in this meeting.'})];
+  var cv = h('canvas', {cls: 'mo-canvas', width: '1080', height: '1350', role: 'img', 'aria-label': 'The moment picture'});
+  paint(cv, m);
+  var vsel = h('select', {'aria-label': 'Scripture'}, m.verses.map(function(v, i){ var o = h('option', {value: String(i), text: v.ref}); if (v === m.verse) o.selected = true; return o; }));
+  vsel.addEventListener('change', function(){ mo.verse = Number(vsel.value); draw(); });
+  var qsel = h('select', {'aria-label': 'Question'}, m.questions.map(function(q, i){ var o = h('option', {value: String(i), text: q.length > 70 ? q.slice(0, 70) + '…' : q}); if (q === m.question) o.selected = true; return o; }));
+  qsel.addEventListener('change', function(){ mo.question = Number(qsel.value); draw(); });
+  var nx = h('input', {type: 'text', maxlength: '80', value: m.next, 'aria-label': 'When you meet next'});
+  nx.addEventListener('change', function(){ mo.next = nx.value.trim(); draw(); });
+  return [h('p', {cls: 'kc-dlg-kicker', text: 'Moment'}), h('h2', {id: 'sum-title', text: 'One picture to share'}),
+    h('p', {cls: 'kc-dlg-sub', text: 'In your meeting’s colours. Choose what it says, then save, copy or share it.'}),
+    h('div', {cls: 'mo-wrap'}, [cv, h('div', {cls: 'mo-pick'}, [
+      m.verses.length > 1 ? h('label', {cls: 'field'}, [h('span', {text: 'Scripture'}), vsel]) : null,
+      m.questions.length > 1 ? h('label', {cls: 'field'}, [h('span', {text: 'To carry into the week'}), qsel]) : null,
+      h('label', {cls: 'field'}, [h('span', {text: 'When you meet next'}), nx])])])];
+}
+function momentBlob(){
+  return new Promise(function(resolve, reject){ var cv = document.createElement('canvas'); paint(cv, momentData()); cv.toBlob(function(b){ if (b) resolve(b); else reject(new Error('Could not make the picture')); }, 'image/png'); });
+}
+function momentSave(){
+  momentBlob().then(function(b){
+    var a = h('a', {href: URL.createObjectURL(b), download: 'Moment - ' + cur.meeting.replace(/[\\/:*?"<>|]+/g, ' ').trim() + '.png'});
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toast('Saved: choose where in the window that opens');
+  }).catch(function(e){ toast(e.message, true); });
+}
+function momentCopy(){
+  if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write){ toast('Copying pictures is not possible here: use Save the picture', true); return; }
+  momentBlob().then(function(b){ return navigator.clipboard.write([new ClipboardItem({'image/png': b})]); })
+    .then(function(){ toast('Picture copied: paste it into WhatsApp, an email or a post'); }).catch(function(){ toast('Could not copy the picture: use Save the picture', true); });
+}
+function momentWords(m){
+  return [m.title, m.verse ? (m.verse.text ? '“' + m.verse.text + '” ' + m.verse.ref : m.verse.ref) : '', m.question ? 'To carry into the week: ' + m.question : '', m.next].filter(Boolean).join('\n\n');
+}
+function momentWhatsApp(){
+  var url = 'https://wa.me/?text=' + encodeURIComponent(momentWords(momentData()));
+  fetch('api/app/open-external', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: url})})
+    .then(function(r){ return r.json(); }).then(function(d){ if (!d.opened) window.open(url, '_blank'); toast('WhatsApp opens with the words: attach the saved picture if you like'); })
+    .catch(function(){ toast('Could not open WhatsApp', true); });
+}
+function momentPhones(){
+  var mm = window.KCMembers && KCMembers.state(), opened = mm && mm.room && mm.room.open;
+  if (!opened){ toast('Open Members’ phones first: one code for everyone in the meeting'); if (window.KCMembers){ dlg.close(); KCMembers.open(); } return; }
+  var m = momentData();
+  fetch('api/members', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'share-moment',
+    moment: {title: m.title, verse: m.verse, question: m.question, next: m.next}})})
+    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'That did not work'); return d; }); })
+    .then(function(){ toast('The moment is on members’ phones'); if (KCMembers.refresh) KCMembers.refresh(); })
+    .catch(function(e){ toast(e.message, true); });
+}
+
 var runs = [];
 function draw(){
   var d = dialog(); d.innerHTML = '';
-  var tabs = h('div', {cls: 'sum-tabs', role: 'tablist'}, [['summary', 'Summary'], ['notes', 'Sermon notes']].map(function(t){
+  var tabs = h('div', {cls: 'sum-tabs', role: 'tablist'}, [['summary', 'Summary'], ['notes', 'Sermon notes'], ['moment', 'Moment']].map(function(t){
     return h('button', {type: 'button', role: 'tab', 'aria-selected': String(view === t[0]), onclick: function(){
-      view = t[0]; if (view === 'notes' && !notes) loadNotes(); else draw();
+      view = t[0]; if (view !== 'summary' && !notes) loadNotes(); else draw();
     }, text: t[1]});
   }));
   var pick = null;
@@ -136,17 +254,24 @@ function draw(){
     sc.addEventListener('change', function(){ withScript = sc.checked; loadNotes(); });
     extra = h('label', {cls: 'check sn-opt', title: 'Each Frame’s Teleprompter script: what you planned to say. Untick to leave it out.'}, [sc, ' Include what I planned to say (Teleprompter script)']);
   }
-  var foot = h('div', {cls: 'kc-dlg-foot sum-foot'}, [pick ? h('label', {cls: 'sum-past'}, ['Past meetings ', pick]) : null,
+  var foot = view === 'moment' ? h('div', {cls: 'kc-dlg-foot sum-foot'}, [pick ? h('label', {cls: 'sum-past'}, ['Past meetings ', pick]) : null,
+    h('button', {cls: 'btn ghost', type: 'button', text: 'Copy the picture', onclick: momentCopy}),
+    h('button', {cls: 'btn ghost', type: 'button', text: 'WhatsApp', onclick: momentWhatsApp}),
+    h('button', {cls: 'btn', type: 'button', text: 'Share with members’ phones', onclick: momentPhones}),
+    h('button', {cls: 'btn', type: 'button', text: 'Save the picture', onclick: momentSave}),
+    h('button', {cls: 'btn primary', type: 'button', text: 'Close', onclick: function(){ d.close(); }})])
+  : h('div', {cls: 'kc-dlg-foot sum-foot'}, [pick ? h('label', {cls: 'sum-past'}, ['Past meetings ', pick]) : null,
     h('button', {cls: 'btn ghost', type: 'button', text: 'Copy', onclick: copy}),
     h('button', {cls: 'btn ghost', type: 'button', text: 'Email', onclick: email}),
     view === 'notes' ? h('button', {cls: 'btn', type: 'button', text: 'Share with members’ phones', onclick: share}) : null,
     h('button', {cls: 'btn', type: 'button', text: 'Print / Save as PDF', onclick: print}),
     h('button', {cls: 'btn primary', type: 'button', text: 'Close', onclick: function(){ d.close(); }})]);
-  var body = view === 'notes' && !notes ? [h('p', {cls: 'sum-empty', text: 'Making the notes…'})] : current();
+  var body = view !== 'summary' && !notes ? [h('p', {cls: 'sum-empty', text: view === 'moment' ? 'Making the moment…' : 'Making the notes…'})]
+    : view === 'moment' ? momentPage() : current();
   d.appendChild(h('div', {cls: 'kc-dlg-in'}, [tabs].concat(body, [extra, foot])));
   if (!d.open) d.showModal();
 }
-function show(s, list){ cur = s; runs = list || []; notes = null; if (view === 'notes') loadNotes(); draw(); }
+function show(s, list){ cur = s; runs = list || []; notes = null; mo = {verse: 0, question: 0, next: null}; if (view !== 'summary') loadNotes(); draw(); }
 function open(run, as){
   if (as) view = as;
   return Promise.all([get('api/summary?run=' + encodeURIComponent(run || 'latest')).then(function(r){ return r.json(); }),
@@ -156,7 +281,7 @@ function open(run, as){
       show(a[0].summary, a[1].runs);
     }).catch(function(e){ toast(e.message, true); });
 }
-window.KCSummary = {open: open, notes: function(run){ return open(run || 'latest', 'notes'); }};
+window.KCSummary = {open: open, notes: function(run){ return open(run || 'latest', 'notes'); }, moment: function(run){ return open(run || 'latest', 'moment'); }};
 
 /* off live: offer the summary (a meeting of at least a minute) */
 var wasLive = '', since = 0;

@@ -10,6 +10,28 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.28] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.28.md](releases/v26.11.28.md).
+
+### Added
+- The ready check (`src/ready_check.py`, `GET /api/app/ready`, `app/js/ready-check.js`): camera, light and framing,
+  microphone, meeting app, this meeting's scriptures (Fetch the words) and media, and the PC; a line under Go Live in
+  the Studio and above the Go Live switch in the Command Center, and its card. Never blocks Go Live.
+- Light and framing hints (`src/vcam/hints.py`, `VCamEngine.want_hints`): brightness of the face and the room and the
+  face's place and size (OpenCV's frontal-face model), only while the ready check asks.
+- Voice search (`VoiceCommands.search`, `{op: "search", on, words}`, `app/js/cc-voice.js`): while the Command Center's
+  search box has focus, what is said while held is typed into it (cmd `search`), listening for the words it can find;
+  also when nothing is live.
+- Next week from this meeting (`KCScenes.nextWeek`, the Frames list's **Next week**): the same Frames a week later,
+  scripture and questions emptied, with Undo.
+- The summary's Moment (`app/js/meeting-summary.js`): a 1080 × 1350 picture (verse, question, when you meet next) in the
+  meeting's colours and season; save, copy, WhatsApp words, members' phones (`/api/members {op: "share-moment"}`,
+  `server.moment_notes`).
+- Seasons (`KCScenes.seasons/setSeason/season`, `st.season`; Settings → Meeting & Branding → Season): Advent, Christmas,
+  Easter, Harvest set the accent and look together and put the own ones back; the overlay pages add each season's mark
+  and, at Christmas, a snowfall (`overlay.css html[data-season]`).
+
 ## [26.11.27] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.27.md](releases/v26.11.27.md).

@@ -23,6 +23,10 @@ How it fits together:
     change with the plan.
   * A verse said ("show John three sixteen") is offered, never shown by itself: it comes up in the Studio and the
     corner card as "You asked for John 3:16" with Show, one press (or, still holding, "show it").
+26.11.28 voice search: while the Command Center's search box has focus (POST {op: "search", on, words}), what is said
+while held is typed into the box (cmd "search"), never run; the words it listens for are the ones the Command Center
+can find (its Frames, Decks, Content, verses, commands and settings), so it stays accurate offline. It also works
+when nothing is live.
 Nothing heard is recorded, kept or sent anywhere."""
 import threading
 import time
@@ -66,6 +70,7 @@ def parse_key(value):
 def valid_key(value):
     """For the settings check: a preset, "off", or your own key (see parse_key)."""
     return value == "off" or parse_key(value) is not None
+SEARCH_FOR = 90.0   # 26.11.28 seconds voice search stays on after the Command Center last said its box has focus
 MAX_HOLD = 15.0     # a key held longer is let go (a stuck key never keeps the microphone on for these words)
 
 # id, what the screens say, the ways to say it (whole phrases; the longest one heard wins)
@@ -190,6 +195,7 @@ class VoiceCommands:
         self.names = names                        # 26.11.27 () -> {"frames": [{id, name}], "decks": [{kind, name}]}
         self.confirm = confirm                    # 26.11.27 () -> a label when the verse offered is now shown
         self._loaded = None                       # the words the listener has
+        self._search_until, self._search_words = 0.0, []   # 26.11.28 voice search
         self.key_down = key_down                  # vk -> bool (Windows), or None
         self.cond = threading.Condition()
         self.seq, self.n = 0, 0
@@ -203,18 +209,44 @@ class VoiceCommands:
     # ---------- start / stop ----------
     def _want(self):
         cfg = self.settings() or {}
-        return bool(cfg.get("voiceCommands")) and bool(self.is_live())
+        return bool(cfg.get("voiceCommands")) and (bool(self.is_live()) or self.searching())
+
+    # ---------- 26.11.28 voice search ----------
+    def searching(self):
+        return time.monotonic() < self._search_until
+
+    def search(self, on, words=None):
+        """The Command Center's search box has focus (on) or not; words: what it can find."""
+        if on:
+            seen, out = set(), []
+            for w in words or []:
+                for part in _words(w if isinstance(w, str) else ""):
+                    part = "".join(c for c in part if c.isalnum() or c == "'")[:30]
+                    if part and part not in seen and len(out) < 1200:
+                        seen.add(part)
+                        out.append(part)
+            self._search_words, self._search_until = out, time.monotonic() + SEARCH_FOR
+        else:
+            self._search_until = 0.0
+        self.tick()
+        return self.body()
+
+    def _grammar(self):
+        words = grammar_words(self._names())
+        if self.searching():
+            words = sorted(set(words) | set(self._search_words))
+        return words
 
     def tick(self):
         want = self._want()
         if want and not self.listening and not self.failed:
             self.listening = True
-            self._loaded = grammar_words(self._names())
+            self._loaded = self._grammar()
             self.last = self.voice.command_start(self._loaded, self.heard) or {}
             if self.last.get("state") in ("unavailable", "memory", "error"):
                 self.listening, self.failed = False, True
         elif want and self.listening and self.voice.want_c and not self.holding:
-            words = grammar_words(self._names())          # 26.11.27 a Frame renamed or added: the new words, at once
+            words = self._grammar()                       # 26.11.27 a Frame renamed or added (26.11.28 or a search): its words
             if words != self._loaded:
                 self._loaded = words
                 self.voice.command_start(words, self.heard)
@@ -322,7 +354,7 @@ class VoiceCommands:
         if on and not self.listening:
             if not (self.settings() or {}).get("voiceCommands"):
                 raise ValueError("Voice commands are off. Switch them on in Settings → Voice commands.")
-            if not self.is_live():
+            if not self.is_live() and not self.searching():
                 raise ValueError("Voice commands work while a Frame is live.")
             raise ValueError("Voice commands are getting ready. Try again in a moment.")
         self._hold(on, by)
@@ -344,6 +376,15 @@ class VoiceCommands:
                 self.seq += 1
                 self.cond.notify_all()
                 return None
+        if text and self.searching():                     # 26.11.28 typed into the Command Center's search, never run
+            with self.cond:
+                self.n += 1
+                self.partial = ""
+                self.heard_last = {"n": self.n, "cmd": "search", "label": "Search: " + text, "text": text,
+                                   "at": int(self.clock() * 1000), "status": "done"}
+                self.seq += 1
+                self.cond.notify_all()
+                return dict(self.heard_last)
         m = match(text, self._names()) if text else None
         now = self.clock()
         with self.cond:
@@ -400,5 +441,5 @@ class VoiceCommands:
         key = parse_key(cfg.get("voiceKey", "rctrl"))
         return {"enabled": bool(cfg.get("voiceCommands")), "live": bool(self.is_live()), "ready": self.listening and st.get("state") == "listening",
                 "state": st.get("state", "off"), "message": st.get("message", ""), "progress": st.get("progress", 0),
-                "key": key[1] if key and self.key_down else "", "holding": holding, "partial": partial, "last": last, "seq": seq,
+                "key": key[1] if key and self.key_down else "", "holding": holding, "search": self.searching(), "partial": partial, "last": last, "seq": seq,
                 "commands": [{"cmd": c, "label": label, "say": phrases[0]} for c, label, phrases in COMMANDS]}

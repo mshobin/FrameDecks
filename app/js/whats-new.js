@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.28': [
+    {title: 'Ready check', text: 'Under Go Live: the camera, your light and framing, the microphone, your meeting app, scriptures and media, all at once. Each line has its one fix.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Next week, in one click', text: 'Next week (beside the meeting name): the same Frames a week later, with the scripture and questions left empty to fill in.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Seasons, Christmas too', text: 'Settings → Meeting & Branding → Season: Advent, Christmas, Easter or Harvest colours on every card, with a gentle snowfall at Christmas.', show: {settings: 'meeting', spot: '#mb-season'}}
+  ],
   '26.11.27': [
     {title: 'Say a Frame’s name', text: 'Hold Right Ctrl and say “go to Welcome”, or the name of a Deck in the live Frame. Let go and it happens, with Undo.', show: {settings: 'scripture', spot: '#vc-settings'}},
     {title: 'A verse asks first', text: 'Hold Right Ctrl and say “show John three sixteen”: it comes up as “You asked for”, with Show. Press it, or say “show it”.', show: {settings: 'scripture', spot: '#vc-settings'}}

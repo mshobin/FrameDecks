@@ -712,6 +712,10 @@ function mount(opts){
       if (cards.birthday) cards.birthday.update(held(st, forObs(st.birthday)));
       brandPalette(st);
       lookSurface(st);
+      var sea = (SC && SC.season && SC.season(st)) || null;     // 26.11.28 the season's touch (overlay.css)
+      if ((document.documentElement.dataset.season || '') !== (sea ? sea.id : '')){
+        if (sea) document.documentElement.dataset.season = sea.id; else delete document.documentElement.dataset.season;
+      }
       if (texts && SC){ lastText = textList(st); texts.update(st, lastText); memLayout(lastText); }
       if (program) program(st);
     });

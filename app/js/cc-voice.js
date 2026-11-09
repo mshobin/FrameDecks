@@ -2,7 +2,10 @@
  * to talk (the same as holding Right Ctrl), and what was heard ("Listening… next frame", then "Next Frame ✓") in
  * place of the header's description for a moment. Shown only while Voice commands are on (Settings → Scripture).
  * The Studio runs the command (js/voice-commands.js). Light: it waits on the program for a change (up to 10 s a
- * request) only while the Command Center is open. */
+ * request) only while the Command Center is open.
+ * 26.11.28 voice search: while the search box has focus, holding Right Ctrl (or the microphone) types what you say into
+ * it, and the results filter as if typed; nothing runs until you choose. It listens for the words the Command Center
+ * can find (KCPalette.all()), so it stays accurate offline. */
 (function(){
 'use strict';
 if (document.body.getAttribute('data-win') !== 'spotlight') return;
@@ -37,8 +40,15 @@ function paint(){
     : info.live ? 'Voice commands are getting ready…' : 'Voice commands work while a Frame is live';
   var holding = !!(info && info.holding);
   btn.classList.toggle('on', holding); btn.setAttribute('aria-pressed', String(holding));
-  if (holding){ show('Listening… ' + (info.partial || ''), 'on'); return; }
+  if (holding){ show((info.search ? 'Search: ' : 'Listening… ') + (info.partial || ''), 'on'); return; }
   var l = info && info.last;
+  if (l && l.n > shownN && l.cmd === 'search'){              // 26.11.28 into the search box, as if typed
+    shownN = l.n;
+    var box = window.KCPalette && KCPalette.input();
+    if (box){ box.value = l.text; box.dispatchEvent(new Event('input', {bubbles: true})); box.focus(); }
+    show('Searching “' + l.text + '”', 'ok');
+    return;
+  }
   if (l && l.n > shownN && l.status !== 'queued'){
     shownN = l.n;
     if (l.status === 'done') show(l.label + ' ✓', 'ok');
@@ -73,7 +83,7 @@ function refresh(){
   fetch('api/voice-commands', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; })
     .then(function(d){ if (d && !primed){ primed = true; if (d.last) shownN = d.last.n; } take(d); }).catch(function(){});
 }
-function wake(){ awake = true; seq = -1; if (riding){ refresh(); return; } if (!loopOn) loop(); }
+function wake(){ awake = true; seq = -1; setTimeout(function(){ if (window.KCCCVoice) KCCCVoice.search(); }, 400); if (riding){ refresh(); return; } if (!loopOn) loop(); }
 /* in Control's header line (made the first time Control opens), after the Listen switch */
 function place(){
   var pal = document.querySelector('.pal'), head = pal && pal.dataset.group === 'control' && document.querySelector('#cc-panel .cc-head');
@@ -89,7 +99,25 @@ place(); wake();
 window.addEventListener('focus', wake);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden) wake(); else hold(false); });
 var S = window.KCShape;
-if (S && S.rest){ var rest = S.rest; S.rest = function(){ awake = false; hold(false); return rest.apply(this, arguments); }; }
+if (S && S.rest){ var rest = S.rest; S.rest = function(){ awake = false; hold(false); if (window.KCCCVoice) KCCCVoice.search(); return rest.apply(this, arguments); }; }
 if (S && S.wake){ var w = S.wake; S.wake = function(){ var r = w.apply(this, arguments); wake(); return r; }; }
-window.KCCCVoice = {state: function(){ return info; }, hold: hold};
+/* 26.11.28 voice search: on while the search box has focus (told again every 60 s), off when it loses it */
+var searchOn = false, searchT = 0;
+function searchWords(){
+  var out = [];
+  ((window.KCPalette && KCPalette.all()) || []).forEach(function(it){ out.push(String(it.title || it.label || it.name || it.text || '').slice(0, 120)); });
+  return out.slice(0, 600);
+}
+function searchSync(){
+  clearTimeout(searchT);
+  var box = window.KCPalette && KCPalette.input();
+  var on = !!(info && info.enabled) && awake && !document.hidden && document.hasFocus() && !!box && document.activeElement === box;
+  if (on || searchOn) post(on ? {op: 'search', on: true, words: searchWords()} : {op: 'search', on: false}).then(take).catch(function(){});
+  searchOn = on;
+  if (on) searchT = setTimeout(searchSync, 60000);
+}
+document.addEventListener('focusin', function(){ setTimeout(searchSync, 0); });
+document.addEventListener('focusout', function(){ setTimeout(searchSync, 0); });
+window.addEventListener('blur', function(){ setTimeout(searchSync, 0); });
+window.KCCCVoice = {state: function(){ return info; }, hold: hold, search: searchSync};
 })();

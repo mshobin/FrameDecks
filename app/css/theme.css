@@ -2013,3 +2013,44 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 .ac-btn:active{transform:scale(.97)}
 .ac-busy .ac-btn{opacity:.6;pointer-events:none}
 @media (prefers-reduced-motion:reduce){ .ac-btn:active{transform:none} }
+
+/* 26.11.28 Settings → Meeting & Branding → Season: the look cards, with each season's mark on its swatch */
+.mb-seasons{margin-top:8px}
+.mb-season-sw{--sea-ink:#f4e3b0}
+.mb-season-sw::before{content:"";position:absolute;right:12px;bottom:10px;width:18px;height:18px;opacity:.9;background:var(--sea-ink);
+  -webkit-mask:var(--sea) center/contain no-repeat;mask:var(--sea) center/contain no-repeat}
+.mb-season-sw:not([class*="sea-"])::before{display:none}
+.sea-christmas{--sea:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5l2.6 6.9 7.4.4-5.8 4.6 2 7.1L12 16.4l-6.2 4.1 2-7.1L2 8.8l7.4-.4z'/%3E%3C/svg%3E")}
+.sea-advent{--sea:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2c1.8 2.4 2.6 4.1 2.6 5.4A2.6 2.6 0 0 1 12 10a2.6 2.6 0 0 1-2.6-2.6C9.4 6.1 10.2 4.4 12 2zM9 12h6v10H9z'/%3E%3C/svg%3E")}
+.sea-easter{--sea:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10.5 2h3v6h6v3h-6v11h-3V11h-6V8h6z'/%3E%3C/svg%3E")}
+.sea-harvest{--sea:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M11 22V12C8 12 6 10 6 7c3 0 5 2 5 5V2h2v10c0-3 2-5 5-5 0 3-2 5-5 5v10z'/%3E%3C/svg%3E")}
+
+/* 26.11.28 the meeting summary's Moment: the picture beside its three choices */
+.mo-wrap{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:20px;align-items:start;margin-top:8px}
+.mo-canvas{width:100%;height:auto;border-radius:var(--r-2);box-shadow:var(--el-2)}
+.mo-pick{display:flex;flex-direction:column;gap:12px}
+.mo-pick select,.mo-pick input{width:100%}
+@media (max-width:640px){ .mo-wrap{grid-template-columns:1fr} }
+
+/* 26.11.28 the ready check: a short line under Go Live (Studio) or above it (Command Center), and the card */
+.rc-line{display:flex;align-items:center;gap:8px;width:100%;margin:8px 0 0;padding:7px 12px;border:1px solid var(--line-soft);border-radius:999px;
+  background:transparent;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;text-align:left}
+.rc-line:hover{border-color:var(--line-hover);color:var(--ink)}
+.rc-line:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rc-dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--line)}
+.rc-line.ok .rc-dot{background:var(--on)}
+.rc-line.warn .rc-dot{background:var(--warn)}
+.rc-line.fail .rc-dot{background:var(--danger)}
+.rc-dlg{width:min(620px,94vw)}
+.rc-list{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rc-row{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:start;padding:10px 4px;border-top:1px solid var(--line-soft)}
+.rc-row:first-child{border-top:0}
+.rc-mark{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;background:var(--raised);color:var(--muted)}
+.rc-ok .rc-mark{background:var(--on);color:var(--surface)}
+.rc-warn .rc-mark{background:var(--warn);color:var(--surface)}
+.rc-fail .rc-mark{background:var(--danger);color:var(--surface)}
+.rc-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rc-t b{font-size:14px}
+.rc-t span{font-size:13px;color:var(--muted);line-height:1.4}
+.rc-more{margin:4px 0 0;padding-left:16px;font-size:13px;color:var(--muted)}
+.rc-note{margin-top:12px}

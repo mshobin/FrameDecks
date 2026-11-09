@@ -315,6 +315,16 @@ function askName(title, value, ok){
       commit(function(n){ made = SC.addMeeting(n, nm); }).then(function(){ selScene = null; if (made) toast('“' + made.name + '” made. Its Frames start here: + Frame or Quick Start.'); });
     });
   });
+  /* 26.11.28 next week from this meeting (KCScenes.nextWeek), with Undo */
+  var nx = $('mt-next');
+  if (nx) nx.addEventListener('click', function(){
+    var keep = Store.snapshot ? Store.snapshot() : null, made = null;
+    commit(function(n){ made = SC.nextWeek(n); }).then(function(){
+      selScene = null; if (!made) return;
+      var msg = '“' + made.meeting.name + '”: ' + made.frames + ' Frame' + (made.frames === 1 ? '' : 's') + ' from “' + made.from + '”. Add this week’s scripture and questions.';
+      if (keep && window.KCActions && KCActions.toastAction) KCActions.toastAction(msg, 'Undo', function(){ Store.restore(keep); }); else toast(msg);
+    });
+  });
   $('mt-rename').addEventListener('click', function(){
     var cur = SC.currentMeeting(live);
     askName('Rename the meeting', cur.name, 'Rename').then(function(nm){

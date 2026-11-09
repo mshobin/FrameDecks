@@ -17,6 +17,7 @@ os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")
 import cv2
 import numpy as np
 
+from . import hints as _hints  # noqa: E402
 from . import picture
 
 SIZES = {"720p": (1280, 720), "1080p": (1920, 1080)}
@@ -203,6 +204,7 @@ class VCamEngine:
         self.pace = Pace()          # 26.11.9 steps the blur down when the camera cannot keep up
         self.stage = BlurStage()    # 26.11.10 the blur on a second core
         self.guard_busy = False     # set by the meeting guard while the PC is very busy
+        self.hints = _hints.HintWatcher()         # 26.11.28 light and framing for the ready check (only while asked)
         self.preview_until = 0.0
         self.sharp_until = 0.0                    # the phone's drawing pad is open: previews 960 wide instead of 640
         self._preview_w = 0
@@ -255,6 +257,11 @@ class VCamEngine:
     def kick(self):
         """Something changed: draw the next frame now (wakes the idle rhythm)."""
         self.kick_evt.set()
+
+    def want_hints(self, seconds=8.0):
+        """26.11.28 the ready check is open: keep the webcam on and look at the light and framing now and then."""
+        self.hints.want(seconds)
+        self.keep_awake(seconds)
 
     def keep_awake(self, seconds=3.0):
         self.awake_until = time.time() + seconds
@@ -374,6 +381,8 @@ class VCamEngine:
                     frame = cv2.flip(frame, 1)
                 if frame is not None:
                     frame = picture.fix_range(frame, s.get("colorRange"))
+                if frame is not None and self.hints.wanted():
+                    self.hints.maybe(frame)              # 26.11.28 the picture people see, before blur and looks
                 strength = s.get("blurStrength", 0) or 0
                 if frame is not None and strength > 0:     # background first: the person mask sees the true colours
                     if self.blur is None and self.blur_factory:

@@ -194,6 +194,18 @@ function build(){
     h('div', {cls: 'mb-colour'}, [
       h('label', {cls: 'check'}, [el.colorOn, ' Use my accent colour for the cards and badges (instead of gold)']),
       h('div', {cls: 'mb-colour-row'}, [el.sw, el.color])])]));
+  // 26.11.28 the season: one switch for the cards' accent and surface (camera and overlay pages) and their touch
+  el.season = h('div', {cls: 'look-grid mb-seasons', id: 'mb-seasons', role: 'radiogroup', 'aria-label': 'Season'},
+    [{id: '', name: 'No season', note: 'Your own colours', accent: '', a: '#182c54', b: '#0c1a38'}].concat(SC.seasons).map(function(x){
+      return h('button', {cls: 'look-card', type: 'button', role: 'radio', 'data-season': x.id, onclick: function(){ setSeason(x.id); }}, [
+        h('span', {cls: 'look-sw mb-season-sw' + (x.id ? ' sea-' + x.id : ''), 'aria-hidden': 'true', style: 'background:' + (x.id === 'christmas' ? 'radial-gradient(circle,rgba(255,255,255,.7) 0 1px,transparent 1.5px) 0 0/14px 14px,' : '') + 'linear-gradient(135deg,' + x.a + ',' + x.b + ')'},
+          [h('i', {style: 'background:' + (x.accent || '#d9ab4a')})]),
+        h('span', {cls: 'look-t'}, [h('b', {text: x.name}), h('small', {text: x.note})])]);
+    }));
+  root.appendChild(h('section', {cls: 'box', id: 'mb-season'}, [
+    h('div', {cls: 'box-head'}, [h('h2', {text: 'Season'})]),
+    h('p', {cls: 'plain', text: 'One choice changes the colours of every card, on the camera and the shared screen, together with a small touch of the season. Choose No season to go back to your own colours.'}),
+    el.season]));
   // where
   el.auto = h('input', {type: 'checkbox', id: 'mb-auto'});
   el.auto.addEventListener('change', function(){ var v = el.auto.checked; commit(function(n){ n.brand.auto = v; }); });
@@ -220,6 +232,13 @@ function build(){
       h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third Frame', onclick: function(){ addLib('lib-meeting-lower'); }})]),
     h('p', {cls: 'hint', text: 'Excel import and export are in Settings → Data / Backup.'})]));
 }
+function setSeason(id){
+  var was = SC.season(live);
+  commit(function(n){ SC.setSeason(n, id); }).then(function(){
+    var now = SC.season(Store.get());
+    toast(now ? now.name + ' colours are on the cards' : (was ? 'Back to your own colours' : 'No season'));
+  });
+}
 function addLib(id){
   var made = null;
   commit(function(n){ made = SC.fromLibrary(n, id, {creator: ''}); }).then(function(){
@@ -240,6 +259,8 @@ function render(){
   el.colorOn.checked = !!b.color; if (b.color && document.activeElement !== el.color) el.color.value = b.color;
   Array.prototype.forEach.call(el.sw.children, function(x){ x.setAttribute('aria-checked', String(x.dataset.c === b.color)); });
   el.auto.checked = !!b.auto;
+  var sea = SC.season(live);
+  Array.prototype.forEach.call(el.season.children, function(x){ x.setAttribute('aria-checked', String(x.dataset.season === (sea ? sea.id : ''))); });
   // preview badge
   var pal = SC.brandPalette(b.color);
   el.preview.style.setProperty('--mb-edge', pal ? pal.g2 : '#d9ab4a'); el.preview.style.setProperty('--mb-text', pal ? pal.text : '#f2c35b');
