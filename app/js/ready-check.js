@@ -69,12 +69,22 @@ function row(i){
       i.more ? h('ul', {cls: 'rc-more'}, i.more.map(function(t){ return h('li', {text: t}); })) : null]),
     act ? h('button', {cls: 'btn small', type: 'button', text: act[0], onclick: act[1]}) : null]);
 }
+/* 26.11.30 (release audit L5): the calm top bar keeps Black screen and Emergency inside the Control chip, so the
+   Ready check says, once before going live, how to reach them in a hurry. */
+function key(k){ return h('kbd', {cls: 'key', text: k}); }
+function safety(){
+  var SCK = window.KCShortcuts, black = cc ? 'Alt+B' : (SCK && SCK.short ? SCK.short('blackout') : '') || 'K',
+      hide = cc ? 'Alt+H' : (SCK && SCK.short ? SCK.short('hideAll') : '') || 'Esc';
+  return h('p', {cls: 'hint rc-safe', id: 'rc-safe'}, ['If something goes wrong: ', key(black), ' blacks the screen, ', key(hide),
+    ' hides everything, and Control → Emergency screen shows your message.']);
+}
 function draw(){
   if (!dlg) return;
   var d = last, inner = h('div', {cls: 'kc-dlg-in'}, [h('p', {cls: 'kc-dlg-kicker', text: 'Before you go live'}), h('h2', {id: 'rc-title', text: 'Ready check'}),
     h('p', {cls: 'kc-dlg-sub', text: d ? (d.ready ? (d.warn ? 'Ready, with ' + d.warn + ' thing' + (d.warn === 1 ? '' : 's') + ' worth a look.' : 'Everything looks good.') : 'Fix the red line first, if you can.') : 'Checking…'}),
     h('ul', {cls: 'rc-list', role: 'list'}, d ? d.items.map(row) : []),
     h('p', {cls: 'hint rc-note', text: 'Suggestions only: nothing is changed by itself, and Go Live always works.'}),
+    safety(),
     h('div', {cls: 'kc-dlg-foot'}, [h('button', {cls: 'btn ghost', type: 'button', text: 'Check again', onclick: load}),
       !cc && document.getElementById('cb-take') ? h('button', {cls: 'btn', type: 'button', text: 'Go Live', onclick: function(){ close(); document.getElementById('cb-take').click(); }}) : null,
       h('button', {cls: 'btn primary', type: 'button', text: 'Close', onclick: close})])]);

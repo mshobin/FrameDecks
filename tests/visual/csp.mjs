@@ -1,7 +1,7 @@
 // 9.3 Content-Security-Policy check (production audit M7), run against a started program:
 //   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/csp.mjs
 // Opens every page of the program (and every Studio, Members and Settings view, the Setup guide, the palette and the
-// Memory Cards pane) and fails on any rule the page breaks. The policy is report-only for now, so the browser still
+// Memory Cards pane) and fails on any rule the page breaks. The policy is enforced (26.11.30); the browser
 // raises a securitypolicyviolation event for each break; that event is what this counts.
 import { createRequire } from "node:module";
 

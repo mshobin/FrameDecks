@@ -614,12 +614,20 @@ function visible(){ return !root.hidden && document.body.dataset.tab === 'studio
 function railVisible(){ return document.body.dataset.tab === 'studio' && !document.hidden; }   // v6: the Studio workspace (layers, status chips)
 function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
 var pollT = null;
+function fast(){ return visible() || (!!(S && S.recording && S.recording.on) && !document.hidden); }   // v5.1: Recording keeps counting
+/* 26.11.30 (release audit L2): with only the rail on screen the status rides on the Studio's one status request
+   (js/meeting.js, every 3 s); the canvas and a recording still ask every second on their own. */
+var KS = window.KCStatus, bundled = !!(KS && KS.part);
+if (bundled){
+  KS.part('studio', function(){ return S && railVisible() && !fast(); });
+  KS.on('studio', apply);
+}
 function poll(){
   clearTimeout(pollT);
-  var recOn = !!(S && S.recording && S.recording.on);       // v5.1: the Recording chip and output card keep counting
-  (visible() || railVisible() || !S || (recOn && !document.hidden) ? refresh() : Promise.resolve()).then(function(){
+  var quick = fast();
+  (quick || !S || (railVisible() && !bundled) ? refresh() : Promise.resolve()).then(function(){
     if (visible()) metrics.textContent = metricsLine();
-    pollT = setTimeout(poll, visible() || (S && S.recording && S.recording.on && !document.hidden) ? 1000 : railVisible() ? 3000 : window.KCStore.pace(4000));
+    pollT = setTimeout(poll, fast() ? 1000 : railVisible() ? 3000 : window.KCStore.pace(4000));
   });
 }
 poll();

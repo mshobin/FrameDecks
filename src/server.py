@@ -51,7 +51,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.29"
+APP_VERSION = "26.11.30"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -538,10 +538,12 @@ def memory_sync():
 # 9.3 (production audit M7): a Content-Security-Policy for the program's pages. Scripts only from this PC, plus each
 # page's own inline script by its hash (worked out from the page as it is sent, so editing a page needs no list); no
 # plug-ins, no other site may frame a page, nothing is fetched from elsewhere. Styles stay open to inline style=""
-# (many elements are placed that way). Report-only for now: a page that breaks a rule still works and the browser
-# console names the rule; tests/visual/csp.mjs checks every page reports nothing. Switch CSP_HEADER to
-# "Content-Security-Policy" to enforce it.
-CSP_HEADER = "Content-Security-Policy-Report-Only"
+# (many elements are placed that way). 26.11.30 (release audit M1): enforced. It ran report-only from 9.3 with no
+# page breaking a rule; tests/visual/csp.mjs still opens every page and fails on any rule a page breaks.
+# H1: frame-ancestors is only honoured when enforced, so another website could show the Studio inside a hidden frame
+# and steer clicks; X-Frame-Options says the same to older engines.
+CSP_HEADER = "Content-Security-Policy"
+PAGE_FRAME_HEADER = ("X-Frame-Options", "SAMEORIGIN")
 CSP_BASE = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
             "media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; "
             "frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'")
@@ -1240,7 +1242,7 @@ REQ = {"counts": {}, "since": time.time()}
 def count_request(path):
     """Count requests by kind, so Diagnostics can show which screens are busy."""
     kind = path if path in ("/api/rev", "/api/state", "/api/presence", "/api/vcam/preview.jpg", "/api/vcam/stage.jpg",
-                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg", "/api/remote/live.jpg") else (
+                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg", "/api/remote/live.jpg", "/api/app/status") else (
         "page " + path.rsplit("/", 1)[-1] if path.endswith(".html") or path == "/" else "other api" if path.startswith("/api/") else "file")   # 26.11.8 which page
     REQ["counts"][kind] = REQ["counts"].get(kind, 0) + 1
 
@@ -3007,7 +3009,7 @@ class Handler(BaseHTTPRequestHandler):
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
-            return self.reply(200, json.dumps(dict(remote_studio_info(), smartNext=bool(app_settings().get("smartNext")))), TYPES[".json"])
+            return self.reply(200, json.dumps(remote_studio_body()), TYPES[".json"])
         if path == "/api/remote/live.jpg":              # v6.6 the FrameDecks picture for the phone's drawing pad (PIN-protected)
             eng = VCAM.get("engine")
             if not eng:
@@ -3103,36 +3105,28 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             if "brief=1" in url.query:                   # 26.11.8 meeting mode for every window: cheap, every 5 s
-                g = _guard()
-                return self.reply(200, json.dumps({"active": bool(g.status.get("active")), "busy": bool(g.status.get("busy")),
-                                                   "front": g.status.get("front"), "known": g.status.get("open") is not None}),
-                                  TYPES[".json"])
+                return self.reply(200, json.dumps(guard_brief()), TYPES[".json"])
             return self.reply(200, json.dumps(_guard().report()), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
-                    "recovered": RECOVERED,
+                    "recovered": RECOVERED, "planRecovery": dict(PLAN_RECOVERY) or None,
                     "lowGpuActive": bool(DESKTOP.get("low_gpu")), "shell": DESKTOP.get("shell", "browser"),
                     "chrome": bool(DESKTOP.get("chrome")), "hotkeys": dict(DESKTOP.get("hotkey_results") or {}),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
                     "backups": list_backups()[:KEEP_BACKUPS], "migration": migration_status()}
             return self.reply(200, json.dumps(info), TYPES[".json"])
         if path == "/api/remote-info":
-            port = self.server.server_address[1]
-            info = {"enabled": REMOTE, "port": port, "now": time.time()}
-            if REMOTE:
-                ips = lan_addresses()
-                info["pin"] = remote_pin()
-                info["addresses"] = ips
-                info["urls"] = [f"http://{ip}:{port}/remote.html" for ip in ips]
-                # The PC opening its own network address is not an iPad (a test-only switch can count it)
-                own = set() if os.environ.get("KC_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
-                info["devices"] = [{"ip": ip, "lastSeen": d["last"], "firstSeen": d["first"], "signedIn": d["signedIn"]}
-                                   for ip, d in sorted(devices.items(), key=lambda kv: -kv[1]["last"]) if ip not in own]
-                info["network"] = windows_network_check(60 if "fresh=1" in url.query else None)
-            return self.reply(200, json.dumps(info), TYPES[".json"])
+            return self.reply(200, json.dumps(remote_info_body(self.server.server_address[1], "fresh=1" in url.query)),
+                              TYPES[".json"])
+        if path == "/api/app/status":                    # 26.11.30 (release audit L2): the Studio's status in one request
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            return self.reply(200, json.dumps(status_bundle(q.get("want", [""])[0], self.server.server_address[1],
+                                                            q.get("fresh", [""])[0] == "1")), TYPES[".json"])
         if path == "/api/remote-selftest":
             # Checks the PC is listening on its network address. It cannot see the phone or iPad's side,
             # so a pass here plus a failing iPad means the firewall or router is blocking it.
@@ -3177,7 +3171,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/sync":                                   # Settings > Sync (this PC only); "update": 26.11.12
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info(), live=DOORBELL.info())), TYPES[".json"])
+            return self.reply(200, json.dumps(sync_body()), TYPES[".json"])
         if path == "/api/remote-cloud/next":                       # the program's own window asks for commands
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3347,21 +3341,14 @@ class Handler(BaseHTTPRequestHandler):
                 out["riders"] = riders_now(riders)                # 26.11.20 the riders, for pages that poll
             return self.reply(200, json.dumps(out), TYPES[".json"])
         if path == "/api/presence":
-            now = time.time()
-            counts = {}
-            for key, (page, seen) in list(presence.items()):
-                if now - seen > 12:
-                    presence.pop(key, None)
-                    continue
-                counts[page] = counts.get(page, 0) + 1
-            return self.reply(200, json.dumps(counts), TYPES[".json"])
+            return self.reply(200, json.dumps(presence_counts()), TYPES[".json"])
 
         if path in ("", "/"):
             path = "/dashboard.html"
         target = (APP / path.lstrip("/")).resolve()
         if APP.resolve() in target.parents and target.is_file():
             data = target.read_bytes()
-            extra = [(CSP_HEADER, page_csp(data))] if target.suffix.lower() == ".html" else None
+            extra = [(CSP_HEADER, page_csp(data)), PAGE_FRAME_HEADER] if target.suffix.lower() == ".html" else None
             return self.reply(200, data, TYPES.get(target.suffix.lower(), "application/octet-stream"), extra)
         self.reply(404, "Not found", "text/plain; charset=utf-8")
 
@@ -3961,11 +3948,82 @@ class Handler(BaseHTTPRequestHandler):
         self.reply(404, "Not found", "text/plain; charset=utf-8")
 
 
+def remote_info_body(port, fresh=False):
+    """GET /api/remote-info: the phone remote's address, PIN and the devices seen (this PC only)."""
+    info = {"enabled": REMOTE, "port": port, "now": time.time()}
+    if REMOTE:
+        ips = lan_addresses()
+        info["pin"] = remote_pin()
+        info["addresses"] = ips
+        info["urls"] = [f"http://{ip}:{port}/remote.html" for ip in ips]
+        # The PC opening its own network address is not an iPad (a test-only switch can count it)
+        own = set() if os.environ.get("KC_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
+        info["devices"] = [{"ip": ip, "lastSeen": d["last"], "firstSeen": d["first"], "signedIn": d["signedIn"]}
+                           for ip, d in sorted(devices.items(), key=lambda kv: -kv[1]["last"]) if ip not in own]
+        info["network"] = windows_network_check(60 if fresh else None)
+    return info
+
+
+def presence_counts():
+    """GET /api/presence: how many of each overlay page are open (seen in the last 12 s)."""
+    now = time.time()
+    counts = {}
+    for key, (page, seen) in list(presence.items()):
+        if now - seen > 12:
+            presence.pop(key, None)
+            continue
+        counts[page] = counts.get(page, 0) + 1
+    return counts
+
+
+def guard_brief():
+    g = _guard()
+    return {"active": bool(g.status.get("active")), "busy": bool(g.status.get("busy")),
+            "front": g.status.get("front"), "known": g.status.get("open") is not None}
+
+
+def remote_studio_body():
+    return dict(remote_studio_info(), smartNext=bool(app_settings().get("smartNext")))
+
+
+def sync_body():
+    return dict(SYNC.info(), remote=CLOUD_REMOTE.info(), live=DOORBELL.info())
+
+
+# 26.11.30 (release audit L2): the Studio asked for seven status answers on their own timers, about two requests a
+# second while it was in front. GET /api/app/status?want=remote,presence,... answers the ones it wants together, every
+# 3 s (slower while minimised, through Store.pace). Each part is exactly what its own address answers; a part that
+# fails is left out (the page keeps its last answer) and never spoils the others.
+STATUS_PARTS = {
+    "remote": lambda port, fresh: remote_info_body(port, fresh),
+    "presence": lambda port, fresh: presence_counts(),
+    "sync": lambda port, fresh: sync_body(),
+    "slides": lambda port, fresh: remote_studio_body(),
+    "guard": lambda port, fresh: guard_brief(),
+    "studio": lambda port, fresh: studio_status(),
+    "vcam": lambda port, fresh: vcam_status(lite=True),
+}
+
+
+def status_bundle(want, port, fresh=False):
+    out = {}
+    for name in str(want or "").split(",")[:len(STATUS_PARTS)]:
+        part = STATUS_PARTS.get(name)
+        if part is None or name in out:
+            continue
+        try:
+            out[name] = part(port, fresh)
+        except Exception as e:                       # one part failing never takes the others down
+            print(f"Status part {name} failed: {type(e).__name__}: {e}")
+    return out
+
+
 class MainServer(ThreadingHTTPServer):
     """The program's own server (127.0.0.1). 6.10: on Windows it asks for its port for itself alone. Windows lets
     SO_REUSEADDR bind a port that another program is still listening on, and then hands connections to either of
     them: a copy that had not finished closing got the window's requests, and the page said "refused to connect"."""
     allow_reuse_address = os.name != "nt"
+    request_queue_size = 64      # 26.11.30 (release audit L1): the default 5 made a burst of screens wait about a second
 
     def server_bind(self):
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):

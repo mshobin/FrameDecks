@@ -33,7 +33,7 @@ await api({ action: "hideall" });
 await api({ action: "settings", dur: 12, share: false, layout: "beside", side: "right", auto: true });
 
 const browser = await chromium.launch();
-const studio = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+const studio = await browser.newPage({ viewport: { width: 1440, height: 900 }, bypassCSP: true });
 await studio.goto(`${BASE}/dashboard.html`);
 await studio.waitForTimeout(2200);
 await studio.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());     // 9.5 the Welcome flow
@@ -121,7 +121,7 @@ await studio.waitForFunction((n) => document.querySelectorAll(".mem-card").lengt
 check(true, "Delete removes a card");
 
 // the corner popup page: the cards just copied, then it asks to be hidden
-const pop = await browser.newPage({ viewport: { width: 360, height: 300 } });
+const pop = await browser.newPage({ viewport: { width: 360, height: 300 }, bypassCSP: true });
 const asked = [];
 await pop.route("**/api/app/popup", async (route) => { asked.push(JSON.parse(route.request().postData() || "{}").op); await route.fulfill({ json: { desktop: false } }); });
 await pop.goto(`${BASE}/memory-popup.html`);
@@ -140,7 +140,7 @@ check(asked.includes("hide"), "closing the last card hides the popup");
 
 // the phone remote: paste a conversation, Show, Hide, Remove, several together
 await api({ action: "hideall" });
-const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, bypassCSP: true });
 await phone.goto(`${BASE}/remote.html`);
 await phone.waitForSelector("#app:not([hidden])");
 await phone.click("#tab-engage");                 // 9.13 Capture Memory lives in the Engage chip

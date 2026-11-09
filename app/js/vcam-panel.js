@@ -386,13 +386,22 @@ function render(d){
 /* While this section is closed, only the top-bar light needs the status: a light request ("lite") that skips
  * listing webcams and looks; the lists from the last full answer are kept. */
 function sectionOpen(){ return $('sec-vcam') && !$('sec-vcam').hidden && document.body.dataset.tab === 'settings'; }
+function took(d){
+  if (!d) return;
+  if (d.lite && current){ d.cameras = current.cameras; d.looks = current.looks; d.profiles = current.profiles; d.looksNote = current.looksNote; d.activeCamera = current.activeCamera; }
+  return render(d);
+}
+/* 26.11.30 (release audit L2): the light status rides on the Studio's one status request (js/meeting.js); this
+   section asks on its own only while it is open (or for the first full answer). */
+var KS = window.KCStatus, bundled = !!(KS && KS.part);
+if (bundled){
+  KS.part('vcam', function(){ return !!current && !sectionOpen(); });
+  KS.on('vcam', function(d){ if (current && !sectionOpen()) took(d); });
+}
 function poll(){
   var lite = !sectionOpen() && current;
-  fetch('api/vcam/status' + (lite ? '?lite=1' : ''), {cache: 'no-store'}).then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.lite && current){ d.cameras = current.cameras; d.looks = current.looks; d.profiles = current.profiles; d.looksNote = current.looksNote; d.activeCamera = current.activeCamera; }
-      return render(d);
-    }).catch(function(){})
+  (lite && bundled ? Promise.resolve() : fetch('api/vcam/status' + (lite ? '?lite=1' : ''), {cache: 'no-store'}).then(function(r){ return r.json(); })
+    .then(took).catch(function(){}))
     .then(function(){ setTimeout(poll, window.KCStore.pace($('sec-vcam') && !$('sec-vcam').hidden ? 1000 : 3000)); });
 }
 poll();

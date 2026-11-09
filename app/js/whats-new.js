@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.30': [
+    {title: 'If your plan file is ever damaged, you are told', text: 'FrameDecks keeps the damaged file and opens your newest backup. Now the Studio says so once, so you can check any Frames added since.', show: {settings: 'diag'}},
+    {title: 'What to do in a hurry', text: 'The Ready check ends with the keys that black the screen and hide everything, and where the Emergency screen is.', show: {spot: '#cb-take'}}
+  ],
   '26.11.29': [
     {title: 'Off air, by holding Go Live', text: 'With the Frame on air selected, Go Live reads Off air. Hold it for a second to take everything off screen, with Undo. A quick press never does.', show: {spot: '#cb-take'}}
   ],

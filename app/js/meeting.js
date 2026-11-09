@@ -10,19 +10,26 @@ var live = null;
 var Status = window.KCStatus = {remote: null, presence: null, subs: {},
   on: function(k, f){ (this.subs[k] = this.subs[k] || []).push(f); if (this[k]) f(this[k]); },
   set: function(k, v){ this[k] = v; (this.subs[k] || []).forEach(function(f){ try { f(v); } catch(e){} }); }};
-/* One request each, never duplicated; minimised they slow right down (Store.pace). With Settings > Phone & iPad
- * Remote open, the network check is fresh. */
-function poll(url, key, every){
-  function go(){
-    var u = typeof url === 'function' ? url() : url;
-    fetch(u, {cache: 'no-store'}).then(function(r){ if (!r.ok) throw 0; return r.json(); })
-      .then(function(d){ Status.set(key, d); }).catch(function(){}).then(function(){ setTimeout(go, Store.pace(every)); });
-  }
-  go();
+/* 26.11.30 (release audit L2): one request for every status the Studio shows, every 3 s, minimised it slows right
+ * down (Store.pace). Each screen names its part and when it wants it: Status.part(key, wanted), then Status.on(key, f).
+ * Parts: remote, presence, sync, slides, guard, studio, vcam (src/server.py STATUS_PARTS). With Settings > Phone &
+ * iPad Remote open, the network check is fresh. */
+var parts = {}, bundleT = null;
+Status.part = function(key, wanted){ parts[key] = wanted || function(){ return true; }; };
+function bundle(){
+  clearTimeout(bundleT);
+  var want = Object.keys(parts).filter(function(k){ try { return parts[k](); } catch(e){ return false; } });
+  var ip = $('sec-ipad'), fresh = ip && !ip.hidden && document.body.dataset.tab === 'settings';
+  (want.length ? fetch('api/app/status?want=' + want.join(',') + (fresh ? '&fresh=1' : ''), {cache: 'no-store'})
+    .then(function(r){ if (!r.ok) throw 0; return r.json(); })
+    .then(function(d){ want.forEach(function(k){ if (d[k] !== undefined) Status.set(k, d[k]); }); }).catch(function(){})
+    : Promise.resolve()).then(function(){ bundleT = setTimeout(bundle, Store.pace(3000)); });
 }
+Status.now = function(){ setTimeout(bundle, 0); };       // a screen that just changed something asks at once
 if (Store.served){
-  poll(function(){ var s = $('sec-ipad'); return 'api/remote-info' + (s && !s.hidden && document.body.dataset.tab === 'settings' ? '?fresh=1' : ''); }, 'remote', 3000);
-  poll('api/presence', 'presence', 4000);
+  Status.part('remote');
+  Status.part('presence');
+  setTimeout(bundle, 0);                                  // after every script has named its part
 }
 
 function h(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -146,12 +153,10 @@ window.KCRenderSync = renderSync;
   document.addEventListener('click', function(e){ if (pop && !pop.contains(e.target)) close(); });
   document.addEventListener('keydown', function(e){ if (pop && e.key === 'Escape'){ close(); chipEl.focus(); } }, true);
 })();
-function pollSync(){
-  if (document.hidden || !Store.served) return;
-  fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(d){ renderSync(d); if (d && window.KCSyncNotice) window.KCSyncNotice(d); }).catch(function(){});   // 26.11.12 "Updated from the website"
+if (Store.served){                                       // 26.11.30 with the other status (Status.part above)
+  Status.part('sync', function(){ return !document.hidden; });
+  Status.on('sync', function(d){ renderSync(d); if (d && window.KCSyncNotice) window.KCSyncNotice(d); });   // 26.11.12 "Updated from the website"
 }
-if (Store.served){ pollSync(); setInterval(pollSync, 4000); }
 
 /* Recording and Slides chips: shown only while they are running */
 function fmtTime(sec){ sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
@@ -163,14 +168,12 @@ function renderRunning(){
   var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
   if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
 }
-/* The slide number: asked every 5 s while the Studio is on screen (PowerPoint is asked only when no Studio deck is
- * shared - the same answer the phone remote gets) */
-function pollSlides(){
-  var want = Store.served && document.body.dataset.tab === 'studio' && !document.hidden;
-  (want ? fetch('api/remote/studio', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ slideInfo = d; renderRunning(); if (window.KCWorkspace) window.KCWorkspace.slides(d); }).catch(function(){})
-        : Promise.resolve()).then(function(){ setTimeout(pollSlides, want ? 5000 : 8000); });
+/* The slide number: with the other status while the Studio is on screen (PowerPoint is asked only when no Studio deck
+ * is shared - the same answer the phone remote gets) */
+if (Store.served){
+  Status.part('slides', function(){ return document.body.dataset.tab === 'studio' && !document.hidden; });
+  Status.on('slides', function(d){ slideInfo = d; renderRunning(); if (window.KCWorkspace) window.KCWorkspace.slides(d); });
 }
-if (Store.served) setTimeout(pollSlides, 1200);
 setInterval(function(){ if (!document.hidden) renderRunning(); }, 1000);
 
 Store.subscribe(function(st){ live = st; render(); });

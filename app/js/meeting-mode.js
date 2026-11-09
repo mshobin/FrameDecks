@@ -20,8 +20,17 @@ function apply(g){
   if (was.active !== window.KCGuard.active || was.front !== window.KCGuard.front)
     document.dispatchEvent(new CustomEvent('kc-guard', {detail: window.KCGuard}));
 }
+var joined = false;
 function look(){
   clearTimeout(t);
+  if (joined) return;
+  /* 26.11.30 (release audit L2): in the Studio window this rides on the one status request (js/meeting.js) */
+  if (window.KCStatus && KCStatus.part){
+    joined = true;
+    KCStatus.part('guard', function(){ return !document.hidden; });
+    KCStatus.on('guard', function(g){ if (g) apply(g); });
+    return;
+  }
   if (document.hidden){ t = setTimeout(look, 5000); return; }
   fetch('api/app/guard?brief=1', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; })
     .then(function(g){ if (g) apply(g); }).catch(function(){})

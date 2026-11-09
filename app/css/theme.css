@@ -2054,6 +2054,8 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 .rc-t span{font-size:13px;color:var(--muted);line-height:1.4}
 .rc-more{margin:4px 0 0;padding-left:16px;font-size:13px;color:var(--muted)}
 .rc-note{margin-top:12px}
+.rc-safe{margin-top:4px}
+.rc-safe .key{margin:0 1px}
 
 /* 26.11.29 Off air on the Go Live button, by press and hold (js/off-air.js): calm, never green, and a thin bar that
    fills along the button while it is held */

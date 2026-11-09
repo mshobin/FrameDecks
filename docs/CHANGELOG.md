@@ -10,6 +10,34 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.30] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.30.md](releases/v26.11.30.md). The fixes from the 26.11.29 release audit.
+
+### Security
+- H1: program pages send `X-Frame-Options: SAMEORIGIN` and an enforced `frame-ancestors 'self'` (`PAGE_FRAME_HEADER`),
+  so another website cannot frame the Studio (clickjacking).
+- M1: the Content-Security-Policy is enforced (`CSP_HEADER = "Content-Security-Policy"`); `tests/visual/csp.mjs` still
+  opens every page. The axe tools open their pages with `bypassCSP` (test browser only).
+- L3: setuptools 84.1.0 in `packaging/constraints.txt` and the hashed lock (GHSA-xmj3-9gf7-h52w; build time only).
+
+### Added
+- M2: `/api/app/info` carries `planRecovery`; the Studio says once (per incident) that a damaged plan was set aside and
+  the backup opened, with Details → Settings → Diagnostics (`app/js/studio-feel.js`).
+- L5: the Ready check's last line names the keys for Black screen and Hide all and where the Emergency screen is.
+- M4: tests for the camera's layers and cards (`vcam/layers.py`, `vcam/overlay.py`), the program link and the clipboard
+  listener (Windows only) in `tests/test_audit_fixes_2611_30.py`.
+
+### Changed
+- L2: `GET /api/app/status?want=…` answers the Studio's status parts together (`STATUS_PARTS`: remote, presence, sync,
+  slides, guard, studio, vcam); `KCStatus.part(key, wanted)` in `app/js/meeting.js` asks every 3 s (`Store.pace`).
+  `meeting-mode.js`, `studio.js` (rail only) and `vcam-panel.js` (section closed) ride on it; idle Studio API requests
+  went from 129 to 34 a minute (14 of them long waits).
+- L1: `MainServer.request_queue_size = 64`.
+- M3: while Go Live / the Live Stage's button reads Off air it has no `aria-label` (its name is its text) and
+  `aria-describedby="kc-hold-hint"` (WCAG 2.5.3).
+- L4: `present.html` checks `/api/vcam/status?lite=1` before asking for `/api/present.mjpg`.
+
 ## [26.11.29] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.29.md](releases/v26.11.29.md).

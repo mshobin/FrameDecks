@@ -60,16 +60,21 @@
     clearTimeout(retry);
     pic.src = 'api/present.mjpg?t=' + Date.now();
   }
+  function overlays(){
+    mode = 'overlays'; pic.style.display = 'none'; fb.style.display = 'block'; fb.src = 'stage.html?bg=dark'; msg.style.display = 'none';
+  }
+  function reconnect(){ msg.textContent = 'Reconnecting…'; msg.style.display = 'flex'; retry = setTimeout(connect, 2000); }
+  /* Is the camera engine running? Without it (start-file version, or Share a window only) the overlay page is shown
+     straight away, so the stream is never asked for and no error lands in the console (26.11.30, audit L4). */
+  function engine(then){
+    fetch('api/vcam/status?lite=1', {cache: 'no-store'}).then(function(r){ return r.json(); })
+      .then(function(d){ then(!!d.available); }).catch(function(){ then(null); });
+  }
   pic.addEventListener('load', function(){ msg.style.display = 'none'; });
   pic.addEventListener('error', function(){
-    // Not available (start-file version without FrameDecks): show the overlay page instead.
-    fetch('api/vcam/status', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
-      if (!d.available && mode === 'stream'){
-        mode = 'overlays'; pic.style.display = 'none'; fb.style.display = 'block'; fb.src = 'stage.html?bg=dark'; msg.style.display = 'none';
-      } else { msg.textContent = 'Reconnecting…'; msg.style.display = 'flex'; retry = setTimeout(connect, 2000); }
-    }).catch(function(){ msg.textContent = 'Reconnecting…'; msg.style.display = 'flex'; retry = setTimeout(connect, 2000); });
+    engine(function(on){ if (on === false && mode === 'stream') overlays(); else reconnect(); });
   });
-  connect();
+  engine(function(on){ if (on === false) overlays(); else connect(); });
   /* Controls: shown for 2 seconds after the mouse moves; nothing runs while you're not moving it. While drawing or
      with the Spotlight (9.7) only with the mouse near the top, so the audience rarely sees them. */
   function showUi(){ document.body.classList.add('ui'); clearTimeout(uiT); uiT = setTimeout(function(){ document.body.classList.remove('ui'); }, 2000); }

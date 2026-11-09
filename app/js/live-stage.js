@@ -31,10 +31,12 @@ function paintGo(){
     if (!go.classList.contains('holding')) goT.textContent = 'Off air';
     goSub.textContent = 'That was the last Frame · hold to end'; go.disabled = false; go.classList.add('is-off');
     go.title = 'Hold for a second to take everything off screen.';
-    go.setAttribute('aria-label', 'Off air: press and hold to take everything off screen');
+    go.removeAttribute('aria-label');                          // 26.11.30 (audit M3) its name is what it shows;
+    go.setAttribute('aria-describedby', 'kc-hold-hint');       // the hold is its description (js/off-air.js)
     return;
   }
   go.removeAttribute('aria-label');
+  if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
   goT.textContent = 'Next'; go.disabled = !next || next.disabled;
   goSub.textContent = name + (meta ? ' · ' + meta.split(' · ').pop() : '') + warn;
   go.title = 'Next: ' + name + ' (goes live)';

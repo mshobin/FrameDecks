@@ -120,6 +120,24 @@ info().then(function(d){
   setTimeout(function(){ toast('Recovered: “' + r.frame + '” is live again'); }, 1200);
 }).catch(function(){});
 
+/* ---------- 26.11.30 (release audit M2): the saved plan could not be read at start ----------
+   The program kept the damaged file and opened the newest backup (or a new plan). Said once on screen, so a leader
+   who added Frames since that backup knows to check; Details opens Settings → Diagnostics. */
+info().then(function(d){
+  var p = d && d.planRecovery; if (!p || !p.at) return;
+  var k = 'kc-plan-recovery-' + p.at;
+  try { if (localStorage.getItem(k)) return; localStorage.setItem(k, '1'); } catch(e){}
+  var msg = p.restoredFrom
+    ? 'Your saved plan couldn’t be read, so the backup from ' + p.restoredFrom + ' was opened. The damaged file was kept. Check any Frames added since.'
+    : 'Your saved plan couldn’t be read and no backup could either, so a new plan was started. The damaged file was kept.';
+  setTimeout(function(){
+    if (window.KCActions && KCActions.toastAction) KCActions.toastAction(msg, 'Details', function(){
+      if (window.KCSetTab) KCSetTab('settings'); if (window.KCShowSection) KCShowSection('diag');
+    });
+    else toast(msg, true);
+  }, 2600);
+}).catch(function(){});
+
 /* ---------- nothing blank: the picture shimmers until its first frame ---------- */
 function shimmer(){
   var prog = $('program'); if (!prog) return;

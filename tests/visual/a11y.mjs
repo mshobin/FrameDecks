@@ -2,6 +2,8 @@
 //   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/a11y.mjs
 // Every tab, every Settings section and the Speaker, Teleprompter and Spotlight windows, in the dark and light themes.
 // Any violation fails. axe finds about half of what a person with a screen reader finds; it does not replace that pass.
+// 26.11.30 the program enforces its Content-Security-Policy: pages that get axe injected are opened with bypassCSP
+// (test browser only; tests/visual/csp.mjs checks the real pages with the policy on).
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -24,7 +26,7 @@ async function scan(p, where) {
 
 const browser = await chromium.launch();
 for (const theme of ["dark", "light"]) {
-  const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 }, bypassCSP: true });
   await p.goto(`${BASE}/dashboard.html`);
   await p.waitForTimeout(2200);
   if (await p.evaluate(() => !!document.querySelector(".app-modal-back"))) {      // an import dialog
@@ -62,7 +64,7 @@ for (const theme of ["dark", "light"]) {
   await p.close();
 }
 for (const page of ["speaker.html", "spotlight.html"]) {
-  const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const p = await browser.newPage({ viewport: { width: 1280, height: 800 }, bypassCSP: true });
   await p.goto(`${BASE}/${page}`);
   await p.waitForTimeout(1500);
   await scan(p, page);

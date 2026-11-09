@@ -15,6 +15,24 @@ var HOLD = 1000;                                   // ms
 function $(id){ return document.getElementById(id); }
 function toast(m, bad){ if (window.KCActions && KCActions.toast) KCActions.toast(m, bad); }
 function onAir(){ var st = Store.get(); return !!(st && st.live && st.live.scene); }
+/* 26.11.30 (release audit M3, WCAG 2.5.3): while a button reads Off air its name is what it shows, so someone using
+   voice control can say "click Off air"; the hold instruction is its description, not its name. */
+function holdHint(){
+  var h = $('kc-hold-hint');
+  if (!h){ h = document.createElement('span'); h.id = 'kc-hold-hint'; h.className = 'sr-only'; h.hidden = true;
+    h.textContent = 'Press and hold for a second to take everything off screen.'; document.body.appendChild(h); }
+  return h.id;
+}
+function nameAsShown(btn, off, label){
+  if (off){
+    if (btn.hasAttribute('aria-label')) btn.removeAttribute('aria-label');
+    if (btn.getAttribute('aria-describedby') !== holdHint()) btn.setAttribute('aria-describedby', holdHint());
+  } else {
+    if (btn.getAttribute('aria-describedby') === 'kc-hold-hint') btn.removeAttribute('aria-describedby');
+    if (label && btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
+  }
+}
+holdHint();
 
 function offAir(){
   if (!onAir()) return;
@@ -76,8 +94,7 @@ if (take){
     var on = armedTake(), want = on ? (take.classList.contains('holding') ? 'Keep holding…' : 'Off air') : 'Go Live';
     take.classList.toggle('is-off', on);
     if (tl && tl.textContent !== want) tl.textContent = want;
-    var a = on ? 'Off air: press and hold to take everything off screen' : aria;
-    if (take.getAttribute('aria-label') !== a) take.setAttribute('aria-label', a);
+    nameAsShown(take, on, aria);
     if (on && take.title.indexOf('Hold') !== 0) take.title = 'Hold for a second to go off air. Select another Frame to Go Live with it.';
   };
   attach(take, armedTake, function(){ paint(); });
