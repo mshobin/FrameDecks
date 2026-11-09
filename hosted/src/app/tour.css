@@ -1193,6 +1193,33 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   height: 236px;
 }
 
+/* 26.11.27 on a phone the suite is stacked above and below the Studio, so the view can stay close */
+.is-tall .tr-sat-mem {
+  top: -24px;
+  left: 196px;
+}
+
+.is-tall .tr-sat-card {
+  top: -14px;
+  left: 540px;
+}
+
+.is-tall .tr-sat-remote {
+  top: 446px;
+  left: 200px;
+}
+
+.is-tall .tr-sat-notes {
+  top: 452px;
+  left: 336px;
+  width: 296px;
+}
+
+.is-tall .tr-sat-follow {
+  top: 446px;
+  left: 646px;
+}
+
 .tr-sat-remote .tr-sat-tag,
 .tr-sat-follow .tr-sat-tag {
   margin-bottom: 13px;

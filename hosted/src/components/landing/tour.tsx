@@ -500,14 +500,12 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         // 26.11.27 on a phone (a tall stage) the whole 1000 px stage would be small, so the view moves too: per chapter
         // how far it zooms in and where it looks (stage pixels), following what happens within the chapter
         const go = (k: number, from: number, len: number) => ease(clamp((x - k - from) / len));
-        const out = go(3, 0.74, 0.2);
-        const pan = 180 + 640 * go(3, 0.18, 0.5);
         const at = (k: number) =>
           [
             [1 + 0.3 * studio, 500, 310], // the Studio, a little closer once it has landed
             [1.75, 500, 280],
             [1.65, 795 - 473 * go(2, 0.48, 0.2), 300],
-            [1.6 - 0.52 * out, pan + (500 - pan) * out, 300],
+            [1.6, 505, 330], // the suite, stacked above and below the Studio (tour.css .is-tall .tr-sat-*)
           ][k];
         const [vz, vx, vy] = [0, 1, 2].map((j) => [0, 1, 2, 3].reduce((v, k) => (k ? v + w[k] * (at(k)[j] - at(k - 1)[j]) : at(0)[j]), 0));
         const vs = view.s * vz;
