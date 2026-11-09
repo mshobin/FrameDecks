@@ -27,38 +27,38 @@ const HERO = { first: "Prepare with Purpose.", second: "Present with Excellence.
 // (components/landing/tour.tsx); every key is the app's own
 const CHAPTERS: readonly TourChapter[] = [
   {
-    id: "voice",
-    label: "Voice",
-    eyebrow: "Follow my voice · Voice commands",
-    title: "Run the meeting with your voice.",
+    id: "control",
+    label: "Command Center",
+    eyebrow: "Command Center · Voice commands",
+    title: "Everything, one shortcut away.",
     text: (
       <>
-        Press <Keys k="V" /> and the Teleprompter keeps your place as you speak. Read a verse and it is offered, ready to show. Hold <Keys k="Right Ctrl" /> and say
-        “next frame”. It listens on your PC only.
+        Press <Keys k="Alt+Space" /> over Zoom, Teams or any app. Go Live, then <Keys k="Alt+→" /> for the next Frame, or just hold <Keys k="Right Ctrl" /> and
+        say “next frame”.
       </>
     ),
   },
   {
-    id: "control",
-    label: "Control",
-    eyebrow: "Command Center",
-    title: "Everything, one shortcut away.",
+    id: "voice",
+    label: "Teleprompter",
+    eyebrow: "Teleprompter · Follow my voice",
+    title: "Your script follows your voice.",
     text: (
       <>
-        Press <Keys k="Alt+Space" /> over Zoom, Teams or any app. Go Live, <Keys k="Alt+→" /> for the next Frame, <Keys k="Alt+H" /> to hide everything; press{" "}
-        <Keys k="Ctrl" /> twice for a spotlight on any word.
+        Press <Keys k="V" /> and the Teleprompter keeps your place as you speak. Read a verse and it is offered: one press and it arrives on screen, word by
+        word. It listens on your PC only.
       </>
     ),
   },
   {
     id: "together",
     label: "Together",
-    eyebrow: "Memory Cards · Members’ phones",
+    eyebrow: "The whole suite",
     title: "Bring everyone in.",
     text: (
       <>
-        Copy a chat message with <Keys k="Ctrl+C" /> and it pops up beside you on camera. With one code, members follow the screen on their phones, send
-        prayer requests to you alone and get the sermon notes afterwards.
+        Chat messages pop up beside you on camera (<Keys k="Ctrl+C" />). Members follow on their phones with one code; prayer requests reach you in a corner
+        card, even behind Zoom; sermon notes follow the meeting.
       </>
     ),
   },

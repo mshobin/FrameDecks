@@ -6,7 +6,12 @@
 
 .tr {
   --tr-bg: #070c18;
-  --tr-pop: cubic-bezier(0.34, 1.56, 0.64, 1); /* the program's chat pop: a little past full size, then settle */
+  --tr-pop: cubic-bezier(
+    0.34,
+    1.56,
+    0.64,
+    1
+  ); /* the program's chat pop: a little past full size, then settle */
   --tr-surface: #0f172b;
   --tr-raised: #1b2540;
   --tr-line: #313a4d;
@@ -217,6 +222,7 @@
   height: 400px;
   opacity: 0;
   transform: scale(1.03);
+  transform-origin: 0 0;
 }
 
 .tr-base img,
@@ -241,12 +247,6 @@
 .is-studio .tr-base {
   opacity: 1;
   transform: none;
-}
-
-/* after the Studio, each screen stands on the page alone */
-.tr-stage:not([data-ch="0"]) .tr-base {
-  opacity: 0;
-  transform: scale(0.97);
 }
 
 /* before the component has started, the build waits (the finished Studio shows after 4 s if it never does) */
@@ -413,7 +413,9 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   justify-content: center;
   padding: 0 16px;
   border-color: var(--tr-frame);
-  background: linear-gradient(rgba(232, 185, 49, 0.08), rgba(232, 185, 49, 0.08)), var(--tr-surface);
+  background:
+    linear-gradient(rgba(232, 185, 49, 0.08), rgba(232, 185, 49, 0.08)),
+    var(--tr-surface);
   box-shadow: 0 0 0 4px rgba(232, 185, 49, 0.08);
   font-size: 20px;
 }
@@ -489,59 +491,109 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   opacity: 0;
 }
 
-/* ---------- the chapters: one real screen each ---------- */
+/* ---------- 26.11.27 the chapters: on the Studio and around it (tour.tsx moves the camera over it) ---------- */
 .tr-sc {
   position: absolute;
+  inset: 0;
   z-index: 3;
   margin: 0;
   opacity: 0;
-  transform: translate3d(48px, 0, 0) scale(0.97);
-}
-
-.tr-sc.is-past {
-  transform: translate3d(-48px, 0, 0) scale(0.97);
+  pointer-events: none;
 }
 
 .tr-sc.is-on {
   opacity: 1;
-  transform: translate3d(0, var(--y, 0px), 0);
 }
 
-.tr-sc img {
+/* the Studio dims under the Command Center, as the app's own does over any window */
+.tr-veil {
+  position: absolute;
+  inset: -2px;
+  background: var(--tr-bg);
+  opacity: 0;
+}
+
+/* the Studio's live picture, redrawn for the Teleprompter chapter (screenshot pixels, so it moves with the camera) */
+.tr-screen {
+  position: absolute;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.75);
+  border-radius: 9px;
+  background:
+    radial-gradient(
+      70% 60% at 50% 0%,
+      rgba(227, 183, 90, 0.1),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #121a31, #0a1022);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  opacity: 0;
 }
 
-/* the Command Center is see-through, captured with nothing behind it: it sits on the page's own background */
-.tr-sc-live img {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+.tr-screen-live {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 8px 2px 16px;
+  border-radius: 999px;
+  background: rgba(52, 209, 124, 0.16)
+    radial-gradient(circle at 8px 50%, #34d17c 2.5px, transparent 3px);
+  color: #7fe3ad;
+  font-size: 9px;
+  font-weight: 700;
 }
 
-.tr-sc-tp {
-  top: 16px;
-  left: 23px;
-  width: 954px;
-  height: 520px;
+/* 1 the Command Center, captured see-through: it floats on the dimmed Studio */
+.tr-cc {
+  position: absolute;
+  top: 22px;
+  left: 264px;
+  width: 472px;
+  height: 414px;
 }
 
-.tr-voice {
-  position: relative;
+.tr-cc img {
+  display: block;
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.6));
+}
+
+/* Next Frame, pressed by the voice */
+.tr-cc-hit {
+  position: absolute;
+  top: 58.6%;
+  left: 20.6%;
+  width: 21.3%;
+  height: 10.4%;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 3px var(--tr-gold),
+    0 0 34px rgba(227, 183, 90, 0.7);
+  opacity: 0;
+}
+
+.is-said .tr-cc-hit {
+  opacity: 1;
+}
+
+.tr-say-b,
+.is-said .tr-say-a {
+  display: none;
+}
+
+.is-said .tr-say-b {
+  display: inline;
+  color: #7fe3ad;
 }
 
 /* the Teleprompter, in the program's own style (app/css/speaker.css): the script, the gold reading band with its gold
    edge, read words at half strength */
 .tr-tp {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 548px;
+  top: 118px;
+  left: 612px;
+  width: 366px;
+  height: 372px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
@@ -556,20 +608,20 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   right: 0;
   left: 0;
   z-index: 1;
-  height: 120px;
+  height: 80px;
   background: linear-gradient(#0e1529 35%, rgba(14, 21, 41, 0));
   pointer-events: none;
 }
 
 .tr-tp-text {
-  padding: 0 30px;
-  font-size: 28px;
+  padding: 0 22px;
+  font-size: 21px;
   font-weight: 600;
   line-height: 1.45;
 }
 
 .tr-tp-text p {
-  margin: 0 0 26px;
+  margin: 0 0 16px;
 }
 
 .tr-w.is-said {
@@ -578,96 +630,32 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 
 .tr-band {
   position: absolute;
-  top: 168px;
+  top: 118px;
   right: 0;
   left: 0;
-  height: 46px;
+  height: 36px;
   border-left: 3px solid var(--tr-gold);
-  background: linear-gradient(180deg, transparent, rgba(227, 183, 90, 0.14) 30%, rgba(227, 183, 90, 0.14) 70%, transparent);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(227, 183, 90, 0.14) 30%,
+    rgba(227, 183, 90, 0.14) 70%,
+    transparent
+  );
   opacity: 0.8;
 }
 
 .tr-tp-live {
   position: absolute;
-  top: 14px;
-  right: 16px;
+  top: 12px;
+  right: 12px;
   z-index: 2;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border: 1px solid #34d17c;
   border-radius: 999px;
   background: rgba(52, 209, 124, 0.15);
   font-size: 13px;
   font-weight: 700;
-}
-
-.tr-sc-live {
-  top: 12px;
-  left: 192px;
-  width: 615px;
-  height: 540px;
-}
-
-/* ---------- 26.11.26 the voice runs the meeting: beside the Teleprompter, the meeting screen ---------- */
-.tr-vo {
-  position: absolute;
-  top: 34px;
-  left: 576px;
-  width: 378px;
-  font-family: var(--font);
-}
-
-.tr-vo-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 10px;
-  color: var(--tr-muted);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.tr-vo-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #34d17c;
-  box-shadow: 0 0 10px rgba(52, 209, 124, 0.7);
-}
-
-.tr-vo-frame {
-  position: relative;
-  display: inline-grid;
-  margin-left: auto;
-  color: var(--tr-ink);
-}
-
-.tr-vo-frame b {
-  grid-area: 1 / 1;
-  font-weight: 700;
-}
-
-.tr-vo-frame b + b,
-.is-next .tr-vo-frame b:first-child {
-  opacity: 0;
-  transform: translate3d(0, 6px, 0);
-}
-
-.is-next .tr-vo-frame b + b {
-  opacity: 1;
-  transform: none;
-}
-
-/* the meeting screen, as the camera picture or the shared window shows it */
-.tr-vo-screen {
-  position: relative;
-  height: 236px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background:
-    radial-gradient(70% 60% at 50% 0%, rgba(227, 183, 90, 0.1), transparent 70%),
-    linear-gradient(180deg, #121a31, #0a1022);
-  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.75);
 }
 
 .tr-vo-card {
@@ -677,7 +665,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0 30px;
+  padding: 0 26px;
   text-align: center;
   opacity: 0;
 }
@@ -685,7 +673,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 .tr-vo-card p {
   margin: 0;
   color: #fbf6ea;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.35;
   text-wrap: balance;
@@ -693,7 +681,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 
 .tr-vo-label {
   color: var(--tr-gold);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -701,9 +689,9 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 
 /* the program's scripture card (overlay.css .card-verse): gold label, a rule, the words, the reference between lines */
 .tr-vo-rule {
-  width: 120px;
+  width: 90px;
   height: 1px;
-  margin: 10px 0 14px;
+  margin: 8px 0 11px;
   background: rgba(255, 255, 255, 0.8);
 }
 
@@ -713,36 +701,31 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 
 .tr-vo-verse p {
   font-family: var(--font-serif, "EB Garamond", Georgia, serif);
-  font-size: 23px;
+  font-size: 19px;
   font-weight: 500;
 }
 
 .tr-vo-ref {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 9px;
   color: var(--tr-muted);
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .tr-vo-ref::before,
 .tr-vo-ref::after {
   content: "";
-  width: 26px;
+  width: 20px;
   height: 1px;
   background: currentColor;
   opacity: 0.6;
 }
 
-.tr-vo-q .tr-vo-label {
-  margin-bottom: 12px;
-}
-
 .tr-vo-title,
-.is-shown .tr-vo-verse,
-.is-next .tr-vo-q {
+.is-shown .tr-vo-verse {
   opacity: 1;
 }
 
@@ -750,17 +733,16 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   opacity: 0;
 }
 
-.is-next .tr-vo-verse {
-  opacity: 0;
-}
-
 /* heard in what was read, and offered: Show */
 .tr-vo-offer,
 .tr-vo-say {
+  position: absolute;
+  top: 468px;
+  left: 53px;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 14px;
+  width: 535px;
   padding: 9px 10px 9px 14px;
   border: 1px solid var(--tr-line);
   border-radius: 14px;
@@ -779,7 +761,8 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
 .tr-vo-ear {
   padding: 2px 9px 2px 20px;
   border-radius: 999px;
-  background: rgba(52, 209, 124, 0.14) radial-gradient(circle at 10px 50%, #34d17c 3px, transparent 3.5px);
+  background: rgba(52, 209, 124, 0.14)
+    radial-gradient(circle at 10px 50%, #34d17c 3px, transparent 3.5px);
   color: #7fe3ad;
   font-size: 12px;
   font-weight: 700;
@@ -806,6 +789,13 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   background: transparent;
   box-shadow: inset 0 0 0 1px var(--tr-gold);
   color: var(--tr-gold);
+}
+
+.tr-vo-say {
+  top: 450px;
+  left: 330px;
+  width: 340px;
+  justify-content: center;
 }
 
 .tr-vo-say kbd {
@@ -836,85 +826,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   transform: none;
 }
 
-/* ---------- 26.11.3 Memory Cards: the chat, the camera picture, the bubbles (overlay.css .chat-list) ---------- */
-.tr-sc-mc {
-  top: 24px;
-  left: 0;
-  width: 1000px;
-  height: 500px;
-}
-
-.tr-mc {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  font-family: var(--font);
-}
-
-.tr-mc-chat {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  width: 300px;
-  padding: 14px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(22, 30, 50, 0.92), rgba(14, 20, 36, 0.92));
-  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.8);
-}
-
-.tr-mc-h {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0 4px 10px;
-  color: #c9d2e6;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.tr-mc-cap {
-  padding: 2px 8px 2px 18px;
-  border-radius: 999px;
-  background: rgba(52, 209, 124, 0.14) radial-gradient(circle at 9px 50%, #34d17c 3px, transparent 3.5px);
-  color: #7fe3ad;
-  font-size: 11px;
-}
-
-.tr-mc-row {
-  position: relative;
-  display: flex;
-  gap: 10px;
-  padding: 9px 8px;
-  border-radius: 12px;
-}
-
-/* the selection the copy makes, and the keys that copy it */
-.tr-mc-row::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: rgba(232, 185, 49, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(232, 185, 49, 0.5);
-  opacity: 0;
-}
-
-.tr-mc-row.is-sel::after {
-  opacity: 1;
-}
-
-.tr-mc-row b {
-  font-size: 12.5px;
-}
-
-.tr-mc-row p {
-  margin: 2px 0 0;
-  color: #dfe5f2;
-  font-size: 12.5px;
-  line-height: 1.35;
-}
-
 .tr-mc-av {
   display: grid;
   flex: none;
@@ -928,22 +839,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   color: #fff;
   font-size: 12px;
   font-weight: 700;
-}
-
-.tr-mc-key {
-  position: absolute;
-  top: -12px;
-  right: 6px;
-  z-index: 1;
-  color: var(--tr-muted);
-  font-size: 12px;
-  opacity: 0;
-  transform: translate3d(0, 6px, 0) scale(0.9);
-}
-
-.tr-mc-row.is-key .tr-mc-key {
-  opacity: 1;
-  transform: none;
 }
 
 /* the camera picture: a warm room, the presenter, and the bubbles beside them */
@@ -965,9 +860,21 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(30% 40% at 46% 28%, rgba(255, 206, 140, 0.34), transparent 70%),
-    radial-gradient(10% 14% at 14% 30%, rgba(255, 226, 170, 0.22), transparent 70%),
-    radial-gradient(7% 10% at 70% 64%, rgba(140, 170, 255, 0.16), transparent 70%),
+    radial-gradient(
+      30% 40% at 46% 28%,
+      rgba(255, 206, 140, 0.34),
+      transparent 70%
+    ),
+    radial-gradient(
+      10% 14% at 14% 30%,
+      rgba(255, 226, 170, 0.22),
+      transparent 70%
+    ),
+    radial-gradient(
+      7% 10% at 70% 64%,
+      rgba(140, 170, 255, 0.16),
+      transparent 70%
+    ),
     linear-gradient(160deg, #3a3346 0%, #262c40 45%, #161c2e 100%);
 }
 
@@ -979,9 +886,19 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   width: 300px;
   height: 300px;
   background:
-    radial-gradient(19% 23% at 50% 36%, #0b0f19 0 80%, #4a3a35 92%, transparent 100%),
+    radial-gradient(
+      19% 23% at 50% 36%,
+      #0b0f19 0 80%,
+      #4a3a35 92%,
+      transparent 100%
+    ),
     radial-gradient(9% 10% at 50% 58%, #0b0f19 0 80%, transparent 100%),
-    radial-gradient(52% 38% at 50% 100%, #0b0f19 0 78%, #3e3436 90%, transparent 100%);
+    radial-gradient(
+      52% 38% at 50% 100%,
+      #0b0f19 0 78%,
+      #3e3436 90%,
+      transparent 100%
+    );
   filter: blur(1.4px);
   transform-origin: 50% 100%;
 }
@@ -997,7 +914,8 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   left: 12px;
   padding: 3px 10px 3px 20px;
   border-radius: 999px;
-  background: rgba(8, 12, 22, 0.66) radial-gradient(circle at 10px 50%, #ef4b4b 3.5px, transparent 4px);
+  background: rgba(8, 12, 22, 0.66)
+    radial-gradient(circle at 10px 50%, #ef4b4b 3.5px, transparent 4px);
   color: #e8edf7;
   font-size: 11px;
   font-weight: 700;
@@ -1036,7 +954,11 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(44, 56, 86, 0.97), rgba(28, 37, 60, 0.97));
+  background: linear-gradient(
+    180deg,
+    rgba(44, 56, 86, 0.97),
+    rgba(28, 37, 60, 0.97)
+  );
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.5);
   color: #f6f8fc;
 }
@@ -1102,81 +1024,188 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   -webkit-line-clamp: 3;
 }
 
-/* the copied card in flight (tour.tsx moves it; it shows only with motion) */
-.tr-mc-ghost {
+/* 3 the suite: each piece pops out of the Studio to its own place around it */
+.tr-sat {
   position: absolute;
-  top: 0;
+  z-index: 2;
+  opacity: 0;
+  font-family: var(--font);
+}
+
+.tr-sat.is-on {
+  opacity: 1;
+}
+
+.tr-sat-tag {
+  position: absolute;
+  bottom: 100%;
   left: 0;
-  z-index: 4;
-  width: 230px;
-  padding: 8px 10px;
-  border: 1px solid rgba(232, 185, 49, 0.7);
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(48, 44, 30, 0.96), rgba(30, 30, 30, 0.96));
-  box-shadow:
-    0 0 24px rgba(232, 185, 49, 0.35),
-    0 18px 40px -10px rgba(0, 0, 0, 0.8);
-  color: #fbecc4;
+  margin-bottom: 8px;
+  padding: 3px 10px;
+  border: 1px solid var(--tr-line);
+  border-radius: 999px;
+  background: rgba(15, 23, 43, 0.92);
+  color: var(--tr-muted);
   font-size: 12px;
-  font-weight: 600;
-  line-height: 1.3;
-  opacity: 0;
-  pointer-events: none;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-/* 26.11.26 then the chat makes way for a member's phone, following the meeting screen (framedecks.com/follow) */
-.tr-mc-phone {
-  position: absolute;
-  top: -4px;
-  left: 40px;
-  width: 268px;
-  height: 405px;
+.tr-sat-tag kbd {
+  padding: 0 5px;
+  font-size: 11px;
+}
+
+.tr-sat-mem {
+  top: 40px;
+  left: 14px;
+  width: 330px;
+  height: 186px;
+}
+
+.tr-sat-mem .tr-mc-cam {
+  top: 0;
+  right: auto;
+  left: 0;
+  transform: scale(0.532);
+  transform-origin: 0 0;
+}
+
+.tr-sat-mem .tr-mc-list {
+  top: 18px;
+  width: 330px;
+  gap: 12px;
+}
+
+.tr-sat-mem .tr-mc-bub p {
+  font-size: 19px;
+  -webkit-line-clamp: 2;
+}
+
+.tr-sat-mem .tr-mc-head b {
+  font-size: 17px;
+}
+
+.tr-sat-card,
+.tr-sat-notes {
+  padding: 14px 16px;
+  border: 1px solid rgba(227, 183, 90, 0.45);
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(27, 37, 64, 0.97),
+    rgba(15, 23, 43, 0.97)
+  );
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.85);
+}
+
+.tr-sat-card {
+  top: 52px;
+  left: 712px;
+  width: 270px;
+}
+
+.tr-sat-notes {
+  top: 446px;
+  left: 318px;
+  width: 364px;
+  border-color: var(--tr-line);
+}
+
+.tr-sat p {
+  margin: 0;
+}
+
+.tr-ac-kick {
+  color: var(--tr-gold);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tr-ac-body {
+  margin: 6px 0 10px;
+  color: var(--tr-ink);
+  font-family: var(--font-serif, "EB Garamond", Georgia, serif);
+  font-size: 17px;
+}
+
+.tr-ac-acts {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tr-ac-acts > * {
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--tr-raised);
+  color: var(--tr-muted);
+}
+
+.tr-ac-acts b {
+  background: var(--tr-gold);
+  color: #1a1306;
+}
+
+.tr-notes-v {
+  margin-top: 6px;
   overflow: hidden;
-  border: 6px solid #1f2639;
-  border-radius: 34px;
-  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.8);
-  opacity: 0;
-  transform: translate3d(0, 40px, 0) scale(0.96);
+  color: var(--tr-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tr-sc .tr-mc-phone img {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+.tr-notes-v b {
+  margin-right: 6px;
+  color: var(--tr-ink);
+}
+
+.tr-sat-remote,
+.tr-sat-follow {
+  border: 5px solid #1f2639;
+  border-radius: 26px;
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.85);
+}
+
+.tr-sat-remote img,
+.tr-sat-follow img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 21px;
   object-fit: cover;
   object-position: top;
 }
 
-.tr-mc.is-phone .tr-mc-phone {
-  opacity: 1;
-  transform: none;
+.tr-sat-remote {
+  top: 262px;
+  left: 54px;
+  width: 124px;
+  height: 268px;
 }
 
-.tr-mc.is-phone .tr-mc-chat {
-  opacity: 0;
-  transform: translate3d(-40px, 0, 0);
+.tr-sat-follow {
+  top: 250px;
+  left: 822px;
+  width: 156px;
+  height: 236px;
 }
 
-.tr-sc-mc .tr-callouts {
-  bottom: -14px;
+.tr-sat-remote .tr-sat-tag,
+.tr-sat-follow .tr-sat-tag {
+  margin-bottom: 13px;
 }
 
 .tr-callouts {
   position: absolute;
-  bottom: -50px;
+  bottom: 12px;
   left: 50%;
   display: flex;
   gap: 10px;
   white-space: nowrap;
   transform: translate3d(-50%, 0, 0);
-}
-
-.tr-sc-tp .tr-callouts {
-  bottom: -60px;
-}
-
-.tr-sc-live .tr-callouts {
-  bottom: -54px;
 }
 
 .tr-callouts > span {
@@ -1281,16 +1310,9 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     transition: transform 0.8s var(--ease-out);
   }
 
-  html.fd-motion:not(.fd-calm) .tr-mc-row::after,
   html.fd-motion:not(.fd-calm) .tr-mc-bub::after,
   html.fd-motion:not(.fd-calm) .tr-mc-head em {
     transition: opacity 0.3s var(--ease-out);
-  }
-
-  html.fd-motion:not(.fd-calm) .tr-mc-key {
-    transition:
-      transform 0.25s var(--ease-out),
-      opacity 0.2s var(--ease-out);
   }
 
   /* 26.11.26 the voice chapter: the program's word-in (overlay.css), one word after another; the page moves only
@@ -1317,7 +1339,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   }
 
   html.fd-motion:not(.fd-calm) .tr-vo-card,
-  html.fd-motion:not(.fd-calm) .tr-vo-frame b,
   html.fd-motion:not(.fd-calm) .tr-vo-offer,
   html.fd-motion:not(.fd-calm) .tr-vo-say {
     transition:
@@ -1339,11 +1360,20 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     }
   }
 
-  html.fd-motion:not(.fd-calm) .tr-mc-phone,
-  html.fd-motion:not(.fd-calm) .tr-mc-chat {
-    transition:
-      opacity 0.5s var(--ease-out),
-      transform 0.6s var(--ease-out);
+  html.fd-motion:not(.fd-calm) .is-said .tr-cc-hit {
+    animation: tr-hit 0.9s var(--ease-out);
+  }
+
+  @keyframes tr-hit {
+    from {
+      opacity: 0;
+      transform: scale(1.25);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   html.fd-motion:not(.fd-calm) .tr-tap.is-tap {
@@ -1374,7 +1404,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     transition: opacity 0.35s var(--ease-out);
   }
 
-  html.fd-motion:not(.fd-calm) .tr-stage[data-ch="1"] .tr-band {
+  html.fd-motion:not(.fd-calm) .tr-stage[data-ch="2"] .tr-band {
     animation: tr-breathe 2.4s ease-in-out 6 alternate;
   }
 
@@ -1397,7 +1427,6 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
       opacity: 0;
     }
   }
-
 }
 
 /* ---------- narrow screens ---------- */

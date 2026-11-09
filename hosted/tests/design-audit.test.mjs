@@ -114,10 +114,10 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   const tour = src("components/landing/tour.tsx");
   assert.match(landing, /<Tour/);
   // 26.11.26 three chapters after the Studio: Voice, Control, Together
-  for (const k of ["V", "Right Ctrl", "Alt+Space", "Alt+→", "Alt+H"]) assert.ok(landing.includes(`k="${k}"`), k);
+  for (const k of ["V", "Right Ctrl", "Alt+Space", "Alt+→", "Ctrl+C"]) assert.ok(landing.includes(`k="${k}"`), k);
   assert.equal((landing.match(/^    id: "/gm) || []).length, 3);
   // the verse heard arrives on the meeting screen with the program's own word-in (app/css/overlay.css)
-  assert.match(tour, /className="tr-vo"/);
+  assert.match(tour, /className="tr-screen"/);
   assert.match(src("app/tour.css"), /@keyframes tr-word-in/);
   assert.match(tour, /className="tr-band"/);
   // 26.11.3 Memory Cards: copied chat messages pop up as bubbles on the camera picture, the program's own overlay style
