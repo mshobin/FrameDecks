@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Download, Monitor, MonitorCheck, X } from "lucide-react";
 
 import { DOWNLOADS, OPEN_LINK, placeOf, setupOf, type Setup } from "@/lib/pc-setup";
+import { browserSupabase } from "@/lib/supabase-browser";
 
 const HIDDEN = "fd-pc-card-hidden";
 
@@ -15,7 +16,9 @@ async function cameraNames(): Promise<string[]> {
 
 // Is FrameDecks on this computer? (docs/architecture/meeting-form.md, section 4.) Reads only the camera names the
 // browser shows; the website never talks to the program, it only offers the installer or the framedecks:// link.
-export function PcSetupCard() {
+// 26.11.26 `org` (owners and admins): Connect this PC hands the program a one-time grant through that link; the program
+// shows which team it is and connects with one click (no code to type).
+export function PcSetupCard({ org }: Readonly<{ org?: string }>) {
   const [setup, setSetup] = useState<Setup | null>(null);
   // Server and first render show nothing (setup is null), so reading storage here never changes the first picture
   const [hidden, setHidden] = useState(() => {
@@ -26,6 +29,15 @@ export function PcSetupCard() {
     }
   });
   const [problem, setProblem] = useState("");
+  const [sent, setSent] = useState(false);
+  const connect = async () => {
+    const supabase = browserSupabase();
+    if (!supabase || !org) return;
+    setProblem("");
+    const failed = await (await import("@/lib/quick-sign-in")).connectThisPc(supabase, org);
+    if (failed) setProblem(failed);
+    else setSent(true);
+  };
 
   useEffect(() => {
     let live = true;
@@ -102,10 +114,13 @@ export function PcSetupCard() {
           <>
             <h2 id="pc-setup-title">FrameDecks is installed on this PC.</h2>
             <p>
-              Present from the program; plan the meeting and run it from your phone here. Not linked yet? In FrameDecks open
-              Sync and scan its QR code with your phone; the PC then shows under <Link href="/devices">Devices</Link>.
+              Present from the program; plan the meeting and run it from your phone here. Not linked yet? Choose Connect this
+              PC and confirm in FrameDecks; the PC then shows under <Link href="/devices">Devices</Link>.
             </p>
           </>
+        )}
+        {sent && (
+          <p role="status">FrameDecks opens on this PC and asks once: choose Connect. Nothing to type.</p>
         )}
         {problem && (
           <p className="pc-setup-problem" role="alert">
@@ -118,8 +133,13 @@ export function PcSetupCard() {
               Check this PC
             </button>
           )}
+          {org && (found || setup === "ask") && (
+            <button className={found ? "pc-setup-primary" : "pc-setup-quiet"} type="button" onClick={connect}>
+              Connect this PC
+            </button>
+          )}
           {(found || setup === "ask") && (
-            <a className={found ? "pc-setup-primary" : "pc-setup-quiet"} href={OPEN_LINK}>
+            <a className={found && !org ? "pc-setup-primary" : "pc-setup-quiet"} href={OPEN_LINK}>
               Open FrameDecks on this PC
             </a>
           )}

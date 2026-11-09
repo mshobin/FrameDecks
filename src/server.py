@@ -51,7 +51,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.25"
+APP_VERSION = "26.11.26"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -3469,6 +3469,13 @@ class Handler(BaseHTTPRequestHandler):
         if action == "remote":
             res = set_remote(bool(data.get("enabled")))
             return ok(res)
+        if action == "grant":
+            # 26.11.26 the website's framedecks://connect link (desktop_app.py hands it over): look at the one-time grant;
+            # the main window then asks Connect or Not now. Nothing is connected without that click.
+            try:
+                return ok(SYNC.grant_offer(data.get("code")) or {"status": "ignored"})
+            except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
+                return bad(str(e), 503)
         if action == "settings":
             return ok(save_app_settings(data))
         if action == "settings-reset":              # 26.11.22 Settings → "Reset this section": these keys back to default
@@ -3850,6 +3857,13 @@ class Handler(BaseHTTPRequestHandler):
                 # 26.11.12 Scan to join (0018_scan_to_join.sql), with this PC's own key
                 if action == "invite":                             # Add a device / Invite someone: a 2-minute QR code
                     return self.reply(200, json.dumps(SYNC.invite(role or "admin")), TYPES[".json"])
+                # 26.11.26 (0021): Add a device signs the phone in as you; Connect this PC from the website, asked here
+                if action == "add-device":
+                    return self.reply(200, json.dumps(SYNC.add_device()), TYPES[".json"])
+                if action == "grant-accept":
+                    return self.reply(200, json.dumps(SYNC.grant_accept()), TYPES[".json"])
+                if action == "grant-decline":
+                    return self.reply(200, json.dumps(SYNC.grant_decline()), TYPES[".json"])
                 if action == "allow-peek":                         # Allow a device: who asked with this code
                     return self.reply(200, json.dumps(SYNC.allow_peek(code)), TYPES[".json"])
                 if action == "allow":

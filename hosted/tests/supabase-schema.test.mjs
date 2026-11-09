@@ -70,6 +70,8 @@ const ANON_BY_DESIGN = [
   "pc_room_open",
   "pc_room_publish",
   "pc_room_close",
+  // 0021: the church PC makes an Add a device code that signs the phone in as the person who connected it, by its key
+  "pc_device_code_create",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
@@ -77,7 +79,10 @@ const ANON_BY_DESIGN = [
 const BEFORE_A_SESSION = ["magic_link_requested", "check_trusted_session",
   // 0018: a scanned code is looked at before the new device signs in (no session yet), limited like wrong codes;
   // join_request_peek is also used by the PC (its key) to show which browser is waiting
-  "join_code_peek", "join_request_peek"];
+  "join_code_peek", "join_request_peek",
+  // 0021: Connect this PC: the program looks at the website's one-time grant and uses it with its new key, before it
+  // has a key (limited like wrong codes)
+  "pc_grant_peek", "pc_link_with_grant"];
 // 0017: the public Help pages' "Was this helpful?": it reads nothing, only adds a checked article name and a yes or no.
 const PUBLIC_HELP = ["help_vote"];
 // 0019: people in the meeting send a prayer request with only the wall's code (no account); they read nothing back

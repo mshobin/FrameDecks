@@ -155,7 +155,7 @@ function buildLinked(root, d){
       h('p', {cls: 'hint', id: 'sync-held', hidden: 'hidden'})]),
     h('span', {cls: 'sync-team', text: d.workspace || ''})]));
   root.appendChild(h('div', {cls: 'sync-actions'}, [
-    h('button', {cls: 'btn primary', type: 'button', id: 'sync-add', text: 'Add a device', onclick: function(){ allowBox = false; openInvite('admin'); }}),
+    h('button', {cls: 'btn primary', type: 'button', id: 'sync-add', text: 'Add a device', onclick: function(){ allowBox = false; openInvite('self'); }}),
     h('button', {cls: 'btn', type: 'button', id: 'sync-invite', text: 'Invite someone', onclick: function(){ allowBox = false; invite = {phase: 'choose'}; drawPanel(); }}),
     h('button', {cls: 'btn', type: 'button', id: 'sync-allow', text: 'Allow a device', onclick: function(){ closeInvite(); allowBox = true; drawPanel(); var i = $('sync-allow-code'); if (i) i.focus(); }})]));
   root.appendChild(h('div', {id: 'sync-panel'}));
@@ -187,9 +187,12 @@ function openInvite(role){
 function newInvite(){
   if (!invite) return;
   invite.code = null; drawPanel();
-  post({action: 'invite', role: invite.role}).then(function(r){
+  /* 26.11.26 Add a device ('self'): the phone opens the workspace as the person who connected this PC (0021); a PC
+     connected without an email gets the Admin invite instead (r.who is then empty) */
+  post(invite.role === 'self' ? {action: 'add-device'} : {action: 'invite', role: invite.role}).then(function(r){
     if (!invite) return;
     invite.code = r.code; invite.joinUrl = r.joinUrl; invite.expiresAt = Date.now() / 1000 + (r.expiresIn || 120);
+    invite.who = r.who || null; if (invite.role === 'self' && !r.who) invite.role = 'admin';
     drawPanel(); setLive('sync-invite-live', 'New code shown. It works for 2 minutes.');
   }).catch(function(e){ if (invite){ invite.error = e.message; drawPanel(); } });
 }
@@ -215,7 +218,7 @@ function drawPanel(){
       h('div', {cls: 'sync-qr-card' + (card ? '' : ' empty')}, [card || h('span', {cls: 'hint', text: invite.error ? '—' : expired ? 'Code ended' : 'Making a code…'})]),
       h('div', {cls: 'sync-qr-words'}, [
         h('h3', {text: 'Scan with the phone’s camera'}),
-        h('p', {cls: 'plain', text: 'It joins your team as ' + roleWords(invite.role)}),
+        h('p', {cls: 'plain', text: invite.role === 'self' ? (invite.who ? 'It opens your workspace as ' + invite.who + ': nothing to type, no password.' : 'It opens your workspace as you.') : 'It joins your team as ' + roleWords(invite.role)}),
         invite.code ? h('p', {cls: 'sync-or', text: 'or type this code at framedecks.com/join'}) : null,
         invite.code ? h('p', {cls: 'sync-code', 'aria-label': 'Code: ' + invite.code.split('').join(' '), text: spaced(invite.code)}) : null,
         invite.error ? h('p', {cls: 'hint sync-note', role: 'alert', text: invite.error}) : null,

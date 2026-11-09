@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { ensureWorkspace } from "@/components/auth-callback";
 import { CodeStopped, JoinCodeCard, useRotatingCode } from "@/components/join-code-card";
+import { QuickSignIn } from "@/components/quick-sign-in";
 import { Button } from "@/components/ui/button";
 import { takeReturn } from "@/lib/connect-link";
 import { allowUrl, codeProblem, formatCode, guessDeviceName, isRecoveryCode, tidyCode } from "@/lib/join-code";
@@ -115,6 +116,7 @@ export function WorkspaceSyncChooser() {
         <>
           <h1 className="fd-auth-title">Open your workspace.</h1>
           <p className="auth-lede">With a phone that’s already in your team. No email, nothing to remember.</p>
+          <QuickSignIn />
           <OpenWithPhone />
           <div className="jc-more">
             <p>Other ways in</p>

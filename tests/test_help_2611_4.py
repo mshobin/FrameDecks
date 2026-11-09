@@ -33,7 +33,7 @@ class ErrorCodes(unittest.TestCase):
                                           "hosted/src/components/devices-panel.tsx", "hosted/src/components/join-panel.tsx",
                                           "hosted/src/components/allow-panel.tsx", "hosted/src/components/workspace-sync-form.tsx",
                                           "hosted/src/components/connect-panel.tsx", "app/js/account.js",
-                                          "hosted/src/lib/join-device.ts"))
+                                          "hosted/src/lib/join-device.ts", "hosted/src/lib/quick-sign-in.ts"))
         for c in codes():
             self.assertIn(c["code"], used, c["code"] + " is never shown")
 
@@ -99,7 +99,7 @@ class HelpLinks(unittest.TestCase):
         for area, url in links.items():
             page, _, anchor = url.partition("#")
             if page == "help":
-                self.assertIn('id: "%s"' % anchor, read("hosted/src/components/help-center.tsx"), area)
+                self.assertIn('id: "%s"' % anchor, read("hosted/src/components/help-topics.tsx"), area)   # 26.11.26 topics drawn on the server
                 continue
             self.assertTrue(page.startswith("docs/"), area)
             md = read("docs/guide/%s.md" % page[5:])
@@ -121,7 +121,7 @@ class HelpLinks(unittest.TestCase):
 class HelpSearch(unittest.TestCase):
     def test_the_help_center_searches_and_opens_error_codes(self):
         tsx = read("hosted/src/components/help-center.tsx")
-        self.assertIn('id: "codes"', tsx)
+        self.assertIn('id: "codes"', read("hosted/src/components/help-topics.tsx"))
         self.assertIn('get("code")', tsx)
         self.assertIn("<HelpSearch", tsx)
         self.assertIn("helpIndex()", read("hosted/src/app/help/page.tsx"))
@@ -164,7 +164,7 @@ class KeysAndWhatsNew(unittest.TestCase):
 
 class ClipsAndVotes(unittest.TestCase):
     def test_every_clip_shown_has_its_moving_picture_and_its_still(self):
-        tsx = read("hosted/src/components/help-center.tsx")
+        tsx = read("hosted/src/components/help-topics.tsx")
         names = re.findall(r'name: "([a-z-]+)", title:', tsx)
         self.assertGreaterEqual(len(names), 5)
         for n in names:
@@ -207,7 +207,7 @@ class SupportAndHelpBot(unittest.TestCase):
         self.assertNotIn("supabase", bot)
         for code_step in ("FD-NET-05",):
             self.assertIn(code_step, bot)
-        self.assertIn('id: "ask"', read("hosted/src/components/help-center.tsx"))
+        self.assertIn('id: "ask"', read("hosted/src/components/help-topics.tsx"))
         self.assertIn('href="https://framedecks.com/help#ask"', read("app/remote.html"))
 
 

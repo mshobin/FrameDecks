@@ -7,10 +7,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import codes from "../../content/help-codes.json";
 import { searchHelp, type HelpEntry } from "@/lib/help-search";
 
-type Code = { code: string; area: string; title: string; why: string; fix: string };
+export type Code = { code: string; area: string; title: string; why: string; fix: string };
 type Step = { say: ReactNode; options?: [string, string][]; answer?: boolean };
 
 // One question at a time. Each answer is a fact from the guides; keep them in step with docs/guide/troubleshooting.md.
@@ -119,7 +118,7 @@ function codeAnswer(c: Code): ReactNode {
   );
 }
 
-export function HelpBot({ index }: Readonly<{ index: HelpEntry[] }>) {
+export function HelpBot({ index, codes }: Readonly<{ index: HelpEntry[]; codes: Code[] }>) {
   const [msgs, setMsgs] = useState<Msg[]>(() => [{ from: "bot", body: STEPS.start.say, options: STEPS.start.options }]);
   const [text, setText] = useState("");
   const log = useRef<HTMLDivElement>(null);
@@ -155,7 +154,7 @@ export function HelpBot({ index }: Readonly<{ index: HelpEntry[] }>) {
     if (!q) return;
     setText("");
     setMsgs((m) => [...m.map((x) => ({ ...x, options: undefined })), { from: "you", body: q }]);
-    const c = (codes as Code[]).find((x) => x.code === q.toUpperCase().replace(/\s+/g, ""));
+    const c = codes.find((x) => x.code === q.toUpperCase().replace(/\s+/g, ""));
     if (c) return bot(codeAnswer(c), undefined, true);
     const found = searchHelp(index, q, 3);
     if (!found.length)

@@ -6,7 +6,10 @@ near the clock (the "tray") so the overlays keep working in OBS/Camo when the wi
 
 Only one copy runs at a time: opening the app again brings the existing window to the front.
 6.11: the website's "Open FrameDecks on this PC" starts it through a framedecks:// link (registered by the
-installer). That is the same as opening it: the link is never read, so a web page cannot make it do anything else.
+installer). That is the same as opening it.
+26.11.26: one link is read, framedecks://connect?grant=CODE (the website's Connect this PC): the code is checked against
+its shape and handed to the program, which shows the team and asks Connect or Not now. A web page cannot connect a PC
+without that click, and nothing else in a link is ever used.
 """
 from errlog import swallowed as _swallowed  # noqa: E402
 import json
@@ -233,7 +236,33 @@ def tray_image():
     return Image.open(server.APP / "icons" / "tray-64.png")
 
 
+def _safe_grant(port, code):
+    try:
+        hand_grant(port, code)
+    except Exception as _e:
+        _swallowed("desktop_app.grant", _e)
+
+
+def grant_from_args(argv):
+    """26.11.26 the one link the program reads: framedecks://connect?grant=CODE (8 letters and digits), else None."""
+    import re
+    for a in argv[1:]:
+        m = re.match(r"^framedecks://connect/?\?grant=([A-Za-z0-9]{8})/?$", str(a).strip())
+        if m:
+            return m.group(1).upper()
+    return None
+
+
+def hand_grant(port, code):
+    """Gives the program (this copy or the running one) the website's grant to ask about."""
+    req = urllib.request.Request(f"http://127.0.0.1:{port}/api/app/grant", data=json.dumps({"code": code}).encode(),
+                                 headers={"Content-Type": "application/json"}, method="POST")
+    with urllib.request.urlopen(req, timeout=15) as r:
+        return r.status
+
+
 def main():
+    grant = grant_from_args(sys.argv)
     # 1. Only one copy: if it is already running, bring its window forward and stop here.
     other = running_copy()
     if other == "stuck":                       # a busy copy may just be slow: ask once more, with more patience
@@ -243,6 +272,8 @@ def main():
         return
     if other == "app":
         try:
+            if grant:
+                hand_grant(server.PREFERRED_PORT, grant)
             ask(server.PREFERRED_PORT, "show")
         except Exception as _e:
             _swallowed("desktop_app.main", _e)
@@ -267,6 +298,8 @@ def main():
         message(f"Another program is using port {server.PREFERRED_PORT}, so FrameDecks is using port {port} today.\n\n"
                 "Your overlay links in OBS or Camo need the new port, or close the other program and restart.", warn=True)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
+    if grant:
+        threading.Thread(target=lambda: _safe_grant(port, grant), daemon=True).start()
     if server.app_settings()["remoteAutostart"]:
         server.set_remote(True)
     url = f"http://127.0.0.1:{port}/"

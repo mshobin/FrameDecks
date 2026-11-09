@@ -313,12 +313,21 @@ function InviteCode({
   onDone,
 }: Readonly<{ org: string; team: string; role: JoinRole; forSomeone: boolean; onDone: () => void }>) {
   const supabase = browserSupabase();
+  const [who, setWho] = useState<string | null>(null);
   const make = useCallback(async () => {
     if (!supabase) return "Workspace sync is not set up for this site yet.";
+    // 26.11.26 Add a device: the phone signs in as you (no guest account); an invite when that isn't possible
+    if (!forSomeone) {
+      const self = await supabase.rpc("device_code_create", { org });
+      if (!self.error && self.data?.code) {
+        setWho(self.data.who ?? "you");
+        return self.data as { code: string; expiresAt: string };
+      }
+    }
     const { data, error } = await supabase.rpc("invite_create", { org, wanted: role });
     if (error) return userSafeError(error, "Couldn’t make a code. Check your connection and try again.");
     return data as { code: string; expiresAt: string };
-  }, [supabase, org, role]);
+  }, [supabase, org, role, forSomeone]);
   const rotating = useRotatingCode(make, 2 * 60_000, true);
   const host = typeof window === "undefined" ? "" : window.location.host;
   return (
@@ -326,7 +335,9 @@ function InviteCode({
       <p className="jc-note">
         {forSomeone
           ? `Show this to the person you’re inviting. They scan it with their phone’s camera and join ${team} as ${roleWord(role)}.`
-          : `On the new phone or tablet, open the camera and scan this code. It joins ${team} as ${roleWord(role)}.`}
+          : who
+            ? `On your phone or tablet, open the camera and scan this code. It opens your workspace as ${who}: nothing to type, nothing to remember.`
+            : `On the new phone or tablet, open the camera and scan this code. It joins ${team} as ${roleWord(role)}.`}
       </p>
       {rotating.stopped || rotating.problem ? (
         <CodeStopped problem={rotating.problem} onAgain={rotating.again} />

@@ -10,6 +10,28 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.26] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.26.md](releases/v26.11.26.md).
+
+### Added
+- Joining without typing (`docs/architecture/passwordless.md`): migration `0021_passwordless.sql` (Add a device codes
+  that sign the phone in as the person themselves: `device_code_create`, `pc_device_code_create`, `device_code_redeem`
+  for the service key only; Connect this PC grants: `pc_grant_create`, `pc_grant_peek`, `pc_link_with_grant`) with its
+  rollback and PGlite tests; the Supabase Edge Function `device-sign-in` (uses a code once and hands back a one-time
+  sign-in, no anonymous users).
+- Website: `/join` opens the workspace from an Add a device code (`lib/quick-sign-in.ts signInWithCode`); Devices →
+  Add a device makes such a code; Home → Connect this PC (`framedecks://connect?grant=`); Open Workspace offers a
+  passkey and Google, Apple or Microsoft when Supabase has them on (read from `/auth/v1/settings`); Home offers to save
+  a passkey on a trusted device. Error code FD-CLD-07.
+- Program: Settings → Sync → Add a device uses the new code (the Admin invite when the PC was connected without an
+  email); `desktop_app.py` reads one link, `framedecks://connect?grant=CODE`, and `app/js/connect-grant.js` asks
+  Connect or Not now before the program uses it (`cloud_sync.Service.grant_offer/grant_accept/grant_decline`).
+
+### Changed
+- Help Center topics are drawn on the server (`components/help-topics.tsx`) and the error codes passed from the page,
+  so their words are not in the page's JavaScript.
+
 ## [26.11.25] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.25.md](releases/v26.11.25.md).

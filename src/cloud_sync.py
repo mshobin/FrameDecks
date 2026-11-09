@@ -40,6 +40,7 @@ PUSH_BATCH = 200                      # sync_push: at most 200 changes and 2 MB 
 PUSH_BYTES = 1_800_000
 QUIET_SECONDS = 3                     # after a save, wait for this much quiet before syncing
 PULL_EVERY = 60                       # and pull at least this often
+GRANT_SECONDS = 120                   # 26.11.26: Connect this PC from the website (0021: 2 minutes, once)
 INVITE_SECONDS = 120                  # 26.11.12: an Add a device / Invite someone code (0018: 2 minutes, once)
 MAX_BACKOFF = 600
 FRAME_KINDS = ("frame", "template")
@@ -409,6 +410,16 @@ class CloudApi:
     def join_request_peek(self, code):
         return self._rpc("join_request_peek", {"code": code})
 
+    # 26.11.26 joining without typing (0021_passwordless.sql)
+    def pc_device_code_create(self):
+        return self._rpc("pc_device_code_create", {})
+
+    def grant_peek(self, code):
+        return self._rpc("pc_grant_peek", {"code": code})
+
+    def link_with_grant(self, code, name, key_hash):
+        return self._rpc("pc_link_with_grant", {"code": code, "computer_name": name, "key_hash": key_hash})
+
     def pc_join_request_allow(self, code, wanted):
         return self._rpc("pc_join_request_allow", {"code": code, "wanted": wanted})
 
@@ -660,6 +671,7 @@ class Service:
         self.poll_every = 1.5                         # while waiting: "was this PC allowed?" (connected ~2 s after Allow)
         self.next_pull = lambda: PULL_EVERY           # 9.11: live_push.Doorbell.sync_every (longer while listening or resting)
         self.update = None                            # 26.11.12: {"at", "names"} the last changes made on the website
+        self.grant = None                             # 26.11.26: {"code", "team", "by", "at"} Connect this PC, asked
 
     # -- the state file --
     def _load(self):
@@ -700,6 +712,9 @@ class Service:
             out.update(code=code, expiresAt=self.pending["expiresAt"], check=check_number(code),
                        connectUrl=connect_url(site, code, self.computer_name), joinUrl=join_url(site, code),
                        expiresIn=max(0, round(self.pending["expiresAt"] - time.time())))
+        g = self.grant
+        if g and time.time() - g["at"] < GRANT_SECONDS and not self.state.get("link"):
+            out["grant"] = {"team": g["team"], "by": g["by"]}     # never the code itself
         return out
 
     def phase(self):
@@ -825,6 +840,55 @@ class Service:
         if not (link and cloud and key):
             raise Refused("This PC is not connected yet. Choose Add a device first.", "42501")
         return self.make_api(cloud, link["organizationId"], key), cloud.get("site") or COMPANION_URL
+
+    # -- 26.11.26 Connect this PC from the website (0021): the program always asks before it uses the grant --
+    def grant_offer(self, code):
+        """The website's framedecks://connect link brought a one-time grant: look at it (which team, who sent it) and
+        keep it for the question in the main window. Nothing is connected yet."""
+        code = tidy_code(code)
+        if len(code) != 8 or self.state.get("link"):
+            return None
+        answer = self.make_api(self.config_source(), None, None).grant_peek(code) or {}
+        if answer.get("status") != "grant":
+            self.grant = None
+            return {"status": answer.get("status") or "unknown"}
+        self.grant = {"code": code, "team": answer.get("team") or "your team", "by": answer.get("by"), "at": time.time()}
+        return {"status": "grant", "team": self.grant["team"], "by": self.grant["by"]}
+
+    def grant_accept(self):
+        """Connect: this PC makes its key and joins the team the grant was for."""
+        g, self.grant = self.grant, None
+        if not g or time.time() - g["at"] >= GRANT_SECONDS:
+            raise Refused("That request ran out. Choose Connect this PC on the website again.")
+        with self.lock:
+            if self.state.get("link"):
+                return self.info()
+            config = self.config_source()
+            key = secrets.token_urlsafe(32)
+            answer = self.make_api(config, None, None).link_with_grant(
+                g["code"], self.computer_name, hashlib.sha256(key.encode("utf-8")).hexdigest()) or {}
+        if answer.get("status") != "linked":
+            raise Refused("That request ran out or was used. Choose Connect this PC on the website again.")
+        self._finish_link({"key": key, "config": config}, answer)
+        return self.info()
+
+    def grant_decline(self):
+        self.grant = None
+        return self.info()
+
+    def add_device(self):
+        """26.11.26 Add a device: a code that signs the phone in as the person who connected this PC (no guest account,
+        no approval). A PC connected by a device without an email (or before 0021) shows the Admin invite instead."""
+        api, site = self._team()
+        try:
+            answer = api.pc_device_code_create() or {}
+        except Refused:
+            answer = {}
+        code = tidy_code(answer.get("code"))
+        if answer.get("status") != "ok" or not code:
+            return dict(self.invite("admin"), who=None)
+        return {"code": code, "role": "self", "who": answer.get("who"), "joinUrl": join_url(site, code),
+                "expiresIn": INVITE_SECONDS, "expiresAt": time.time() + INVITE_SECONDS}
 
     def invite(self, role="admin"):
         """A code for a QR on this PC: the phone that scans it joins the team as Admin or Helper (member). It lasts

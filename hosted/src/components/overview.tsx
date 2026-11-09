@@ -9,6 +9,7 @@ import { BrandMark } from "@/components/brand-hero";
 import { NextService } from "@/components/glance";
 import { Landing } from "@/components/landing";
 import { PcSetupCard } from "@/components/pc-setup-card";
+import { PasskeyPrompt } from "@/components/passkey-prompt";
 import { SetupGuide } from "@/components/setup-guide";
 import { PageSkeleton } from "@/components/states";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -48,10 +49,11 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
         <PageSkeleton />
       ) : selected ? (
         <>
+          <PasskeyPrompt />
           <Invitations />
           <NextService workspace={selected} name={name} />
           <SetupGuide workspace={selected} />
-          <PcSetupCard />
+          <PcSetupCard org={selected.role === "member" ? undefined : selected.id} />
         </>
       ) : (
         <FirstSteps name={name} />

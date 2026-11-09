@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.26': [
+    {title: 'Add a device opens your workspace', text: 'Settings → Sync → Add a device: scan the code with your phone and it opens your workspace as you. Nothing to type, nobody to approve.', show: {settings: 'account', spot: '#sync-add'}},
+    {title: 'Connect this PC from the website', text: 'On framedecks.com, Home → Connect this PC. FrameDecks asks once here: choose Connect. No code to type.', show: {settings: 'account', spot: '#sync-add'}}
+  ],
   '26.11.25': [
     {title: 'The corner card', text: 'With the Studio behind Zoom or Teams, a card in the corner shows a verse heard or a prayer request waiting, with Show right there. Only you see it.', show: {settings: 'general', spot: '#feel-settings'}}
   ],

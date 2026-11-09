@@ -53,7 +53,10 @@ var CODES = /* codes:start */[
    "fix": "Check the internet connection, then try again."},
   {"code": "FD-CLD-06", "area": "Workspace", "title": "Joining with a code isn’t switched on",
    "why": "Anonymous sign-ins are off for this site, so a new device can’t join by scanning a code.",
-   "fix": "Ask the workspace owner to turn on Allow anonymous sign-ins in Supabase, or use an email code instead."}
+   "fix": "Ask the workspace owner to turn on Allow anonymous sign-ins in Supabase, or use an email code instead."},
+  {"code": "FD-CLD-07", "area": "Workspace", "title": "Opening by scanning isn’t set up",
+   "why": "The server function that opens the workspace on a phone from an Add a device code isn’t deployed on this site yet.",
+   "fix": "Use an email code for now, and ask the workspace owner to deploy device-sign-in (docs: passwordless setup)."}
 ]/* codes:end */;
 /* 26.11.4 the "?" links: a place in the program -> its page in the guide (framedecks.com/docs, the same words as
    docs/guide/) or the Help Center. tests/test_help_2611_4.py checks every page and heading exists. */

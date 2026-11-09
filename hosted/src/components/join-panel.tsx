@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { codeFromHash, codeProblem, guessDeviceName, isShortCode, tidyCode, type JoinRole } from "@/lib/join-code";
 import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
+import { signInWithCode } from "@/lib/quick-sign-in";
 import { TERMS_VERSION } from "@/lib/legal";
 import { PRAYER_MAX, PRAYER_NAME_MAX, isPrayerCode, prayerCodeFromHash, tidyPrayerCode } from "@/lib/prayer-code";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -16,6 +17,7 @@ import { userSafeError } from "@/lib/user-error";
 
 type Peek =
   | { status: "invite"; team: string; role: JoinRole; byPc: boolean }
+  | { status: "self"; team: string; who: string | null; byPc: boolean }
   | { status: "pc"; pc: string }
   | { status: "expired" | "unknown" };
 
@@ -75,8 +77,8 @@ export function JoinPanel() {
   }
 
   const fresh = arrived === false;                      // a new device: no session on this browser when it came
-  const needTerms = fresh || termsAsked;
-  const ready = peek?.status === "invite" || peek?.status === "pc";
+  const needTerms = (fresh || termsAsked) && peek?.status !== "self"; // a self code signs in to an account that agreed already
+  const ready = peek?.status === "invite" || peek?.status === "pc" || peek?.status === "self";
 
   async function join(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,6 +86,17 @@ export function JoinPanel() {
     setBusy(true);
     setProblem(null);
     const deviceName = name.trim() || guessDeviceName();
+    if (peek?.status === "self") {
+      // 26.11.26 Add a device: this phone signs in as the person themselves (no guest account, no approval)
+      const done = await signInWithCode(supabase, code, deviceName);
+      if (done.problem) {
+        setBusy(false);
+        setProblem(done.problem);
+        return;
+      }
+      await finishDevice(supabase, deviceName, !shared, done.organizationId);
+      return;
+    }
     const started = await startDevice(supabase, shared);
     if (started) {
       setBusy(false);
@@ -118,7 +131,9 @@ export function JoinPanel() {
 
   const title = !peek
     ? "Join a team"
-    : peek.status === "invite"
+    : peek.status === "self"
+      ? `Open ${peek.team} here`
+      : peek.status === "invite"
       ? `Join ${peek.team}`
       : peek.status === "pc"
         ? "Connect the church PC"
@@ -134,6 +149,12 @@ export function JoinPanel() {
         <p className="jc-ask">
           Join <strong>{peek.team}</strong> as {peek.role === "admin" ? "an Admin" : "a Helper"}.
           {peek.byPc && " The code came from your church PC."}
+        </p>
+      )}
+      {peek?.status === "self" && (
+        <p className="jc-ask">
+          This device opens your workspace as {peek.who ? <strong>{peek.who}</strong> : "you"}
+          {peek.byPc ? ", from your church PC." : "."} Nothing to type, nothing to remember.
         </p>
       )}
       {peek?.status === "pc" && (
@@ -158,7 +179,7 @@ export function JoinPanel() {
             Name this device
             <input value={name} maxLength={80} autoComplete="off" onChange={(e) => setName(e.target.value)} />
           </label>
-          {fresh && (
+          {(fresh || peek?.status === "self") && (
             <label className="auth-agree">
               <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} />
               <span>This is a shared computer: forget me when I close this tab.</span>
@@ -173,7 +194,7 @@ export function JoinPanel() {
             </label>
           )}
           <Button className="auth-primary" type="submit" disabled={busy || (needTerms && !agreed)}>
-            {busy ? "Joining…" : peek?.status === "pc" ? "Connect the PC" : "Join"}
+            {busy ? "Joining…" : peek?.status === "pc" ? "Connect the PC" : peek?.status === "self" ? "Open my workspace" : "Join"}
           </Button>
         </form>
       )}
