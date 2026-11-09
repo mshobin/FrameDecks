@@ -104,7 +104,7 @@ async def memory_cards(b, base):
     post(base, "/api/memory", {"action": "clear"})
     f = []
     await rec(pg, 0.8, f, STAGE)
-    post(base, "/api/memory", {"action": "add", "text": "Grace: Could we pray for my mother’s surgery on Friday?", "show": True})
+    post(base, "/api/memory", {"action": "add", "text": "Grace: Praise God, our baby girl arrived safely this week!", "show": True})
     await rec(pg, 2.0, f, STAGE)
     post(base, "/api/memory", {"action": "add", "text": "Daniel: Verse 105 is my favourite, a light for each step.", "show": True})
     await rec(pg, 2.2, f, STAGE)

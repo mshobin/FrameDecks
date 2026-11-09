@@ -247,7 +247,7 @@ const CHAT: readonly Chat[] = [
     who: "Grace",
     ini: "G",
     c: "#b5651d",
-    text: "Could we pray for my mother's surgery on Friday?",
+    text: "Praise God, our baby girl arrived safely this week!",
   },
 ];
 const POP = 0.13; // the suite: one piece after another, this far apart in the chapter
@@ -980,7 +980,7 @@ function Suite() {
       <div className="tr-sat tr-sat-card">
         <span className="tr-sat-tag">Corner card, over Zoom or Teams</span>
         <p className="tr-ac-kick">🙏 Prayer request · 1 waiting</p>
-        <p className="tr-ac-body">“For my mother’s surgery on Friday.”</p>
+        <p className="tr-ac-body">“That our family grows closer to God this year.”</p>
         <p className="tr-ac-acts">
           <b>Show</b>
           <span>Show with “Grace”</span>
