@@ -138,7 +138,7 @@ class VoiceSearch(unittest.TestCase):
 class Wiring(unittest.TestCase):
     def test_server(self):
         import server
-        self.assertEqual(server.APP_VERSION, "26.11.28")
+        self.assertTrue(server.APP_VERSION >= "26.11.28")
         notes = server.moment_notes({"title": "Bible Study", "verse": {"ref": "John 3:16", "text": "For God so loved"},
                                      "question": "What stood out?", "next": "We meet again Tuesday 17 November"})
         sec = notes["sections"][0]

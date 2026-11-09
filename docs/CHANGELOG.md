@@ -10,6 +10,17 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.29] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.29.md](releases/v26.11.29.md).
+
+### Added
+- Off air on the Go Live button, by press and hold (`app/js/off-air.js`): the top bar's Go Live reads Off air while the
+  selected Frame is on air, and the Live Stage's button does after the last Frame (`app/js/live-stage.js`). A hold of
+  1 s (pointer, Space or Enter) takes everything off screen, as the Command Center's switch does, with Undo; a click, an
+  early release and the click that follows letting go are caught before the page's own handlers. A thin bar
+  (`.kc-hold-bar`) fills while held; still for reduced motion.
+
 ## [26.11.28] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.28.md](releases/v26.11.28.md).

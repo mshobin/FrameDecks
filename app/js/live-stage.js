@@ -18,22 +18,29 @@ function paintGo(){
   if (!onAir){
     var what = ($('cb-take-what') || {}).textContent || '';
     goT.textContent = 'Go Live'; goSub.textContent = what.replace(/^●\s*On air:\s*/, '');
-    go.disabled = !take || take.disabled; go.classList.add('is-take');
+    go.disabled = !take || take.disabled; go.classList.add('is-take'); go.classList.remove('is-off');
     go.title = 'Go Live: put the selected Frame on screen (T)';
     return;
   }
   go.classList.remove('is-take');
+  go.classList.remove('is-off');
   var up = $('upnext'), name = ($('un-name') || {}).textContent || '', meta = ($('un-meta') || {}).textContent || '';
   var warn = up && !up.hidden && $('un-warn') && $('un-warn').firstChild ? ' · ⚠︎ ' + $('un-warn').firstChild.textContent : '';
   if (!up || up.hidden || !name){
-    goT.textContent = 'Next'; goSub.textContent = 'That’s the last Frame'; go.disabled = true; go.title = 'That’s the last Frame.';
+    // 26.11.29 after the last Frame the button goes Off air, by press and hold (js/off-air.js)
+    if (!go.classList.contains('holding')) goT.textContent = 'Off air';
+    goSub.textContent = 'That was the last Frame · hold to end'; go.disabled = false; go.classList.add('is-off');
+    go.title = 'Hold for a second to take everything off screen.';
+    go.setAttribute('aria-label', 'Off air: press and hold to take everything off screen');
     return;
   }
+  go.removeAttribute('aria-label');
   goT.textContent = 'Next'; go.disabled = !next || next.disabled;
   goSub.textContent = name + (meta ? ' · ' + meta.split(' · ').pop() : '') + warn;
   go.title = 'Next: ' + name + ' (goes live)';
 }
 go.addEventListener('click', function(){
+  if (go.classList.contains('is-off')) return;                 // 26.11.29 Off air is a hold, never a click
   var st = Store.get(), b = st && st.live && st.live.scene ? $('lb-next') : $('cb-take');
   if (b && !b.disabled) b.click();
 });

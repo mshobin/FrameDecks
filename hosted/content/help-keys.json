@@ -88,5 +88,10 @@
     "keys": "Ctrl+K or Ctrl+Space",
     "what": "The command palette: search every action",
     "where": "Studio"
+  },
+  {
+    "keys": "Hold Off air (1 s)",
+    "what": "Off air: with the Frame on air selected, hold Go Live (Space or Enter on it) to take everything off screen, with Undo",
+    "where": "Studio"
   }
 ]

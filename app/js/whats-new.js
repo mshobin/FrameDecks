@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.29': [
+    {title: 'Off air, by holding Go Live', text: 'With the Frame on air selected, Go Live reads Off air. Hold it for a second to take everything off screen, with Undo. A quick press never does.', show: {spot: '#cb-take'}}
+  ],
   '26.11.28': [
     {title: 'Ready check', text: 'Under Go Live: the camera, your light and framing, the microphone, your meeting app, scriptures and media, all at once. Each line has its one fix.', show: {settings: 'general', spot: '#feel-settings'}},
     {title: 'Next week, in one click', text: 'Next week (beside the meeting name): the same Frames a week later, with the scripture and questions left empty to fill in.', show: {settings: 'general', spot: '#feel-settings'}},
