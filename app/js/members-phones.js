@@ -95,7 +95,15 @@ function draw(){
   dlg.innerHTML = ''; dlg.appendChild(h('div', {cls: 'kc-dlg-in'}, kids));
   var again = dlg.querySelector('.pw-list-wrap'); if (again) again.scrollTop = top;
 }
-function refresh(){ return load().then(function(d){ var before = cur ? cur.prayer.waiting : 0; cur = d; draw(); badge(d, before); }).catch(function(){}); }
+var focusSeen = null;          // 26.11.25 the corner card's "All requests" brings this dialog up
+function refresh(){
+  return load().then(function(d){
+    var before = cur ? cur.prayer.waiting : 0; cur = d;
+    if (focusSeen !== null && d.focus > focusSeen){ focusSeen = d.focus; dialog(); if (!dlg.open) dlg.showModal(); }
+    focusSeen = d.focus;
+    draw(); badge(d, before);
+  }).catch(function(){});
+}
 /* a request arrived while the dialog is closed: say so once */
 function badge(d, before){
   if (d.prayer.open && d.prayer.waiting > before && !(dlg && dlg.open) && window.KCActions && KCActions.toastAction)

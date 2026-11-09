@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.25': [
+    {title: 'The corner card', text: 'With the Studio behind Zoom or Teams, a card in the corner shows a verse heard or a prayer request waiting, with Show right there. Only you see it.', show: {settings: 'general', spot: '#feel-settings'}}
+  ],
   '26.11.24': [
     {title: 'Members’ phones', text: 'Engage → Members’ phones: one QR for everyone. Their phone follows the meeting screen and can send you a prayer request.', show: {settings: 'general', spot: '#feel-settings'}},
     {title: 'Sermon notes', text: 'When a meeting ends, its summary has Sermon notes: your script, the scriptures and the questions, to print, email or share with members’ phones.', show: {settings: 'general', spot: '#feel-settings'}},

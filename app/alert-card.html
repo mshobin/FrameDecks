@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FrameDecks · For you</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/palette.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/theme.css">
+<script>(function(){ var d = document.documentElement, p = 'dark';
+  try { p = localStorage.getItem('kc-theme') || 'dark'; } catch(e){}
+  d.dataset.theme = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+})();</script>
+</head>
+<body class="ac-body">
+  <!-- 26.11.25 the leader's corner card (src/leader_alerts.py, src/desktop_app.py alert_card): a verse heard or a prayer
+       request waiting, while the Studio is behind Zoom or Teams. Only the leader sees it: screen sharing leaves it out. -->
+  <main class="ac" id="ac" aria-live="polite" aria-label="For you"></main>
+  <script src="js/ui-sound.js"></script>
+  <script src="js/alert-card.js"></script>
+</body>
+</html>

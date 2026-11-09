@@ -10,6 +10,18 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.25] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.25.md](releases/v26.11.25.md).
+
+### Added
+- The leader's corner card: `src/leader_alerts.py` (`LeaderAlerts`: a waiting verse, unless Auto shows it, and the
+  newest waiting prayer request; shown only while `windows()["front"] != "Studio"`; Later until another request),
+  started in `start_main_server`; `GET/POST /api/alerts {op: later|open|size}`; `src/desktop_app.py alert_card` (a
+  420 px no-activate, always-on-top window hidden from capture, stacked above the Memory Card popup);
+  `app/alert-card.html` + `app/js/alert-card.js` (short asks every 0.7 s, never a waiting request; chime with
+  Sounds). Setting `leaderCard` (on). "All requests" raises `members_body().focus`, which opens Members' phones.
+
 ## [26.11.24] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.24.md](releases/v26.11.24.md). 26.11.23 was not released on its own; its meeting

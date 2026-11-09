@@ -66,7 +66,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.21: Voice commands: Left Ctrl, F8 or your own hold key; a shortcut never starts listening | Released |
 | 26.11.22: Premium feel: instant presses, Undo for 5 s, Smart Next, crash-proof live, sounds, Settings search and reset, motion and elevation | Released |
 | 26.11.23: Meeting summary (print, PDF, email) and prayer requests wall (migration 0019) | Not tagged: released in 26.11.24 |
-| 26.11.24: Members' phones (/follow, migration 0020), sermon notes, scripture said by members (meeting audio, ask-only) | On `main`; owner runs 0019 + 0020 and tags `v26.11.24` |
+| 26.11.24: Members' phones (/follow, migration 0020), sermon notes, scripture said by members (meeting audio, ask-only) | Released with 26.11.25 (or tagged on its own) |
+| 26.11.25: the leader's corner card (a verse heard, prayer requests) while the Studio is behind the meeting | On `main`; owner runs 0019 + 0020 and tags `v26.11.25` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

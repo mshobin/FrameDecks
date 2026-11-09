@@ -34,10 +34,13 @@ function renderGeneral(){
     box.innerHTML = '';
     var smart = h('input', {type: 'checkbox', id: 'feel-smart'}), snd = h('input', {type: 'checkbox', id: 'feel-sound'});
     smart.checked = !!s.smartNext; snd.checked = !!s.uiSounds;
+    var card = h('input', {type: 'checkbox', id: 'feel-card'}); card.checked = s.leaderCard !== false;
+    card.addEventListener('change', function(){ saved({leaderCard: card.checked}).then(function(){ toast(card.checked ? 'The corner card tells you what is waiting while the Studio is behind your meeting' : 'Corner card is off'); }); });
     smart.addEventListener('change', function(){ saved({smartNext: smart.checked}).then(function(){ toast(smart.checked ? 'Smart Next: questions, then scriptures, then the next Frame' : 'Next goes to the next Frame'); }); });
     snd.addEventListener('change', function(){ saved({uiSounds: snd.checked}).then(function(){ if (snd.checked && window.KCSound){ Store.loadSettings().then(function(){ KCSound.play('live'); }); } }); });
     box.appendChild(h('h3', {cls: 'vl-set-h', id: 'feel-h', text: 'Running the meeting'}));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Smart Next'}), h('label', {cls: 'check'}, [smart, ' Next shows the live Frame’s questions, then its scriptures, then the next Frame'])]));
+    box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Corner card'}), h('label', {cls: 'check'}, [card, ' While the Studio is behind Zoom or Teams, a card in the corner shows a verse heard or a prayer request waiting (only you see it, never in screen sharing)'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Sounds'}), h('label', {cls: 'check'}, [snd, ' A soft chime on Go Live and Next (only you hear it)'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Meeting summary'}), h('button', {cls: 'btn ghost small', type: 'button', id: 'feel-summary', text: 'Open the last meeting’s summary', onclick: function(){ if (window.KCSummary) KCSummary.open('latest', 'summary'); }}), ' ', h('button', {cls: 'btn ghost small', type: 'button', id: 'feel-notes', text: 'Sermon notes', onclick: function(){ if (window.KCSummary) KCSummary.notes(); }})]));
     box.appendChild(h('p', {cls: 'hint', text: 'Next, Previous, Hide all, Black screen and Emergency off can be undone for 5 seconds. When a meeting ends, its summary is offered: print it, save it as a PDF or email it.'}));
@@ -46,7 +49,7 @@ function renderGeneral(){
 
 /* ---------- "Reset this section" ---------- */
 var SECTION_KEYS = {
-  general: ['minimizeTo', 'ccSize', 'ccPlace', 'lowGpu', 'customChrome', 'smartNext', 'uiSounds', 'studioMode'],
+  general: ['minimizeTo', 'ccSize', 'ccPlace', 'lowGpu', 'customChrome', 'smartNext', 'uiSounds', 'leaderCard', 'studioMode'],
   scripture: ['scriptureListen', 'scriptureAuto', 'scriptureMeeting', 'voiceCommands', 'voiceKey'],
   ipad: ['remoteNotesAdd', 'remoteNotesRead'],
   output: ['peopleSee'],

@@ -47,7 +47,7 @@ class MeetingMode(unittest.TestCase):
         src = read("src/server.py")
         self.assertIn('if "brief=1" in url.query:', src)
         self.assertIn('context=lambda: DESKTOP["windows"]() if DESKTOP.get("windows") else {}', src)
-        self.assertIn("windows=windows_now)", read("src/desktop_app.py"))
+        self.assertIn("windows=windows_now, alert_card=alert_card", read("src/desktop_app.py"))   # 26.11.25 the corner card follows
 
     def test_up_next_is_hidden_never_reloaded_and_the_pictures_rest(self):
         ws = read("app/js/workspace.js")

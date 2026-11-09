@@ -45,12 +45,13 @@ import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import meeting_log  # 26.11.23 what was shown, for the meeting summary
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
 import member_room  # 26.11.24 members' phones: follow along and the sermon notes
+import leader_alerts  # 26.11.25 the leader's corner card while the Studio is behind the meeting
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.24"
+APP_VERSION = "26.11.25"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1050,8 +1051,48 @@ def _linked(call):
         raise ValueError(str(e))
 
 
+MEMBERS_FOCUS = {"n": 0}       # 26.11.25 the corner card's "All requests": the Studio opens Members' phones
+
+
 def members_body():
-    return {"room": ROOM.body(), "prayer": PRAYER.body()}
+    return {"room": ROOM.body(), "prayer": PRAYER.body(), "focus": MEMBERS_FOCUS["n"]}
+
+
+def _alert_show(on):
+    hook = DESKTOP.get("alert_card")
+    if hook:
+        hook(bool(on))
+
+
+def _alert_windows():
+    hook = DESKTOP.get("windows")
+    return hook() if hook else {}
+
+
+ALERTS = leader_alerts.LeaderAlerts(lambda: VERSE_LISTEN.body(), lambda: PRAYER.body(), _alert_windows, _alert_show,
+                                    lambda: app_settings())
+
+
+def alerts_action(data):
+    """POST /api/alerts {op: later|open|size, h?} (this PC only): the corner card's own buttons. Show and Dismiss of a
+    verse go to /api/verse-listen, a prayer request's Show and Done to /api/prayer, as everywhere else."""
+    op = str(data.get("op") or "")
+    if op == "later":
+        return ALERTS.later_prayer()
+    if op == "open":                                    # All requests: the Studio in front, with Members' phones open
+        MEMBERS_FOCUS["n"] += 1
+        ROOM.rev += 1
+        hook = DESKTOP.get("show")
+        if hook:
+            hook()
+        ALERTS.step()
+        return ALERTS.body()
+    if op == "size":
+        hook = DESKTOP.get("alert_op")
+        if hook:
+            hook("size", data)
+        return ALERTS.body()
+    raise ValueError("Unknown action.")
 
 
 def members_action(data):
@@ -1484,6 +1525,9 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # 26.11.24 Listen for scripture also hears the meeting's own sound (members on Zoom or Teams);
                          # what they say is always offered first, never shown by Auto
                          "scriptureMeeting": False,
+                         # 26.11.25 the corner card: a verse heard or a prayer request waiting, while the Studio is behind
+                         # Zoom or Teams (on top of the meeting, never in screen sharing)
+                         "leaderCard": True,
                          "voiceKey": "rctrl"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
@@ -3187,6 +3231,12 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(members_body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/alerts":                       # 26.11.25 the corner card (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            ALERTS.step()
+            return self.reply(200, json.dumps(dict(ALERTS.body(), sound=bool(app_settings().get("uiSounds")))), TYPES[".json"],
+                              headers=[("Cache-Control", "no-store")])
         if path == "/api/summary/notes":                # 26.11.24 the sermon notes (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3714,11 +3764,11 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
-        if path in ("/api/prayer", "/api/members"):     # 26.11.23 the prayer wall; 26.11.24 members' phones
+        if path in ("/api/prayer", "/api/members", "/api/alerts"):   # 26.11.23 prayer; 26.11.24 members; 26.11.25 card
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             try:
-                act = prayer_action if path == "/api/prayer" else members_action
+                act = {"/api/prayer": prayer_action, "/api/members": members_action, "/api/alerts": alerts_action}[path]
                 res = act(data if isinstance(data, dict) else {})
             except cloud_sync.Offline as e:
                 return self.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
@@ -3934,6 +3984,7 @@ def start_main_server():
     VERSE_LISTEN.start()                                        # 26.11.14 the microphone only while switched on and live
     VOICE_CMD.start()                                           # 26.11.20 voice commands: the same, plus the hold key
     mark_running()                                              # 26.11.22 a crash last time: the live Frame comes back
+    ALERTS.start()                                              # 26.11.25 the corner card (only shows in the app)
     try:
         memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
     except Exception as e:

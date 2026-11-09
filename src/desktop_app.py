@@ -657,6 +657,73 @@ def main():
     def popup_state():
         return {"desktop": True, "open": bool(POP["open"] and POP["win"] is not None)}
 
+    # ---------- 26.11.25 the leader's corner card: a verse heard, a prayer request waiting ----------
+    # Made like the Memory Card popup (one window, made once, then only shown and hidden; never dragged, faded or
+    # click-through), a little larger so it is clearly seen during the meeting. It never takes the keyboard, is left out
+    # of screen sharing, and sits in the corner above the Memory Card popup when that is open. src/leader_alerts.py
+    # decides when it shows (something waits, and the Studio is not the window in front).
+    ALERT = {"win": None, "open": False, "h": 210}
+    ALERT_W = 420
+
+    def alert_hwnd():
+        w = ALERT["win"]
+        try:
+            return int(w.native.Handle.ToInt64()) if w is not None else 0
+        except Exception:
+            return 0
+
+    def alert_rect(scale):
+        wa = dw.work_area() or [0, 0, 1920, 1040]
+        w, h, m = int(ALERT_W * scale), int(ALERT["h"] * scale), int(POP_MARGIN * scale)
+        above = int((POP["h"] + POP_MARGIN) * scale) if POP["open"] and POP["win"] is not None else 0
+        return [wa[0] + wa[2] - w - m, wa[1] + wa[3] - h - m - above, w, h]
+
+    def alert_place():
+        hwnd = alert_hwnd()
+        if hwnd:
+            dw.place(hwnd, *alert_rect(dw.display_scale(hwnd)))
+
+    def alert_card(on=True):
+        if not on:
+            hwnd = alert_hwnd()
+            if hwnd:
+                dw.show_async(hwnd, dw.SW_HIDE)
+            ALERT["open"] = False
+            return False
+        if ALERT["win"] is None:
+            scale = dw.display_scale()
+            lr = [int(round(v / scale)) for v in alert_rect(scale)]
+            w = webview.create_window(DISPLAY_NAME + " · For you", url + "alert-card.html", x=lr[0], y=lr[1], width=lr[2],
+                                      height=lr[3], background_color="#0b1222", frameless=True, easy_drag=False, on_top=True,
+                                      focus=False, text_select=False)
+            ALERT["win"] = w
+
+            def shown():
+                hwnd = alert_hwnd()
+                dw.hide_from_capture(hwnd)         # only the leader sees it, even sharing the whole screen
+                dw.round_corners(hwnd)
+                alert_place()
+
+            def closed():
+                ALERT.update(win=None, open=False)
+            w.events.shown += shown
+            w.events.closed += closed
+        else:
+            alert_place()
+            dw.show_no_activate(alert_hwnd())
+            dw.set_topmost(alert_hwnd(), True)
+        ALERT["open"] = True
+        return True
+
+    def alert_op(op, data):
+        if op == "size":
+            try:
+                ALERT["h"] = max(120, min(520, int(data.get("h") or 210)))
+            except (TypeError, ValueError):
+                pass
+            alert_place()
+        return {"open": ALERT["open"]}
+
     # ---------- 6.8 Spotlight: one small window, shown and hidden ----------
     # 9.8.1: made the first time it is asked for (the shortcut or the tray's Search), never at start. pywebview shows a
     # see-through window by itself whenever its page starts loading (edgechromium on_navigation_start: Show + Activate,
@@ -989,7 +1056,7 @@ def main():
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
                           settings_changed=settings_changed, memory_popup=popup_show, popup_op=popup_op,
                           popup_state=popup_state, share_annotate=share_annotate, spot_word=spot_word,
-                          windows=windows_now)
+                          windows=windows_now, alert_card=alert_card, alert_op=alert_op)
     state["tray"] = build_tray(show, quit_app)
     apply_hotkey(settings.get("spotlightKey", "Alt+Space"))
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.

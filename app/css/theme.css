@@ -1995,3 +1995,21 @@ body.kc-live .ws-right.inspector:not(:hover):not(:focus-within){filter:saturate(
   #sum-print .sn-verse{background:none;border-left-color:rgba(var(--rgb-gray-50),.5)}
   #sum-print .sn-verse cite,#sum-print .sn-reflect-h{color:rgba(var(--rgb-gray-50),.72)}
 }
+/* ---------- 26.11.25 the leader's corner card (app/alert-card.html): medium, calm, clearly seen over the meeting ---------- */
+body.ac-body{margin:0;background:var(--surface);overflow:hidden}
+.ac{display:grid;gap:10px;padding:14px 16px 16px;border:1px solid var(--kc-gold-line);border-radius:16px;background:var(--surface);color:var(--ink);box-shadow:var(--elev-3)}
+.ac-head{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted)}
+.ac-dot{width:8px;height:8px;border-radius:999px;background:var(--gold)}
+.ac-item{display:grid;gap:6px;padding:12px 14px;border-radius:12px;background:var(--panel-2);border-left:3px solid var(--gold)}
+.ac-kick{margin:0;font-size:13px;font-weight:700;color:var(--gold-strong)}
+.ac-ref{margin:0;font-family:var(--serif);font-size:30px;line-height:1.15;color:var(--ink)}
+.ac-body-text{margin:0;font-size:16px;line-height:1.45;color:var(--ink);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.ac-sub{margin:0;font-size:13px;color:var(--muted)}
+.ac-err{margin:0;font-size:13px;color:var(--warn)}
+.ac-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.ac-btn{min-height:40px;padding:0 16px;border:1px solid var(--line);border-radius:12px;background:var(--neutral-btn,var(--raised));color:var(--ink);font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.ac-btn.primary{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.ac-btn.quiet{background:none;border-color:transparent;color:var(--muted);padding:0 10px}
+.ac-btn:active{transform:scale(.97)}
+.ac-busy .ac-btn{opacity:.6;pointer-events:none}
+@media (prefers-reduced-motion:reduce){ .ac-btn:active{transform:none} }
