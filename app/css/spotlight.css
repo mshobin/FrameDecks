@@ -731,3 +731,15 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc-vc-said.bad{color:var(--muted)}
 .cc-head.cc-vc-has > small,.cc-head.cc-vc-has .cc-vl-earlier,.cc-head.cc-vc-has .cc-vl-heard{display:none}
 @media (prefers-reduced-motion: reduce){.cc-vc-btn{transition:none}.cc-vc-btn.on{transform:none}}
+/* ---------- 26.11.22 the premium pass (Command Center) ----------
+   The Studio's rhythm (0.16 s answers, 0.32 s openings, one easing); every press answers; numbers never jiggle;
+   red means only Emergency (Hide all is an everyday action, not a danger); Undo sits in the message line for 5 s. */
+.cc{--m-quick:.16s;--m-gentle:.32s;--m-ease:cubic-bezier(.2,.9,.25,1);font-variant-numeric:tabular-nums}
+.cc-panel.in{animation-duration:var(--m-gentle)}
+.cc .spr-b:not(:disabled):active,.cc .cc-g:active,.cc .cc-switch:active,.cc .spr-round:active,.cc .spr-kinds button:active{transform:scale(.97)}
+.cc .spr-b,.cc .spr-round,.cc .spr-kinds button{transition:transform var(--m-quick) var(--m-ease),background-color var(--m-quick) var(--m-ease),border-color var(--m-quick) var(--m-ease)}
+.cc-panel #spr-hide.spr-b.red{color:var(--ink)}
+.cc-panel #spr-hide.spr-b.red .spr-ic{background:var(--cc-cell-2);color:var(--ink)}
+.spr-undo{margin-left:8px;padding:2px 10px;border:1px solid var(--cc-rim-2);border-radius:999px;background:var(--cc-cell);color:var(--ink);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.spr-undo:hover{background:var(--cc-cell-2)}
+@media (prefers-reduced-motion: reduce){.cc .spr-b,.cc .spr-round,.cc .spr-kinds button{transition:none}.cc .spr-b:active,.cc .cc-g:active{transform:none}}

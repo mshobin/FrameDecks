@@ -1891,3 +1891,30 @@ body.kc-writing .ws-left,body.kc-writing .ws-center,body.kc-writing .kc-split{op
 .fl-list.fl-verses.fl-roomy .t2{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .fl-list.fl-verses.fl-roomy .item.loaded .t2{display:block}
 .insp-body .cs-fold .cs-val{margin-right:auto}
+/* ---------- 26.11.22 the premium pass (Studio) ----------
+   One motion rhythm: quick 0.16 s for answers to a press, gentle 0.32 s for things that open, one easing.
+   Three elevations: resting (cards), raised (menus, popovers), floating (toasts, dialogs). Numbers never jiggle. */
+:root{--m-quick:.16s;--m-gentle:.32s;--m-ease:cubic-bezier(.2,.9,.25,1);--t-fast:var(--m-quick);--ease:var(--m-ease);
+  --elev-1:0 1px 2px rgba(0,0,0,.22);--elev-2:0 8px 22px rgba(0,0,0,.28);--elev-3:0 18px 48px rgba(0,0,0,.42)}
+html[data-theme="light"]{--elev-1:0 1px 2px rgba(16,24,40,.07);--elev-2:0 8px 22px rgba(16,24,40,.10);--elev-3:0 18px 48px rgba(16,24,40,.16)}
+.box{box-shadow:var(--elev-1)}
+.lc-pop,.menu,.pal,.pe-pop{box-shadow:var(--elev-2)}
+.toast,dialog,.modal,.onb-card{box-shadow:var(--elev-3)}
+body{font-variant-numeric:tabular-nums}
+/* every press answers (cheap: transform only) */
+.cb-btn:not(:disabled):active,.btn:not(:disabled):active,.hchip:active,.check:active,.toast-act:active{transform:scale(.97)}
+.btn,.hchip,.toast-act{transition:transform var(--m-quick) var(--m-ease),background-color var(--m-quick) var(--m-ease),border-color var(--m-quick) var(--m-ease)}
+/* calm while live: the editor's colours go quiet (still there on hover), the meeting comes first. A saturate filter
+   keeps every colour's lightness, so text keeps its contrast (lowering opacity would not) */
+.ws-right.inspector{transition:filter var(--m-gentle) var(--m-ease)}
+body.kc-live .ws-right.inspector:not(:hover):not(:focus-within){filter:saturate(.25)}
+/* nothing blank: the picture shimmers until its first frame */
+#program.kc-skel{position:relative}
+#program.kc-skel::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
+  background:linear-gradient(100deg,transparent 30%,rgba(var(--rgb-gray-1000),.08) 50%,transparent 70%) 0 0/200% 100%;animation:kc-shimmer 1.4s linear infinite}
+@keyframes kc-shimmer{to{background-position:-200% 0}}
+/* Settings search lights the setting it found; "Reset this section" sits on the page's title line */
+.kc-found{border-radius:12px;animation:kc-found 1.8s var(--m-ease) both}
+@keyframes kc-found{0%,35%{box-shadow:0 0 0 2px var(--gold),0 0 0 6px rgba(var(--rgb-gold-550),.18)}100%{box-shadow:0 0 0 0 transparent}}
+.s-head .kc-reset{margin-left:auto;font-size:13px}
+@media (prefers-reduced-motion:reduce){ #program.kc-skel::before,.kc-found{animation:none} .btn,.hchip{transition:none} }

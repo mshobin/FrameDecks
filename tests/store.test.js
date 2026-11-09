@@ -74,3 +74,26 @@ SC.setOn(au, 'sc_au', 'A1', true); SC.hideAll(au); assert.ok(!au.live.on.A1, 'Hi
 assert.strictEqual(JSON.stringify(env.Store.normalize(JSON.parse(JSON.stringify(au))).scenes[0]), JSON.stringify(au.scenes[0]), 'stable');
 
 console.log('store: OK');
+
+/* ---------- 26.11.22 Smart Next: the questions, then the scriptures, then the next Frame ---------- */
+{
+  const s = env.Store.defaults();
+  SC.normalizeInto(s, {scenes: [
+    {id: 'sc_a', name: 'Study', layers: [{id: 'L1', kind: 'scripture', c: {}}, {id: 'L2', kind: 'question', c: {}}]},
+    {id: 'sc_b', name: 'After', layers: []}], live: {scene: 'sc_a'}, v6: true});
+  SC.ownLists(s); SC.take(s, 'sc_a', 'cut');
+  const nq = SC.items(s, 'question').length, nv = SC.items(s, 'verse').length, seen = [];
+  for (let i = 0; i < nq + nv + 1 && seen[seen.length - 1] !== 'frame'; i++){
+    const t = SC.smartNext(s); assert.ok(t, 'step ' + i);
+    seen.push(t.kind); SC.smartApply(s, t);
+    if (t.kind !== 'frame') assert.strictEqual(JSON.stringify(s.live.smart), JSON.stringify({scene: 'sc_a', at: t.at}));
+  }
+  assert.ok(seen.indexOf('verse') > seen.lastIndexOf('question'), 'questions first: ' + seen);
+  assert.strictEqual(seen.join(), 'question,question,verse,verse,verse,frame', 'Take shows question 1; then the rest');
+  assert.strictEqual(s.live.scene, 'sc_b');
+  assert.strictEqual(SC.smartNext(s), null, 'the last of the meeting');
+  // the place survives the normaliser (it is saved with the state)
+  const kept = env.Store.normalize({live: {scene: 'sc_a', smart: {scene: 'sc_a', at: 2}}});
+  assert.strictEqual(JSON.stringify(kept.live.smart), JSON.stringify({scene: 'sc_a', at: 2}));
+}
+console.log('smart next ok');

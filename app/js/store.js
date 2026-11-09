@@ -545,6 +545,7 @@ var Scenes = {
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
       meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
     var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)
+    if (isObj(l.smart) && typeof l.smart.scene === 'string' && isFinite(l.smart.at)) st.live.smart = {scene: str(l.smart.scene, 40), at: Math.max(-1, Math.min(999, Number(l.smart.at) | 0))};   // 26.11.22 Smart Next's place
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
     st.profile = PROFILES.some(function(p){ return p.id === raw.profile; }) ? raw.profile : 'bible-study';
@@ -905,6 +906,39 @@ var Scenes = {
     return true;
   },
   /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */
+  /* 26.11.22 Smart Next: the live Frame's questions, then its scriptures, one by one, and then the next Frame.
+     → {kind: 'question' | 'verse', id} for the next item to show, or {kind: 'frame', id} (null: the last of all) */
+  smartNext: function(st){
+    function dictAt(x, i){ return {kind: x.kind, id: x.id, at: i}; }
+    var ls = Scenes.liveScene(st);
+    if (!ls) return Scenes.order(st)[0] ? {kind: 'frame', id: Scenes.order(st)[0].id} : null;
+    var seq = [], at = -1;
+    ['question', 'verse'].forEach(function(k){ Scenes.items(st, k).forEach(function(it){ seq.push({kind: k, id: it.id}); }); });
+    var mark = st.live.smart;
+    if (mark && mark.scene === ls.id && typeof mark.at === 'number') at = mark.at;          // where Smart Next left off
+    else seq.forEach(function(x, i){ if (at < 0 && st[x.kind].visible && st[x.kind].itemId === x.id) at = i; });   // else the first shown
+    if (at + 1 < seq.length && seq.length > 1) return dictAt(seq[at + 1], at + 1);
+    var nx = Scenes.neighbour(st, ls.id, 1);
+    return nx ? {kind: 'frame', id: nx.id} : null;
+  },
+  /* 26.11.22 do what smartNext found: the next item, or the next Frame. → a short label of what is now on screen */
+  smartApply: function(n, t){
+    if (!t) return '';
+    if (t.kind === 'frame'){ Scenes.take(n, t.id, null); var sc = Scenes.find(n, t.id); return sc ? sc.name : 'Next Frame'; }
+    Scenes.showItem(n, t.kind, t.id);
+    n.live.smart = {scene: n.live.scene, at: t.at};                     // the place, for the next press
+    var l = Scenes.items(n, t.kind), i = 0; l.forEach(function(x, j){ if (x.id === t.id) i = j; });
+    return (t.kind === 'question' ? 'Question ' : 'Scripture ') + (i + 1) + ' of ' + l.length;
+  },
+  /* 26.11.22 show one question or scripture of the live Frame (as the Command Center and the phone do) */
+  showItem: function(n, k, id){
+    var f = Scenes.itemById(n, k, id, true); if (!f) return false;
+    if (k === 'question') Scenes._loadQuestion(n, id); else { f.layer.c.itemId = id; Scenes._loadVerse(n, f.layer); }
+    var o = n[k]; o.visible = true; o.seq = (o.seq || 0) + 1;
+    if (window.KCTransitions) window.KCTransitions.resolve(n, k, id);
+    if (k === 'question' && window.KCPresent) window.KCPresent.afterShow(n);
+    return true;
+  },
   hideAll: function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; n.live.on = {}; delete n.live.memory; },
   /* Show / hide one layer on the program (live scene only). Used by Hide selected and the live layer eyes. */
   setOn: function(n, sceneId, layerId, on){
@@ -1253,6 +1287,15 @@ function serverSave(next, baseRev){
   }).then(function(data){ state = adopt(data); emit(); return state; });
 }
 
+/* 26.11.22 the app settings a page reads without a Settings page of its own */
+var appCfg = {};
+function loadAppCfg(){
+  if (!served) return Promise.resolve(appCfg);
+  return fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){ if (d && d.settings) appCfg = d.settings; return appCfg; }).catch(function(){ return appCfg; });
+}
+if (served){ setTimeout(loadAppCfg, 400); window.addEventListener('focus', loadAppCfg); document.addEventListener('kc-settings', loadAppCfg); }
+
 /* ---------- No-install mode ---------- */
 var bc = null;
 function fileRead(){
@@ -1294,13 +1337,31 @@ var Store = {
   update: function(fn){
     var tries = 0;
     function attempt(){
-      var next = Store.get(), base = next.rev;
+      var next = Store.get(), base = next.rev, before = state;
       fn(next);
+      /* 26.11.22 instant: the change shows at once on this page (the same rev, so the program's answer replaces it);
+         if the program refuses for another reason than a conflict, the page goes back to how it was */
+      if (served && Store.optimistic !== false && tries === 0){ state = normalize(JSON.parse(JSON.stringify(next))); emit(); }
       var p = served ? serverSave(next, base) : fileSave(next);
-      return p.catch(function(e){ if (e && e.conflict && tries++ < 5) return attempt(); throw e; });
+      return p.catch(function(e){
+        if (e && e.conflict && tries++ < 5) return attempt();
+        if (served && !(e && e.conflict) && state.rev === before.rev){ state = before; emit(); }
+        throw e;
+      });
     }
     return attempt();
   },
+  /* 26.11.22 Undo for a moment: what is on screen (the live Frame, black / frozen / emergency, what shows) is kept
+     before fn, and undo() puts exactly that back. → Promise of {undo} */
+  undoable: function(fn){
+    var keep = Store.snapshot();
+    return Store.update(fn).then(function(){ return {undo: function(){ return Store.restore(keep); }}; });
+  },
+  snapshot: function(){ return JSON.parse(JSON.stringify({live: state.live, question: state.question, verse: state.verse, birthday: state.birthday})); },
+  restore: function(keep){ return Store.update(function(n){ n.live = keep.live; n.question = keep.question; n.verse = keep.verse; n.birthday = keep.birthday; }); },
+  /* 26.11.22 a few app settings every page may need (Smart Next, sounds), read once and again after a focus */
+  setting: function(name){ return appCfg[name]; },
+  loadSettings: loadAppCfg,
   /* 26.11.20 ride(name, fn): fn(seq) whenever that counter moves (see riders above). → false when this page has no
      state loop of its own (it then keeps its own requests) */
   ride: function(name, fn){

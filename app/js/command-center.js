@@ -48,6 +48,7 @@ function setting(sec){ P.choose({key: 'set:' + sec, kind: 'setting', title: sec,
 function tell(msg, bad){ var s = box.querySelector('.cc-say'); if (!s) return; s.textContent = msg; s.classList.toggle('bad', !!bad); clearTimeout(tell.t); tell.t = setTimeout(function(){ s.textContent = ''; }, 2800); }
 function isLive(){ return !!(live && SC.liveScene(live)); }
 function goLive(on){
+  if (on && window.KCSound) KCSound.play('live');                // 26.11.22 a soft chime (Settings → General → Sounds)
   if (!live) return;
   if (on){
     var first = SC.order(live)[0];

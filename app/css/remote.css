@@ -477,4 +477,9 @@ html,body{background:radial-gradient(90% 55% at 50% -8%,rgba(122,152,255,.2),tra
 .vcc-said{min-height:20px;margin:8px 2px 0;font-size:14px;color:var(--muted)}
 .vcc-said.ok{color:var(--ink)}
 .vcc-said.on{color:var(--live)}
+/* 26.11.22 the premium pass (phone): red means only Emergency and Leave; Hide all is neutral and fills white while
+   something is on screen; numbers never jiggle */
+body{font-variant-numeric:tabular-nums}
+.hideall{color:var(--ink)}
+body.on-air .hideall{background:var(--ink);border-color:var(--ink);color:#0b0f1a;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 @media (prefers-reduced-motion:reduce){ .panel.slide-l,.panel.slide-r{animation:none} .nav-btn{transition:none} .nav-btn:active:not(:disabled){transform:none} }

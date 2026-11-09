@@ -1311,20 +1311,36 @@ function takeScene(id){
     var f = $('program'); if (f){ f.classList.remove('went-live'); void f.offsetWidth; f.classList.add('went-live'); setTimeout(function(){ f.classList.remove('went-live'); }, 1400); }
   });
 }
+/* 26.11.22 Undo for 5 s after Next, Previous, Hide all, Black screen and Emergency off (Store.snapshot / restore) */
+function offerUndo(keep, msg){ if (A.toastAction) A.toastAction(msg, 'Undo', function(){ Store.restore(keep).then(function(){ toast('↩ Undone'); }); }); else toast(msg); }
 function stepScene(d){
+  if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
+    var t = SC.smartNext(live);
+    if (!t){ toast('That’s the last of the meeting.'); return; }
+    if (t.kind !== 'frame'){
+      var keep0 = Store.snapshot(), label = '';
+      if (window.KCSound) KCSound.play('next');
+      Store.update(function(n){ label = SC.smartApply(n, t); }).then(function(){ offerUndo(keep0, label + ' is on screen'); });
+      return;
+    }
+  }
   var base = live.live.scene || selScene, nx = SC.neighbour(live, base, d);
   if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
+  var keep = Store.snapshot(), wasLive = !!live.live.scene;
   selScene = nx.id; lsSet('bcc-sel-scene', nx.id); selLayer = null;
+  if (window.KCSound) KCSound.play('next');
   takeScene(nx.id);
+  if (wasLive) setTimeout(function(){ offerUndo(keep, nx.name + ' is on screen'); }, 120);
 }
-$('cb-take').addEventListener('click', function(){ takeScene(selScene); });
+$('cb-take').addEventListener('click', function(){ if (!live.live.scene && window.KCSound) KCSound.play('live'); takeScene(selScene); });   // 26.11.22 the chime
 $('lb-prev').addEventListener('click', function(){ stepScene(-1); });
 $('lb-next').addEventListener('click', function(){ stepScene(1); });
 $('lb-auto').addEventListener('click', function(){ commit(function(n){ n.live.auto = !n.live.auto; }); });
-$('lb-blackout').addEventListener('click', function(){ commit(function(n){ n.live.blackout = !n.live.blackout; }).then(function(){ toast(live.live.blackout ? 'Black screen on: the audience sees black' : 'Black screen off'); }); });
+$('lb-blackout').addEventListener('click', function(){ var keep = Store.snapshot(); commit(function(n){ n.live.blackout = !n.live.blackout; }).then(function(){ offerUndo(keep, live.live.blackout ? 'Black screen on: the audience sees black' : 'Black screen off'); }); });
 $('lb-emergency').addEventListener('click', function(e){
   if (e.shiftKey || !live.live.emergency && !live.live.message.trim()){ var m = prompt('Emergency screen message:', live.live.message); if (m === null) return; commit(function(n){ n.live.message = m.trim().slice(0, 300); n.live.emergency = true; }); return; }
-  commit(function(n){ n.live.emergency = !n.live.emergency; }).then(function(){ toast(live.live.emergency ? 'Emergency screen on (Shift+click to change the message)' : 'Emergency screen off'); });
+  var keep = Store.snapshot(), was = live.live.emergency;
+  commit(function(n){ n.live.emergency = !n.live.emergency; }).then(function(){ if (was) offerUndo(keep, 'Emergency screen off'); else toast('Emergency screen on (Shift+click to change the message)'); });
 });
 $('lb-hide-layer').addEventListener('click', function(){
   var sc = scene(), l = layer();

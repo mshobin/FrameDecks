@@ -47,7 +47,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.21"
+APP_VERSION = "26.11.22"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -790,6 +790,37 @@ VERSE_LISTEN = scripture_listen.ScriptureListen(VOICE, settings=lambda: app_sett
 VERSE_MODES = {"off": (False, False), "ask": (True, False), "auto": (True, True)}
 
 
+# ---------- 26.11.22 crash-proof live: after a crash the live Frame is put back and the Studio says so ----------
+RUNNING_FLAG = DATA / "kc-running.flag"
+SETTINGS_NEVER_RESET = ("guide", "onboarding")     # progress, not preferences
+RECOVERED = None
+
+
+def mark_running():
+    """At start: a flag left behind means the last run did not close normally. If a Frame was live then, it is live
+    again now (the state is saved), and RECOVERED tells the Studio to say so once."""
+    global RECOVERED
+    try:
+        crashed = RUNNING_FLAG.exists()
+        RUNNING_FLAG.write_text(str(int(time.time())), encoding="utf-8")
+    except OSError:
+        return
+    sid = (state.get("live") or {}).get("scene")
+    if crashed and sid:
+        sc = next((x for x in state.get("scenes") or [] if x.get("id") == sid), None)
+        RECOVERED = {"frame": (sc or {}).get("name") or "The live Frame", "at": int(time.time() * 1000)}
+
+
+def clear_running():
+    try:
+        RUNNING_FLAG.unlink()
+    except OSError:
+        pass
+
+
+atexit.register(clear_running)
+
+
 # ---------- 26.11.20 Voice commands, hold to talk (src/voice_commands.py) ----------
 def _key_down():
     try:
@@ -1328,6 +1359,10 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # 26.11.20 Voice commands: hold Right Ctrl (voiceKey; 26.11.21 also Left Ctrl, F8 or your own
                          # key) or a hold button, say "next frame"
                          "voiceCommands": False,
+                         # 26.11.22 Smart Next: Next shows the live Frame's questions, then its scriptures, then the next
+                         # Frame (off: Next always goes to the next Frame); and soft sounds on Go Live and Next (off)
+                         "smartNext": False,
+                         "uiSounds": False,
                          "voiceKey": "rctrl"}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
@@ -2746,7 +2781,7 @@ class Handler(BaseHTTPRequestHandler):
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
-            return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
+            return self.reply(200, json.dumps(dict(remote_studio_info(), smartNext=bool(app_settings().get("smartNext")))), TYPES[".json"])
         if path == "/api/remote/live.jpg":              # v6.6 the FrameDecks picture for the phone's drawing pad (PIN-protected)
             eng = VCAM.get("engine")
             if not eng:
@@ -2848,6 +2883,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
+                    "recovered": RECOVERED,
                     "lowGpuActive": bool(DESKTOP.get("low_gpu")), "shell": DESKTOP.get("shell", "browser"),
                     "chrome": bool(DESKTOP.get("chrome")), "hotkeys": dict(DESKTOP.get("hotkey_results") or {}),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
@@ -3238,6 +3274,11 @@ class Handler(BaseHTTPRequestHandler):
             return ok(res)
         if action == "settings":
             return ok(save_app_settings(data))
+        if action == "settings-reset":              # 26.11.22 Settings → "Reset this section": these keys back to default
+            keys = [k for k in (data.get("keys") or []) if isinstance(k, str) and k in APP_SETTINGS_DEFAULTS and k not in SETTINGS_NEVER_RESET]
+            if not keys:
+                return bad("Nothing to reset here.")
+            return ok(save_app_settings({k: APP_SETTINGS_DEFAULTS[k] for k in keys}))
         if action == "update":
             try:
                 return ok(update_action(data))
@@ -3734,6 +3775,7 @@ def start_main_server():
     DOORBELL.start()                                            # checks in only while linked; listens only while needed
     VERSE_LISTEN.start()                                        # 26.11.14 the microphone only while switched on and live
     VOICE_CMD.start()                                           # 26.11.20 voice commands: the same, plus the hold key
+    mark_running()                                              # 26.11.22 a crash last time: the live Frame comes back
     try:
         memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
     except Exception as e:

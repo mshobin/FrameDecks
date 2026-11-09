@@ -10,6 +10,31 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.22] - 2026-11-09
+
+Full notes: [docs/releases/v26.11.22.md](releases/v26.11.22.md).
+
+### Added
+- Undo for 5 seconds after Next, Previous, Hide all, Black screen and Emergency off (Studio toasts via
+  `KCActions.toastAction`, Command Center `tell(msg, bad, undo)` with `.spr-undo`, voice commands). `Store.snapshot` /
+  `Store.restore` cover live, question, verse and birthday; `Store.undoable(fn)` wraps one change.
+- Smart Next (`smartNext`, off by default): `KCScenes.smartNext` / `smartApply` walk the live Frame's questions, then
+  its scriptures, then the next Frame; the place is kept in `live.smart = {scene, at}`. Used by the Studio, the
+  Command Center, the phone (`/api/remote/studio` carries `smartNext`) and voice commands.
+- Crash-proof live: `kc-running.flag` in the data folder; a flag left behind at start means a crash, and
+  `/api/app/info` carries `recovered` so the Studio says so once (`app/js/studio-feel.js`).
+- Optional sounds (`uiSounds`, off by default): `app/js/ui-sound.js`, Web Audio tones, no sound files.
+- Settings: search looks inside each page and lights the setting up (`.kc-found`); "Reset this section"
+  (`POST /api/app/settings-reset`, never `guide` or `onboarding`).
+- FrameDecks icons `fd-frame`, `fd-deck`, `fd-golive` in `app/js/icons.js`.
+
+### Changed
+- `Store.update` draws the change at once (optimistic) and puts it back if the PC refuses it (not on a conflict,
+  which retries as before).
+- One motion language (`--m-quick`, `--m-gentle`, `--m-ease`) and elevation (`--elev-1..3`) in theme.css and
+  spotlight.css; tabular numbers; press scale; the Studio inspector desaturates while live until reached for (`filter: saturate`, so text keeps its contrast); a shimmer on
+  the picture until its first frame; Hide all neutral in the Command Center and on the phone; icon stroke 1.75.
+
 ## [26.11.21] - 2026-11-08
 
 Full notes: [docs/releases/v26.11.21.md](releases/v26.11.21.md).

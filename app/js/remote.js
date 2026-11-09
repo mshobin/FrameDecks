@@ -64,6 +64,12 @@ var tapAt = {};
 function guard(key, fn){ return function(e){ var now = Date.now(); if (now - (tapAt[key] || 0) < 600) return; tapAt[key] = now; buzz(12); fn(e); }; }   // a double tap never acts twice
 function take(id){ var sc = SC.find(live, id); if (sc) update(function(n){ SC.take(n, id, null); }, sc.name + ' is on screen'); }
 function stepScene(d){
+  if (d > 0 && live.live.scene && studioInfo && studioInfo.smartNext){      // 26.11.22 Smart Next (Settings on the PC)
+    var t = SC.smartNext(live), label = '';
+    if (!t){ toast('That’s the last of the meeting.'); return; }
+    update(function(n){ label = SC.smartApply(n, t); }, '').then(function(){ if (label) toast('✓ ' + label + ' is on screen'); });
+    return;
+  }
   var nx = live.live.scene ? SC.neighbour(live, live.live.scene, d) : (d > 0 ? SC.order(live)[0] : null);
   if (!nx){ toast(d > 0 ? (SC.order(live).length ? 'That’s the last Frame.' : 'No Frames yet. Add them on the PC.') : 'That’s the first Frame.'); return; }
   take(nx.id);

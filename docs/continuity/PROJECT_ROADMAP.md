@@ -63,7 +63,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.18: Command Center fix: back to the 26.11.13 shape timing (26.11.17 showed only the bar on Windows), curves and square joins kept, gentler pour | Released |
 | 26.11.19: Command Center black box fixed (DeleteObject argtypes, one shape worker), fewer measurements while live, live Control fits 720 px | Released |
 | 26.11.20: Voice commands (hold Right Ctrl / hold buttons), one waiting request per window (riders) so presses answer at once | Released |
-| 26.11.21: Voice commands: Left Ctrl, F8 or your own hold key; a shortcut never starts listening | On `main`; owner tags `v26.11.21` |
+| 26.11.21: Voice commands: Left Ctrl, F8 or your own hold key; a shortcut never starts listening | Released |
+| 26.11.22: Premium feel: instant presses, Undo for 5 s, Smart Next, crash-proof live, sounds, Settings search and reset, motion and elevation | On `main`; owner tags `v26.11.22` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

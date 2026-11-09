@@ -31,13 +31,38 @@ var live = null, studio = null, meet = {available: false, acts: {}}, panel = nul
 Store.subscribe(function(st){ live = st; render(); });
 
 /* ---------- what it does ---------- */
-function tell(msg, bad){ if (!say) return; say.textContent = msg; say.className = 'spr-say' + (bad ? ' bad' : ''); clearTimeout(tell.t); tell.t = setTimeout(function(){ say.textContent = ''; }, 2600); }
+/* 26.11.22 tell(msg, bad, undo): with undo, an Undo button stays for 5 s */
+function tell(msg, bad, undo){
+  if (!say) return;
+  say.textContent = msg; say.className = 'spr-say' + (bad ? ' bad' : '');
+  if (undo){
+    var b = h('button', {cls: 'spr-undo', type: 'button', text: 'Undo', onclick: function(){ clearTimeout(tell.t); say.textContent = ''; undo().then(function(){ tell('↩ Undone'); }).catch(function(){ tell('Could not undo.', true); }); }});
+    say.appendChild(document.createTextNode(' ')); say.appendChild(b);
+  }
+  clearTimeout(tell.t); tell.t = setTimeout(function(){ say.textContent = ''; }, undo ? 5000 : 2600);
+}
 function update(fn, done){ return Store.update(fn).then(function(){ if (done) tell('✓ ' + done); }).catch(function(){ tell('FrameDecks did not answer.', true); }); }
+/* 26.11.22 the same, with Undo for 5 s (Next, Previous, Hide all, Black screen, Emergency off) */
+function undoable(fn, done){
+  if (window.KCSound) KCSound.play('tap');
+  return Store.undoable(fn).then(function(r){ tell('✓ ' + done, false, r.undo); }).catch(function(){ tell('FrameDecks did not answer.', true); });
+}
 function step(d){
   if (!live) return;
+  if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
+    var t = SC.smartNext(live);
+    if (!t){ tell('That is the last of the meeting.'); return; }
+    var label = '';
+    if (window.KCSound) KCSound.play('next');
+    Store.undoable(function(n){ label = SC.smartApply(n, t); }).then(function(r){ tell('✓ ' + (label || 'Next') + ' is on screen', false, r.undo); })
+      .catch(function(){ tell('FrameDecks did not answer.', true); });
+    return;
+  }
   var nx = live.live.scene ? SC.neighbour(live, live.live.scene, d) : (d > 0 ? SC.order(live)[0] : null);
   if (!nx){ tell(!SC.order(live).length ? 'There are no Frames yet.' : d > 0 ? 'That is the last Frame.' : 'That is the first Frame.'); return; }
-  update(function(n){ SC.take(n, nx.id, null); }, nx.name + ' is on screen');
+  if (window.KCSound) KCSound.play('next');
+  Store.undoable(function(n){ SC.take(n, nx.id, null); }).then(function(r){ tell('✓ ' + nx.name + ' is on screen', false, r.undo); })
+    .catch(function(){ tell('FrameDecks did not answer.', true); });
 }
 function video(){
   var m = (studio && studio.media || [])[0];
@@ -52,8 +77,8 @@ function setQS(m, said){
   if (!ls || SC.qsMode(ls) === m) return;
   update(function(n){ SC.setQS(n, ls.id, m); }, said);
 }
-function hideAll(){ update(function(n){ SC.hideAll(n); }, 'Everything hidden'); }
-function black(){ var on = live && live.live.blackout; update(function(n){ n.live.blackout = !n.live.blackout; }, on ? 'Picture back' : 'Black screen'); }
+function hideAll(){ undoable(function(n){ SC.hideAll(n); }, 'Everything hidden'); }
+function black(){ var on = live && live.live.blackout; undoable(function(n){ n.live.blackout = !n.live.blackout; }, on ? 'Picture back' : 'Black screen'); }
 /* 26.11.15 Emergency screen, as in the Studio and on the phone: your message full screen. Pressed twice to turn it on
  * (it covers everything), once to turn it off; with no message set it says "We’ll be right back." */
 var emArm = 0;
@@ -61,7 +86,7 @@ function emergency(){
   var on = live && live.live.emergency;
   if (!on && Date.now() - emArm > 3000){ emArm = Date.now(); tell('Press Emergency again to put your message on screen.'); return; }
   emArm = 0;
-  update(function(n){
+  (on ? undoable : update)(function(n){
     if (!n.live.emergency && !String(n.live.message || '').trim()) n.live.message = 'We’ll be right back.';
     n.live.emergency = !n.live.emergency;
   }, on ? 'Emergency screen off' : 'Emergency screen on');

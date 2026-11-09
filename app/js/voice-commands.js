@@ -64,7 +64,14 @@ function qs(st, m){
   return update(function(n){ SC.setQS(n, ls.id, m); });
 }
 var RUN = {
-  next: function(st){ return step(st, 1); },
+  next: function(st, c){                                   // 26.11.22 Smart Next when it is on
+    if (st.live.scene && Store.setting && Store.setting('smartNext')){
+      var t = SC.smartNext(st);
+      if (!t) throw new Error('That is the last of the meeting.');
+      return update(function(n){ c.label = SC.smartApply(n, t) + ' is on screen'; });
+    }
+    return step(st, 1);
+  },
   prev: function(st){ return step(st, -1); },
   frame: function(st, c){ return frameNo(st, c.frame); },
   'next-question': function(st){ return contentStep(st, 'question', 1); },
@@ -85,13 +92,18 @@ var RUN = {
   camera: function(){ return post('api/app/meeting-key', {act: 'camera'}); }
 };
 
+var UNDO = {next: 1, prev: 1, frame: 1, hide: 1, black: 1, unblack: 1, 'show-question': 1, 'show-verse': 1, 'show-both': 1,
+  'next-question': 1, 'prev-question': 1, 'next-verse': 1, 'prev-verse': 1};       // 26.11.22 Undo for 5 s
 function run(last){
   ran = last.n;
-  var fn = RUN[last.cmd];
+  var fn = RUN[last.cmd], keep = UNDO[last.cmd] && Store.snapshot ? Store.snapshot() : null;
   var p;
   try { p = fn ? Promise.resolve(fn(Store.get(), last)) : Promise.reject(new Error('Not a command here.')); }
   catch(e){ p = Promise.reject(e); }
-  p.then(function(){ toast('🎙 ' + last.label); return post('api/voice-commands', {op: 'done', n: last.n, ok: true}); },
+  p.then(function(){
+      if (keep && window.KCActions && KCActions.toastAction) KCActions.toastAction('🎙 ' + last.label, 'Undo', function(){ Store.restore(keep); });
+      else toast('🎙 ' + last.label);
+      return post('api/voice-commands', {op: 'done', n: last.n, ok: true}); },
          function(e){ toast('🎙 ' + (e && e.message || 'That did not work'), true); return post('api/voice-commands', {op: 'done', n: last.n, ok: false, msg: e && e.message}); })
    .catch(function(){});
 }

@@ -5,6 +5,12 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.22': [
+    {title: 'Undo for 5 seconds', text: 'Next, Previous, Hide all, Black screen and Emergency off show Undo for 5 seconds, in the Studio and the Command Center.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Smart Next', text: 'Next can show the live Frame’s questions, then its scriptures, then the next Frame. Switch it on in Settings → General.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Recovered after a crash', text: 'If FrameDecks closes unexpectedly while live, the live Frame comes back on its own and the Studio says so.', show: {settings: 'general', spot: '#feel-settings'}},
+    {title: 'Find any setting', text: 'Settings search now finds a setting inside its page and lights it up; each page can be reset on its own.', show: {settings: 'general', spot: '#sn-find'}}
+  ],
   '26.11.21': [
     {title: 'Your own key for voice commands', text: 'Hold Right Ctrl, Left Ctrl, F8 or a key you choose. A quick shortcut such as Ctrl+C never turns the microphone on.', show: {settings: 'scripture', spot: '#vc-settings'}}
   ],

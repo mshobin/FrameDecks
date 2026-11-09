@@ -36,7 +36,7 @@
   --fd-fs-section: 12px;
   --fd-fs-body: 15px;
   --fd-fs-caption: 12.5px;
-  --fd-ease: cubic-bezier(.2,.8,.2,1);
+  --fd-ease: cubic-bezier(.2,.9,.25,1);
 }
 
 html.fd-light {
