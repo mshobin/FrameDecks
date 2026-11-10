@@ -103,7 +103,7 @@ function open(){
 function close(){ clearInterval(timer); if (dlg && dlg.open) dlg.close(); }
 
 /* ---------- the short line ---------- */
-var line = h('button', {cls: 'rc-line', type: 'button', id: cc ? 'cc-rc-line' : 'rc-line', hidden: 'hidden', onclick: open}, [h('i', {cls: 'rc-dot', 'aria-hidden': 'true'}), h('span', {text: 'Ready check'})]);
+var line = h('button', {cls: 'rc-line', type: 'button', id: cc ? 'cc-rc-line' : 'rc-line', hidden: 'hidden', 'data-feature': 'ready', onclick: open}, [h('i', {cls: 'rc-dot', 'aria-hidden': 'true'}), h('span', {text: 'Ready check'})]);
 function paint(){
   var d = last, fails = d ? d.items.filter(function(i){ return i.state === 'fail'; }).length : 0;
   line.className = 'rc-line' + (d ? (fails ? ' fail' : d.warn ? ' warn' : ' ok') : '');

@@ -2067,3 +2067,14 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 .ls-go.is-off .ls-go-sub{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){ .kc-holdable.holding .kc-hold-bar{transition:none;transform:scaleX(1);opacity:.6} }
 .cb-btn.take.is-off,.cb-btn.take.is-off:hover{background:var(--neutral-btn);border-color:var(--line-strong);color:var(--ink)}
+
+/* 26.11.31 Settings → General → Features (js/features-panel.js): groups of switches, each with its one line */
+.ft-box .ft-sets button[aria-checked="true"]{font-weight:700}
+.ft-g{margin:18px 0 4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ft-row{padding:8px 0;border-top:1px solid var(--line-soft)}
+.ft-row:first-of-type{border-top:0}
+.ft-row .check{display:flex;align-items:center;gap:0;font-size:14px}
+.ft-what{margin:2px 0 0 44px;font-size:13px;line-height:1.45;color:var(--muted)}
+.ft-row.is-off .check b{color:var(--muted);font-weight:600}
+.ft-lock{margin-top:8px}
+.ft-sum{margin-top:14px}

@@ -142,7 +142,7 @@ function renderSettings(){
   var after = $('vl-settings') || ($('scripture-body') && $('scripture-body').closest('section.box'));
   if (!after) return;
   var box = $('vc-settings');
-  if (!box){ box = h('section', {cls: 'box vl-settings vc-settings', id: 'vc-settings', 'aria-labelledby': 'vc-set-h'}); after.parentNode.insertBefore(box, after.nextSibling); }
+  if (!box){ box = h('section', {cls: 'box vl-settings vc-settings', id: 'vc-settings', 'aria-labelledby': 'vc-set-h', 'data-feature': 'voice'}); after.parentNode.insertBefore(box, after.nextSibling); }
   fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     var s = d.settings || {};
     box.innerHTML = '';

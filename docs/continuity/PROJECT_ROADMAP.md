@@ -72,7 +72,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.27: voice commands by name, a spoken verse asks first, website heading "Prepared before. Confident during." | Released with 26.11.28 (or tagged on its own) |
 | 26.11.28: ready check (with light and framing hints), voice search in the Command Center, next week from this meeting, the summary's Moment, seasons (Christmas) | Released with 26.11.29 (or tagged on its own) |
 | 26.11.29: Off air on the Go Live button, by press and hold | Released with 26.11.30 (or tagged on its own) |
-| 26.11.30: the release audit's fixes (framing + enforced CSP, one status request, plan-recovery notice, Off air name, Ready check hurry line, queue, setuptools, Share Window) | On `main`; owner tags `v26.11.30` |
+| 26.11.30: the release audit's fixes (framing + enforced CSP, one status request, plan-recovery notice, Off air name, Ready check hurry line, queue, setuptools, Share Window) | Released with 26.11.31 (or tagged on its own) |
+| 26.11.31: features you switch on or off (Settings, Command Center More, Welcome sets; off stops the work) | On `main`; owner tags `v26.11.31` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

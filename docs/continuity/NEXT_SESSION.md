@@ -2,7 +2,9 @@
 
 Commit identity (owner's instruction, 4 Nov 2026): every commit is authored as `Shobin Mathews <276174545+mshobin@users.noreply.github.com>`; set it at the start of each session with `git config user.name "Shobin Mathews"` and `git config user.email "276174545+mshobin@users.noreply.github.com"`, and add no co-author or tool lines.
 
-Updated 9 November 2026 (26.11.30 on `main`: the 26.11.29 release audit's fixes: pages refuse other sites' frames and enforce the CSP (`PAGE_FRAME_HEADER`, `CSP_HEADER`), the Studio's status in one request (`/api/app/status`, `KCStatus.part`), the plan-recovery notice, Off air's accessible name, the Ready check's hurry line, `request_queue_size = 64`, setuptools 84.1.0, `present.html` checks the engine first. Owner: tag `v26.11.30` (it carries 26.11.29 if not tagged), then the manual smoke test on a low-end Windows PC (camera, voice, installer, update).)
+Updated 10 November 2026 (26.11.31 on `main`: features you switch on or off: `src/features.py` + `app/js/features.js`, `/api/app/features` (locked while live), Settings → General → Features, the Welcome's three sets, the Command Center's More → Features; off hides the feature everywhere (`data-feature`, `chips.js`) and stops its work. Owner: tag `v26.11.31`.)
+
+Previous: 9 November 2026 (26.11.30 on `main`: the 26.11.29 release audit's fixes: pages refuse other sites' frames and enforce the CSP (`PAGE_FRAME_HEADER`, `CSP_HEADER`), the Studio's status in one request (`/api/app/status`, `KCStatus.part`), the plan-recovery notice, Off air's accessible name, the Ready check's hurry line, `request_queue_size = 64`, setuptools 84.1.0, `present.html` checks the engine first. Owner: tag `v26.11.30` (it carries 26.11.29 if not tagged), then the manual smoke test on a low-end Windows PC (camera, voice, installer, update).)
 
 Previous: 9 November 2026 (26.11.29 on `main`: Off air on the Go Live button by press and hold (`app/js/off-air.js`; the top bar's Go Live while the selected Frame is on air, the Live Stage's button after the last Frame; 1 s, with Undo; clicks never go off air). Owner: tag `v26.11.29` (it carries 26.11.27 and 26.11.28 if they were not tagged).)
 

@@ -98,7 +98,26 @@ function commands(){
   }
   /* commands Spotlight can run while the main window stays in the tray */
   var BG = {golive: 1, next: 1, prev: 1, hideall: 1, blackout: 1, freeze: 1, prompter: 1, share: 0};
+  /* 26.11.31 a command whose feature is switched off is not offered (js/features.js); the feature itself is (below) */
+  var F = window.KCFeatures;
+  c = c.filter(function(x){ return !F || F.allOn(CMD_FEATURE[x[0]]); });
   return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
+}
+var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary',
+  camera: 'vcam', sharedraw: '', sharespot: ''};
+/* 26.11.31 the features themselves: "Memory Cards is off · Turn on?" finds it from anywhere, and teaches where they live */
+function featureItems(){
+  var F = window.KCFeatures; if (!F || !F.state().features) return [];
+  return F.list.map(function(f){
+    var on = F.on(f.id), lk = F.locked();
+    return {key: 'feat:' + f.id, kind: 'setting', title: on ? 'Feature: ' + f.label : f.label + ' is off · Turn on?',
+      sub: lk ? 'Off air to change · Settings → General → Features' : (on ? 'On · Enter switches it off' : 'Enter switches it on') + ' · Settings → General → Features',
+      words: 'feature switch turn on off ' + f.what,
+      local: function(){
+        if (F.locked()){ toast('Off air to change features.', true); return; }
+        F.set(f.id, !on).then(function(){ toast(f.label + (on ? ' is off' : ' is on')); }).catch(function(e){ toast(e.message, true); });
+      }};
+  });
 }
 function trimmed(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 function index(){
@@ -140,6 +159,7 @@ function index(){
   if (b.logo || b.meeting || b.org) out.push({key: 'brand:assets', kind: 'brand', title: [b.meeting, b.org].filter(Boolean).join(' · ') || 'Your logo', sub: 'Brand assets · logo, names, colour',
     words: 'logo brand assets ' + (b.logo ? 'logo' : ''), run: function(){ settings('meeting'); }});
   SECTIONS.forEach(function(x){ out.push({key: 'set:' + x[0], kind: 'setting', title: x[1], sub: 'Settings', words: x[2], run: function(){ settings(x[0]); }}); });
+  out = out.concat(featureItems());
   var api = window.KCMembersAPI, rows = api && api.directory ? api.directory() : [];
   rows.forEach(function(m){
     out.push({key: 'mem:' + m.id, kind: m.b && m.b.days <= 31 ? 'birthday' : 'member', title: m.name,

@@ -619,7 +619,7 @@ var studioT = null;
 function pollStudio(){
   clearTimeout(studioT);
   if (!$('app').hidden && !document.hidden)
-    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; if (live) render(); } }).catch(function(){});
+    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; if (window.KCFeatures && d.features) KCFeatures.take({features: d.features}); if (live) render(); } }).catch(function(){});
   studioT = setTimeout(pollStudio, document.hidden ? 15000 : 4000);
 }
 document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden) pollStudio(); if (live) renderCanvas(); });

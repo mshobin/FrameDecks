@@ -29,24 +29,24 @@ var ACTIONS = [
   A('prepare', 'quick', 'Quick Start', 'rocket', 'Ready-made Frames', ['cc', 'app']),
   A('prepare', 'library', 'Content Library', 'library', 'Add ready-made Content', ['cc', 'app']),
   A('prepare', 'import', 'Import .frame', 'folder-open', 'A plan from the website', ['cc', 'app']),
-  A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app']),
+  A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app'], {feature: 'vcam'}),
   // Engage
-  A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone']),
-  A('engage', 'members', 'Members’ phones', 'smartphone', 'Follow along, prayer requests', ['app']),   // 26.11.24 one code for everyone
+  A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
+  A('engage', 'members', 'Members’ phones', 'smartphone', 'Follow along, prayer requests', ['app'], {feature: 'team'}),   // 26.11.24 one code for everyone
   // 26.11.15 the Teleprompter is used live, so it lives in Engage only (Command Center, top bar and phone alike)
   A('engage', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone']),
-  A('engage', 'capture', 'Capture copies', 'copy', 'Each Ctrl+C is a card', ['cc', 'app'], {toggle: true}),
+  A('engage', 'capture', 'Capture copies', 'copy', 'Each Ctrl+C is a card', ['cc', 'app'], {toggle: true, feature: 'memory'}),
   A('engage', 'draw', 'Draw', 'pencil', 'On the picture', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'spot', 'Spotlight', 'circle-dot', 'Double-click a word', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'clear', 'Clear drawings', 'eraser', 'Everywhere at once', ['cc', 'app', 'phone']),
-  A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone']),
+  A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
   // Control (Previous, Next, Go Live and Hide all are pinned in plain view on every surface)
   A('control', 'golive', 'Go Live', 'radio', 'On air or off air', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'prevnext', 'Previous and Next', 'chevron-right', 'The Frames in order', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'hideall', 'Hide all', 'eye-off', 'Everything off screen', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'content', 'The Content one by one', 'list', 'Questions, scriptures, slides', ['cc', 'phone']),
   // 26.11.14 say a Bible reference while live and it is offered (or shown, with Auto): Off, Ask or Auto
-  A('control', 'listen', 'Listen for scripture', 'book-open', 'Say a verse, it is offered', ['cc', 'app', 'phone'], {toggle: true}),
+  A('control', 'listen', 'Listen for scripture', 'book-open', 'Say a verse, it is offered', ['cc', 'app', 'phone'], {toggle: true, feature: 'listen'}),
   A('control', 'hidelayer', 'Hide the selected Content', 'eye-off', 'Just this one', ['app']),
   A('control', 'black', 'Black screen', 'square', 'A black picture', ['cc', 'app', 'phone'], {toggle: true}),
   A('control', 'freeze', 'Freeze the picture', 'pause', 'Hold what people see', ['cc', 'app', 'phone'], {toggle: true}),
@@ -55,11 +55,13 @@ var ACTIONS = [
   // Notes
   A('notes', 'notes', 'Notes', 'sticky-note', 'Private notes for this meeting', ['cc', 'app', 'phone']),
   // More
-  A('more', 'sync', 'Sync', 'cloud', 'This PC and your team', ['cc', 'app']),
+  A('more', 'sync', 'Sync', 'cloud', 'This PC and your team', ['cc', 'app'], {feature: 'team'}),
   A('more', 'output', 'How people see it', 'cast', 'Zoom, Teams, projector', ['cc', 'app']),
-  A('more', 'phone', 'Phone remote', 'smartphone', 'PIN and QR code', ['cc', 'app']),
+  A('more', 'phone', 'Phone remote', 'smartphone', 'PIN and QR code', ['cc', 'app'], {feature: 'remote'}),
   A('more', 'brand', 'Meeting & Branding', 'palette', 'Names, logo, look', ['cc', 'app']),
   A('more', 'keys', 'Shortcuts', 'keyboard', 'Keys for every action', ['cc', 'app']),
+  // 26.11.31 switch features on or off (js/features.js): set up before the meeting, so it lives in More
+  A('more', 'features', 'Features', 'list-checks', 'Switch features on or off', ['cc', 'app']),
   A('more', 'all', 'All settings', 'settings', 'Search every setting', ['cc', 'app']),
   A('more', 'help', 'Help & tour', 'info', 'The welcome tour', ['cc', 'app']),
   A('more', 'pcstatus', 'On the PC', 'monitor', 'What the PC is doing', ['phone']),
@@ -69,11 +71,14 @@ var byId = {};
 ACTIONS.forEach(function(a){ byId[a.id] = a; });
 function chip(id){ for (var i = 0; i < CHIPS.length; i++) if (CHIPS[i].id === id) return CHIPS[i]; return null; }
 /* the actions of a chip offered in one place (cc / app / phone), in order; pinned ones are left out unless asked */
-function actions(chipId, where, withPinned){
+/* 26.11.31 an action whose feature is switched off is not offered anywhere (js/features.js) */
+function featureOn(a){ var F = root.KCFeatures; return !a.feature || !F || F.on(a.feature); }
+/* everyFeature: also the actions whose feature is off (a surface that hides them itself with data-feature) */
+function actions(chipId, where, withPinned, everyFeature){
   var own = ACTIONS.filter(function(a){ return a.chip === chipId && (!where || a.on.indexOf(where) >= 0) && (withPinned || !a.pinned); });
   var also = where ? ACTIONS.filter(function(a){ return a.alsoIn && (a.alsoIn[chipId] || []).indexOf(where) >= 0; }) : [];
-  return own.concat(also);
+  return everyFeature ? own.concat(also) : own.concat(also).filter(featureOn);
 }
-root.KCChips = {list: CHIPS, all: ACTIONS, chip: chip, action: function(id){ return byId[id] || null; }, actions: actions,
+root.KCChips = {list: CHIPS, all: ACTIONS, chip: chip, action: function(id){ return byId[id] || null; }, actions: actions, offered: featureOn,
   chipOf: function(id){ return byId[id] ? byId[id].chip : null; }};
 })(typeof window !== 'undefined' ? window : this);

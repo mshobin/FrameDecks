@@ -1,33 +1,34 @@
-## FrameDecks v26.11.30
+## FrameDecks v26.11.31
 
-Safer and lighter, from the 26.11.29 release check. Download from **framedecks.com/download**, or let FrameDecks update
+Choose the features you use; switch off the rest. Download from **framedecks.com/download**, or let FrameDecks update
 itself. It installs over every earlier version and keeps all your meetings, members, settings, notes, pinned Memory
-Cards and recordings.
+Cards and recordings. Nothing is switched off by the update: every feature stays on until you choose.
 
 ## What's New
-- **If your plan file is ever damaged, you are told.** FrameDecks already kept the damaged file and opened your newest
-  daily backup; now the Studio says so once when it opens, with **Details** (Settings → Diagnostics), so you know to
-  check any Frames added since that backup.
-- **The Ready check says what to do in a hurry.** Its last line: which key blacks the screen (K), which hides
-  everything (Esc), and where the Emergency screen is (Control).
+- **Features, switched on or off.** Settings → General → **Features** lists twelve features in five groups (On screen,
+  Listening, People, After the meeting, Helpers), each with one line on what it does and what switching it off saves.
+  A feature that is off disappears from the chips, the Command Center, the command palette and the phone remote, and
+  its work stops: the microphone is not opened, the clipboard is not watched, the phone remote takes no connections,
+  nothing about the meeting is recorded. The Studio, Go Live, Hide all, Black screen and the Emergency screen are
+  always there.
+- **Three ready-made sets.** **Simple** (the essentials and the Teleprompter), **Bible study** (adds Listen for
+  scripture, Memory Cards, the phone remote and the summary) and **Full**. Choose one on the Welcome's last page
+  ("What do you use?") or at the top of Features, then change any switch.
+- **In the Command Center: More → Features.** The same switches in a compact list; Enter switches one. Search
+  "Memory Cards" in the palette while it is off and it offers "Memory Cards is off · Turn on?".
 
 ## Enhancements
-- **Off air reads the same to everyone.** While Go Live reads Off air, screen readers and voice control hear "Off air",
-  the words on the button, with the hold instruction as its description.
+- Switches change only while nothing is on air ("Off air to change"), so a card or a chip never vanishes mid-meeting.
+- The camera's switch is How people see it itself: off means Share a window, so the two never disagree.
 
 ## Fixes
-- **No other website can show FrameDecks inside its own page.** The program's pages now refuse to be framed by another
-  site, so a page you visit while FrameDecks runs cannot hide the Studio under something else and steer your clicks.
-- **The content security rules are now enforced, not just watched.** Any script that is not part of FrameDecks is
-  blocked on every program page.
-- **The Share Window no longer logs an error** when the camera engine is not running: it goes straight to the overlays.
+None in this version.
 
 ## Performance Improvements
-- **The Studio asks for its status once every 3 seconds instead of seven times.** About 20 status requests a minute
-  instead of 129 while it is in front; a little kinder to laptops on battery.
-- **Many screens at once wait less.** The program accepts a longer queue of connections, so a burst of screens and
-  phones is never held back about a second.
+- Each feature switched off stops its background work, so an older PC has less to do.
 
 ## Known Issues
+- Prayer wall, members' phones and Sync switched off hides them here; a PC already added keeps syncing until you
+  disconnect it in Sync.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

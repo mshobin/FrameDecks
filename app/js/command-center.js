@@ -85,8 +85,26 @@ var SCOPES = {
   meetings: {id: 'meetings', label: 'Meetings', hue: 'gold', icon: 'calendar-days', empty: 'No meetings yet. Plan one on framedecks.com or in the Studio.',
     items: function(all){ return all.filter(function(it){ return it.kind === 'meeting'; }).concat(all.filter(function(it){ return it.kind === 'frame'; })); }},
   memory: {id: 'memory', label: 'Memory Cards', hue: 'violet', icon: 'message-circle', empty: 'No Memory Cards yet. Turn on Capture copies, then copy a message.', items: memoryItems},
-  settings: {id: 'settings', label: 'All settings', hue: 'slate', icon: 'settings', items: function(all){ return all.filter(function(it){ return it.kind === 'setting'; }); }}
+  settings: {id: 'settings', label: 'All settings', hue: 'slate', icon: 'settings', items: function(all){ return all.filter(function(it){ return it.kind === 'setting' && it.key.indexOf('feat:') !== 0; }); }},
+  /* 26.11.31 More → Features: every switch, in its group; Enter switches one. Locked while live. */
+  features: {id: 'features', label: 'Features', hue: 'slate', icon: 'list-checks', items: featureItems}
 };
+function featureItems(){
+  var F = window.KCFeatures; if (!F) return [];
+  var head = {key: 'feat-all', kind: 'setting', title: F.summary(), sub: F.locked() ? 'Off air to change' : 'All features in Settings… · Enter opens them', words: 'all features settings',
+    local: function(){ setting('general'); }};
+  return [head].concat(F.list.map(function(f){
+    var on = F.on(f.id), grp = F.groups.filter(function(g){ return g.id === f.group; })[0];
+    return {key: 'feat-' + f.id, kind: 'setting', title: f.label + (on ? ' · On' : ' · Off'),
+      sub: (F.locked() ? 'Off air to change · ' : (on ? 'Enter switches it off · ' : 'Enter switches it on · ')) + grp.label + ' · ' + f.what,
+      words: grp.label + ' ' + f.what,
+      local: function(){
+        if (F.locked()){ tell('Off air to change features.', true); return; }
+        F.set(f.id, !on).then(function(){ tell('✓ ' + f.label + (on ? ' is off' : ' is on')); input.dispatchEvent(new Event('input')); })
+          .catch(function(e){ tell(e.message, true); });
+      }};
+  }));
+}
 
 /* ---------- 9.12 Notes (9.13: the shared pad, js/notes-pad.js) ---------- */
 var Notes = window.KCNotesPad.create({getLive: function(){ return live; }, SC: SC, tell: tell,
@@ -116,6 +134,7 @@ var MAKE = {
   phone: function(){ return T('phone', function(){ setting('ipad'); }); },
   brand: function(){ return T('brand', function(){ setting('meeting'); }); },
   keys: function(){ return T('keys', function(){ keySheet(true); }); },
+  features: function(){ return T('features', function(){ scope('features'); }, null, window.KCFeatures ? KCFeatures.summary() : null); },
   all: function(){ return T('all', function(){ scope('settings'); }); },
   help: function(){ return T('help', function(){ run('cmd:welcome', false); }); }};
 var GROUPS = CH.list.map(function(c){
@@ -318,6 +337,12 @@ function fill(){
   if (parts.recent) recentRow(parts.recent);
   paint(); layout();
 }
+/* 26.11.31 a feature switched on or off (here, in Settings or another window): the chips are drawn again without it */
+if (window.KCFeatures) KCFeatures.onChange(function(){
+  for (var k in built) delete built[k];
+  if (open) fill();
+  if (current && current.id === 'features') input.dispatchEvent(new Event('input'));
+});
 function recentRow(el){
   var items = P.recentItems(3), sig = items.map(function(it){ return it.key; }).join('|');
   el.hidden = !items.length;

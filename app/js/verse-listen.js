@@ -175,7 +175,7 @@ function renderSettings(){
   var body = $('scripture-body'); if (!body || !Store.served) return;
   var host = body.closest('section.box'); if (!host) return;
   var box = $('vl-settings');
-  if (!box){ box = h('section', {cls: 'box vl-settings', id: 'vl-settings', 'aria-labelledby': 'vl-set-h'}); host.parentNode.insertBefore(box, host.nextSibling); }
+  if (!box){ box = h('section', {cls: 'box vl-settings', id: 'vl-settings', 'aria-labelledby': 'vl-set-h', 'data-feature': 'listen'}); host.parentNode.insertBefore(box, host.nextSibling); }
   fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     var s = d.settings || {};
     box.innerHTML = '';

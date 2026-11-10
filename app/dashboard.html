@@ -81,26 +81,26 @@
   <div class="sysstat" id="sysstat">
     <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status: FrameDecks vCam, overlays and remote"><i class="sys-dot" aria-hidden="true"></i><span class="sys-text">Checking…</span></button>
     <div class="sys-menu health" id="health" aria-label="Connection status">
-      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="FrameDecks vCam (the camera you choose in Zoom or Teams)"><i></i><span class="hl">FrameDecks vCam</span><span class="hs">Zoom · Teams</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-vcam" data-feature="vcam" data-goto="settings" data-sec="vcam" title="FrameDecks vCam (the camera you choose in Zoom or Teams)"><i></i><span class="hl">FrameDecks vCam</span><span class="hs">Zoom · Teams</span><b>—</b></button>
       <button class="hchip" type="button" id="h-sources" data-goto="settings" data-sec="display" title="Overlay pages open in OBS, Camo or a browser"><i></i><span class="hl">Overlays</span><span class="hs">OBS</span><b>—</b></button>
-      <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone &amp; iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-ipad" data-feature="remote" data-goto="settings" data-sec="ipad" title="Phone &amp; iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
       <button class="hchip" type="button" id="h-rec" data-goto="recordings" title="Recording of the FrameDecks output" hidden><i></i><span class="hl">Recording</span><span class="hs">REC</span><b>—</b></button>
       <button class="hchip" type="button" id="h-slides" data-goto="studio" title="Slides: a PowerPoint slide show or slides shared in the Studio" hidden><i></i><span class="hl">Slides</span><span class="hs">Slides</span><b>—</b></button>
-      <button class="hchip" type="button" id="h-sync" aria-haspopup="dialog" aria-expanded="false" title="Syncing with your FrameDecks workspace" hidden><i></i><span class="hl">Sync</span><span class="hs">Sync</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-sync" data-feature="team" aria-haspopup="dialog" aria-expanded="false" title="Syncing with your FrameDecks workspace" hidden><i></i><span class="hl">Sync</span><span class="hs">Sync</span><b>—</b></button>
       <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
     </div>
   </div>
   <span class="mode" id="mode" hidden>Connecting…</span>
   <div data-win-controls></div>
 </header>
-<div class="reminder" id="bday-reminder" role="status" hidden></div>
+<div class="reminder" id="bday-reminder" role="status" data-feature="birthdays" hidden></div>
 
 
 <div class="subtabs" id="sub-members" hidden>
  <div class="subtabs-tabs" role="tablist" aria-label="Members">
   <button class="subtab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="users"></i>People</button>
   <button class="subtab" role="tab" type="button" id="tabbtn-directory" data-tab="directory" aria-selected="false" hidden><i data-icon="users"></i>Directory</button>
-  <button class="subtab" role="tab" type="button" id="tabbtn-birthdays" data-tab="birthdays" aria-selected="false"><i data-icon="cake"></i>Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span></button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-birthdays" data-feature="birthdays" data-tab="birthdays" aria-selected="false"><i data-icon="cake"></i>Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span></button>
   <button class="subtab" role="tab" type="button" id="tabbtn-email" data-tab="email" aria-selected="false"><i data-icon="mail"></i>Email</button>
  </div>
   <!-- People has two views of the same list: edit one person at a time, or a table of everyone (the old Directory) -->
@@ -141,7 +141,7 @@
     </section>
     <!-- 9.0 Capture Memory: what you copy from a chat (Capture on) becomes a Memory Card, shown on FrameDecks vCam as a
          chat bubble (9.1); select several and Show them together (js/memory.js) -->
-    <section class="pane mem-pane closed" id="mem-pane" aria-labelledby="mem-title">
+    <section class="pane mem-pane closed" id="mem-pane" data-feature="memory" aria-labelledby="mem-title">
       <header class="pane-head"><h2 id="mem-title"><button class="mem-fold" type="button" id="mem-fold" aria-expanded="false" aria-controls="mem-body">Capture Memory</button></h2><span class="pane-sub" id="mem-n"></span>
         <label class="mem-switch" title="Capture: text you copy (Ctrl+C) becomes a Memory Card"><input type="checkbox" id="mem-capture" role="switch"><span class="mem-knob" aria-hidden="true"></span><span>Capture</span></label>
         <button class="help-q" type="button" data-help="memory" title="Help: Capture Memory" aria-label="Help: Capture Memory">?</button>
@@ -408,15 +408,15 @@
       <button type="button" role="tab" class="st-tab" data-in="look" data-sec="meeting" data-k="meeting name logo colour color brand leader organization look theme dark light appearance"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting &amp; Branding</b><small>Name, logo, colours and look</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="look" data-sec="transitions" data-k="transition fade cut style profile spotlight annotate circle ctrl"><span class="sn-i"><i data-icon="arrow-right-left" data-size="16"></i></span><span class="sn-t"><b>Transitions</b><small>How Frames change on screen</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="content" data-sec="scripture" data-k="bible esv version verse scripture key"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Scripture</b><small>Bible version and verses</small></span><i class="sn-dot" id="sn-scripture"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="content" data-sec="overlays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="content" data-sec="overlays" data-feature="birthdays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="output" data-k="how people see it zoom teams camera framedecks vcam framerelay share window projector tv obs display screen output"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, a projector or OBS</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="vcam" data-k="framedecks vcam framerelay camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FrameDecks vCam</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="vcam" data-feature="vcam" data-k="framedecks vcam framerelay camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FrameDecks vCam</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Projector, TV and OBS</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="recording" data-k="record recording video mp4"><span class="sn-i"><i data-icon="circle-dot" data-size="16"></i></span><span class="sn-t"><b>Recording</b><small>Save the meeting as a video</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="recording" data-feature="vcam" data-k="record recording video mp4"><span class="sn-i"><i data-icon="circle-dot" data-size="16"></i></span><span class="sn-t"><b>Recording</b><small>Save the meeting as a video</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="general" data-k="general window tray minimize spotlight performance graphics"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>General</b><small>Window, tray and performance</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="ipad" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="ipad" data-feature="remote" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="account" data-k="account website sync cloud link workspace companion add a device invite someone allow devices team qr scan join"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Sync</b><small>Your team’s phones and this PC</small></span><i class="sn-dot" id="sn-account"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="account" data-feature="team" data-k="account website sync cloud link workspace companion add a device invite someone allow devices team qr scan join"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Sync</b><small>Your team’s phones and this PC</small></span><i class="sn-dot" id="sn-account"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="security" data-k="security privacy"><span class="sn-i"><i data-icon="shield-check" data-size="16"></i></span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="data" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="data" data-sec="diag" data-k="diagnostics problems help troubleshooting log"><span class="sn-i"><i data-icon="activity" data-size="16"></i></span><span class="sn-t"><b>Diagnostics</b><small>Check that everything works</small></span><i class="sn-dot" id="sn-diag"></i></button>
@@ -604,6 +604,7 @@
 
 <script src="js/icons.js"></script>
 <script src="js/store.js"></script>
+<script src="js/features.js"></script>
 <script src="js/ui-sound.js"></script>
 <script src="js/meeting-mode.js"></script>
 <script src="js/shortcuts.js"></script>
@@ -639,6 +640,7 @@
 <script src="js/chips.js"></script>
 <script src="js/notes-pad.js"></script>
 <script src="js/chip-bar.js"></script>
+<script src="js/features-panel.js"></script>
 <script src="js/motion.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>

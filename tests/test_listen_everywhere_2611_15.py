@@ -125,7 +125,7 @@ class StudioHiddenBehindZoom(unittest.TestCase):
 class OneSwitchEverywhere(unittest.TestCase):
     def test_in_control_on_every_surface(self):
         chips = read("app/js/chips.js")
-        self.assertIn("A('control', 'listen', 'Listen for scripture', 'book-open', 'Say a verse, it is offered', ['cc', 'app', 'phone'], {toggle: true}),", chips)
+        self.assertIn("A('control', 'listen', 'Listen for scripture', 'book-open', 'Say a verse, it is offered', ['cc', 'app', 'phone'], {toggle: true, feature: 'listen'}),", chips)
         cc = read("app/js/cc-listen.js")
         for need in ("['off', 'Off'", "['ask', 'Ask'", "['auto', 'Auto'", "post({op: 'mode', value: m})", "post({op: op, id: p.id})"):
             self.assertIn(need, cc)

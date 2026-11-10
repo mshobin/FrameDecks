@@ -207,7 +207,7 @@ class OneWaitingRequestPerWindow(unittest.TestCase):
     def test_riders_on_the_server(self):
         import server
         self.assertEqual(server.riders_asked("vl:5,vc:-1,mem:7,evil:1"), {"vl": "5", "vc": "-1", "mem": "7"})
-        self.assertEqual(set(server.RIDERS), {"vl", "vc", "mem", "pr"})   # 26.11.23 pr: the prayer wall
+        self.assertEqual(set(server.RIDERS), {"vl", "vc", "mem", "pr", "ft"})   # 26.11.23 pr: the prayer wall; 26.11.31 ft: features
         src = read("src/server.py")
         self.assertIn('return self.reply(200, json.dumps({"unchanged": True, "rev": snap[0].get("rev"), "riders": now}), TYPES[".json"])', src)
 

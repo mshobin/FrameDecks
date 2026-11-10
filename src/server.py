@@ -43,6 +43,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import meeting_log  # 26.11.23 what was shown, for the meeting summary
+import features as FEAT   # 26.11.31 features you switch on or off (Settings > General > Features)
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
 import member_room  # 26.11.24 members' phones: follow along and the sermon notes
 import leader_alerts  # 26.11.25 the leader's corner card while the Studio is behind the meeting
@@ -51,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.30"
+APP_VERSION = "26.11.31"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -96,6 +97,7 @@ COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/js/chips.js", "/js/icons.js", "/js/notes-pad.js", "/css/notes-pad.css",   # 9.13 the chips and the Notes pad
+                 "/js/features.js",       # 26.11.31 which features are on (the phone hides what is off)
                  "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js", "/js/remote-listen.js",
                  "/js/remote-voice.js",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
@@ -360,7 +362,7 @@ def save_state(new):
                 DISK["timer"].daemon = True
                 DISK["timer"].start()
         cond.notify_all()
-        if "MEETING_LOG" in globals():
+        if "MEETING_LOG" in globals() and feature_on("summary"):
             MEETING_LOG.observe(state)     # 26.11.23 the meeting summary: what went on screen, and when
         if "ROOM" in globals():
             ROOM.poke()                    # 26.11.24 members' phones follow the screen
@@ -485,6 +487,7 @@ def _on_copy(text, exe, url):
 
 def memory_capture(on):
     """Capture on/off: the clipboard listener runs only while it is on. Returns whether copies are being watched."""
+    on = bool(on) and feature_on("memory")          # 26.11.31 never while Memory Cards is switched off
     with _MEM["lock"]:
         w = _MEM["watcher"]
         if on:
@@ -883,6 +886,8 @@ def voice_commands_action(d, remote=False):
         words = d.get("words") if isinstance(d.get("words"), list) else []
         return VOICE_CMD.search(bool(d.get("on")), [str(w)[:200] for w in words[:600]])
     if op == "enable":
+        if d.get("value") and not feature_on("voice"):
+            raise ValueError("Voice commands are switched off (Settings → General → Features).")
         save_app_settings({"voiceCommands": bool(d.get("value"))})
         VOICE_CMD.tick()
         return VOICE_CMD.body()
@@ -901,6 +906,7 @@ def voice_commands_action(d, remote=False):
 
 # ---------- 26.11.20 riders: small change counters that travel with a window's one waiting request for the state ----
 RIDERS = {"vl": lambda: VERSE_LISTEN.seq, "vc": lambda: VOICE_CMD.seq, "mem": lambda: MEMORY.rev,
+          "ft": lambda: FEATURE_STATE["rev"],        # 26.11.31 the features switched on or off
           "pr": lambda: "%s.%s" % (PRAYER.rev, ROOM.rev)}   # 26.11.23 the prayer wall; 26.11.24 members' phones
 RIDER_SLICE = 0.12        # how often a waiting request looks at the riders (they change on other threads)
 
@@ -934,6 +940,8 @@ def verse_listen_action(d, remote=False):
         mode = VERSE_MODES.get(str(d.get("value") or ""))
         if not mode:
             raise ValueError("Choose off, ask or auto.")
+        if mode[0] and not feature_on("listen"):
+            raise ValueError("Listen for scripture is switched off (Settings → General → Features).")
         save_app_settings({"scriptureListen": mode[0], "scriptureAuto": mode[1]})
         VERSE_LISTEN.tick()                                    # start or stop listening now, not at the next check
         return VERSE_LISTEN.body()
@@ -950,6 +958,8 @@ def voice_action(data):
     if op in ("start", "words") and not isinstance(words, list):
         raise ValueError("words must be a list")
     if op == "start":
+        if not feature_on("follow"):
+            raise ValueError("Follow my voice is switched off (Settings → General → Features).")
         return VOICE.start(words)
     if op == "words":
         return VOICE.words(words)
@@ -1563,7 +1573,9 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # 26.11.25 the corner card: a verse heard or a prayer request waiting, while the Studio is behind
                          # Zoom or Teams (on top of the meeting, never in screen sharing)
                          "leaderCard": True,
-                         "voiceKey": "rctrl"}
+                         "voiceKey": "rctrl",
+                         # 26.11.31 features switched off ({id: false}; src/features.py). Never chosen = everything on
+                         "features": {}}
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
@@ -1603,6 +1615,8 @@ def _valid_setting(k, v):
         return _valid_guide(v)
     if k == "onboarding":
         return _valid_onboarding(v)
+    if k == "features":
+        return FEAT.valid(v)
     if isinstance(d, bool):
         return isinstance(v, bool)
     if k in APP_SETTING_CHOICES:
@@ -1634,7 +1648,59 @@ def app_settings():
                     out[k] = data[k]
     except (OSError, ValueError):
         pass
+    out.update(FEAT.held(FEAT.effective(out["features"], out["peopleSee"])))   # 26.11.31 a feature that is off stays off
     return out
+
+
+# 26.11.31 the features' state, kept in memory so the hot paths (every state change, the meeting guard) never read the
+# file; refreshed by every save. "rev" moves on each change: the pages ride it ("ft") and redraw.
+FEATURE_STATE = {"eff": None, "rev": 0}
+
+
+def features_now():
+    if FEATURE_STATE["eff"] is None:
+        cfg = app_settings()
+        FEATURE_STATE["eff"] = FEAT.effective(cfg["features"], cfg["peopleSee"])
+    return dict(FEATURE_STATE["eff"])
+
+
+def feature_on(fid):
+    return bool(features_now().get(fid, True))
+
+
+def features_body():
+    eff = features_now()
+    live = bool((state.get("live") or {}).get("scene"))
+    return {"features": eff, "preset": FEAT.preset_of(eff), "locked": live, "rev": FEATURE_STATE["rev"]}
+
+
+def features_action(body):
+    """POST /api/app/features: {preset: simple|study|full} or {set: {id: bool}}. Only while nothing is on air (a card or
+    a chip vanishing mid-meeting would be a surprise). Switching off also stops the feature's background work."""
+    if (state.get("live") or {}).get("scene"):
+        raise PermissionError("Off air to change features.")
+    cfg = app_settings()
+    before = features_now()
+    new, see = FEAT.change(cfg["features"], cfg["peopleSee"], body)
+    eff = FEAT.effective(new, see)
+    save_app_settings(dict(FEAT.held(eff), features=new, peopleSee=see))
+    for fid, on in eff.items():
+        if before.get(fid) == on or on:
+            continue
+        try:
+            if fid == "remote":
+                set_remote(False)
+            elif fid == "memory":
+                memory_capture(False)
+            elif fid == "follow":
+                VOICE.stop()
+            elif fid == "listen":
+                VERSE_LISTEN.tick()
+            elif fid == "voice":
+                VOICE_CMD.tick()
+        except Exception as e:                       # the switch is saved; a stop that fails is said in the log
+            print(f"Feature {fid}: could not stop: {type(e).__name__}: {e}")
+    return features_body()
 
 
 _settings_lock = threading.RLock()      # 9.1.2 two saves at once never lose one of them
@@ -1654,6 +1720,10 @@ def _save_app_settings(changes):
         from desktop_win import format_hotkey
         cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
     write_atomic(APP_SETTINGS_FILE, json.dumps(cur, indent=2))
+    eff = FEAT.effective(cur["features"], cur["peopleSee"])
+    if eff != FEATURE_STATE["eff"]:
+        FEATURE_STATE["eff"] = eff
+        FEATURE_STATE["rev"] += 1
     if "peopleSee" in changes and changes["peopleSee"] == cur["peopleSee"]:
         apply_people_see(cur["peopleSee"])
     if "cloudRemote" in changes and "CLOUD_REMOTE" in globals():
@@ -1822,6 +1892,8 @@ SETTINGS_PAGES = ("ms-settings:network-wifi", "ms-settings:network-status", "ms-
 # 26.11.7 the meeting guard (src/meeting_guard.py): measures only while a meeting app uses FrameDecks vCam, makes the
 # camera work lighter while the PC is very busy, and lists what is in the way (Windows Camera app, battery saver)
 def _guard_in_use():
+    if not feature_on("guard"):                      # 26.11.31 Lighter during meetings switched off: never measures
+        return False
     eng = VCAM.get("engine") if "VCAM" in globals() else None
     return bool(eng and eng.status.get("inUse"))
 
@@ -3101,6 +3173,10 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(ready_report()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/app/features":                  # 26.11.31 which features are on (and whether they can change now)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(features_body()), TYPES[".json"])
         if path == "/api/app/guard":                     # 26.11.7 the meeting guard: what is in the way, how busy
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3112,7 +3188,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
-                    "recovered": RECOVERED, "planRecovery": dict(PLAN_RECOVERY) or None,
+                    "recovered": RECOVERED, "planRecovery": dict(PLAN_RECOVERY) or None, "features": features_body(),
                     "lowGpuActive": bool(DESKTOP.get("low_gpu")), "shell": DESKTOP.get("shell", "browser"),
                     "chrome": bool(DESKTOP.get("chrome")), "hotkeys": dict(DESKTOP.get("hotkey_results") or {}),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
@@ -3519,6 +3595,8 @@ class Handler(BaseHTTPRequestHandler):
             hook = DESKTOP.get("window_theme")
             return ok({"styled": bool(hook(data.get("theme") != "light")) if hook else False})
         if action == "remote":
+            if data.get("enabled") and not feature_on("remote"):
+                return bad("The phone remote is switched off (Settings → General → Features).", 409)
             res = set_remote(bool(data.get("enabled")))
             return ok(res)
         if action == "grant":
@@ -3529,7 +3607,14 @@ class Handler(BaseHTTPRequestHandler):
             except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
                 return bad(str(e), 503)
         if action == "settings":
-            return ok(save_app_settings(data))
+            return ok(save_app_settings({k: v for k, v in data.items() if k != "features"}))   # features: api/app/features
+        if action == "features":                    # 26.11.31 switch a feature on or off, or choose a ready-made set
+            try:
+                return ok(features_action(data))
+            except PermissionError as e:
+                return bad(str(e), 409)
+            except ValueError as e:
+                return bad(str(e))
         if action == "settings-reset":              # 26.11.22 Settings → "Reset this section": these keys back to default
             keys = [k for k in (data.get("keys") or []) if isinstance(k, str) and k in APP_SETTINGS_DEFAULTS and k not in SETTINGS_NEVER_RESET]
             if not keys:
@@ -3983,7 +4068,7 @@ def guard_brief():
 
 
 def remote_studio_body():
-    return dict(remote_studio_info(), smartNext=bool(app_settings().get("smartNext")))
+    return dict(remote_studio_info(), smartNext=bool(app_settings().get("smartNext")), features=features_now())
 
 
 def sync_body():

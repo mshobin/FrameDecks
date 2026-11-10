@@ -41,7 +41,7 @@
       </div>
       <div class="sp-row sp-tools" id="sp-tools" data-no-drag data-bar-fit="3">
         <div class="sp-ctl" id="sp-ctl"></div>
-        <div class="sp-voice-wrap" id="sp-voice-wrap" hidden>
+        <div class="sp-voice-wrap" id="sp-voice-wrap" data-feature="follow" hidden>
           <button class="sp-act sp-voice" type="button" id="sp-voice" aria-pressed="false" aria-label="Follow my voice" title="Follow my voice: the script moves as you speak (V). Listens only on this PC, only while the Teleprompter is above every other window: pinned or in front"><span class="sp-mic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><span class="sp-wd">Follow my voice</span></button>
           <button class="sp-act sp-voice-set" type="button" id="sp-voice-set" aria-expanded="false" aria-controls="sp-voice-pop" aria-label="Microphone and sensitivity" title="Microphone and sensitivity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
           <span class="sp-voice-st" id="sp-voice-st" role="status" hidden></span>
@@ -66,6 +66,7 @@
   </div>
   <main class="sp-main"><section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter" tabindex="-1"></section></main>
 <script src="js/store.js"></script>
+<script src="js/features.js"></script>
 <script src="js/meeting-mode.js"></script>
 <script src="js/editable.js"></script>
 <script src="js/teleprompter.js"></script>

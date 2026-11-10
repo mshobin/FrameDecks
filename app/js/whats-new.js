@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.31': [
+    {title: 'Choose the features you use', text: 'Settings → General → Features: switch off what you don’t use. It leaves the chips, the Command Center and the phone remote, and its work stops. Simple, Bible study or Full to start.', show: {settings: 'general', spot: '#features-box'}},
+    {title: 'Features in the Command Center', text: 'More → Features: the same switches in a list. They change only while nothing is on air.', show: {settings: 'general', spot: '#features-box'}}
+  ],
   '26.11.30': [
     {title: 'If your plan file is ever damaged, you are told', text: 'FrameDecks keeps the damaged file and opens your newest backup. Now the Studio says so once, so you can check any Frames added since.', show: {settings: 'diag'}},
     {title: 'What to do in a hurry', text: 'The Ready check ends with the keys that black the screen and hide everything, and where the Emergency screen is.', show: {spot: '#cb-take'}}

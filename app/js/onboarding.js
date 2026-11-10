@@ -168,10 +168,31 @@ function seePanel(){
   return h('div', {cls: 'onb-opt'}, [h('p', {cls: 'onb-opt-t', id: 'onb-see-t', text: 'How will people see it?'}), group, hint]);
 }
 
+/* 26.11.31 What do you use? Three ready-made sets of features (js/features.js); any switch can change later in
+   Settings → General → Features or the Command Center's More → Features */
+function usePanel(){
+  var F = window.KCFeatures; if (!F) return null;
+  var cur = F.state().preset || 'full';
+  var hint = h('p', {cls: 'onb-hint'});
+  function say(){ var p = F.presets.filter(function(x){ return x.id === cur; })[0]; hint.textContent = (p ? p.text + ' ' : '') + 'Change any of them later: Settings → General → Features.'; }
+  var group = h('div', {cls: 'onb-kinds', role: 'radiogroup', 'aria-labelledby': 'onb-use-t'}, F.presets.map(function(p){
+    var btn = h('button', {cls: 'onb-kind', type: 'button', role: 'radio', 'aria-checked': String(cur === p.id), 'data-use': p.id}, [h('span', {html: I(p.icon, 18)}), h('span', {text: p.label})]);
+    btn.addEventListener('click', function(){
+      cur = p.id;
+      group.querySelectorAll('.onb-kind').forEach(function(x){ x.setAttribute('aria-checked', String(x.dataset.use === cur)); });
+      say();
+      F.preset(p.id).catch(function(e){ if (window.KCActions) KCActions.toast(e.message, true); });
+    });
+    return btn;
+  }));
+  say();
+  return h('div', {cls: 'onb-opt'}, [h('p', {cls: 'onb-opt-t', id: 'onb-use-t', text: 'What do you use?'}), group, hint]);
+}
+
 function finishExtras(){
   var out = [h('div', {cls: 'onb-legend', 'aria-label': 'Colours'}, [
     h('span', {}, [h('i', {cls: 'lf'}), 'Frame']), h('span', {}, [h('i', {cls: 'ld'}), 'Deck']), h('span', {}, [h('i', {cls: 'lc'}), 'Content'])]),
-    seePanel(), syncPanel()];
+    usePanel(), seePanel(), syncPanel()].filter(Boolean);
   if (onlyStarters() && SC && SC.quickStarts){
     out.push(h('div', {cls: 'onb-opt'}, [
       h('p', {cls: 'onb-opt-t', id: 'onb-kinds-t', text: 'Start with a ready-made meeting? (optional)'}),

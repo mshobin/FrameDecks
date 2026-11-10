@@ -202,7 +202,7 @@ function build(){
           [h('i', {style: 'background:' + (x.accent || '#d9ab4a')})]),
         h('span', {cls: 'look-t'}, [h('b', {text: x.name}), h('small', {text: x.note})])]);
     }));
-  root.appendChild(h('section', {cls: 'box', id: 'mb-season'}, [
+  root.appendChild(h('section', {cls: 'box', id: 'mb-season', 'data-feature': 'seasons'}, [
     h('div', {cls: 'box-head'}, [h('h2', {text: 'Season'})]),
     h('p', {cls: 'plain', text: 'One choice changes the colours of every card, on the camera and the shared screen, together with a small touch of the season. Choose No season to go back to your own colours.'}),
     el.season]));

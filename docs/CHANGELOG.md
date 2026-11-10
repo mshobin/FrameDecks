@@ -10,6 +10,21 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.31] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.31.md](releases/v26.11.31.md).
+
+### Added
+- Features you switch on or off: `src/features.py` (twelve features in five groups, presets simple/study/full, the
+  settings a feature that is off holds off) and `app/js/features.js` (the same list; `data-feature` hides what is off on
+  every page; rides `ft`). `GET/POST /api/app/features` (409 while live); `features` in kc-app-settings.json (never
+  chosen = everything on); the camera's switch is `peopleSee`. Off stops the work: Listen for scripture and Voice
+  commands held off, the phone remote closed, Capture never starts, Follow my voice refused, the meeting log not
+  written, the meeting guard idle.
+- Settings → General → Features (`app/js/features-panel.js`), the Welcome's "What do you use?" (`onboarding.js`), the
+  Command Center's More → Features scope, palette items ("… is off · Turn on?"), chips leave out an action whose
+  feature is off (`chips.js` `feature`), the phone remote gets the switches with `/api/remote/studio`.
+
 ## [26.11.30] - 2026-11-09
 
 Full notes: [docs/releases/v26.11.30.md](releases/v26.11.30.md). The fixes from the 26.11.29 release audit.

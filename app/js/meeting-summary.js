@@ -288,7 +288,7 @@ var wasLive = '', since = 0;
 Store.subscribe(function(st){
   var sid = (st.live && st.live.scene) || '';
   if (sid && !wasLive) since = Date.now();
-  if (!sid && wasLive && Date.now() - since > 60000 && window.KCActions && KCActions.toastAction){
+  if (!sid && wasLive && Date.now() - since > 60000 && window.KCActions && KCActions.toastAction && !(window.KCFeatures && !KCFeatures.on('summary'))){
     setTimeout(function(){ KCActions.toastAction('Meeting ended · ' + hm(Date.now() - since), 'Summary', function(){ open('latest'); }); }, 900);
   }
   wasLive = sid;

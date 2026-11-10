@@ -46,6 +46,7 @@ var DO = {
   },
   sync: function(){ runKey('set:account'); }, output: function(){ runKey('set:output'); }, phone: function(){ runKey('set:ipad'); },
   brand: function(){ runKey('set:meeting'); }, keys: function(){ runKey('set:keys'); },
+  features: function(){ if (window.KCFeaturesPanel) KCFeaturesPanel.show(); },
   all: function(){ if (window.KCSetTab) window.KCSetTab('settings'); }, help: function(){ runKey('cmd:welcome'); }};
 
 /* 9.13 Draw and Spotlight open the Share Window (the window you share in Zoom or Teams) in that mode, as in the Command
@@ -74,6 +75,7 @@ function tile(a){
   b.className = 'lc-t' + (a.id === 'black' || a.id === 'emergency' ? ' warn' : '');
   b.id = b.id || 'lc-' + a.id;
   b.dataset.action = a.id;
+  if (a.feature) b.dataset.feature = a.feature;
   b.title = a.label + ': ' + a.sub;
   b.innerHTML = '';
   b.appendChild(h('span', {cls: 'lc-t-ic', 'aria-hidden': 'true', html: I(a.icon, 16)}));
@@ -92,7 +94,7 @@ CH.list.forEach(function(c){
     if (notesPad) pop.appendChild(notesPad.el);
   } else {
     var grid = h('div', {cls: 'lc-grid'});
-    CH.actions(c.id, 'app').forEach(function(a){
+    CH.actions(c.id, 'app', false, true).forEach(function(a){       // 26.11.31 a tile whose feature is off hides itself (data-feature)
       grid.appendChild(tile(a));
     });
     pop.appendChild(grid);

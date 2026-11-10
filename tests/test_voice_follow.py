@@ -245,7 +245,7 @@ class Teleprompter(unittest.TestCase):
             self.assertIn(need, vf)
         self.assertNotIn("localStorage", vf)                       # nothing heard is kept
         html = read("app/speaker.html")
-        self.assertIn('<div class="sp-voice-wrap" id="sp-voice-wrap" hidden>', html)
+        self.assertIn('<div class="sp-voice-wrap" id="sp-voice-wrap" data-feature="follow" hidden>', html)
         self.assertIn('<script src="js/voice-follow.js"></script>', html)
 
 
