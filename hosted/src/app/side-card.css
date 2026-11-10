@@ -1,0 +1,12 @@
+/* 26.11.40 the left panel's Next meeting card (components/side-card.tsx), in the sidebar's own look */
+.fd-side-card{display:grid;gap:4px;margin:-8px 4px 0;padding:14px;border:1px solid var(--hairline);border-radius:16px;background:var(--surface);color:var(--text-2);font-size:13px}
+.fd-side-card p{margin:0}
+.fd-side-kicker{color:var(--text-3);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.fd-side-title{color:var(--text);font-size:15px;font-weight:700}
+.fd-side-bar{height:6px;margin:8px 0 2px;border-radius:9px;background:var(--fill)}
+.fd-side-bar i{display:block;height:100%;border-radius:9px;background:var(--gold);transform-origin:left}
+.fd-side-pc{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:10px;border-top:1px solid var(--hairline)}
+.fd-side-dot{width:8px;height:8px;border-radius:50%;background:var(--text-3)}
+.fd-side-dot.is-on{background:var(--green)}
+.fd-side-sync{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;margin-top:10px;padding:9px 12px;border-radius:12px;background:var(--gold);color:#16120a;font-weight:600}
+@media (max-height:760px),(max-width:860px){.fd-side-card{display:none}}

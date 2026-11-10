@@ -1,33 +1,29 @@
-## FrameDecks v26.11.39
+## FrameDecks v26.11.40
 
-Plan on the website at your own pace, then send it with one Sync Now. Download from **framedecks.com/download**, or let
+Your next meeting at a glance on every page of framedecks.com. Download from **framedecks.com/download**, or let
 FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members, settings,
 notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Sync Now.** On framedecks.com, Plan, your Frame changes (added, edited, moved and deleted) now wait on the page.
-  A big **Sync Now** box under the timeline lists what is waiting, for example "Changed Reading · Deleted Offering",
-  and sends it to the service PC in one go. **Discard changes** undoes them instead. Waiting changes are kept in your
-  browser, so closing the tab loses nothing.
-- **Nothing sent twice.** Sync Now sends only the Frames that really differ from the workspace. A Frame you edit and
-  then put back, or add and delete again, is not sent at all, and a Frame changed on the PC meanwhile is never
-  silently overwritten: it stays waiting until you press Sync Now again or discard it.
-- **Select several Frames and delete them together.** Click a Frame's number, in the list in the middle or on the
-  timeline, to select it. The selection shows in both places; **Delete** removes them all with one question.
-- **The Frame you click lights up on the timeline**, and the timeline scrolls to it.
+- **Next meeting card.** The left panel on framedecks.com now shows a card under Help with the meeting the service PC
+  shows: its name, date ("Tue 3 Nov · in 2 days") and how many Frames it has.
+- **How ready it is.** A bar and "4 of 5 ready" count five checks: the meeting has a name and a date, it has Frames,
+  every Frame has words or media, nothing is waiting for Sync Now, and the church PC is online.
+- **The church PC.** A green dot when it is online; click it to open Devices.
+- **Changes waiting.** When Frame changes wait on Plan, a gold "2 changes waiting · Sync Now" appears on the card on
+  every page, and takes you to Plan.
 
 ## Enhancements
-- The Sync step reads **Waiting for Sync Now** while changes wait.
-- An order changed on the PC while you planned is merged with yours: your order first, then any Frame the PC added.
-- Meeting details, the transition style and new meetings still save at once.
-- The Help guide's Plan pictures show the new selection bar.
+- Home and the card share one load of the workspace, kept for a minute, so moving between pages stays quick.
+- Home's Frame count is now the count for the meeting the PC shows.
 
 ## Fixes
 None in this version.
 
 ## Performance Improvements
-None in this version.
+- The website loads less JavaScript in all (378 KB, from 401 KB).
 
 ## Known Issues
+- On short windows (under 760 pixels high) and on phones the card is hidden, so the menu stays first.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

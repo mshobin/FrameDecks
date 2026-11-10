@@ -6,6 +6,7 @@ import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
 import { EffectsToggle } from "@/components/effects-toggle";
 import { LegalGate } from "@/components/legal-gate";
+import { SideCard } from "@/components/side-card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TrustPrompt, TrustedDeviceGuard } from "@/components/trusted-device";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -80,6 +81,8 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
             ))}
           </div>
         </nav>
+
+        <SideCard />
 
         <div className="fd-sidebar-foot">
           <a className="fd-foot-link" href={DOWNLOADS}>

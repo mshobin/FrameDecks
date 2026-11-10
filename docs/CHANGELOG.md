@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.40] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.40.md](releases/v26.11.40.md).
+
+### Added
+- The left panel's Next meeting card (`hosted/src/components/side-card.tsx`, `app/side-card.css`): the meeting the PC
+  shows (`meetingGlance`), five readiness checks (`lib/glance-view.ts` `readyCount`), the church PC, and the changes
+  waiting for Sync Now (follows Plan through the `fd-plan-changes` event). Hidden under 760 px high and on phones.
+
+### Changed
+- Home and the card share one workspace load, kept a minute (`lib/glance-data.ts` `loadGlance`); Home's Frame count is
+  the PC's meeting's. Website JavaScript 378 KB in all.
+
 ## [26.11.39] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.39.md](releases/v26.11.39.md).

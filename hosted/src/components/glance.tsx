@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CakeSlice, ChevronRight, CircleCheck, CircleDashed, ClipboardList, Radio } from "lucide-react";
 
+import { loadGlance } from "@/lib/glance-data";
 import { isOnline, nowShowing, type LiveComputer } from "@/lib/live-view";
 import { browserSupabase } from "@/lib/supabase-browser";
-import { join } from "@/lib/sync-entities";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { relativeTime } from "@/lib/when";
-import { pullWorkspace } from "@/lib/workspace-sync";
 import { upcomingBirthdays, whenLabel, type Birthday } from "@/lib/workspace-settings";
 
 type Glance = {
@@ -21,8 +20,6 @@ type Glance = {
   birthdays: Birthday[];
   pc: LiveComputer | null;
 };
-
-const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
 function when(date: string): string {
   const d = new Date(`${date}T12:00:00`);
@@ -42,24 +39,19 @@ export function NextService({ workspace, name }: Readonly<{ workspace: Workspace
   useEffect(() => {
     if (!supabase) return;
     let live = true;
-    (async () => {
-      const { records } = await pullWorkspace(supabase, workspace.id);
-      const pcs = await supabase.rpc("remote_computers", { org: workspace.id });
-      const { doc, members } = join(records, {});
-      const meeting = isObj(doc.meeting) ? doc.meeting : {};
-      const scenes = Array.isArray(doc.scenes) ? doc.scenes.filter((s) => isObj(s) && !s.tpl) : [];
-      const list = ((pcs.data as LiveComputer[] | null) ?? []).sort((a, b) => Number(isOnline(b)) - Number(isOnline(a)));
+    // 26.11.40 the same load as the left panel's Next meeting card (lib/glance-data.ts), shared and kept a minute
+    loadGlance(supabase, workspace.id).then((g) => {
       if (live)
         setGlance({
-          title: String(meeting.title ?? ""),
-          date: String(meeting.date ?? ""),
-          frames: scenes.length,
-          lastChange: records.map((r) => r.updatedAt ?? "").sort().at(-1) || null,
-          people: members.length,
-          birthdays: upcomingBirthdays(members),
-          pc: list[0] ?? null,
+          title: g.meeting.name,
+          date: g.meeting.date,
+          frames: g.meeting.frames,
+          lastChange: g.records.map((r) => r.updatedAt ?? "").sort().at(-1) || null,
+          people: g.members.length,
+          birthdays: upcomingBirthdays(g.members),
+          pc: g.pcs[0] ?? null,
         });
-    })();
+    }, () => undefined);
     if (workspace.role === "member") {
       supabase.auth.getUser().then(({ data }) => {
         if (!data.user) return;

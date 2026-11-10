@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.40': [
+    {title: 'Next meeting on framedecks.com', text: 'The website\u2019s left panel shows the next meeting, how ready it is, the church PC and any changes waiting for Sync Now.', show: {settings: 'account'}}
+  ],
   '26.11.39': [
     {title: 'Sync Now on the website', text: 'Frame changes on framedecks.com wait until you press Sync Now under the timeline. Only what changed is sent, never twice.', show: {settings: 'account'}},
     {title: 'Delete several Frames at once', text: 'On the website, click Frame numbers to select them in the list or on the timeline, then delete them together.', show: {settings: 'account'}}

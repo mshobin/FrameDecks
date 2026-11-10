@@ -111,6 +111,7 @@ export function saveChanges(ws: string, changes: Changes, store: Pick<Storage, "
   try {
     if (Object.keys(changes).length) store?.setItem(STORE(ws), JSON.stringify(changes));
     else store?.removeItem(STORE(ws));
+    globalThis.dispatchEvent?.(new Event("fd-plan-changes"));      // the left panel's card follows at once
   } catch {
     /* storage full or blocked: the changes stay on this page until Sync Now */
   }
