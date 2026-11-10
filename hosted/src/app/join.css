@@ -101,6 +101,21 @@
 .cs-in .cs-ws{border-color:var(--gold);opacity:1;box-shadow:0 0 0 4px var(--gold-soft)}
 .cs-in .cs-ws-rows i{background:var(--gold-soft)}
 .cs-in .cs-ws-top{background:var(--gold)}
+/* 26.11.38 the email code: whose computer this is, six boxes, send again */
+.ec-whose{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0;margin:6px 0 2px;padding:0;border:0}
+.ec-whose legend{margin-bottom:6px;padding:0;color:var(--text);font-size:14px;font-weight:600}
+.ec-pick{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--hairline-strong);border-radius:12px;cursor:pointer}
+.ec-pick input{margin-top:3px;accent-color:var(--gold)}
+.ec-pick span{display:grid;gap:2px;color:var(--text);font-size:15px}
+.ec-pick small{color:var(--text-3);font-size:13px}
+.ec-on{border-color:var(--gold);background:var(--gold-soft)}
+.ec-sent .cs{margin-bottom:16px}
+.ec-boxes{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:6px 0 4px;cursor:text}
+.ec-real{position:absolute;inset:0;width:100%;height:100%;border:0;background:none;color:transparent;font-size:16px;caret-color:transparent;opacity:0}
+.ec-box{display:grid;place-items:center;height:56px;border:1px solid var(--hairline-strong);border-radius:12px;background:var(--surface);color:var(--text);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.ec-boxes:focus-within .ec-at{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.ec-again{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px}
+@media (max-width:420px){.ec-whose{grid-template-columns:1fr}.ec-box{height:50px;font-size:22px}}
 @media (prefers-reduced-motion: no-preference){
   html.fd-motion:not(.fd-calm) .cs-list li::after{transition:transform .45s var(--fd-ease) calc(var(--i) * .2s)}
   html.fd-motion:not(.fd-calm) .cs-done .cs-dot::after{animation:cs-tick .3s var(--fd-ease) calc(var(--i) * .2s) both}

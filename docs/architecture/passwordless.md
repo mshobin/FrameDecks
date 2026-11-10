@@ -72,6 +72,33 @@ code.
   (`auth.updateUser({email})`, confirmed by email) and then offers a passkey. Each "Not now" is remembered per device.
 - The PC setup card hides Connect this PC once `workspace_devices` lists a PC for the team.
 
+## 6. The email code is the main way in (26.11.38)
+
+Open your workspace on framedecks.com starts with **Your email** and **Email me a code**. The phone, a passkey and the
+recovery code are under Other ways in.
+
+- **The email carries only a 6-digit code**, no link (`hosted/supabase/setup/email-code.html`, used for the Magic Link
+  and Confirm signup templates; subject "Your FrameDecks code: {{ .Token }}"). Work email often opens links by itself
+  (Microsoft Safe Links), which used up one-time links; a code cannot be used up that way and gives a fake page less
+  to work with. Supabase Auth: `mailer_otp_length` 6, `mailer_otp_exp` 600 (10 minutes).
+- **No accidental workspaces.** Opening sends `signInWithOtp({ shouldCreateUser: false })`; only Start with email may
+  make a new workspace. An email with no workspace is answered exactly like a sent code ("If m•••@gmail.com opens a
+  workspace, a 6-digit code is on its way"), so nobody can test which emails are members. Requests stay limited per
+  address and network (`magic_link_requested`, 0015).
+- **Whose computer is this?** *Mine* keeps the workspace open (Trust This Device, `trust_device`, shown in Devices);
+  *Someone else's* keeps it in this tab only and forgets it when the tab closes (`keepInTabOnly` before `verifyOtp`).
+  A browser that never chose *Mine* starts on *Someone else's* (`lib/email-code.ts`, `fd-seen`).
+- **Six boxes** (`components/code-boxes.tsx`): paste, the phone's code autofill (`autocomplete="one-time-code"`) and
+  the number keypad all work; the sixth digit opens. "Send a new code" unlocks after 30 seconds. The flowchart ticks
+  *Code sent → Code entered → {team} opens*.
+- **You are told where it was opened.** After the code works, the website calls `email_sign_in` (migration 0024): one
+  `device_alerts` row of kind `signin` for that person, once per session and at most 10 a day. The same webhook and
+  Edge Function `device-alert` email it to that person alone ("BSF Study was opened on Chrome on Windows"); owners'
+  and admins' list of new devices leaves sign-ins out. Devices has **Sign out other computers**
+  (`auth.signOut({ scope: "others" })`) for a workspace left open at work.
+- A device that joined by scanning has no email until it adds one (the Keep your workspace safe card, 26.11.37); until
+  then it opens with the phone or a passkey.
+
 ## Owner steps (Supabase dashboard, project `slrsykiknlqlivlnpvrb`)
 
 1. **SQL editor:** run `hosted/supabase/migrations/0021_passwordless.sql` (after 0020). Undo:
@@ -113,3 +140,14 @@ Tests: `hosted/tests/supabase-0021.test.mjs` (PGlite), `tests/test_passwordless_
 Until steps 3 to 5 are done, alerts still show on Devices; only the emails wait.
 
 Tests: `hosted/tests/supabase-0023.test.mjs` (PGlite).
+
+## Owner steps for 26.11.38 (the email code)
+
+1. Run `hosted/supabase/migrations/0024_email_sign_in.sql` in the SQL editor (undo:
+   `hosted/supabase/rollback/0024_email_sign_in_down.sql`). The website works before it runs; the sign-in email starts
+   once it has.
+2. Supabase Auth email settings (applied for this project with the Management API in 26.11.38): code length 6, expiry
+   600 seconds, Magic Link and Confirm signup templates from `hosted/supabase/setup/email-code.html`, both subjects
+   "Your FrameDecks code: {{ .Token }}".
+3. Redeploy the Edge Function `device-alert` (it now also writes the sign-in email).
+

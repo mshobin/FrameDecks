@@ -41,7 +41,7 @@ test("the website opens workspaces with a passkey or an email code, never throug
   const quick = read("components/quick-sign-in.tsx");
   assert.match(quick, /signInWithPasskey/);
   assert.match(quick, /Open with a passkey/);
-  assert.match(read("components/workspace-sync-form.tsx"), /Use an email code instead/);
+  assert.match(read("components/workspace-sync-form.tsx"), /Email me a code/);
   assert.doesNotMatch(read("lib/quick-sign-in.ts"), /providers|external/);
 });
 

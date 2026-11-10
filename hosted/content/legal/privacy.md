@@ -1,6 +1,6 @@
 # FrameDecks Privacy Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 10 November 2026 (passkey or email code, new-device alerts)*
+*Effective 29 October 2026 · Version 2026-10-29 · Updated 10 November 2026 (email code first, new-device and sign-in emails)*
 
 FrameDecks is made by **Shobin Mathews** ("we", "us"), who is responsible for the personal data described here.
 Contact: privacy@framedecks.com.
@@ -39,7 +39,7 @@ present except commands you choose to send from your phone through the website.
 
 - **Supabase** — the database, and sending the one-time links, for workspaces.
 - **Cloudflare** — the website, downloads, the update service and email forwarding.
-- **Resend** — delivering the one-time email codes and the new-device emails to owners and admins.
+- **Resend** — delivering the one-time email codes, the new-device emails to owners and admins, and the email telling you when your workspace was opened with your email code (the computer's browser and system, and the time).
 
 They act on our instructions and may store data outside your country, protected by their own security and contractual
 safeguards.

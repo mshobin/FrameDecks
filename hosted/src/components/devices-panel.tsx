@@ -124,6 +124,21 @@ function Devices({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     load();
   }
 
+  // 26.11.38 the email-code sign-in alert points here: every other session of this person ends at once
+  async function signOutOthers() {
+    if (!supabase) return;
+    if (!(await ask({
+      title: "Sign out other computers?",
+      description: "Every other computer and browser opened with your email closes your workspace. This device stays open.",
+      confirmLabel: "Sign out others",
+      tone: "danger",
+    }))) return;
+    const { error } = await supabase.auth.signOut({ scope: "others" });
+    if (error) return setProblem(userSafeError(error, "Couldn’t sign out the other computers. Try again."));
+    setProblem(null);
+    load();
+  }
+
   async function forgetBrowser(b: Browser) {
     if (!supabase) return;
     const here = b.current || b.id === readTrust()?.id;
@@ -291,6 +306,21 @@ function Devices({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {session.user.email && (
+        <section className="workspace-card" aria-labelledby="others-title">
+          <h2 id="others-title" className="device-title">
+            Opened somewhere else?
+          </h2>
+          <p className="page-note">
+            Forgot to close your workspace on a work or borrowed computer? Sign out every other computer and browser opened
+            with your email. They need a new code to come back; this device stays open.
+          </p>
+          <button type="button" className="member-action member-danger" onClick={signOutOthers}>
+            Sign out other computers
+          </button>
         </section>
       )}
 
@@ -488,7 +518,7 @@ function RecoveryCard({ org, team, ask }: Readonly<{ org: string; team: string; 
       <h3 className="device-sub">Emergency email</h3>
       {mine ? (
         <p className="workspace-hint">
-          Set to <strong>{mine}</strong>. If you lose every device, Open Workspace → Use an email code instead opens your team with it.
+          Set to <strong>{mine}</strong>. If you lose every device, Open Workspace → Email me a code opens your team with it.
         </p>
       ) : waiting ? (
         <p className="workspace-notice" role="status">

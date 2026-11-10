@@ -109,7 +109,7 @@ test("saving a new workspace needs the tick; it is recorded once, within a day",
   const form = src("components/workspace-sync-form.tsx");
   assert.match(form, /const starting = intent === "save";/);
   assert.match(form, /const blocked = starting && !agreed;/);
-  assert.match(form, /disabled=\{status\.kind === "sending" \|\| blocked\}/);
+  assert.match(form, /disabled=\{status\.kind === "sending" \|\| blocked \|\| !email\.trim\(\)\}/);
   const s = mem();
   rememberAcceptance(s, 0);
   assert.equal(takeAcceptance(s, 1000), true);

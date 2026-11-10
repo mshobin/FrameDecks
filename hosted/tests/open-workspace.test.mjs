@@ -24,11 +24,11 @@ test("the flowchart ticks each step and lights up the workspace", () => {
   }
 });
 
-test("the phone is the main way in and the passkey shows only where one is saved", () => {
+test("the passkey shows only where one is saved; the phone is under Other ways in (26.11.38: the email code first)", () => {
   const form = src("components/workspace-sync-form.tsx");
-  assert.ok(form.includes("Your phone is the key"));
   assert.ok(form.includes("Open with your phone"));
-  assert.ok(form.indexOf("<OpenWithPhone />") < form.indexOf("<QuickSignIn quiet />"), "the phone first, a passkey under Other ways in");
+  assert.ok(form.indexOf("<WorkspaceSyncForm intent=\"sync\"") < form.indexOf("<OpenWithPhone />"), "the email code first, the phone after");
+  assert.ok(form.indexOf("<WorkspaceSyncForm intent=\"sync\"") < form.indexOf("<QuickSignIn quiet />"));
   const quick = src("components/quick-sign-in.tsx");
   assert.match(quick, /const SAVED = "fd-passkey"/);
   assert.match(quick, /saved === null \|\| saved === quiet\) return null/);

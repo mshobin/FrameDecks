@@ -11,7 +11,7 @@ import { publicSupabaseEnv, readSupabaseConfig } from "@/lib/supabase-config";
 
 export type AuthFeatures = { passkeys: boolean };
 
-const NOT_SET_UP = "Opening by scanning isn’t set up for this site yet. Use an email code instead, or ask the workspace owner. (FD-CLD-07)";
+const NOT_SET_UP = "Opening by scanning isn’t set up for this site yet. Use an email code, or ask the workspace owner. (FD-CLD-07)";
 const ANSWERS: Record<string, string> = {
   wrong: "That code doesn’t match. Scan the code on the other screen again. (FD-CLD-01)",
   expired: "This code has run out. Codes last 2 minutes and work once: show a fresh one and scan again.",

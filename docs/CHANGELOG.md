@@ -10,6 +10,28 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.38] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.38.md](releases/v26.11.38.md).
+
+### Added
+- The email code as the main way in (`components/workspace-sync-form.tsx`): Your email, Whose computer is this?
+  (Mine: `trust_device`; Someone else's: `keepInTabOnly` before `verifyOtp`), six boxes (`components/code-boxes.tsx`),
+  Send a new code after 30 s, the connect flowchart; rules in `lib/email-code.ts`.
+- Migration 0024 `email_sign_in` (+ rollback, PGlite tests): a `signin` alert once per session, at most 10 a day, emailed
+  to that person by `device-alert`; `device_alerts_recent` leaves sign-ins out.
+- Devices: Sign out other computers (`auth.signOut({ scope: "others" })`).
+- `hosted/supabase/setup/email-code.html`: the code-only email template.
+
+### Changed
+- Opening never creates a user (`shouldCreateUser: false`); an unknown email is answered like a sent code. Start with
+  email still creates the workspace.
+- Open with your phone moved under Other ways in; Help guide Open Workspace text and pictures.
+- Supabase Auth: 6-digit codes, Magic Link and Confirm signup templates carry the code only.
+
+### Fixed
+- The sign-in email carried only a link, so the code box on the website could not work.
+
 ## [26.11.37] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.37.md](releases/v26.11.37.md).

@@ -30,9 +30,25 @@ function utc(at: string): string {
   return `${date}, ${time} UTC`;
 }
 
-type Alert = { status: string; kind: "pc" | "device"; deviceName: string; createdAt: string; workspace: string; to: string[] };
+type Alert = { status: string; kind: "pc" | "device" | "signin"; deviceName: string; createdAt: string; workspace: string; to: string[] };
 
 function message(a: Alert, site: string) {
+  if (a.kind === "signin") {
+    // 26.11.38 (0024): an email code opened the workspace on a computer; this goes to that person alone
+    const workspace = a.workspace || "Your workspace";
+    return {
+      subject: `${workspace} was opened on ${a.deviceName}`,
+      text: [
+        `${workspace} was just opened on FrameDecks with a code sent to this email.`,
+        "",
+        `Computer: ${a.deviceName}`,
+        `Time: ${utc(a.createdAt)}`,
+        "",
+        "Was this you? Nothing to do.",
+        `Not you, or forgot to close it on a work computer? Open Devices on framedecks.com and choose Sign out other computers: ${site}/devices`,
+      ].join("\n"),
+    };
+  }
   const what = a.kind === "pc" ? "PC" : "device";
   const workspace = a.workspace || "your workspace";
   const subject = `A new ${what} was connected to ${workspace}`;

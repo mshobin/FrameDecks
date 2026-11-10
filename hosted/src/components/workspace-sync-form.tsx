@@ -7,41 +7,33 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { ensureWorkspace } from "@/components/auth-callback";
 import { ConnectSteps, settle, type StepState } from "@/components/connect-steps";
+import { CodeBoxes } from "@/components/code-boxes";
 import { CodeStopped, JoinCodeCard, useRotatingCode } from "@/components/join-code-card";
 import { QuickSignIn } from "@/components/quick-sign-in";
 import { Button } from "@/components/ui/button";
 import { takeReturn } from "@/lib/connect-link";
+import { CODE_LENGTH, RESEND_SECONDS, defaultWhose, maskEmail, noWorkspaceYet, rememberMine, type Whose } from "@/lib/email-code";
 import { allowUrl, codeProblem, formatCode, guessDeviceName, isRecoveryCode, tidyCode } from "@/lib/join-code";
 import { finishDevice, startDevice } from "@/lib/join-device";
 import { rememberAcceptance } from "@/lib/legal";
 import { browserSupabase, callbackUrl } from "@/lib/supabase-browser";
-import { statusMessage, type DeviceStatus } from "@/lib/trusted-device";
+import { deviceName, keepInTabOnly, keepOnDevice, readTrust, statusMessage, type DeviceStatus } from "@/lib/trusted-device";
 import { useSession, useSessionAtArrival } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
 
-/** The ways into a workspace. 26.11.12 Scan to join: the main way is a phone that is already in (this browser shows a
- * code, the phone scans it and allows it). Quieter: an emailed link or 6-digit code (9.8), the recovery code, and for
- * someone new, the church PC (Add a device) or Start with email (asks for the Terms once).
+/** The ways into a workspace. 26.11.38 The email code is the main way: type your email, type the 6-digit code it
+ * brings, and the workspace opens (a browser that saved a passkey also shows that first). Quieter: a phone that is
+ * already in (Open with your phone, 26.11.12), a passkey, the recovery code; and for someone new, the church PC (Add a
+ * device) or Start with email (asks for the Terms once). An email with no workspace is answered exactly like a sent
+ * code and never makes a new team, unless it comes through Start with email.
  * Old addresses keep working: ?intent=save opens Start with email, ?intent=continue and ?email=… the email code. */
 export type SyncIntent = "sync" | "save" | "continue";
-type Mode = "code" | "email" | "start" | "recover";
+type Mode = "code" | "phone" | "start" | "recover";
 
-const INTENTS: Record<SyncIntent, { title: string; lede: string; button: string }> = {
-  sync: {
-    title: "Open your workspace with email.",
-    lede: "Enter your email. We send a one-time link and a 6-digit code that open your workspace on this device.",
-    button: "Email me a link",
-  },
-  save: {
-    title: "Start a free workspace.",
-    lede: "Plan on the website first: keep your meetings, Frames and people safe in a workspace you can open anywhere. Free, and nothing to remember.",
-    button: "Email me a link to start it",
-  },
-  continue: {
-    title: "Continue on this device.",
-    lede: "Using FrameDecks somewhere else already? Enter the same email, then open the link or type the code here.",
-    button: "Email me a link for this device",
-  },
+const START = {
+  title: "Start a free workspace.",
+  lede: "Plan on the website first: keep your meetings, Frames and people safe in a workspace you can open anywhere. Free, and nothing to remember.",
+  button: "Email me a code to start it",
 };
 
 export function readIntent(search: string, hash: string): SyncIntent {
@@ -50,14 +42,12 @@ export function readIntent(search: string, hash: string): SyncIntent {
   return v === "save" || v === "continue" ? v : "sync";
 }
 
-function modeOf(intent: SyncIntent, email: string | null): Mode {
-  if (intent === "save") return "start";
-  return intent === "continue" || email ? "email" : "code";
+function modeOf(intent: SyncIntent): Mode {
+  return intent === "save" ? "start" : "code";
 }
 
 export function WorkspaceSyncChooser() {
   const [mode, setMode] = useState<Mode>("code");
-  const [intent, setIntent] = useState<SyncIntent>("sync");
   const [email, setEmail] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const session = useSession();
@@ -88,8 +78,7 @@ export function WorkspaceSyncChooser() {
     const pre = q.get("email");
     const valid = pre && /^[^@\s]+@[^@\s]+$/.test(pre) ? pre : null;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIntent(asked);
-    setMode(modeOf(asked, valid));
+    setMode(modeOf(asked));
     if (valid) setEmail(valid);
     const reason = q.get("reason");
     if (reason === "revoked" || reason === "expired") setNotice(statusMessage(reason as DeviceStatus));
@@ -103,7 +92,7 @@ export function WorkspaceSyncChooser() {
   }
   const back = (
     <button type="button" className="fd-link jc-back" onClick={() => setMode("code")}>
-      ← Other ways in
+      ← Back
     </button>
   );
   return (
@@ -116,15 +105,15 @@ export function WorkspaceSyncChooser() {
       {mode === "code" && (
         <>
           <h1 className="fd-auth-title">Open your workspace.</h1>
-          <p className="auth-lede">Your phone is the key: scan, allow, and your workspace opens. No email, nothing to remember.</p>
+          <p className="auth-lede">Enter your email and we send a 6-digit code. Type it here and your workspace opens. Nothing to remember.</p>
           <QuickSignIn />
-          <OpenWithPhone />
+          <WorkspaceSyncForm intent="sync" initialEmail={email} />
           <div className="jc-more">
             <p>Other ways in</p>
-            <QuickSignIn quiet />
-            <button type="button" className="fd-link" onClick={() => setMode("email")}>
-              Use an email code instead
+            <button type="button" className="fd-link" onClick={() => setMode("phone")}>
+              Open with your phone
             </button>
+            <QuickSignIn quiet />
             <button type="button" className="fd-link" onClick={() => setMode("recover")}>
               Lost every device? Use your recovery code
             </button>
@@ -141,12 +130,20 @@ export function WorkspaceSyncChooser() {
           </div>
         </>
       )}
-      {(mode === "email" || mode === "start") && (
+      {mode === "phone" && (
         <>
           {back}
-          <h1 className="fd-auth-title">{INTENTS[mode === "start" ? "save" : intent === "save" ? "sync" : intent].title}</h1>
-          <p className="auth-lede">{INTENTS[mode === "start" ? "save" : intent === "save" ? "sync" : intent].lede}</p>
-          <WorkspaceSyncForm key={mode} intent={mode === "start" ? "save" : intent === "save" ? "sync" : intent} initialEmail={email} />
+          <h1 className="fd-auth-title">Open with your phone.</h1>
+          <p className="auth-lede">No email to hand? This browser shows a code: scan it with a phone that’s already in your team, allow it, and your workspace opens.</p>
+          <OpenWithPhone />
+        </>
+      )}
+      {mode === "start" && (
+        <>
+          {back}
+          <h1 className="fd-auth-title">{START.title}</h1>
+          <p className="auth-lede">{START.lede}</p>
+          <WorkspaceSyncForm key="start" intent="save" initialEmail={email} />
         </>
       )}
       {mode === "recover" && (
@@ -368,22 +365,35 @@ function RecoverForm() {
 
 type Status = { kind: "idle" | "sending" | "sent" } | { kind: "error"; message: string };
 
+/** 26.11.38 The email code: the address, whose computer this is, then six boxes and the flowchart into the workspace. */
 export function WorkspaceSyncForm({ intent = "sync", initialEmail = "" }: Readonly<{ intent?: SyncIntent; initialEmail?: string }>) {
   const [email, setEmail] = useState(initialEmail);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [agreed, setAgreed] = useState(false);
   const [token, setToken] = useState("");
   const [opening, setOpening] = useState(false);
+  const [opened, setOpened] = useState<string | null>(null);
   const [codeProblemText, setCodeProblemText] = useState<string | null>(null);
+  const [whose, setWhose] = useState<Whose>("theirs");
+  const [wait, setWait] = useState(0);
   const supabase = browserSupabase();
   // Saving a new workspace needs an explicit tick for the Terms and the Privacy Policy (7.0); it is recorded once the
-  // workspace is open (components/legal-gate.tsx). Syncing an existing workspace does not ask here.
+  // workspace is open (components/legal-gate.tsx). Opening an existing workspace does not ask here.
   const starting = intent === "save";
   const blocked = starting && !agreed;
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setWhose(defaultWhose());
+  }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (initialEmail) setEmail(initialEmail);
   }, [initialEmail]);
+  useEffect(() => {
+    if (wait <= 0) return;
+    const t = window.setTimeout(() => setWait((w) => w - 1), 1000);
+    return () => window.clearTimeout(t);
+  }, [wait]);
 
   if (!supabase) {
     return (
@@ -393,73 +403,103 @@ export function WorkspaceSyncForm({ intent = "sync", initialEmail = "" }: Readon
     );
   }
 
-  async function sendLink(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function send() {
     if (!supabase || blocked) return;
     const address = email.trim();
     if (starting) rememberAcceptance(localStorage);
     setStatus({ kind: "sending" });
     // The security log notes the request (the address only as a hash) and limits how often one address or network can
-    // ask; before migration 0015 the function is missing and the link is sent anyway.
+    // ask; before migration 0015 the function is missing and the code is sent anyway.
     const logged = await supabase.rpc("magic_link_requested", { email: address });
     if (logged.error && /Too many/i.test(logged.error.message)) {
-      setStatus({ kind: "error", message: "Too many links asked for. Wait a few minutes and try again." });
+      setStatus({ kind: "error", message: "Too many codes asked for. Wait a few minutes and try again." });
       return;
     }
+    // Only Start with email makes a new workspace; an unknown email is answered like a sent code
     const { error } = await supabase.auth.signInWithOtp({
       email: address,
-      options: { emailRedirectTo: callbackUrl(), shouldCreateUser: true },
+      options: { emailRedirectTo: callbackUrl(), shouldCreateUser: starting },
     });
-    setStatus(error ? { kind: "error", message: userSafeError(error, "Couldn’t send the link. Check your email address and try again.") } : { kind: "sent" });
+    if (error && !noWorkspaceYet(error)) {
+      setStatus({ kind: "error", message: userSafeError(error, "Couldn’t send the code. Check your email address and try again.") });
+      return;
+    }
+    setToken("");
+    setCodeProblemText(null);
+    setWait(RESEND_SECONDS);
+    setStatus({ kind: "sent" });
   }
 
-  // 26.11.12 the same email carries a 6-digit code: typed here it opens the workspace like the link does
-  async function openWithCode(event: FormEvent<HTMLFormElement>) {
+  async function sendLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    await send();
+  }
+
+  async function openWithCode(digits: string) {
     if (!supabase || opening) return;
-    const digits = token.replace(/\D/g, "");
-    if (digits.length < 6) {
+    if (digits.length < CODE_LENGTH) {
       setCodeProblemText("Type the 6-digit code from the email.");
       return;
     }
     setOpening(true);
     setCodeProblemText(null);
+    if (whose === "theirs") keepInTabOnly();          // someone else's computer: this tab only, nothing kept
     const { data, error } = await supabase.auth.verifyOtp({ email: email.trim(), token: digits, type: "email" });
     if (error || !data.session) {
       setOpening(false);
+      setToken("");
       setCodeProblemText(
         error && /expired|invalid/i.test(error.message)
-          ? "That code has run out or doesn’t match. Codes work once, for 10 minutes. Ask for a new email."
+          ? "That code has run out or doesn’t match. Codes work once, for 10 minutes. Check the newest email, or send a new code."
           : userSafeError(error, "Couldn’t open your workspace with that code. Try again."),
       );
       return;
     }
-    await supabase.rpc("magic_link_used").then(() => undefined, () => undefined);
-    await ensureWorkspace(supabase, data.session.user.id).catch(() => undefined);
+    const quiet = () => undefined;
+    await supabase.rpc("magic_link_used").then(quiet, quiet);
+    await ensureWorkspace(supabase, data.session.user.id).catch(quiet);
+    const name = deviceName();
+    if (whose === "mine") {
+      rememberMine();
+      if (!readTrust()) {
+        const kept = await supabase.rpc("trust_device", { device_name: name }).then((r) => r, () => null);
+        if (kept && !kept.error && kept.data?.token) {
+          keepOnDevice({ token: kept.data.token, id: kept.data.id, name, expiresAt: kept.data.expires_at });
+        }
+      }
+    }
+    // 0024: the person gets an email that their workspace was opened here (before 0024: nothing, quietly)
+    await supabase.rpc("email_sign_in", { device_name: name, shared: whose === "theirs" }).then(quiet, quiet);
+    const team = await supabase.from("organizations").select("name").limit(1).maybeSingle().then((r) => r, () => null);
+    setOpened((team?.data as { name?: string } | null)?.name || "Your workspace");
+    await settle();                                    // the last tick and the workspace light up first
     window.location.replace(takeReturn(localStorage) ?? "/");
   }
 
   if (status.kind === "sent") {
+    const steps: [string, StepState][] = [
+      [`Code sent to ${maskEmail(email)}`, "done"],
+      ["Code entered", opened || opening ? "done" : "now"],
+      [opened ? `${opened} opens` : "Your workspace opens", opened ? "done" : opening ? "now" : "next"],
+    ];
     return (
-      <div className="auth-message" role="status">
-        <p>
-          Check your inbox. We sent a one-time link and a 6-digit code to <strong>{email.trim()}</strong>. Open the link on this
-          device, or type the code below, within 10 minutes; each works once. Nothing there? Look in Spam or Promotions.
-        </p>
-        <form className="auth-form" onSubmit={openWithCode}>
+      <div className="ec-sent">
+        <ConnectSteps steps={steps} team={opened} label="Opening your workspace with an email code" />
+        <form
+          className="auth-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void openWithCode(token);
+          }}
+        >
           <label htmlFor="email-code">Code from the email</label>
-          <input
-            id="email-code"
-            className="jc-type"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={10}
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="123456"
-          />
-          <Button className="auth-primary" type="submit" disabled={opening || !token.trim()}>
-            {opening ? "Opening…" : "Open my workspace"}
+          <span className="auth-hint">
+            If {maskEmail(email)} opens a workspace, a 6-digit code is on its way. It works once, for 10 minutes. Nothing there?
+            Look in Spam or Promotions.
+          </span>
+          <CodeBoxes value={token} onChange={setToken} onComplete={(d) => void openWithCode(d)} disabled={opening || !!opened} />
+          <Button className="auth-primary" type="submit" disabled={opening || !!opened || token.length < CODE_LENGTH}>
+            {opening || opened ? "Opening…" : "Open my workspace"}
           </Button>
         </form>
         {codeProblemText && (
@@ -467,9 +507,14 @@ export function WorkspaceSyncForm({ intent = "sync", initialEmail = "" }: Readon
             {codeProblemText}
           </p>
         )}
-        <button type="button" className="fd-link" onClick={() => setStatus({ kind: "idle" })}>
-          Use a different email
-        </button>
+        <div className="ec-again">
+          <button type="button" className="fd-link" disabled={wait > 0 || opening} onClick={() => void send()}>
+            {wait > 0 ? `Send a new code in ${wait}s` : "Send a new code"}
+          </button>
+          <button type="button" className="fd-link" disabled={opening} onClick={() => setStatus({ kind: "idle" })}>
+            Use a different email
+          </button>
+        </div>
       </div>
     );
   }
@@ -485,19 +530,36 @@ export function WorkspaceSyncForm({ intent = "sync", initialEmail = "" }: Readon
         </label>
       )}
       <form className="auth-form" onSubmit={sendLink}>
-        <label htmlFor="email">Email address</label>
-        <span className="auth-hint">Nothing to remember: the link or the code opens your workspace. Each works once, for 10 minutes.</span>
+        <label htmlFor="email">Your email</label>
         <input
           id="email"
           type="email"
           autoComplete="email"
+          inputMode="email"
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@example.org"
         />
-        <Button className="auth-primary" disabled={status.kind === "sending" || blocked} type="submit">
-          {status.kind === "sending" ? "Sending…" : INTENTS[intent].button}
+        <fieldset className="ec-whose">
+          <legend>Whose computer is this?</legend>
+          <label className={whose === "mine" ? "ec-pick ec-on" : "ec-pick"}>
+            <input type="radio" name="whose" checked={whose === "mine"} onChange={() => setWhose("mine")} />
+            <span>
+              <strong>Mine</strong>
+              <small>Stays open here</small>
+            </span>
+          </label>
+          <label className={whose === "theirs" ? "ec-pick ec-on" : "ec-pick"}>
+            <input type="radio" name="whose" checked={whose === "theirs"} onChange={() => setWhose("theirs")} />
+            <span>
+              <strong>Someone else’s</strong>
+              <small>Work or borrowed: closes with the tab</small>
+            </span>
+          </label>
+        </fieldset>
+        <Button className="auth-primary" disabled={status.kind === "sending" || blocked || !email.trim()} type="submit">
+          {status.kind === "sending" ? "Sending…" : starting ? START.button : "Email me a code"}
         </Button>
       </form>
       {status.kind === "error" && (

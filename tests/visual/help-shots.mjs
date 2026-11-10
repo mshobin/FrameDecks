@@ -81,7 +81,7 @@ await pub.addInitScript(() => { localStorage.setItem("fd-theme", "dark"); });
 const s = await pub.newPage();
 await s.goto("http://127.0.0.1:8931/sync"); await s.waitForTimeout(900);
 await s.evaluate(() => document.querySelector(".fd-cookie button")?.click()); await s.waitForTimeout(300);
-await shot(s, "web-sign-in", { send: "button:has-text('Show a code for this browser')" });
+await shot(s, "web-sign-in", { send: "button:has-text('Email me a code')" });
 await pub.close();
 const p = await ctx.newPage();
 await p.goto("http://127.0.0.1:8931/plan");

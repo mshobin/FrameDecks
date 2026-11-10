@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.38': [
+    {title: 'Open your workspace with an email code', text: 'On framedecks.com type your email, then the 6-digit code it brings. Choose Someone else\u2019s on a work computer and it closes with the tab.', show: {settings: 'account'}},
+    {title: 'Told where it was opened', text: 'An email tells you each time your workspace is opened with your code. Devices can sign out every other computer.', show: {settings: 'account'}}
+  ],
   '26.11.37': [
     {title: 'Open in this PC’s browser', text: 'Settings → Sync opens your workspace on framedecks.com in this PC’s browser, already as you.', show: {settings: 'account'}},
     {title: 'Your phone is the key', text: 'On framedecks.com choose Open with your phone: scan, allow, and your workspace opens.', show: {settings: 'account'}}

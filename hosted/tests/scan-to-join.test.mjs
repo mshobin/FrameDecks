@@ -180,7 +180,7 @@ test("the pages: the code is looked at before any session, read from the fragmen
   // the old addresses keep working, and the menu says Devices
   assert.match(src("app/computers/page.tsx"), /<Forward to="\/devices"/);
   assert.match(src("app/sign-in/page.tsx"), /<MovedToSync \/>/);
-  assert.match(src("components/workspace-sync-form.tsx"), /if \(intent === "save"\) return "start";/);
+  assert.match(src("components/workspace-sync-form.tsx"), /return intent === "save" \? "start" : "code";/);
   assert.match(src("components/app-shell.tsx"), /label: "Devices", href: "\/devices"/);
   for (const p of ["join", "allow"]) assert.match(src(`app/${p}/page.tsx`), new RegExp(`pageMetadata\\("[^"]+", "/${p}", \\{ private: true \\}\\)`), p);
 });
@@ -188,7 +188,7 @@ test("the pages: the code is looked at before any session, read from the fragmen
 test("the email also carries a code, and the screens use the agreed words", () => {
   const form = src("components/workspace-sync-form.tsx");
   assert.match(form, /verifyOtp\(\{ email: email\.trim\(\), token: digits, type: "email" \}\)/);
-  for (const words of ["Open with your phone", "Use an email code instead", "Lost every device? Use your recovery code", "Start with email", "Sync → Allow a device"])
+  for (const words of ["Open with your phone", "Email me a code", "Lost every device? Use your recovery code", "Start with email", "Sync → Allow a device"])
     assert.ok(form.includes(words), words);
   const devices = src("components/devices-panel.tsx");
   for (const words of ["Add a device", "Invite someone", "Make a recovery code", "Emergency email", "This device", "confirmationText: row.name"])
