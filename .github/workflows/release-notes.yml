@@ -1,0 +1,35 @@
+# Republish a release's notes from docs/releases/v<version>.md on main (for example after adding a section to the
+# notes of a release that is already published). The installer, its manifest and the version are not touched.
+name: Refresh release notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version whose GitHub release notes to refresh, e.g. 26.11.40"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  notes:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Get the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Write the branded notes and update the release
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || { echo "::error::Not a version: $VERSION"; exit 1; }
+          gh release view "v$VERSION" --repo "$REPO" > /dev/null
+          python tools/make_release_notes.py --version "$VERSION" --repo "$REPO" --ref "v$VERSION" --out notes.md
+          gh release edit "v$VERSION" --repo "$REPO" --notes-file notes.md
+          echo "Release v$VERSION notes refreshed from docs/releases/v$VERSION.md"
