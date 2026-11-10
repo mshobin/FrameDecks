@@ -52,7 +52,7 @@ code.
 - A Supabase **Database Webhook** on INSERT into `device_alerts` calls the Edge Function `device-alert`
   (`hosted/supabase/functions/device-alert`). It checks the shared secret header `x-alert-secret`, takes the alert once
   with the service key (`device_alert_take`, which also sets `sent_at`, so a repeated webhook sends nothing), and sends
-  one plain email to each owner and admin through Brevo's transactional API: "A new PC was connected to
+  one plain email to each owner and admin through Resend's API: "A new PC was connected to
   <workspace>", the device name, the time (UTC) and "If this wasn't you, remove it in Devices on framedecks.com" with
   the link. If no email could be sent, `device_alert_release` gives the alert back. Missing secrets are logged and
   answered with 200: nothing crashes and the website still shows the alert.
@@ -74,21 +74,24 @@ Tests: `hosted/tests/supabase-0021.test.mjs` (PGlite), `tests/test_passwordless_
 ## Owner steps for 26.11.36 (passkey first, new-device alerts)
 
 1. **Authentication → Sign In / Providers:** switch **off** Google, Azure (Microsoft) and Apple, and delete their
-   client secrets. Keep **Passkeys** on (site `framedecks.com`) and **Email** on (one-time code; it is sent through the
-   Brevo SMTP settings in [free-hosting.md](../deployment/free-hosting.md), Part D3).
+   client secrets. Keep **Passkeys** on (site `framedecks.com`) and **Email** on (one-time code; it is sent through Resend:
+   Authentication → Emails → SMTP Settings, `smtp.resend.com`, sender `noreply@framedecks.com`).
 2. **SQL editor:** run `hosted/supabase/migrations/0023_device_alerts.sql` (after 0022). Undo: remove the webhook
    (step 5), then run `hosted/supabase/rollback/0023_device_alerts_down.sql`.
 3. **Deploy the function:** `supabase functions deploy device-alert --no-verify-jwt` (or Edge Functions → Deploy a new
    function named `device-alert` with the code of `hosted/supabase/functions/device-alert/index.ts`, Verify JWT off:
    the webhook sends no user token; the shared secret is the proof).
 4. **Edge Functions → Secrets** (or `supabase secrets set NAME=value`):
-   - `BREVO_API_KEY`: a Brevo API key (Brevo → SMTP & API → API Keys; not the SMTP key);
-   - `ALERT_FROM`: a sender address verified in Brevo, for example `no-reply@framedecks.com`;
-   - `ALERT_WEBHOOK_SECRET`: a long random value you make (for example `openssl rand -hex 32`);
+   - `RESEND_API_KEY`: a Resend API key (resend.com → API Keys → Create, permission "Sending access",
+     domain framedecks.com). The SMTP password in Supabase's SMTP settings is also a Resend API key;
+   - optional `ALERT_FROM` (default `FrameDecks Support <noreply@framedecks.com>`, the sign-in emails' sender);
+   - `ALERT_WEBHOOK_SECRET`: a long random value (for example `openssl rand -hex 32`);
    - optional `SITE_URL` (default `https://framedecks.com`).
-5. **Database → Webhooks → Create a new hook:** name `device-alert`, table `public.device_alerts`, event **Insert**,
-   type **HTTP Request**, method **POST**, URL `https://slrsykiknlqlivlnpvrb.supabase.co/functions/v1/device-alert`,
-   HTTP header `x-alert-secret` with the same value as `ALERT_WEBHOOK_SECRET`.
+5. **The webhook:** `hosted/supabase/setup/device_alert_webhook.sql` (SQL editor): turns on pg_net and adds a
+   trigger that POSTs each new alert to the function with the header `x-alert-secret`, read from Supabase Vault
+   (secret `device_alert_webhook_secret`, the same value as `ALERT_WEBHOOK_SECRET`; set with
+   `select vault.create_secret('<value>', 'device_alert_webhook_secret');`). It does what Database → Webhooks
+   would, with the secret kept out of the trigger's text.
 6. **Test:** connect a PC (or Add a device on a phone). Devices shows "New: … connected" at once, and each owner and
    admin gets one email. Edge Functions → device-alert → Logs shows "not set" if a secret is missing.
 

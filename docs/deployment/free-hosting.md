@@ -129,18 +129,12 @@ Entra you may delete the old "FrameDecks" app registrations.
 `framedecks.com`. Keep **Email** (one-time code) on. The steps for new-device emails are in
 [passwordless.md](../architecture/passwordless.md).
 
-**D3. Free email for the sign-in link (optional; the owner skipped it on 26 October).** Without it, Supabase's
-built-in mail sends only a few emails an hour and may deliver only to the project's own team, so everyone else
-needs a passkey. Brevo's free plan sends 300 emails a day.
-1. Create an account at https://www.brevo.com.
-2. Go to **SMTP & API → SMTP** and generate an SMTP key. Note the server (`smtp-relay.brevo.com`), the port (`587`)
-   and your login.
-3. Add a sender address you own under **Senders**.
-4. In Supabase → **Authentication → Emails → SMTP Settings**:
-   - turn on custom SMTP;
-   - enter the server, port, login and SMTP key;
-   - sender name: FrameDecks.
-5. Test: sign out, then ask for an emailed link.
+**D3. Email for the sign-in codes (set up: Resend).** Supabase's built-in mail sends only a few emails an hour, so the
+codes go through Resend (free plan: 3,000 emails a month, 100 a day).
+1. At https://resend.com add the domain `framedecks.com` and its DNS records, then create an API key.
+2. In Supabase → **Authentication → Emails → SMTP Settings**: custom SMTP on, host `smtp.resend.com`, port `465`,
+   user `resend`, password the API key, sender `noreply@framedecks.com`, name FrameDecks Support.
+3. Test: ask for an email code. New-device emails use the same Resend account ([passwordless.md](../architecture/passwordless.md)).
 
 ## Part E: public repository, free signing, permanent downloads
 
@@ -171,7 +165,7 @@ All of this is prepared. The full steps are in [code-signing.md](code-signing.md
 | Cloudflare Pages | Unlimited static requests and bandwidth; 500 builds a month | A few builds a week |
 | Supabase Free | 500 MB database, 50,000 monthly sign-ins, 2 projects | Text only; many churches fit |
 | GitHub (public repo) | Unlimited Actions minutes, Releases | Builds, keep-alive and backup |
-| Brevo | 300 emails a day | Email codes and new-device alerts |
+| Resend | 3,000 emails a month (100 a day) | Email codes and new-device alerts |
 | SignPath Foundation | Free for open source | Every release |
 
 If the shared database ever fills up, a church can run its own free Supabase project. That option is in

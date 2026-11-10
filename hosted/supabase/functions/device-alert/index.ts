@@ -2,12 +2,13 @@
 // its team (docs/architecture/passwordless.md, "New-device alerts"). Called by a Supabase Database Webhook on INSERT
 // into public.device_alerts (0023), with the header x-alert-secret. Runs in Supabase Edge Functions with the service key:
 //   1. device_alert_take (0023) takes the alert once (a webhook that fires twice sends once) and says to whom;
-//   2. one plain email to each owner and admin through Brevo's transactional API;
+//   2. one plain email to each owner and admin through Resend's API (the same Resend account that sends the
+//      sign-in codes through Supabase Auth's SMTP settings);
 //   3. if no email could be sent, device_alert_release gives the alert back for a retry.
-// Secrets (Edge Functions -> Secrets): BREVO_API_KEY, ALERT_FROM (e.g. no-reply@framedecks.com), ALERT_WEBHOOK_SECRET.
-// Optional: SITE_URL (default https://framedecks.com). Missing secrets are logged and answered with 200, so the
+// Secrets (Edge Functions -> Secrets): RESEND_API_KEY, ALERT_WEBHOOK_SECRET. Optional: ALERT_FROM (default
+// "FrameDecks Support <noreply@framedecks.com>", the sign-in emails' sender), SITE_URL (default https://framedecks.com). Missing secrets are logged and answered with 200, so the
 // webhook never retries forever. Deploy: supabase functions deploy device-alert --no-verify-jwt (the webhook sends no
-// user token; the shared secret is the proof).
+// user token; the shared secret is the proof). The webhook itself: hosted/supabase/setup/device_alert_webhook.sql.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const json = (body: unknown, status = 200) =>
@@ -67,10 +68,10 @@ Deno.serve(async (req) => {
   }
   if (!Number.isSafeInteger(id) || id <= 0) return json({ status: "ignored" });
 
-  const apiKey = Deno.env.get("BREVO_API_KEY") ?? "";
-  const from = Deno.env.get("ALERT_FROM") ?? "";
-  if (!apiKey || !from) {
-    console.error("device-alert: BREVO_API_KEY or ALERT_FROM is not set; alert", id, "not emailed");
+  const apiKey = Deno.env.get("RESEND_API_KEY") ?? "";
+  const from = Deno.env.get("ALERT_FROM") || "FrameDecks Support <noreply@framedecks.com>";
+  if (!apiKey) {
+    console.error("device-alert: RESEND_API_KEY is not set; alert", id, "not emailed");
     return json({ status: "not-set-up" });
   }
   const site = (Deno.env.get("SITE_URL") ?? "https://framedecks.com").replace(/\/+$/, "");
@@ -91,15 +92,15 @@ Deno.serve(async (req) => {
   let sent = 0;
   for (const to of alert.to) {
     try {
-      const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+      const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ sender: { name: "FrameDecks", email: from }, to: [{ email: to }], subject, textContent: text }),
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to: [to], subject, text }),
       });
       if (r.ok) sent++;
-      else console.error("device-alert: Brevo answered", r.status, await r.text());
+      else console.error("device-alert: Resend answered", r.status, await r.text());
     } catch (e) {
-      console.error("device-alert: Brevo could not be reached", String(e));
+      console.error("device-alert: Resend could not be reached", String(e));
     }
   }
   if (!sent) {

@@ -39,7 +39,7 @@ present except commands you choose to send from your phone through the website.
 
 - **Supabase** — the database, and sending the one-time links, for workspaces.
 - **Cloudflare** — the website, downloads, the update service and email forwarding.
-- **Brevo** — delivering the one-time email codes and the new-device emails to owners and admins.
+- **Resend** — delivering the one-time email codes and the new-device emails to owners and admins.
 
 They act on our instructions and may store data outside your country, protected by their own security and contractual
 safeguards.
