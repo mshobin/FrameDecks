@@ -1,6 +1,6 @@
 # Security at FrameDecks
 
-*Updated 4 November 2026 · Version 2026-10-29*
+*Updated 10 November 2026 · Version 2026-10-29*
 
 FrameDecks is built so that the most sensitive part of a gathering, what is on screen, never needs the internet. The
 program runs on your own PC. The website and its services carry only the plan and the people your workspace chooses
@@ -12,7 +12,7 @@ yourself.
 | Area | What we use |
 | --- | --- |
 | Transport | TLS (HTTPS) on every connection; HSTS for one year, sub-domains included |
-| Opening your workspace | An emailed one-time link (OAuth 2.0 authorization code with PKCE, S256), single use, valid 10 minutes |
+| Opening your workspace | A passkey or a one-time email code (a link and 6-digit code with PKCE, S256), single use, valid 10 minutes; no third-party sign-in |
 | Sessions | Short-lived signed access tokens (JWT) that renew with rotating refresh tokens |
 | Trusted Devices | A 256-bit random device token; the cloud keeps only its SHA-256 hash; 180 days, then one new link |
 | Removing a device | Its session is deleted and every request carrying it is refused before it runs |
@@ -48,9 +48,14 @@ yourself.
 
 ## Opening your workspace (no passwords)
 
-FrameDecks has no passwords and nothing to remember.
+FrameDecks has no passwords and nothing to remember. You open your workspace with a passkey or a one-time email
+code. We do not use Google, Microsoft or Apple to open workspaces.
 
-- **One-time link.** Open my workspace, Start a new one and Continue on Another Device send a one-time link to your
+- **Passkey.** Face ID, a fingerprint or Windows Hello (WebAuthn). The private key never leaves your device; the cloud
+  keeps only the public key.
+- **New PCs and devices are announced.** When a PC is connected to a workspace or a device joins its team, the
+  workspace's owners and admins get an email and see it at the top of Devices.
+- **One-time email code.** Open my workspace, Start a new one and Continue on Another Device send a one-time link to your
   email address:
   - it uses the OAuth 2.0 authorization code flow with PKCE (S256), so only the browser that asked can use it;
   - it works once, for 10 minutes.

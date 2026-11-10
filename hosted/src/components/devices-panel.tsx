@@ -23,6 +23,7 @@ import { syncNotSetUp } from "@/lib/workspace-sync";
 type Row = { kind: "person" | "pc"; id: string; name: string; role: DeviceRole; is_me: boolean; last_seen_at: string | null; joined_at: string };
 type Event = { action: string; device_name: string | null; at: string };
 type Browser = { id: string; name: string; last_seen_at: string; current: boolean };
+type Alert = { id: number; device_name: string; created_at: string };
 type Recovery = { hasCode: boolean; codeMadeAt: string | null; ownerHasEmail: boolean; iAmOwner: boolean };
 
 const EVENT_WORDS: Record<string, string> = {
@@ -51,6 +52,7 @@ function Devices({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [browsers, setBrowsers] = useState<Browser[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [problem, setProblem] = useState<string | null>(null);
   const [showing, setShowing] = useState<"add" | "invite" | null>(null);
   const [inviteRole, setInviteRole] = useState<JoinRole>("member");
@@ -59,10 +61,12 @@ function Devices({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const [d, e, b] = await Promise.all([
+    const [d, e, b, a] = await Promise.all([
       supabase.rpc("workspace_devices", { org: workspace.id }),
       supabase.rpc("security_event_list", { max_rows: 30 }),
       supabase.rpc("device_list"),
+      // 26.11.36 new PCs and devices of the last 30 days, for owners and admins (0023)
+      myRole === "owner" || myRole === "admin" ? supabase.rpc("device_alerts_recent", { org: workspace.id }) : null,
     ]);
     if (d.error) {
       setProblem(
@@ -76,7 +80,8 @@ function Devices({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     setRows((d.data ?? []) as Row[]);
     setEvents(e.error ? [] : ((e.data ?? []) as Event[]));
     setBrowsers(b.error ? [] : ((b.data ?? []) as Browser[]));
-  }, [supabase, workspace.id]);
+    setAlerts(a && !a.error ? ((a.data ?? []) as Alert[]) : []);
+  }, [supabase, workspace.id, myRole]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -142,6 +147,16 @@ function Devices({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   return (
     <>
       {dialog}
+      {alerts.length > 0 && (
+        <ul className="device-alerts" aria-label="New devices">
+          {alerts.map((a) => (
+            <li key={a.id}>
+              New: <strong>{a.device_name}</strong> connected ·{" "}
+              {new Date(a.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+            </li>
+          ))}
+        </ul>
+      )}
       {giving.length > 0 ? (
         <section className="workspace-card" aria-labelledby="add-title">
           <h2 id="add-title" className="device-title">

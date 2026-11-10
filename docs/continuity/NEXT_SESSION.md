@@ -2,7 +2,9 @@
 
 Commit identity (owner's instruction, 4 Nov 2026): every commit is authored as `Shobin Mathews <276174545+mshobin@users.noreply.github.com>`; set it at the start of each session with `git config user.name "Shobin Mathews"` and `git config user.email "276174545+mshobin@users.noreply.github.com"`, and add no co-author or tool lines.
 
-Updated 10 November 2026 (26.11.35 on `main`: No season clears a synced season look (`store.js` `lookSeason`); Go Live always reads Go Live, hold to go off air (`off-air.js`); Hide all instant, no Undo. Owner: tag `v26.11.35`.)
+Updated 10 November 2026 (26.11.36 on `main`: smart first sync (`src/first_sync.py`, preview before anything changes, meetings never mixed, fingerprint skip, list de-dup, Undo this connection for 7 days); passkey-first website sign-in without Google/Microsoft/Apple; new-device alerts (0023 + Edge Function device-alert). Owner: switch off the providers in Supabase, run 0023, deploy device-alert with its secrets and the webhook (docs/architecture/passwordless.md), tag `v26.11.36`.)
+
+Previous: 10 November 2026 (26.11.35 on `main`: No season clears a synced season look (`store.js` `lookSeason`); Go Live always reads Go Live, hold to go off air (`off-air.js`); Hide all instant, no Undo. Owner: tag `v26.11.35`.)
 
 Previous: 10 November 2026 (26.11.34 on `main`: Bluetooth microphones: Settings → Listening → Microphone (`microphone.js`, `voiceMic`), fallback to the Windows default when the chosen microphone stops (`voice_follow.py`, `mic` status part, toast), Ready check hands-free warning (`ready_check.handsfree`). Owner: tag `v26.11.34` after `v26.11.33`.)
 

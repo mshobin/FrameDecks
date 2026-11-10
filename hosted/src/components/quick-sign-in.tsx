@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Fingerprint } from "lucide-react";
 
 import { takeReturn } from "@/lib/connect-link";
-import { PROVIDER_NAMES, authFeatures, type AuthFeatures } from "@/lib/quick-sign-in";
-import { browserSupabase, callbackUrl } from "@/lib/supabase-browser";
+import { authFeatures, type AuthFeatures } from "@/lib/quick-sign-in";
+import { browserSupabase } from "@/lib/supabase-browser";
 
 function useFeatures(): AuthFeatures | null {
   const [f, setF] = useState<AuthFeatures | null>(null);
@@ -19,14 +19,14 @@ function useFeatures(): AuthFeatures | null {
   return f;
 }
 
-/** 26.11.26 Open Workspace: a passkey (Face ID, a fingerprint, Windows Hello) and Google, Apple or Microsoft, when this
- * site has them switched on. Nothing shows otherwise. */
+/** 26.11.26 Open Workspace: a passkey (Face ID, a fingerprint, Windows Hello), first, when this site has passkeys
+ * switched on. Nothing shows otherwise; the email code below is the fallback. */
 export function QuickSignIn() {
   const f = useFeatures();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const supabase = browserSupabase();
-  if (!supabase || !f || (!f.passkeys && !f.providers.length)) return null;
+  if (!supabase || !f || !f.passkeys) return null;
 
   async function passkey() {
     setBusy(true);
@@ -42,21 +42,9 @@ export function QuickSignIn() {
 
   return (
     <div className="jc-quick">
-      {f.passkeys && (
-        <button type="button" className="fd-btn fd-btn-primary jc-quick-key" disabled={busy} onClick={passkey}>
-          <Fingerprint aria-hidden="true" size={18} /> {busy ? "Opening…" : "Open with a passkey"}
-        </button>
-      )}
-      {f.providers.map((p) => (
-        <button
-          key={p}
-          type="button"
-          className="fd-btn fd-btn-ghost"
-          onClick={() => void supabase.auth.signInWithOAuth({ provider: p, options: { redirectTo: callbackUrl() } })}
-        >
-          Continue with {PROVIDER_NAMES[p]}
-        </button>
-      ))}
+      <button type="button" className="fd-btn fd-btn-primary jc-quick-key" disabled={busy} onClick={passkey}>
+        <Fingerprint aria-hidden="true" size={18} /> {busy ? "Opening…" : "Open with a passkey"}
+      </button>
       {problem && (
         <p className="auth-error" role="alert">
           {problem}

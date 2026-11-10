@@ -52,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.35"
+APP_VERSION = "26.11.36"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -4037,6 +4037,13 @@ class Handler(BaseHTTPRequestHandler):
                     return self.reply(200, json.dumps(SYNC.allow_peek(code)), TYPES[".json"])
                 if action == "allow":
                     return self.reply(200, json.dumps(SYNC.allow(code, role or "member")), TYPES[".json"])
+                # 26.11.36 the first sync: the leader's choice after the preview, look again, Undo this connection
+                if action == "first-choose":
+                    return self.reply(200, json.dumps(SYNC.first_choose(data.get("mode"))), TYPES[".json"])
+                if action == "first-refresh":
+                    return self.reply(200, json.dumps(SYNC.first_refresh()), TYPES[".json"])
+                if action == "undo-connection":
+                    return self.reply(200, json.dumps(SYNC.undo_connection()), TYPES[".json"])
                 if action == "devices":
                     return self.reply(200, json.dumps(SYNC.devices()), TYPES[".json"])
                 if action == "remove":

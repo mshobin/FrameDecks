@@ -11,7 +11,7 @@ sign-in without paid email, and free signing and downloads. It covers steps 1–
 | A | Companion as static files on Cloudflare Pages | Done | About 20 minutes |
 | B | Database keep-alive and encrypted nightly backup | Done | About 15 minutes |
 | C | Fewer database requests | Done | Nothing (next PC build) |
-| D | Sign-in with Google / Microsoft, and free email | Done (buttons first) | About 40 minutes |
+| D | Passkeys and free email (no Google or Microsoft since 26.11.36) | Done (passkey first) | About 15 minutes |
 | E | Public repository, free signing, permanent downloads | Prepared | About 30 minutes, then SignPath's review |
 
 Do them in order. Each part works on its own: you can stop after any part, and nothing breaks.
@@ -114,49 +114,24 @@ too much risk for almost no saving.
 
 **What you do:** nothing except install the next PC build. There is no database script for this part.
 
-## Part D: sign-in that never needs paid email
+## Part D: opening a workspace without paid email
 
-The emailed sign-in link uses Supabase's built-in mail, which allows only a few emails an hour. That is fine for you,
-but not for many churches.
-- **Google and Microsoft sign-in** are free and need no email.
-- A **free email service** keeps the emailed link working for anyone without either account.
+Since 26.11.36 workspaces open with a **passkey** (Face ID, a fingerprint, Windows Hello) or a **one-time email code**.
+Google, Microsoft and Apple are not used: the owner did not want those companies in the workspace. Passkeys need no
+email at all; the email code needs a free email service (D3), because Supabase's built-in mail allows only a few
+emails an hour.
 
-**D1. Google (free).**
-1. Open https://console.cloud.google.com and create a project named "FrameDecks".
-2. Go to **APIs & Services → OAuth consent screen** (it opens **Google Auth Platform**; click **Get started** the
-   first time): app name FrameDecks, your email as support and developer contact, audience **External**.
-3. **Branding** (left menu):
-   - Application home page: `https://framedecks.pages.dev`
-   - Application privacy policy link: `https://framedecks.pages.dev/privacy`
-   - Authorized domains: `framedecks.pages.dev` and `slrsykiknlqlivlnpvrb.supabase.co` (or `supabase.co`).
-   - No logo: a logo makes Google review the app first. **Save.**
-4. **Audience → Publish app → Confirm** (status **In production**). It stays greyed out until Branding is complete.
-   Scopes need nothing: Supabase asks only for email, profile and openid.
-5. **Clients → Create client**:
-   - type **Web application**;
-   - **Authorized redirect URI**: `https://slrsykiknlqlivlnpvrb.supabase.co/auth/v1/callback`.
-6. Copy the **Client ID** and **Client secret**.
-7. In Supabase → **Authentication → Sign In / Providers → Google**: turn it on and paste both.
-   **The secret goes only here, never in GitHub or the companion.**
+**D1. Switch off Google, Microsoft and Apple.** In Supabase → **Authentication → Sign In / Providers**, turn off
+**Google**, **Azure** and **Apple** if they are on, and delete their client secrets. In Google Cloud and Microsoft
+Entra you may delete the old "FrameDecks" app registrations.
 
-**D2. Microsoft (free).**
-1. In https://portal.azure.com, go to **Microsoft Entra ID → App registrations → New registration**:
-   - name FrameDecks;
-   - supported accounts: **Accounts in any organizational directory and personal Microsoft accounts**;
-   - redirect URI (Web): `https://slrsykiknlqlivlnpvrb.supabase.co/auth/v1/callback`.
-2. Copy the **Application (client) ID**. Then **Certificates & secrets → New client secret**, and copy its
-   **Value** (it is shown only once).
-3. In Supabase → **Authentication → Sign In / Providers → Azure**:
-   - turn it on and paste both;
-   - Azure Tenant URL: `https://login.microsoftonline.com/common`.
-
-**Done in the code.** Once the providers are on, the companion shows **Continue with Google** and **Continue with
-Microsoft** by itself, at the top, with "or use your email" below them
-([picture](../qa/2026-10-26-companion-sign-in-providers-first.png)).
+**D2. Passkeys.** In Supabase → **Authentication → Sign In / Providers → Passkeys**: switch on, with the site
+`framedecks.com`. Keep **Email** (one-time code) on. The steps for new-device emails are in
+[passwordless.md](../architecture/passwordless.md).
 
 **D3. Free email for the sign-in link (optional; the owner skipped it on 26 October).** Without it, Supabase's
 built-in mail sends only a few emails an hour and may deliver only to the project's own team, so everyone else
-signs in with Google or Microsoft. Brevo's free plan sends 300 emails a day.
+needs a passkey. Brevo's free plan sends 300 emails a day.
 1. Create an account at https://www.brevo.com.
 2. Go to **SMTP & API → SMTP** and generate an SMTP key. Note the server (`smtp-relay.brevo.com`), the port (`587`)
    and your login.
@@ -196,7 +171,7 @@ All of this is prepared. The full steps are in [code-signing.md](code-signing.md
 | Cloudflare Pages | Unlimited static requests and bandwidth; 500 builds a month | A few builds a week |
 | Supabase Free | 500 MB database, 50,000 monthly sign-ins, 2 projects | Text only; many churches fit |
 | GitHub (public repo) | Unlimited Actions minutes, Releases | Builds, keep-alive and backup |
-| Brevo | 300 emails a day | Sign-in links only |
+| Brevo | 300 emails a day | Email codes and new-device alerts |
 | SignPath Foundation | Free for open source | Every release |
 
 If the shared database ever fills up, a church can run its own free Supabase project. That option is in

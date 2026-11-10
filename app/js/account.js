@@ -76,6 +76,7 @@ function renderRemote(root, r){
 
 /* ---------- The one status light ---------- */
 function light(d){
+  if (d.first) return ['info', d.first.state === 'ready' ? 'Waiting for your choice · nothing has synced yet' : 'Comparing with your team…', ''];   // 26.11.36
   if (d.phase === 'syncing' || syncing) return ['info', 'Syncing…', ''];
   if (d.phase === 'offline') return ['', 'Offline · will sync when back online', 'Presenting is not affected. Changes wait on this PC and go up by themselves.'];
   if (d.phase === 'failed'){
@@ -142,8 +143,58 @@ function tickWaiting(){
   if (left > 0 && Math.round(left) % 60 === 0) setLive('sync-count-live', Math.round(left / 60) + ' minute' + (left >= 120 ? 's' : '') + ' left to scan.');
 }
 
+/* ---------- 26.11.36 the first sync: what it will do, shown before anything changes ---------- */
+var firstMode = 'keep', firstBusy = false;
+var FIRST_WORDS = {same: 'Already in the workspace · skipped', here: 'Only on this PC · goes up as its own meeting',
+  there: 'Only in the workspace · comes to this PC', changed: 'Edited in both places', added: 'In both · this PC’s new Frames join it'};
+function firstSig(f){ return f ? JSON.stringify([f.state, (f.rows || []).map(function(r){ return [r.name, r.status, r.frames]; }), f.counts]) : ''; }
+function buildFirst(root, d){
+  var f = d.first || {};
+  var box = h('section', {cls: 'sync-first', id: 'sync-first', 'aria-labelledby': 'sync-first-h', 'data-sig': firstSig(f)});
+  box.appendChild(h('h3', {id: 'sync-first-h', text: 'Before the first sync'}));
+  if (f.state !== 'ready'){
+    box.appendChild(h('p', {cls: 'plain', role: 'status'}, [h('span', {cls: 'acct-spin', 'aria-hidden': 'true'}), ' Comparing this PC with “' + (d.workspace || 'your team') + '”… nothing changes yet.']));
+    root.appendChild(box); return;
+  }
+  var c = f.counts || {}, rows = f.rows || [];
+  box.appendChild(h('p', {cls: 'plain', text: 'Nothing has changed yet. This is what syncing will do, meeting by meeting. Frames from two meetings are never mixed.'}));
+  box.appendChild(h('ul', {cls: 'sync-first-list'}, rows.map(function(r){
+    return h('li', {cls: 'is-' + r.status}, [h('b', {text: r.name}),
+      h('span', {text: FIRST_WORDS[r.status] + (r.status === 'added' ? ' · ' + r['new'] + ' new' : r.frames ? ' · ' + r.frames + ' Frame' + (r.frames === 1 ? '' : 's') : '')})]);
+  })));
+  var extra = [];
+  if (c.framesSkipped) extra.push(c.framesSkipped + ' Frame' + (c.framesSkipped === 1 ? ' is' : 's are') + ' already there and will be skipped');
+  if (c.listsSkipped) extra.push(c.listsSkipped + ' member' + (c.listsSkipped === 1 ? '' : 's') + ', verse' + (c.listsSkipped === 1 ? '' : 's') + ' or question' + (c.listsSkipped === 1 ? ' is' : 's are') + ' already in the workspace (missing details are filled in)');
+  if (extra.length) box.appendChild(h('p', {cls: 'hint', text: extra.join('. ') + '.'}));
+  if (c.changed){
+    var opts = [['keep', 'Keep both (recommended)', 'This PC’s copy is kept as “Name (this PC)” next to the workspace’s.'],
+      ['workspace', 'Use the workspace’s', 'This PC’s version is replaced. It stays in the backup for 7 days.'],
+      ['pc', 'Use this PC’s', 'The workspace’s version is replaced everywhere. Its history is kept for 30 days.']];
+    box.appendChild(h('fieldset', {cls: 'sync-first-choice'}, [h('legend', {text: 'For meetings edited in both places'})].concat(opts.map(function(o){
+      var r = h('input', {type: 'radio', name: 'sync-first-mode', value: o[0]}); r.checked = firstMode === o[0];
+      r.addEventListener('change', function(){ firstMode = o[0]; });
+      return h('label', {cls: 'check'}, [r, h('span', {}, [h('b', {text: o[1]}), h('small', {text: o[2]})])]);
+    }))));
+  }
+  box.appendChild(h('div', {cls: 'actions'}, [
+    h('button', {cls: 'btn primary', type: 'button', id: 'sync-first-go', text: firstBusy ? 'Syncing…' : 'Sync now', disabled: firstBusy ? 'disabled' : null, onclick: function(e){ firstChoose(c.changed ? firstMode : 'keep', e.currentTarget); }}),
+    h('button', {cls: 'btn quiet', type: 'button', text: 'Look again', onclick: function(){ call('first-refresh').then(function(r){ info = r; draw(true); }).catch(function(){}); }}),
+    h('button', {cls: 'btn quiet', type: 'button', text: 'Not now · disconnect', onclick: function(){ call('unlink').then(function(r){ info = r; justConnected = false; draw(true); }).catch(function(err){ toast(err.message, true); }); }})]));
+  box.appendChild(h('p', {cls: 'hint', text: 'A copy of this PC’s plan is kept before syncing. For 7 days, Undo this connection (under More) puts everything back.'}));
+  root.appendChild(box);
+}
+function firstChoose(mode, btn){
+  firstBusy = true; if (btn){ btn.disabled = true; btn.textContent = 'Syncing…'; }
+  post({action: 'first-choose', mode: mode}).then(function(r){
+    info = r; firstBusy = false; draw(true);
+    var res = r.result || {};
+    toast((res.outcome === 'failed' ? '' : '✓ ') + (res.outcome === 'failed' ? res.message : 'Your workspace is synced. ' + (res.message || '')), res.outcome === 'failed');
+  }).catch(function(e){ firstBusy = false; if (btn){ btn.disabled = false; btn.textContent = 'Sync now'; } toast(e.message, true); });
+}
+
 /* ---------- Connected ---------- */
 function buildLinked(root, d){
+  if (d.first){ buildFirst(root, d); }
   if (justConnected) root.appendChild(h('div', {cls: 'sync-done', role: 'status'}, [
     h('b', {text: '✓ Connected'}),
     h('span', {text: ' This PC is in your team “' + (d.workspace || 'your team') + '”. Plans now sync by themselves.'})]));
@@ -173,6 +224,14 @@ function buildLinked(root, d){
       call('unlink').then(function(r){ info = r; justConnected = false; devices = null; draw(true); }).catch(function(err){ toast(err.message, true); btn.disabled = false; });
     }})]));
   more.appendChild(h('p', {cls: 'hint', text: 'Disconnecting stops syncing on this PC only. Add a device connects it again.'}));
+  if (d.undoUntil) more.appendChild(h('div', {cls: 'sync-undo'}, [   // 26.11.36 for 7 days after the first sync
+    h('button', {cls: 'btn small', type: 'button', id: 'sync-undo', text: 'Undo this connection', onclick: function(e){
+      if (!confirm('Undo connecting this PC? What its first sync added to “' + (d.workspace || 'your team') + '” is taken out, what it changed there is put back, this PC’s plan goes back to how it was, and this PC is disconnected.')) return;
+      var btn = e.currentTarget; btn.disabled = true;
+      call('undo-connection').then(function(r){ info = r; justConnected = false; devices = null; draw(true); toast('↩ Connection undone. This PC’s plan is as it was.'); })
+        .catch(function(err){ btn.disabled = false; toast(err.message, true); });
+    }}),
+    h('p', {cls: 'hint', text: 'Possible until ' + new Date(d.undoUntil * 1000).toLocaleDateString() + '.'})]));
   renderRemote(more, d.remote);
   root.appendChild(more);
   drawPanel(); paintDevices();
@@ -325,7 +384,9 @@ function draw(force){
   if (shown === 'waiting' && view === 'linked'){ justConnected = true; adding = false; toast('✓ This PC is connected to your team'); }
   /* the code ran out while the QR was on screen: show a new one by itself (a few times) */
   if (view === 'off' && adding && /ran out/i.test(d.error || '') && autoNew < MAX_RENEW){ autoNew += 1; startLink(null); return; }
-  if (view !== shown || force || (view === 'waiting' && $('sync-code') && $('sync-code').textContent !== spaced(d.code))){
+  var fb = $('sync-first');      // 26.11.36 the preview arrived, changed or went: build again
+  var firstChanged = view === 'linked' && !firstBusy && (fb ? fb.getAttribute('data-sig') : '') !== firstSig(d.first);
+  if (view !== shown || force || firstChanged || (view === 'waiting' && $('sync-code') && $('sync-code').textContent !== spaced(d.code))){
     shown = view;
     root.innerHTML = '';
     if (view === 'none') root.appendChild(h('p', {cls: 'plain', text: 'Start the FrameDecks program to connect this PC.'}));
@@ -371,7 +432,13 @@ window.KCSyncInfo = function(){ return info; };
  * meeting.js's header poll and this page both pass each answer of api/sync here. */
 var UPDATE_KEY = 'kc-sync-update-seen', updateSeen = 0;
 try { updateSeen = Number(localStorage.getItem(UPDATE_KEY)) || 0; } catch (e) { updateSeen = 0; }
+var firstSaid = false;
 function notice(d){
+  if (d && d.first && d.first.state === 'ready' && !firstSaid && !visible && window.KCActions && KCActions.toastAction){   // 26.11.36
+    firstSaid = true;
+    KCActions.toastAction('Connected to “' + (d.workspace || 'your team') + '”. See what the first sync will do before anything changes.', 'Review', function(){
+      if (window.KCSetTab) KCSetTab('settings'); if (window.KCShowSection) KCShowSection('account'); });
+  }
   var u = d && d.update;
   if (!u || !u.at || u.at <= updateSeen || !(u.names || []).length) return;
   updateSeen = u.at;

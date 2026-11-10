@@ -30,13 +30,32 @@ code.
   `app/js/connect-grant.js` asks **Connect** or **Not now**. Only Connect uses it (`pc_link_with_grant`, with the PC's
   own new key). A web page can never connect a PC without that click.
 
-## 3. Passkeys, and Google, Apple or Microsoft
+## 3. Passkeys first, an email code as the fallback (26.11.36)
 
 - After a device is trusted, Home offers **Save a passkey** once (`supabase.auth.registerPasskey`). Open Workspace then
-  has **Open with a passkey** (`signInWithPasskey`): Face ID, a fingerprint or Windows Hello.
-- Open Workspace shows **Continue with Google / Apple / Microsoft** for each provider switched on.
-- Both appear only when Supabase says they are on (its public `/auth/v1/settings`), so a button never leads to an
-  error page.
+  has **Open with a passkey** (`signInWithPasskey`) first: Face ID, a fingerprint or Windows Hello.
+- **Use an email code instead** stays below it as the fallback (a one-time link and 6-digit code).
+- The passkey button appears only when Supabase says passkeys are on (its public `/auth/v1/settings`), so it never
+  leads to an error page.
+- Google, Apple and Microsoft are not used to open workspaces (owner's decision, 26.11.36: "I do not want to use google
+  or microsoft for the workspace"). The website has no OAuth provider buttons and never calls `signInWithOAuth`.
+
+## 4. New-device alerts (26.11.36)
+
+- Every time a PC is connected to a workspace (a link code, or a grant from Connect this PC) or a person's device joins
+  its team (scanning a code, being allowed, a recovery code, or Add a device signing a phone in as you), a row is
+  written to `public.device_alerts` (`0023_device_alerts.sql`). The rows come from AFTER INSERT triggers on
+  `computers` and on the security events that `join_team`, `recover_team` and `device_code_redeem` already log, so no
+  earlier function changed.
+- **Devices** shows owners and admins the last 30 days at the top (`device_alerts_recent`: newest first, at most 20),
+  for example "New: Office PC connected · 10 Nov, 14:32". Helpers see nothing; nothing shows when there are none.
+- A Supabase **Database Webhook** on INSERT into `device_alerts` calls the Edge Function `device-alert`
+  (`hosted/supabase/functions/device-alert`). It checks the shared secret header `x-alert-secret`, takes the alert once
+  with the service key (`device_alert_take`, which also sets `sent_at`, so a repeated webhook sends nothing), and sends
+  one plain email to each owner and admin through Brevo's transactional API: "A new PC was connected to
+  <workspace>", the device name, the time (UTC) and "If this wasn't you, remove it in Devices on framedecks.com" with
+  the link. If no email could be sent, `device_alert_release` gives the alert back. Missing secrets are logged and
+  answered with 200: nothing crashes and the website still shows the alert.
 
 ## Owner steps (Supabase dashboard, project `slrsykiknlqlivlnpvrb`)
 
@@ -47,9 +66,32 @@ code.
    is the proof). With the Supabase CLI: `supabase functions deploy device-sign-in --no-verify-jwt`. Its service key is
    provided by Supabase; nothing to paste.
 3. **Authentication → Sign In / Providers → Passkeys:** switch on, with the site `framedecks.com`.
-4. **Optional, Google, Apple or Microsoft:** switch on each provider with its client ID and secret, and add
-   `https://framedecks.com/auth/callback` under **URL Configuration → Redirect URLs**.
 
 Until step 2 is done, scanning an Add a device code says so (FD-CLD-07) and email still works.
 
 Tests: `hosted/tests/supabase-0021.test.mjs` (PGlite), `tests/test_passwordless_2611_26.py`.
+
+## Owner steps for 26.11.36 (passkey first, new-device alerts)
+
+1. **Authentication → Sign In / Providers:** switch **off** Google, Azure (Microsoft) and Apple, and delete their
+   client secrets. Keep **Passkeys** on (site `framedecks.com`) and **Email** on (one-time code; it is sent through the
+   Brevo SMTP settings in [free-hosting.md](../deployment/free-hosting.md), Part D3).
+2. **SQL editor:** run `hosted/supabase/migrations/0023_device_alerts.sql` (after 0022). Undo: remove the webhook
+   (step 5), then run `hosted/supabase/rollback/0023_device_alerts_down.sql`.
+3. **Deploy the function:** `supabase functions deploy device-alert --no-verify-jwt` (or Edge Functions → Deploy a new
+   function named `device-alert` with the code of `hosted/supabase/functions/device-alert/index.ts`, Verify JWT off:
+   the webhook sends no user token; the shared secret is the proof).
+4. **Edge Functions → Secrets** (or `supabase secrets set NAME=value`):
+   - `BREVO_API_KEY`: a Brevo API key (Brevo → SMTP & API → API Keys; not the SMTP key);
+   - `ALERT_FROM`: a sender address verified in Brevo, for example `no-reply@framedecks.com`;
+   - `ALERT_WEBHOOK_SECRET`: a long random value you make (for example `openssl rand -hex 32`);
+   - optional `SITE_URL` (default `https://framedecks.com`).
+5. **Database → Webhooks → Create a new hook:** name `device-alert`, table `public.device_alerts`, event **Insert**,
+   type **HTTP Request**, method **POST**, URL `https://slrsykiknlqlivlnpvrb.supabase.co/functions/v1/device-alert`,
+   HTTP header `x-alert-secret` with the same value as `ALERT_WEBHOOK_SECRET`.
+6. **Test:** connect a PC (or Add a device on a phone). Devices shows "New: … connected" at once, and each owner and
+   admin gets one email. Edge Functions → device-alert → Logs shows "not set" if a secret is missing.
+
+Until steps 3 to 5 are done, alerts still show on Devices; only the emails wait.
+
+Tests: `hosted/tests/supabase-0023.test.mjs` (PGlite).

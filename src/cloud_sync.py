@@ -27,6 +27,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+import first_sync as FS
 import sync_entities as E
 
 # The website (docs/deployment/cloudflare-domains.md): framedecks.com is the one address. The Cloudflare Pages address
@@ -43,6 +44,7 @@ PULL_EVERY = 60                       # and pull at least this often
 GRANT_SECONDS = 120                   # 26.11.26: Connect this PC from the website (0021: 2 minutes, once)
 INVITE_SECONDS = 120                  # 26.11.12: an Add a device / Invite someone code (0018: 2 minutes, once)
 MAX_BACKOFF = 600
+UNDO_DAYS = 7                          # 26.11.36 Undo this connection: how long after the first sync
 FRAME_KINDS = ("frame", "template")
 MASS_DELETE_FRAMES = 3      # all Frames gone at once (at least this many): restore from the workspace, never delete
 LIST_KINDS = ("library_question", "library_verse", "member")
@@ -124,9 +126,54 @@ class Engine:
             if not page.get("more"):
                 return records, since
 
+    # -- 26.11.36 the first sync, planned and shown before anything changes (src/first_sync.py) --
+    def preview(self, mode="keep"):
+        """What the first sync would do, in the dialog's words. Reads only: nothing is written, the cursor stays."""
+        records, _ = self._pull_all()
+        latest = {}
+        for r in records:
+            latest[key_of(r["kind"], r["id"])] = r
+        plan, members = self.read()
+        local = self._local_records(plan, members)
+        out = FS.preview(FS.plan(local, latest, mode))
+        out["here"] = len(FS.meetings_of((local.get("meeting/meeting") or {}).get("body")))
+        return out
+
+    def _prepare_first(self, plan, members, fp):
+        """This PC's plan made ready for the first sync: Frames already in the workspace taken out (the workspace's
+        arrive), this PC's own meetings filed under their own (unique) names with fresh ids where the workspace uses the
+        same ones, list items it already has taken out, and the meeting list made the workspace's plus this PC's."""
+        parts = E.split(plan, members)
+        records = {key_of(r["kind"], r["id"]): r for r in parts["entities"]}
+        for k in list(fp["dropLocal"]) + list(fp["lists"]["drop"]):
+            records.pop(k, None)
+        order = (records.get("order/order") or {}).get("body")
+        for k in fp["newIds"]:
+            r = records.pop(k, None)
+            if not r:
+                continue
+            new_id = "sc_" + secrets.token_hex(4)
+            if order and isinstance(order.get("scenes"), list):
+                order["scenes"] = [new_id if i == r["id"] else i for i in order["scenes"]]
+            body = copy.deepcopy(r["body"])
+            body["id"] = new_id
+            group = fp["regroup"].get(k)
+            if group is not None:
+                body["group"] = group
+            records[key_of(r["kind"], new_id)] = {"kind": r["kind"], "id": new_id, "body": body}
+        for k, group in fp["regroup"].items():
+            if k in records and k not in fp["newIds"]:
+                records[k]["body"]["group"] = group
+        meeting = copy.deepcopy(fp.get("remoteMeeting") or (records.get("meeting/meeting") or {}).get("body") or {})
+        if len(fp["meetings"]) > 1 or isinstance(meeting.get("meetings"), list):
+            meeting["meetings"] = copy.deepcopy(fp["meetings"])
+        records["meeting/meeting"] = {"kind": "meeting", "id": "meeting", "body": meeting}
+        return E.join(list(records.values()), parts["local"])
+
     # -- the round --
-    def run(self):
-        """One round. Returns a summary: {"pulled", "applied", "held", "pushed", "conflicts"}."""
+    def run(self, first_mode=None):
+        """One round. Returns a summary: {"pulled", "applied", "held", "pushed", "conflicts"}. first_mode: the
+        leader's choice for meetings changed in both places on the first sync (src/first_sync.py MODES)."""
         known = self.state["known"]
         first_link = not known and self.state["cursor"] == 0
         # The plan here was lost or replaced (a damaged file at start-up, or every Frame gone at once): this round takes
@@ -143,6 +190,14 @@ class Engine:
         latest = {}
         for r in remote:                               # the newest version of each record wins within one pull
             latest[key_of(r["kind"], r["id"])] = r
+        fp = FS.plan(local, latest, first_mode or "keep") if first_link and not adopt else None
+        keep_ours = set()
+        if fp:                                         # 26.11.36 the meeting is the unit; what exists is skipped
+            fp["remoteMeeting"] = (latest.get("meeting/meeting") or {}).get("body")
+            self.write(lambda p, m: self._prepare_first(p, m, fp))
+            plan, members = self.read()
+            local = self._local_records(plan, members)
+            keep_ours = {"meeting/meeting"} | set(fp["preferLocal"]) | set(fp["deleteRemote"])
 
         apply, copies, held, conflicts = {}, [], [], 0
         for k, r in latest.items():
@@ -152,6 +207,9 @@ class Engine:
             agreed = known.get(k)
             changed_here = mine_hash != (agreed["hash"] if agreed else None)
             if mine_hash == remote_hash:                # already the same here (our own change coming back)
+                known[k] = {"rev": r["rev"], "hash": remote_hash}
+                continue
+            if k in keep_ours:                          # 26.11.36 the first sync decided: ours goes up (or theirs goes)
                 known[k] = {"rev": r["rev"], "hash": remote_hash}
                 continue
             if r["kind"] in FRAME_KINDS and r["id"] == live and live and mine is not None:
@@ -200,11 +258,19 @@ class Engine:
         if first_link:                                 # only against records that arrive now, never held ones
             arriving = {k: r for k, r in latest.items() if r not in held}
             self._drop_duplicate_starters(local, arriving, apply)
+        if fp:                                         # a member already there gets this PC's missing details
+            for k, body in fp["lists"]["fill"].items():
+                if k in latest and k not in [key_of(x["kind"], x["id"]) for x in held]:
+                    apply[k] = dict(latest[k], body=copy.deepcopy(body))
         if apply or copies:
             self.write(lambda p, m: self._apply(p, m, apply, copies))
         self.state["held"] = held
         self.state["cursor"] = cursor
+        undo = self._undo_record(latest) if fp is not None or first_link else None
         pushed = self._push()
+        if undo is not None:
+            undo["created"] = [k for k in undo["created"] if (known.get(k) or {}).get("hash")]
+            self.state["firstSync"] = undo
         # 26.11.12: what came from the website (a person's change, "user:<id>"; a PC's is "computer:<id>"), so the
         # program can say once "Updated from the website: Sunday Service". Nothing is said on the first link.
         website = []
@@ -215,7 +281,30 @@ class Engine:
                     if name not in website:
                         website.append(name)
         return {"pulled": len(remote), "applied": len(apply), "held": len(held), "pushed": pushed,
-                "conflicts": conflicts, "membersRebuilt": rebuilt, "fromWebsite": website}
+                "conflicts": conflicts, "membersRebuilt": rebuilt, "fromWebsite": website,
+                "first": FS.preview(fp) if first_link and not adopt else None}
+
+    def _undo_record(self, latest):
+        """26.11.36 Undo this connection: what the first sync is about to create in the workspace, and the workspace's
+        version of everything it is about to change or remove there, so it can all be put back."""
+        known = self.state["known"]
+        plan, members = self.read()
+        local = self._local_records(plan, members)
+        created = [k for k in local if k not in known]
+        restore, size = {}, 0
+        for k, agreed in known.items():
+            r = latest.get(k)
+            if not r or r.get("deleted") or r.get("body") is None:
+                continue
+            mine = local.get(k)
+            if mine is not None and fingerprint(mine["body"]) == agreed.get("hash"):
+                continue                                # left as the workspace has it
+            n = len(E.canon(r["body"]))
+            if size + n > PUSH_BYTES:
+                break
+            size += n
+            restore[k] = {"kind": r["kind"], "id": r["id"], "body": copy.deepcopy(r["body"])}
+        return {"at": time.time(), "created": created, "restore": restore}
 
     # 9.3 (audit L12): a list item, setting or order changed both here and elsewhere keeps this PC's version (it is
     # sent on top). The other version stays in the workspace's history for 30 days; this PC keeps it too, the latest
@@ -683,6 +772,8 @@ class Service:
         self.next_pull = lambda: PULL_EVERY           # 9.11: live_push.Doorbell.sync_every (longer while listening or resting)
         self.update = None                            # 26.11.12: {"at", "names"} the last changes made on the website
         self.grant = None                             # 26.11.26: {"code", "team", "by", "at"} Connect this PC, asked
+        self.first = None                             # 26.11.36: the first sync's preview, shown before anything changes
+        self.backup_file = self.file.with_name("kc-sync-before.json")
 
     # -- the state file --
     def _load(self):
@@ -715,6 +806,13 @@ class Service:
                "lastSync": self.status["lastSync"], "error": self.status["error"], "companion": COMPANION_URL,
                "held": len(self.state.get("held") or []), "phase": self.phase(), "update": self.update,
                "computerName": self.computer_name}
+        if self.state.get("firstPending"):              # 26.11.36 waiting for the leader's choice
+            out["first"] = self.first or {"state": "checking"}
+        elif self.first and self.first.get("state") == "done":
+            out["firstDone"] = self.first.get("result")
+        undo = self.undo_until()
+        if undo:
+            out["undoUntil"] = undo
         if self.pending:
             code = self.pending["code"]
             site = self.pending["config"].get("site") or COMPANION_URL
@@ -777,7 +875,8 @@ class Service:
             self.secrets.set(pending["key"])
             self.state = {"link": {"computerId": answer["computerId"], "organizationId": answer["organizationId"],
                                    "organizationName": answer.get("organizationName"), "linkedAt": time.time()},
-                          "cloud": pending["config"], "cursor": 0, "known": {}, "held": []}
+                          "cloud": pending["config"], "cursor": 0, "known": {}, "held": [], "firstPending": True}
+            self.first = None
             self._save()
             self.pending = None
             self.status.update(state="linked", error=None)
@@ -803,6 +902,11 @@ class Service:
             self.secrets.delete()
             self.state = {}
             self._save()
+            self.first = None
+            try:
+                self.backup_file.unlink()                 # 26.11.36 the first-sync backup goes with the connection
+            except OSError:
+                pass
             self.status.update(state="unlinked", lastSync=None, error=None)
         return self.info()
 
@@ -833,17 +937,99 @@ class Service:
                 return None
             engine = Engine(self.make_api(cloud, link["organizationId"], key), self.state, self.read, self.write,
                             self.computer_name, self.member_authority())
+            mode = self.state.get("firstMode")
+            if self.state.get("firstPending") and not mode:
+                # 26.11.36 nothing changes until the leader has seen what the first sync will do
+                if not self.first or self.first.get("state") != "ready":
+                    prev = engine.preview()
+                    if prev.get("empty"):              # an empty workspace: nothing to decide, this PC's plan goes up
+                        self.state["firstMode"] = mode = "keep"
+                    else:
+                        self.first = dict(prev, state="ready")
+                if not mode:
+                    self.offline = False
+                    self.status.update(state="linked", error=None)
+                    return {"pulled": 0, "applied": 0, "held": 0, "pushed": 0, "conflicts": 0, "waiting": True}
+            if mode:
+                self._backup()
             self.busy = True
             try:
-                summary = engine.run()
+                summary = engine.run(mode)
             finally:
                 self.busy = False
                 self._save()                          # keep what was agreed, even when a later batch failed
+            if mode:
+                self.state.pop("firstPending", None)
+                self.state.pop("firstMode", None)
+                self.first = {"state": "done", "result": summary.get("first")}
+                self._save()
             self.offline = False
             self.status.update(state="linked", lastSync=time.time(), error=None)
             if summary.get("fromWebsite"):             # said once by the main window (account.js)
                 self.update = {"at": time.time(), "names": summary["fromWebsite"][:6]}
             return summary
+
+    # -- 26.11.36 the first sync: the leader's choice, a backup before it, and Undo this connection --
+    def first_choose(self, mode):
+        """The leader has seen the preview: sync now, with this choice for meetings changed in both places."""
+        if mode not in FS.MODES:
+            raise Refused("Choose Keep both, Use the workspace's or Use this PC's.", "22023")
+        with self.lock:
+            if not self.state.get("firstPending"):
+                return self.info()
+            self.state["firstMode"] = mode
+            self._save()
+        return self.resync()
+
+    def first_refresh(self):
+        """Look again (the workspace changed while the preview was open)."""
+        self.first = None
+        self.poke(0)
+        return self.info()
+
+    def _backup(self):
+        """This PC's plan and member list exactly as they were before the first sync (kc-sync-before.json)."""
+        if self.backup_file.exists():
+            return
+        plan, members = self.read()
+        tmp = self.backup_file.with_suffix(".tmp")
+        tmp.write_text(json.dumps({"at": time.time(), "plan": plan, "members": members}, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, self.backup_file)
+
+    def undo_until(self):
+        f = self.state.get("firstSync") or {}
+        until = (f.get("at") or 0) + UNDO_DAYS * 86400
+        return until if f.get("at") and time.time() < until and self.backup_file.exists() else None
+
+    def undo_connection(self):
+        """Within 7 days of the first sync: what it created in the workspace is removed, what it changed or removed there
+        is put back, this PC's plan and members go back to how they were, and this PC is disconnected."""
+        if not self.undo_until():
+            raise Refused("Undo is possible for 7 days after the first sync, on the PC that was connected.")
+        with self.lock:
+            link, cloud, key = self.state.get("link"), self.state.get("cloud"), self.secrets.get()
+            f, known = self.state.get("firstSync") or {}, self.state.get("known") or {}
+            api = self.make_api(cloud, link["organizationId"], key)
+            changes = []
+            for k in f.get("created") or []:
+                agreed = known.get(k)
+                if agreed and agreed.get("hash"):
+                    kind, rid = k.split("/", 1)
+                    changes.append({"kind": kind, "id": rid, "baseRev": agreed["rev"], "deleted": True})
+            for k, r in (f.get("restore") or {}).items():
+                agreed = known.get(k) or {"rev": 0}
+                changes.append({"kind": r["kind"], "id": r["id"], "baseRev": agreed.get("rev", 0), "deleted": False,
+                                "body": r["body"]})
+            for batch in Engine._batches(changes):
+                api.push(batch)                        # a record changed meanwhile answers "conflict" and is left as it is
+            saved = json.loads(self.backup_file.read_text(encoding="utf-8"))
+            self.write(lambda p, m: (saved.get("plan") or p, saved.get("members") if saved.get("members") is not None else m))
+        out = self.unlink()
+        try:
+            self.backup_file.unlink()
+        except OSError:
+            pass
+        return dict(out, undone=True)
 
     # -- 26.11.12 Scan to join: the church PC adds and removes devices with its own key --
     def _team(self):

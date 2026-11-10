@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.36': [
+    {title: 'A first sync you see first', text: 'Connecting a PC shows, meeting by meeting, what syncing will do. What already exists is skipped and meetings are never mixed.', show: {settings: 'account'}},
+    {title: 'Undo this connection', text: 'For 7 days after connecting, Settings → Sync → More puts the workspace and this PC back as they were.', show: {settings: 'account'}}
+  ],
   '26.11.35': [
     {title: 'Go Live stays Go Live', text: 'After Next and Next it still reads Go Live. Hold it for a second to go off air.', show: {spot: '#cb-take'}},
     {title: 'Hide all is instant', text: 'Everything leaves the screen at once, with no Undo bar.', show: {spot: '#ctlbar'}}

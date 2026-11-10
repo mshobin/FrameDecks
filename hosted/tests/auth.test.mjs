@@ -32,6 +32,19 @@ test("sign-in uses PKCE and never a service-role key", () => {
   }
 });
 
+// 26.11.36: a passkey first, an email code as the fallback; no Google, Apple or Microsoft sign-in anywhere on the site
+test("the website opens workspaces with a passkey or an email code, never through Google, Apple or Microsoft", () => {
+  for (const file of allSources(src).filter((f) => /\.(ts|tsx)$/.test(f))) {
+    const code = readFileSync(file, "utf8");
+    assert.doesNotMatch(code, /signInWithOAuth|linkIdentity|PROVIDER_NAMES|provider:\s*["'](google|apple|azure)|Continue with (Google|Apple|Microsoft)/, file);
+  }
+  const quick = read("components/quick-sign-in.tsx");
+  assert.match(quick, /signInWithPasskey/);
+  assert.match(quick, /Open with a passkey/);
+  assert.match(read("components/workspace-sync-form.tsx"), /Use an email code instead/);
+  assert.doesNotMatch(read("lib/quick-sign-in.ts"), /providers|external/);
+});
+
 test("the desktop's config file holds only the two public values", async () => {
   const { syncConfig } = await import("../scripts/write-sync-config.mjs");
   const env = { NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "pk", SUPABASE_SERVICE_ROLE_KEY: "secret" };

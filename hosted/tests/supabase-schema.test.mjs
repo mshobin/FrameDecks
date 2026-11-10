@@ -27,6 +27,7 @@ test("every table has at least one policy and none is open to anon", () => {
     "prayer_walls", "prayer_requests", // 0019: only the prayer wall functions touch them
     "member_rooms", // 0020: only the members' phones functions touch it
     "room_responses", "room_votes", // 0022: only the quick responses and polls functions touch them
+    "device_alerts", // 0023: written by triggers, read by device_alerts_recent and taken by the device-alert function
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;

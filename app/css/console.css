@@ -718,5 +718,18 @@ body.studio-focus .studio.s2{height:100vh !important}
 .cx-more{margin-top:8px}
 .cx-more a{color:var(--q);font-weight:600;text-decoration:none}
 .cx-more a:hover{text-decoration:underline}
+/* 26.11.36 Settings → Sync: the first sync, shown before anything changes (js/account.js buildFirst) */
+.sync-first{margin:0 0 14px;padding:14px 16px;border:1px solid var(--accent);border-radius:16px;background:var(--accent-soft)}
+.sync-first h3{margin:0 0 6px;font-size:15px}
+.sync-first-list{list-style:none;margin:10px 0;padding:0;display:grid;gap:6px}
+.sync-first-list li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;padding:8px 12px;border-radius:12px;background:var(--surface)}
+.sync-first-list li span{color:var(--muted);font-size:13px}
+.sync-first-list li.is-changed{box-shadow:inset 3px 0 0 var(--warn)}
+.sync-first-list li.is-here,.sync-first-list li.is-there{box-shadow:inset 3px 0 0 var(--accent)}
+.sync-first-choice{margin:10px 0;padding:0;border:0;display:grid;gap:8px}
+.sync-first-choice legend{font-weight:700;font-size:13px;margin-bottom:4px}
+.sync-first-choice label span{display:grid}
+.sync-first-choice small{color:var(--muted);font-size:12px}
+.sync-undo{margin-top:10px}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
 

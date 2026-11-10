@@ -239,3 +239,24 @@ Answered by the owner on 25 October 2026.
 | D2 | Keep the **member list with birthdays** on the PC only? And sync each Frame's **Teleprompter script**? | **Members sync to the web** (one record per person, owners and admins only). **Scripts sync.** |
 | D3 | First companion release: **view** services only, or **edit** too? | **View first;** editing as the next step |
 | D4 | Accept the conflict rules in §6 ("keep both" for Frames, last writer wins for settings)? | Not answered yet; built as recommended (yes) unless the owner says otherwise. Only the PC side (step 3) depends on it |
+
+## The first sync of a newly connected PC (26.11.36)
+
+`src/first_sync.py` plans the first round before anything changes; `Service` holds it (`firstPending`) until the leader
+has seen the preview in Settings → Sync (`account.js` `buildFirst`) and chosen.
+
+- **The meeting is the unit.** Meetings are matched by id, else by name (and date when both have one); one meeting on
+  each side with no meeting list on either is the same plan. Frames are compared by fingerprint (`frame_print`: the
+  Frame and its Content without ids, times or the meeting they are filed under).
+  - *same*: every Frame is already there: this PC's copies are dropped, the workspace's arrive.
+  - *added*: this PC only adds Frames (none edited): the new Frames join the same meeting.
+  - *here* / *there*: only on one side: it travels as its own meeting (a name clash gets "(this PC)").
+  - *changed*: a Frame edited in both places: Keep both (default; "<name> (this PC)", fresh ids where they clash),
+    Use the workspace's, or Use this PC's (`preferLocal` / `deleteRemote`).
+- **The meeting list** becomes the workspace's plus this PC's own; the `meeting` record is sent back up.
+- **Lists** are not doubled: members by email or phone (missing details filled in from this PC), verses by reference and
+  version, questions by their words.
+- **Safety:** `kc-sync-before.json` keeps this PC's plan and members before the round; `state["firstSync"]` lists what the
+  round created in the workspace and the workspace's version of what it changed. `Service.undo_connection()` (7 days)
+  deletes the first, puts back the second, restores this PC and disconnects.
+- An empty workspace needs no decision: this PC's plan goes up as before.

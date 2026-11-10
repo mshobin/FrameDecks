@@ -10,6 +10,26 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.36] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.36.md](releases/v26.11.36.md).
+
+### Added
+- The first sync, planned and shown first (`src/first_sync.py`; `cloud_sync.Engine.preview`, `run(first_mode)`,
+  `_prepare_first`; `Service.firstPending`, `first_choose`, `undo_connection`; `/api/sync` actions `first-choose`,
+  `first-refresh`, `undo-connection`; Settings → Sync `buildFirst`, Undo this connection). Meetings matched by id or
+  name and date; Frames by fingerprint; states same / added / here / there / changed; Keep both, Use the workspace's,
+  Use this PC's. Lists de-duplicated (members by email or phone, verses, questions). Backup `kc-sync-before.json`.
+- New-device alerts: `hosted/supabase/migrations/0023_device_alerts.sql` (+ rollback, PGlite tests), Edge Function
+  `device-alert` (Brevo), the Devices page's alert box.
+
+### Changed
+- Website sign-in is passkey first with the email code as the fallback; Google, Apple and Microsoft removed
+  (`lib/quick-sign-in.ts`, `components/quick-sign-in.tsx`, legal pages).
+
+### Fixed
+- The first sync no longer replaced this PC's meeting list with the workspace's (its Frames fell into the first one).
+
 ## [26.11.35] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.35.md](releases/v26.11.35.md).

@@ -1,6 +1,6 @@
 # FrameDecks Privacy Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 4 November 2026 (passwordless workspace, Trusted Devices)*
+*Effective 29 October 2026 · Version 2026-10-29 · Updated 10 November 2026 (passkey or email code, new-device alerts)*
 
 FrameDecks is made by **Shobin Mathews** ("we", "us"), who is responsible for the personal data described here.
 Contact: privacy@framedecks.com.
@@ -9,8 +9,8 @@ Contact: privacy@framedecks.com.
 
 - The FrameDecks program runs on your own PC and works without a workspace online. Pictures, video, the camera and
   what is on screen never leave that PC.
-- A workspace on framedecks.com is needed only to plan together and to sync a PC with it. You open it with your email
-  address and a one-time link; there are no passwords.
+- A workspace on framedecks.com is needed only to plan together and to sync a PC with it. You open it with a passkey or a
+  one-time email code; there are no passwords.
 - No advertising, no tracking, no selling or sharing of your data.
 
 ## What we keep, and why
@@ -39,6 +39,7 @@ present except commands you choose to send from your phone through the website.
 
 - **Supabase** — the database, and sending the one-time links, for workspaces.
 - **Cloudflare** — the website, downloads, the update service and email forwarding.
+- **Brevo** — delivering the one-time email codes and the new-device emails to owners and admins.
 
 They act on our instructions and may store data outside your country, protected by their own security and contractual
 safeguards.
