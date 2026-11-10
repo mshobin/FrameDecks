@@ -10,6 +10,20 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.35] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.35.md](releases/v26.11.35.md).
+
+### Changed
+- The top bar's Go Live always reads Go Live (`app/js/off-air.js` `attach(..., tap)`): a quick press is a click, a
+  hold of a second goes off air while something is on air; a click on the Frame already on air never re-takes it
+  (`workspace.js`).
+- Hide all is instant, without Undo (`dashboard.js` `hideAll`, `spotlight-remote.js`).
+
+### Fixed
+- A season look that arrived through Sync without `st.season` (`store.js` `lookSeason`, `seasonAccent`): it shows
+  as that season and No season clears it, so the cards never stay on the season's green.
+
 ## [26.11.34] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.34.md](releases/v26.11.34.md).

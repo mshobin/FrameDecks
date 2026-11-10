@@ -77,7 +77,7 @@ class Acts(unittest.TestCase):
         cc = read("app/js/spotlight-remote.js")
         self.assertIn("spr-undo", cc)
         self.assertIn("Store.undoable", cc)
-        self.assertIn("toastAction('Everything hidden', 'Undo'", read("app/js/dashboard.js"))
+        self.assertNotIn("toastAction('Everything hidden', 'Undo'", read("app/js/dashboard.js"), "26.11.35: Hide all is instant, no Undo")
         self.assertIn("offerUndo(", read("app/js/workspace.js"))
 
     def test_smart_next_everywhere(self):

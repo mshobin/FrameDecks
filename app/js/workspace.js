@@ -1384,7 +1384,10 @@ function stepScene(d){
   takeScene(nx.id);
   if (wasLive) setTimeout(function(){ offerUndo(keep, nx.name + ' is on screen'); }, 120);
 }
-$('cb-take').addEventListener('click', function(){ if (!live.live.scene && window.KCSound) KCSound.play('live'); takeScene(selScene); });   // 26.11.22 the chime
+$('cb-take').addEventListener('click', function(){
+  if (live.live.scene && live.live.scene === selScene){ var on = SC.find(live, selScene); toast('On air: ' + (on ? on.name : 'this Frame') + '. Hold Go Live to go off air.'); return; }   // 26.11.35 never re-takes it
+  if (!live.live.scene && window.KCSound) KCSound.play('live'); takeScene(selScene);   // 26.11.22 the chime
+});
 $('lb-prev').addEventListener('click', function(){ stepScene(-1); });
 $('lb-next').addEventListener('click', function(){ stepScene(1); });
 $('lb-auto').addEventListener('click', function(){ commit(function(n){ n.live.auto = !n.live.auto; }); });

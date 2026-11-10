@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.35': [
+    {title: 'Go Live stays Go Live', text: 'After Next and Next it still reads Go Live. Hold it for a second to go off air.', show: {spot: '#cb-take'}},
+    {title: 'Hide all is instant', text: 'Everything leaves the screen at once, with no Undo bar.', show: {spot: '#ctlbar'}}
+  ],
   '26.11.34': [
     {title: 'Choose the microphone', text: 'Settings → Listening → Microphone: scripture, voice commands and Follow my voice all listen with it. A Bluetooth headset’s call microphone is marked.', show: {settings: 'listening', spot: '#mic-box'}},
     {title: 'Listening goes on', text: 'If the chosen microphone drops out in a meeting, FrameDecks goes on with the Windows default microphone and tells you once.', show: {settings: 'listening', spot: '#mic-box'}}

@@ -82,7 +82,7 @@ function setQS(m, said){
   if (!ls || SC.qsMode(ls) === m) return;
   update(function(n){ SC.setQS(n, ls.id, m); }, said);
 }
-function hideAll(){ undoable(function(n){ SC.hideAll(n); }, 'Everything hidden'); }
+function hideAll(){ Store.update(function(n){ SC.hideAll(n); }).then(function(){ tell('✓ Everything hidden'); }).catch(function(){ tell('FrameDecks did not answer.', true); }); }   // 26.11.35 no Undo
 function black(){ var on = live && live.live.blackout; undoable(function(n){ n.live.blackout = !n.live.blackout; }, on ? 'Picture back' : 'Black screen'); }
 /* 26.11.15 Emergency screen, as in the Studio and on the phone: your message full screen. Pressed twice to turn it on
  * (it covers everything), once to turn it off; with no message set it says "We’ll be right back." */

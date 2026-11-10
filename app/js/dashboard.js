@@ -105,10 +105,8 @@ function toggle(kind){
 }
 /* Presentation mode of the current question (Question · Both · Verse). On screen, the change shows at once. */
 function setMode(m){ commit(function(n){ P.setMode(n, m); }); }
-function hideAll(){
-  var keep = Store.snapshot ? Store.snapshot() : null;          // 26.11.22 Undo for 5 s
-  return commit(function(n){ if (window.KCScenes) window.KCScenes.hideAll(n); else { n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; } })
-    .then(function(){ if (keep) toastAction('Everything hidden', 'Undo', function(){ Store.restore(keep).then(function(){ toast('↩ Undone'); }); }); });
+function hideAll(){                                             // 26.11.35 instant: no Undo bar (owner, 10 November)
+  return commit(function(n){ if (window.KCScenes) window.KCScenes.hideAll(n); else { n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; } });
 }
 function clearLive(kind){
   commit(function(n){

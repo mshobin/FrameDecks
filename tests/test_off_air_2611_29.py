@@ -33,7 +33,9 @@ class OffAir(unittest.TestCase):
         self.assertIn("KCActions.toastAction(msg, 'Undo'", self.js)
 
     def test_where_it_appears(self):
-        self.assertIn("take.classList.contains('is-live') && onAir()", self.js, "the top bar: the selected Frame is on air")
+        # 26.11.35: the top bar's Go Live always reads Go Live; while something is on air a hold of it goes off air
+        self.assertIn("var armedTake = function(){ return onAir() && !take.disabled; };", self.js)
+        self.assertIn("attach(take, armedTake, function(){ paint(); }, true);", self.js)
         ls = read("app/js/live-stage.js")
         self.assertIn("go.classList.add('is-off')", ls, "the Live Stage: after the last Frame")
         self.assertIn("if (go.classList.contains('is-off')) return;", ls)

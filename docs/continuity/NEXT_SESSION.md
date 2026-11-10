@@ -2,7 +2,9 @@
 
 Commit identity (owner's instruction, 4 Nov 2026): every commit is authored as `Shobin Mathews <276174545+mshobin@users.noreply.github.com>`; set it at the start of each session with `git config user.name "Shobin Mathews"` and `git config user.email "276174545+mshobin@users.noreply.github.com"`, and add no co-author or tool lines.
 
-Updated 10 November 2026 (26.11.34 on `main`: Bluetooth microphones: Settings → Listening → Microphone (`microphone.js`, `voiceMic`), fallback to the Windows default when the chosen microphone stops (`voice_follow.py`, `mic` status part, toast), Ready check hands-free warning (`ready_check.handsfree`). Owner: tag `v26.11.34` after `v26.11.33`.)
+Updated 10 November 2026 (26.11.35 on `main`: No season clears a synced season look (`store.js` `lookSeason`); Go Live always reads Go Live, hold to go off air (`off-air.js`); Hide all instant, no Undo. Owner: tag `v26.11.35`.)
+
+Previous: 10 November 2026 (26.11.34 on `main`: Bluetooth microphones: Settings → Listening → Microphone (`microphone.js`, `voiceMic`), fallback to the Windows default when the chosen microphone stops (`voice_follow.py`, `mic` status part, toast), Ready check hands-free warning (`ready_check.handsfree`). Owner: tag `v26.11.34` after `v26.11.33`.)
 
 Previous: 10 November 2026 (26.11.33 on `main`: songs (`song` kind, verses step on Next), speaker name tags (`nametags.js`), polls from members' phones (migration 0022, `room_responses.py`, `responses.js`), timing plan (`timing.js`); four new features. Owner: apply migration 0022, tag `v26.11.33`.)
 

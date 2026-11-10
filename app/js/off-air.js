@@ -1,6 +1,7 @@
 /* FrameDecks 26.11.29 - Off air on the Go Live button, by press and hold (owner, 9 November: one button that does both,
  * without the risk of an accidental off).
- *   - The top bar's Go Live: when the Frame you have selected is the one on air, it reads Off air.
+ *   - The top bar's Go Live (26.11.35, owner 10 November): it always reads Go Live, also after Next and Next. A click
+ *     goes live with the selected Frame; while something is on air, holding it for a second goes off air.
  *   - The Live Stage's button: after the last Frame (where Next has nowhere to go), it reads Off air.
  * Off air takes everything off screen (the same as the Command Center's Go Live switch turned off), with Undo. Only a
  * hold of a second does it: a thin bar fills along the button while you hold, and letting go sooner does nothing but
@@ -46,12 +47,12 @@ function offAir(){
 
 /* ---------- press and hold ---------- */
 var BUTTONS = [], swallow = 0;    // the click that follows letting go is never a Go Live
-function attach(btn, armed, label){
+function attach(btn, armed, label, tap){      // tap: a quick press stays a normal click (the top bar's Go Live)
   if (!btn || btn.dataset.holdable) return;
   btn.dataset.holdable = '1';
   btn.classList.add('kc-holdable');
   var bar = document.createElement('i'); bar.className = 'kc-hold-bar'; bar.setAttribute('aria-hidden', 'true'); btn.appendChild(bar);
-  var t = 0, held = false;
+  var t = 0, held = false, viaKey = false;
   function start(){
     if (t || !armed()) return false;
     held = false;
@@ -64,18 +65,19 @@ function attach(btn, armed, label){
   function stop(){
     if (held) swallow = Date.now() + 600;
     if (!t) return;
-    swallow = Date.now() + 600;
     clearTimeout(t); t = 0;
     btn.classList.remove('holding');
     if (label) label(false);
+    if (tap){ if (viaKey && !held) btn.click(); return; }           // let go sooner: an ordinary Go Live
+    swallow = Date.now() + 600;
     if (!held) toast('Hold Off air for a second to take everything off screen');
   }
-  btn.addEventListener('pointerdown', function(e){ if (e.button === 0 && start()){ e.preventDefault(); try { btn.setPointerCapture(e.pointerId); } catch(x){} } });
+  btn.addEventListener('pointerdown', function(e){ viaKey = false; if (e.button === 0 && start()){ e.preventDefault(); try { btn.setPointerCapture(e.pointerId); } catch(x){} } });
   ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(k){ btn.addEventListener(k, stop); });
-  btn.addEventListener('keydown', function(e){ if ((e.key === ' ' || e.key === 'Enter') && armed()){ e.preventDefault(); e.stopPropagation(); if (!e.repeat) start(); } });
+  btn.addEventListener('keydown', function(e){ if ((e.key === ' ' || e.key === 'Enter') && armed()){ e.preventDefault(); e.stopPropagation(); if (!e.repeat){ viaKey = true; start(); } } });
   btn.addEventListener('keyup', function(e){ if ((e.key === ' ' || e.key === 'Enter') && t){ e.preventDefault(); stop(); } });
   btn.addEventListener('blur', stop);
-  BUTTONS.push({btn: btn, armed: armed});
+  BUTTONS.push({btn: btn, armed: tap ? function(){ return false; } : armed});
 }
 /* a click on an armed button never reaches its Go Live or Next (caught before the page's own handlers) */
 document.addEventListener('click', function(e){
@@ -85,19 +87,20 @@ document.addEventListener('click', function(e){
   }
 }, true);
 
-/* ---------- the top bar's Go Live: Off air while the selected Frame is the one on air ---------- */
+/* ---------- the top bar's Go Live: always Go Live; hold it to go off air while something is on air ---------- */
 var take = $('cb-take');
 if (take){
   var tl = take.querySelector('.tl'), aria = take.getAttribute('aria-label');
-  var armedTake = function(){ return take.classList.contains('is-live') && onAir() && !take.disabled; };
+  var armedTake = function(){ return onAir() && !take.disabled; };
   var paint = function(){
-    var on = armedTake(), want = on ? (take.classList.contains('holding') ? 'Keep holding…' : 'Off air') : 'Go Live';
-    take.classList.toggle('is-off', on);
+    var on = armedTake(), want = take.classList.contains('holding') ? 'Keep holding…' : 'Go Live';
+    if (take.classList.contains('is-off')) take.classList.remove('is-off');   // (remove() always rewrites class: the observer would loop)
     if (tl && tl.textContent !== want) tl.textContent = want;
     nameAsShown(take, on, aria);
-    if (on && take.title.indexOf('Hold') !== 0) take.title = 'Hold for a second to go off air. Select another Frame to Go Live with it.';
+    var tip = 'Go Live with the selected Frame. Hold for a second to go off air.';
+    if (on && take.title !== tip) take.title = tip;
   };
-  attach(take, armedTake, function(){ paint(); });
+  attach(take, armedTake, function(){ paint(); }, true);
   new MutationObserver(paint).observe(take, {attributes: true, attributeFilter: ['class', 'disabled', 'title']});
   Store.subscribe(function(){ requestAnimationFrame(paint); });
   paint();

@@ -75,8 +75,9 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.30: the release audit's fixes (framing + enforced CSP, one status request, plan-recovery notice, Off air name, Ready check hurry line, queue, setuptools, Share Window) | Released with 26.11.31 (or tagged on its own) |
 | 26.11.31: features you switch on or off (Settings, Command Center More, Welcome sets; off stops the work) | Released with 26.11.32 (or tagged on its own) |
 | 26.11.32: Settings in six groups (Start here, Meeting look, Content, How people see it, People & devices, This PC) | Released with 26.11.33 (or tagged on its own) |
-| 26.11.33: songs, speaker name tags, polls from members' phones (0022), timing plan | On `main`; owner applies 0022 and tags `v26.11.33` |
-| 26.11.34: Bluetooth microphones (microphone choice in Listening, default-microphone fallback, Ready check warning) | On `main`; owner tags `v26.11.34` |
+| 26.11.33: songs, speaker name tags, polls from members' phones (0022), timing plan | Released; 0022 applied |
+| 26.11.34: Bluetooth microphones (microphone choice in Listening, default-microphone fallback, Ready check warning) | Released |
+| 26.11.35: No season fix, Go Live always Go Live (hold for off air), instant Hide all | On `main`; owner tags `v26.11.35` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

@@ -369,6 +369,11 @@ var SEASONS = [                                               // 26.11.28 Settin
   {id: 'christmas', name: 'Christmas', note: 'Evergreen and gold, with a gentle snowfall', accent: '#d8b45a', a: '#0f3b2b', b: '#06231a'},
   {id: 'easter', name: 'Easter', note: 'Dawn colours and sunrise gold', accent: '#f0c46a', a: '#4a2f45', b: '#271827'},
   {id: 'harvest', name: 'Harvest', note: 'Wheat, amber and warm earth', accent: '#de9137', a: '#3b2915', b: '#22170a'}];
+function lookSeason(st){                                      // 26.11.35 the season a "season-…" look belongs to
+  var m = /^season-([a-z]+)$/.exec((st && st.look && st.look.id) || '');
+  return m ? SEASONS.filter(function(x){ return x.id === m[1]; })[0] || null : null;
+}
+function seasonAccent(c){ c = String(c || '').toLowerCase(); return SEASONS.some(function(x){ return x.accent === c; }); }
 var LOOK = {question: {layout: ['qScale', 'qWidth', 'qBottom', 'panel'], card: ['transition', 'speed', 'random', 'pool', 'burst', 'showLabel']},
   scripture: {layout: ['verseScale', 'verseY', 'verseWidth', 'verseAlign', 'panel'], card: ['transition', 'speed', 'random', 'pool', 'burst', 'showLabel']}};
 var LOOK_RANGE = {qScale: [.6, 1.6], qWidth: [50, 94], qBottom: [4, 24], panel: [50, 100], verseScale: [.6, 1.6], verseY: [22, 60], verseWidth: [40, 88]};
@@ -1131,15 +1136,19 @@ var Scenes = {
   /* 26.11.28 seasons: one switch sets the cards' accent and surface together (the camera and the overlay pages read
      brand.color and look as always) and the overlay pages' touch of the season (overlay.css html[data-season]).
      st.season keeps the accent and look from before, so switching it off puts them back. */
+  /* 26.11.35 a season's look can arrive without st.season (the look and the accent sync to the website and other PCs;
+     st.season stays on this PC): the look's own id names the season, so it shows as that season and No season clears it. */
   seasons: SEASONS,
-  season: function(st){ var s = st && st.season; return s && SEASONS.filter(function(x){ return x.id === s.id; })[0] || null; },
+  season: function(st){ var s = st && st.season; return (s && SEASONS.filter(function(x){ return x.id === s.id; })[0]) || lookSeason(st); },
   setSeason: function(n, id){
     var to = SEASONS.filter(function(x){ return x.id === id; })[0] || null, was = n.season || null;
     if (!to){
       if (was){ n.brand.color = was.color || ''; if (was.look) n.look = was.look; else delete n.look; delete n.season; }
+      else if (lookSeason(n)){ delete n.look; if (seasonAccent(n.brand.color)) n.brand.color = ''; }
       return;
     }
-    var keep = was ? {color: was.color || '', look: was.look || null} : {color: n.brand.color || '', look: n.look ? JSON.parse(JSON.stringify(n.look)) : null};
+    var keep = was ? {color: was.color || '', look: was.look || null} :
+      {color: seasonAccent(n.brand.color) && lookSeason(n) ? '' : (n.brand.color || ''), look: n.look && !lookSeason(n) ? JSON.parse(JSON.stringify(n.look)) : null};
     n.brand.color = to.accent;
     n.look = {id: 'season-' + to.id, name: to.name, a: to.a, b: to.b, font: 'serif', base: 'dark'};
     n.season = {id: to.id, color: keep.color, look: keep.look};
