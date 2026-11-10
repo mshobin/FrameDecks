@@ -149,3 +149,25 @@
 .frame-editing .planner-content:focus-within::before{opacity:1}
 .frame-editing .planner-content-head{margin:0 -16px 14px;padding:10px 16px 10px 20px;border-bottom:1px solid var(--hairline);background:var(--fill)}
 .frame-editing .planner-content>:not(.planner-content-head){margin-left:4px}
+/* 26.11.39 select Frames (the number picks them), the Frame last clicked lit in both places, and Sync Now */
+.flow-sync.is-waiting{color:var(--gold-2)}
+.frame-pick,.fc-pick{border:2px solid var(--hairline-strong);font:inherit;font-weight:700;cursor:pointer;transition:border-color .2s,background .2s,color .2s}
+.frame-pick:hover,.fc-pick:hover{border-color:var(--gold);color:var(--gold-2)}
+.frame-pick[aria-pressed=true],.fc-pick[aria-pressed=true]{border-color:var(--gold);background:var(--gold);color:#16120a}
+.plan-frame.is-picked{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),var(--shadow)}
+.plan-frame.is-current:not(.is-picked){border-color:rgba(227,183,90,.55)}
+.fc-node.is-picked .fc-card{border-color:var(--gold);background:var(--gold-soft)}
+.pick-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;min-height:44px;margin:0 0 12px;padding:8px 14px;border:1px dashed var(--hairline-strong);border-radius:var(--radius);color:var(--text-2);font-size:14px}
+.pick-bar.is-on{position:sticky;top:76px;z-index:3;border-style:solid;border-color:var(--gold);background:var(--surface-solid);color:var(--text)}
+.pick-bar span{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.pick-bar .pick-hint{font-weight:400}
+.pick-delete{display:inline-flex;align-items:center;gap:6px;margin-left:auto;padding:8px 14px;border:1px solid rgba(255,138,128,.5);border-radius:999px;background:rgba(255,138,128,.12);color:var(--red);font:inherit;font-weight:700;cursor:pointer}
+.pick-delete:disabled{opacity:.5;cursor:default}
+.fc-pick-delete{width:100%;justify-content:center;margin:12px 0 0}
+.sync-box{margin-top:14px;padding:16px;border:1px solid var(--gold);border-radius:var(--radius-lg);background:var(--gold-soft)}
+.sync-box h2{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:var(--text);font-size:16px}
+.sync-box ul{display:grid;gap:4px;margin:0 0 14px;padding:0;color:var(--text-2);font-size:14px;list-style:none}
+.sync-box li b{color:var(--text)}
+.sync-now{width:100%;min-height:56px;border:0;border-radius:var(--radius);background:var(--gold);color:#16120a;font:inherit;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 12px 28px -14px rgba(227,183,90,.8)}
+.sync-now:disabled{opacity:.7;cursor:progress}
+.sync-note{margin:10px 0 0;color:var(--text-3);font-size:13px}

@@ -55,6 +55,8 @@ await ctx.route("https://x.supabase.co/**", async (route) => {
 import { mkdirSync } from "node:fs";
 mkdirSync(SP, { recursive: true });
 const p = await ctx.newPage();
+// 26.11.39 changes wait on the page until Sync Now
+const syncNow = async () => { await p.click(".sync-now"); await p.waitForTimeout(900); };
 p.on("pageerror", (e) => console.log("PAGEERR", e.message));
 await p.goto("http://127.0.0.1:8931/plan");
 await p.waitForSelector(".flow-steps", { timeout: 15000 });
@@ -80,15 +82,28 @@ else {
 }
 await p.waitForTimeout(150);
 await p.screenshot({ path: SP + "/plan-syncing.png", clip: { x: 0, y: 0, width: 1366, height: 500 } });
-await p.waitForTimeout(800);
-check(JSON.stringify(records.find((r) => r.kind === "order").body.scenes) === '["f3","f1","f2"]', "drag and drop saves the new order");
+await p.waitForTimeout(500);
+check(JSON.stringify(records.find((r) => r.kind === "order").body.scenes) === '["f1","f2","f3"]', "a move waits on the page until Sync Now");
+check((await p.textContent(".flow-sync")).includes("Waiting for Sync Now"), "the status says it is waiting");
+check((await p.textContent(".sync-box")).includes("Moved"), "the Sync Now box under the timeline says what is waiting");
+await p.screenshot({ path: SP + "/plan-waiting.png" });
+await syncNow();
+check(JSON.stringify(records.find((r) => r.kind === "order").body.scenes) === '["f3","f1","f2"]', "Sync Now saves the new order");
+check(!(await p.$(".sync-box")), "and the box goes away");
 check((await p.textContent(".flow-sync")).includes("Synced"), "Sync status back to Synced");
 check((await p.textContent(".fc-node:nth-child(2) .fc-text b")).includes("Discussion"), "the timeline shows the new order");
 check((await p.textContent(".frame-list > li:first-child h3")).includes("Discussion"), "the main list shows it too");
 // keyboard move
 await p.focus(".fc-node:nth-child(2) .fc-card");
 await p.keyboard.press("Alt+ArrowDown");
-await p.waitForTimeout(800);
+await p.waitForTimeout(500);
+await p.keyboard.press("Alt+ArrowUp");
+await p.waitForTimeout(500);
+check(!(await p.$(".sync-box")), "moving a Frame back where it was is no change");
+await p.focus(".fc-node:nth-child(2) .fc-card");
+await p.keyboard.press("Alt+ArrowDown");
+await p.waitForTimeout(500);
+await syncNow();
 check(JSON.stringify(records.find((r) => r.kind === "order").body.scenes) === '["f1","f3","f2"]', "Alt + arrow moves a Frame");
 // Preview
 await p.click(".flow-steps li:nth-child(4) button");
@@ -115,7 +130,9 @@ await p.setInputFiles(".flow-file input[type=file]", { name: "vine photo.png", m
 await p.waitForTimeout(400);
 check((await p.textContent(".flow-file small")).includes("Kept in this browser"), "a chosen file is kept in the browser");
 await p.click("li.frame-editing .edit-actions .live-primary");
-await p.waitForTimeout(900);
+await p.waitForTimeout(500);
+check((await p.textContent(".sync-box")).includes("Changed"), "a saved Frame waits as Changed");
+await syncNow();
 // export
 const [dl] = await Promise.all([p.waitForEvent("download"), p.click(".flow-steps li:nth-child(5) button")]);
 const path = SP + "/" + dl.suggestedFilename(); await dl.saveAs(path);
@@ -138,7 +155,8 @@ await p.click(".fc-end button");
 await p.waitForSelector("li.frame-editing");
 await p.fill("li.frame-editing .planner-grid input >> nth=0", "Sunday Welcome");
 await p.click("li.frame-editing .edit-actions .live-primary");
-await p.waitForTimeout(900);
+await p.waitForTimeout(500);
+await syncNow();
 const sunday = records.find((r) => r.kind === "frame" && r.body?.name === "Sunday Welcome");
 check(sunday?.body.group === "Sunday Service", "a Frame added here belongs to the meeting");
 check((await p.$$(".fc-node")).length === 1, "the timeline shows only this meeting's Frame");
@@ -155,7 +173,8 @@ await p.waitForTimeout(900);
 check(meetingBody().meetings.some((m) => m.name === "Sunday Worship") && records.find((r) => r.id === sunday.id).body.group === "Sunday Worship", "renaming moves the meeting's Frames with it");
 await p.click(".fc-node .fc-del");
 await p.click(".fd-confirm-submit");
-await p.waitForTimeout(900);
+await p.waitForTimeout(500);
+await syncNow();
 check(!records.find((r) => r.id === sunday.id)?.body, "delete in the timeline removes the Frame");
 check((await p.$$(".fc-node")).length === 0, "and the timeline shows it gone");
 await p.click(".mb-chips button:has-text('Tuesday Bible Study')");
@@ -163,6 +182,25 @@ await p.waitForTimeout(500);
 const [dl2] = await Promise.all([p.waitForEvent("download"), p.click(".flow-steps li:nth-child(5) button")]);
 const f2 = JSON.parse(readFileSync(await dl2.path(), "utf8"));
 check(f2.counts.frames === 3 && f2.plan.meeting.title === "Tuesday Bible Study" && !f2.plan.meeting.meetings, "the .frame file holds one meeting");
+// ---- 26.11.39 the Frame clicked lights up on the timeline; select several and delete them together ----
+await p.evaluate(() => window.scrollTo(0, 0));
+await p.click(".frame-list > li:nth-child(2) .pf-title");
+await p.waitForTimeout(300);
+check(await p.$eval(".fc-node:nth-child(3)", (n) => n.classList.contains("is-active")), "the Frame clicked in the middle is lit on the timeline");
+await p.click(".frame-list > li:nth-child(1) .frame-pick");
+await p.click(".fc-node:nth-child(4) .fc-pick");
+await p.waitForTimeout(300);
+check((await p.$$(".plan-frame.is-picked")).length === 2 && (await p.$$(".fc-node.is-picked")).length === 2, "picked in the list or the timeline, shown in both places");
+check((await p.textContent(".pick-bar")).includes("2 selected"), "the bar counts the selected Frames");
+await p.screenshot({ path: SP + "/plan-picked.png" });
+await p.click(".fc-pick-delete");
+await p.click(".fd-confirm-submit");
+await p.waitForTimeout(400);
+check((await p.$$(".fc-node")).length === 1 && (await p.textContent(".sync-box")).includes("Deleted"), "two Frames deleted at once, waiting for Sync Now");
+await p.screenshot({ path: SP + "/plan-deleted.png" });
+const before = pushes.length;
+await syncNow();
+check(pushes.length === before + 1 && pushes.at(-1).changes.filter((c) => c.deleted).length === 2, "one push carries both deletes");
 await b.close(); srv.close();
 console.log(failed ? `${failed} check(s) failed` : "all Plan workflow checks passed");
 process.exit(failed ? 1 : 0);

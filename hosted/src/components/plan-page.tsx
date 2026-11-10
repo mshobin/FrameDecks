@@ -8,8 +8,8 @@ export function PlanPage({ initial = "edit" }: Readonly<{ initial?: "edit" | "hi
       <section className="page-head">
         <h1>Plan</h1>
         <p className="page-note">
-          Everything the meeting shows, Frame by Frame: questions, scripture and the presenter&apos;s script. The service
-          PC picks up each change within about a minute.
+          Everything the meeting shows, Frame by Frame: questions, scripture and the presenter&apos;s script. Your changes wait
+          here until you press Sync Now under the timeline.
         </p>
       </section>
       <PlanPanel initial={initial} />

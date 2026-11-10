@@ -3,20 +3,20 @@
 // FrameDecks 8.3 - the guided Plan workflow (lib/frame-flow.ts): the five steps with the Sync status, the timeline
 // whose Frames are dragged into order, the transition picker and the Preview. Used by meeting-form-panel.tsx.
 import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type KeyboardEvent, type RefObject } from "react";
-import { AlertTriangle, CalendarDays, Pencil, Check, ChevronLeft, ChevronRight, CloudOff, GripVertical, Loader2, Plus, Trash2, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, Pencil, Check, ChevronLeft, ChevronRight, CloudOff, CloudUpload, GripVertical, Loader2, Plus, Trash2, X } from "lucide-react";
 
 import { FLOW_STEPS, previewOf, type FramePreview, type StepId, type StepState } from "@/lib/frame-flow";
 import { TRANSITIONS } from "@/lib/meeting-form";
 
 type Obj = { [key: string]: unknown };
-export type SyncShown = "synced" | "syncing" | "offline" | "failed";
+export type SyncShown = "synced" | "syncing" | "offline" | "failed" | "waiting";
 
-const SYNC_WORDS: Record<SyncShown, string> = { synced: "Synced", syncing: "Syncing…", offline: "Offline", failed: "Sync failed" };
+const SYNC_WORDS: Record<SyncShown, string> = { synced: "Synced", syncing: "Syncing…", offline: "Offline", failed: "Sync failed", waiting: "Waiting for Sync Now" };
 
 export function SyncPill({ phase }: Readonly<{ phase: SyncShown }>) {
   return (
     <span className={`flow-sync is-${phase}`} role="status" aria-live="polite">
-      {phase === "syncing" ? <Loader2 aria-hidden="true" size={14} /> : phase === "offline" ? <CloudOff aria-hidden="true" size={14} /> : phase === "failed" ? <AlertTriangle aria-hidden="true" size={14} /> : <Check aria-hidden="true" size={14} />}
+      {phase === "syncing" ? <Loader2 aria-hidden="true" size={14} /> : phase === "offline" ? <CloudOff aria-hidden="true" size={14} /> : phase === "failed" ? <AlertTriangle aria-hidden="true" size={14} /> : phase === "waiting" ? <CloudUpload aria-hidden="true" size={14} /> : <Check aria-hidden="true" size={14} />}
       {SYNC_WORDS[phase]}
     </span>
   );
@@ -85,6 +85,8 @@ export function FlowChart({
   onAdd,
   addDisabled,
   onMeeting,
+  picked = new Set<string>(),
+  onPick,
 }: Readonly<{
   meeting: { name: string; date: string };
   frames: Obj[];
@@ -98,6 +100,9 @@ export function FlowChart({
   onAdd: () => void;
   addDisabled: boolean;
   onMeeting: () => void;
+  /** 26.11.39 the Frames chosen for Delete selected, shared with the list in the middle; a Frame's number picks it */
+  picked?: Set<string>;
+  onPick?: (id: string) => void;
 }>) {
   const [drag, setDrag] = useState<string | null>(null);
   const [over, setOver] = useState<number | null>(null);
@@ -145,14 +150,26 @@ export function FlowChart({
           <li
             key={id}
             data-flip={id}
-            className={["fc-node", drag === id && "is-dragging", over === i && "is-before", over === i + 1 && i === frames.length - 1 && "is-after", active === id && "is-active", onAir === id && "is-air"].filter(Boolean).join(" ")}
+            className={["fc-node", drag === id && "is-dragging", over === i && "is-before", over === i + 1 && i === frames.length - 1 && "is-after", active === id && "is-active", onAir === id && "is-air", picked.has(id) && "is-picked"].filter(Boolean).join(" ")}
             draggable={canEdit && !busy}
             onDragStart={(e) => (e.dataTransfer.setData("text/plain", id), (e.dataTransfer.effectAllowed = "move"), setDrag(id))}
             onDragOver={(e) => drag && (e.preventDefault(), setOver(place(e, i)))}
             onDrop={(e) => (e.preventDefault(), drop())}
             onDragEnd={() => (setDrag(null), setOver(null))}
           >
-            <span className="fc-num" aria-hidden="true">{i + 1}</span>
+            {canEdit && onPick ? (
+              <button
+                type="button"
+                className="fc-num fc-pick"
+                aria-pressed={picked.has(id)}
+                aria-label={`Select ${p.name}`}
+                onClick={() => onPick(id)}
+              >
+                {picked.has(id) ? <Check aria-hidden="true" size={16} /> : i + 1}
+              </button>
+            ) : (
+              <span className="fc-num" aria-hidden="true">{i + 1}</span>
+            )}
             <button type="button" className="fc-card" onClick={() => onOpen(id)} onKeyDown={(e) => keys(e, id, i)} aria-label={`${i + 1}. ${p.name}: ${detail}${onAir === id ? ", on screen" : ""}. Open`}>
               <span className="fc-thumb" style={p.background ? { background: p.background } : undefined} aria-hidden="true">
                 {p.cards[0]?.text.slice(0, 40) ?? ""}
@@ -179,7 +196,7 @@ export function FlowChart({
         </li>
       )}
       <li className="fc-hint" id="fc-hint">
-        {canEdit ? "Drag a Frame to move it, or select it and press Alt + ↑ / ↓." : "Click a Frame to see it."}
+        {canEdit ? "Drag a Frame to move it (or Alt + ↑ / ↓). Click a number to select Frames." : "Click a Frame to see it."}
       </li>
     </ol>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowDown, ArrowUp, Eye, FileText, PanelRightClose, PanelRightOpen, Pencil, Plus, Sparkles, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, CloudUpload, Eye, FileText, PanelRightClose, PanelRightOpen, Pencil, Plus, Sparkles, Trash2, Upload, X } from "lucide-react";
 
 import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
@@ -27,7 +27,6 @@ import {
   meetingFormOf,
   meetingFromForm,
   problemsOf,
-  rebaseFrame,
   uniqueName,
   withFrame,
   type ContentRow,
@@ -47,6 +46,7 @@ import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { userSafeError } from "@/lib/user-error";
 import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, watchSync, type PulledRecord } from "@/lib/workspace-sync";
+import { keyOf, loadChanges, mergeOrder, overlay, saveChanges, stage, summarize, toPush, type Changes } from "@/lib/plan-changes";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
@@ -57,8 +57,8 @@ type Notice = { ok: boolean; text: string } | null;
 
 const key = (kind: string, id: string) => `${kind}/${id}`;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
-const SAVED = "Saved. The service PC picks it up within about a minute.";
-const SAVED_LIVE = "Saved. This Frame is on screen now: the PC applies your change when it leaves the screen.";
+const SAVED = "Waiting for Sync Now.";
+const SAVED_LIVE = "Waiting for Sync Now. On screen now: the PC applies it when it leaves the screen.";
 
 // The website's Meeting Form (docs/architecture/meeting-form.md): the Excel Meeting Form's sections, on the live plan.
 // Owners and admins add, change, move and delete Frames and their Content; everyone else reads it. Every save goes
@@ -90,6 +90,21 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   });
   const [sideOpen, setSideOpen] = useState(true);
   const [renames, setRenames] = useState(0); // a rename from the meeting bar refills Meeting details; their own Save keeps "Saved" on screen
+  // 26.11.39 edits wait on this page until Sync Now (kept in this browser), Frames picked for Delete selected, and the
+  // Frame last clicked, lit on the timeline too
+  const [changes, setChangesState] = useState<Changes>(() => (typeof window === "undefined" ? {} : loadChanges(workspace.id)));
+  const setChanges = useCallback(
+    (fn: (c: Changes) => Changes) => setChangesState((c) => {
+      const next = fn(c);
+      saveChanges(workspace.id, next);
+      return next;
+    }),
+    [workspace.id],
+  );
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [current, setCurrent] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const sideRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const online = () => setPhase(navigator.onLine ? "synced" : "offline");
@@ -116,12 +131,24 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     load();
   }, [load]);
 
+  useEffect(() => {
+    const id = editing && editing !== "new" ? editing : current;
+    const side = sideRef.current;
+    const node = id && side ? side.querySelector<HTMLElement>(`[data-flip="${CSS.escape(id)}"]`) : null;
+    if (!side || !node) return;
+    const top = node.offsetTop - side.clientHeight / 2 + node.clientHeight / 2;
+    side.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, [current, editing]);
+
   if (loaded === null) return <PageSkeleton />;
   if (loaded === "not-set-up") return <NotSetUp />;
   if ("error" in loaded) return <ErrorState text={loaded.error} onRetry={load} />;
 
-  const records = loaded.records;
+  const serverByKey = new Map(loaded.records.map((r) => [key(r.kind, r.id), r]));
+  const records = overlay(loaded.records, changes);              // what this page shows: the workspace and the waiting changes
   const byKey = new Map(records.map((r) => [key(r.kind, r.id), r]));
+  const waiting = summarize(changes);
+  const onAirId = loaded.onAir;
   const { doc } = join(records, {});
   const scenes = (Array.isArray(doc.scenes) ? (doc.scenes as unknown[]) : []).filter(isObj);
   const meetingRecord = byKey.get(key("meeting", "meeting"));
@@ -170,7 +197,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   }
 
   const styleTx = PROFILE_TX[profileOf(byKey.get(key("layout", "profile"))?.body)] ?? "fade";
-  const steps = flowState({ title, frames, previewed, sent: sent || (loaded.pcs > 0 && phase === "synced" && frames.length > 0) });
+  const steps = flowState({ title, frames, previewed, sent: sent || (loaded.pcs > 0 && phase === "synced" && !waiting.count && frames.length > 0) });
   function preview(at: number) {
     if (!frames.length) return setNotice({ ok: false, text: "Add a Frame first, then preview it." });
     setPreviewed(true);
@@ -256,12 +283,24 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     const renamed = newName && newName !== old ? scenes.filter((f) => !f.tpl && String(f.group ?? "").trim().toLowerCase() === old.toLowerCase()) : [];
     const changes: Parameters<typeof pushChanges>[2] = [{ kind: "meeting", id: "meeting", rev: meetingBase.rev, body }];
     for (const f of renamed) {
-      const r = byKey.get(key("frame", String(f.id)));
+      const r = serverByKey.get(key("frame", String(f.id)));       // the workspace's version; a waiting edit follows below
       if (r) changes.push({ kind: "frame", id: r.id, rev: r.rev, body: { ...(r.body as Obj), group: newName } });
     }
     const answers = await pushChanges(supabase, workspace.id, changes);
     if (answers.every((a) => a.status === "ok")) {
       changes.forEach((c, i) => "body" in c && upsert({ kind: c.kind as PulledRecord["kind"], id: c.id, rev: (answers[i] as { rev: number }).rev, seq: 0, body: c.body as PulledRecord["body"] }));
+      const moved = new Map(changes.map((c, i) => [keyOf(c.kind, c.id), { rev: (answers[i] as { rev: number }).rev, body: "body" in c ? (c.body as Obj) : null }]));
+      setChanges((w) => {
+        const next = { ...w };
+        for (const f of renamed) {
+          const k = keyOf("frame", String(f.id));
+          const c = next[k];
+          if (!c) continue;
+          const m = moved.get(k);
+          next[k] = { ...c, ...(m ? { rev: m.rev, base: m.body } : {}), body: c.body ? { ...c.body, group: newName } : null };
+        }
+        return next;
+      });
       return null;
     }
     await load();
@@ -269,48 +308,109 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     return bad && bad.status === "error" ? bad.message : "The meeting changed on the PC meanwhile. The latest is shown now; make your change again.";
   }
 
-  async function move(id: string, to: number) {
-    if (!supabase || !order || busy) return;
-    setBusy(true);
+  /** 26.11.39 a change waits on this page (or drops out when it puts things back as the workspace has them) */
+  function put(kind: "frame" | "order", id: string, body: Obj | null) {
+    setChanges((c) => stage(c, serverByKey.get(key(kind, id)), kind, id, body));
+  }
+
+  function move(id: string, to: number) {
+    if (!order || busy) return;
     setNotice(null);
-    const body = moveFrameTo(order.body as Obj, frames.map((f) => String(f.id)), id, to);
-    const before = order;
-    upsert({ ...order, body: body as PulledRecord["body"] }); // at once: the timeline and the list move together
-    const answer = await pushRecord(supabase, workspace.id, order, body);
-    setBusy(false);
-    if (answer.status !== "ok") upsert(before);
-    if (answer.status === "ok") {
-      upsert({ ...order, body: body as PulledRecord["body"], rev: answer.rev });
-      setNotice({ ok: true, text: "Order saved. The service PC picks it up within about a minute." });
-    } else if (answer.status === "conflict") {
-      setNotice({ ok: false, text: "The order changed on the PC meanwhile. Here is the latest; move it again if needed." });
-      await load();
-    } else setNotice({ ok: false, text: answer.message });
+    put("order", "order", moveFrameTo(order.body as Obj, frames.map((f) => String(f.id)), id, to));
   }
 
   async function remove(frame: Obj) {
-    const record = byKey.get(key("frame", String(frame.id)));
-    if (!supabase || !record || busy) return;
+    await removeMany([String(frame.id)]);
+  }
+
+  /** Deletes one or many Frames at once (one question), as waiting changes; the Frame on screen is never deleted. */
+  async function removeMany(ids: string[]) {
+    if (busy) return;
+    const list = frames.filter((f) => ids.includes(String(f.id)) && byKey.get(key("frame", String(f.id))));
+    const live = list.filter((f) => onAirId === String(f.id));
+    const gone = list.filter((f) => !live.includes(f));
+    if (!gone.length) return setNotice({ ok: false, text: "The Frame on screen can’t be deleted." });
+    const one = gone.length === 1;
     if (!(await ask({
-      title: `Delete “${String(frame.name)}”?`,
-      description: "You can restore this Frame from the Running order within 30 days.",
-      confirmLabel: "Delete Frame",
+      title: one ? `Delete “${String(gone[0].name)}”?` : `Delete ${gone.length} Frames?`,
+      description: `Deleted when you press Sync Now; restore from History within 30 days.${live.length ? ` “${String(live[0].name)}” is on screen, so it stays.` : ""}`,
+      confirmLabel: one ? "Delete Frame" : `Delete ${gone.length} Frames`,
     }))) return;
-    setBusy(true);
+    const drop = new Set(gone.map((f) => String(f.id)));
+    setChanges((c) => {
+      let next = c;
+      for (const id of drop) next = stage(next, serverByKey.get(key("frame", id)), "frame", id, null);
+      const ob = (next[keyOf("order", "order")]?.body ?? order?.body) as Obj | undefined;
+      if (ob) next = stage(next, serverByKey.get(key("order", "order")), "order", "order", { ...ob, scenes: ((ob.scenes as string[]) ?? []).filter((s) => !drop.has(String(s))) });
+      return next;
+    });
+    setPicked(new Set());
+    setNotice({ ok: true, text: `${one ? `“${String(gone[0].name)}”` : `${gone.length} Frames`} deleted here. Press Sync Now to send ${one ? "it" : "them"} to the service PC.` });
+  }
+
+  function pick(id: string) {
+    setCurrent(id);
+    setPicked((p) => {
+      const next = new Set(p);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+  }
+
+  /** 26.11.39 Sync Now: only the waiting changes, in one push. A Frame changed on the PC meanwhile stays waiting (press
+   * Sync Now again to use this page's version); an order changed meanwhile is merged with it. */
+  async function syncNow() {
+    if (!supabase || syncing || !Object.keys(changes).length) return;
+    setSyncing(true);
     setNotice(null);
-    const changes: Parameters<typeof pushChanges>[2] = [{ kind: "frame", id: record.id, rev: record.rev, deleted: true }];
-    const orderBody = order ? { ...(order.body as Obj), scenes: ((order.body as Obj).scenes as string[] ?? []).filter((s) => s !== record.id) } : null;
-    if (order && orderBody) changes.push({ kind: "order", id: "order", rev: order.rev, body: orderBody });
-    const [answer, orderAnswer] = await pushChanges(supabase, workspace.id, changes);
-    setBusy(false);
-    if (answer.status === "ok") {
-      drop("frame", record.id);
-      if (order && orderBody && orderAnswer?.status === "ok") upsert({ ...order, body: orderBody as PulledRecord["body"], rev: orderAnswer.rev });
-      setNotice({ ok: true, text: `“${String(frame.name)}” deleted. Restore it from the Running order within 30 days.` });
-    } else if (answer.status === "conflict") {
-      setNotice({ ok: false, text: "This Frame changed on the PC meanwhile. Here is the latest; delete it again if needed." });
+    const list = toPush(changes);
+    const answers = await pushChanges(supabase, workspace.id, list);
+    const done: string[] = [];
+    const later: Changes = {};
+    let conflicts = 0;
+    let failed = "";
+    for (let i = 0; i < list.length; i++) {
+      const c = list[i];
+      const a = answers[i];
+      const k = keyOf(c.kind, c.id);
+      if (a?.status === "ok") {
+        if ("deleted" in c) drop(c.kind, c.id);
+        else upsert({ kind: c.kind, id: c.id, rev: a.rev, seq: 0, body: c.body as PulledRecord["body"] });
+        done.push(k);
+      } else if (a?.status === "conflict" && c.kind === "order" && !a.current.deleted && a.current.body) {
+        const deleted = Object.values(changes).filter((x) => x.deleted).map((x) => x.id);
+        const merged = mergeOrder(("body" in c ? c.body : {}) as Obj, a.current.body as Obj, deleted);
+        const [again] = await pushChanges(supabase, workspace.id, [{ kind: "order", id: "order", rev: a.current.rev, body: merged }]);
+        if (again?.status === "ok") {
+          upsert({ kind: "order", id: "order", rev: again.rev, seq: 0, body: merged as PulledRecord["body"] });
+          done.push(k);
+        } else later[k] = { ...changes[k], rev: a.current.rev, base: a.current.body as Obj };
+      } else if (a?.status === "conflict") {
+        if (a.current.deleted && "deleted" in c) done.push(k);                   // already deleted there
+        else {
+          conflicts++;
+          later[k] = { ...changes[k], rev: a.current.rev, base: (a.current.body as Obj) ?? null };
+        }
+      } else failed = a && a.status === "error" ? a.message : "Couldn’t reach the workspace. Try again.";
+    }
+    setChanges((c) => {
+      const next = { ...c };
+      for (const k of done) delete next[k];
+      return { ...next, ...later };
+    });
+    setSyncing(false);
+    if (failed) setNotice({ ok: false, text: failed });
+    else if (conflicts) {
+      setNotice({ ok: false, text: `${conflicts} changed on the PC meanwhile. Sync Now again to use yours, or Discard changes to keep the PC’s.` });
       await load();
-    } else setNotice({ ok: false, text: answer.message });
+    } else setNotice({ ok: true, text: `Synced: ${syncWords(waiting)}. The service PC picks it up in a few seconds.` });
+  }
+
+  async function discard() {
+    if (!(await ask({ title: "Discard your changes?", description: "The workspace and the service PC stay as they are.", confirmLabel: "Discard changes" }))) return;
+    setChanges(() => ({}));
+    setEditing(null);
+    setNotice({ ok: true, text: "Changes discarded." });
   }
 
   return (
@@ -320,7 +420,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         {title ? " · " : null}
         {frames.length} Frame{frames.length === 1 ? "" : "s"}.{" "}
         {canEdit
-          ? "Changes reach linked service PCs by themselves. Pictures and video you add here stay in this browser and travel in the .frame file."
+          ? "Frame changes wait until you press Sync Now; only what changed is sent. Pictures and video you add here stay in this browser and travel in the .frame file."
           : "View only: owners and admins can edit."}
       </p>
       <MeetingBar
@@ -336,7 +436,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       />
       <div className={`plan-grid${sideOpen ? "" : " is-closed"}`}>
       <div className="plan-main" key={sel.id}>
-      <FlowSteps state={steps} onStep={step} sync={phase} />
+      <FlowSteps state={steps} onStep={step} sync={waiting.count && phase === "synced" ? "waiting" : phase} />
       {notice && (
         <p className={notice.ok ? "workspace-notice" : "workspace-problem"} role={notice.ok ? "status" : "alert"}>
           {notice.text}
@@ -365,6 +465,28 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       />
 
       <h2 className="section-title">Frames</h2>
+      {canEdit && frames.length > 0 && (
+        <div className={`pick-bar${picked.size ? " is-on" : ""}`} role="toolbar" aria-label="Selected Frames">
+          {picked.size ? (
+            <>
+              <span>
+                <Check aria-hidden="true" size={15} /> {picked.size} selected
+              </span>
+              <button type="button" className="fd-link" onClick={() => setPicked(new Set(frames.map((f) => String(f.id))))}>
+                Select all
+              </button>
+              <button type="button" className="fd-link" onClick={() => setPicked(new Set())}>
+                <X aria-hidden="true" size={14} /> Clear
+              </button>
+              <button type="button" className="pick-delete" disabled={busy || editing !== null} onClick={() => removeMany([...picked])}>
+                <Trash2 aria-hidden="true" size={15} /> Delete {picked.size}
+              </button>
+            </>
+          ) : (
+            <span className="pick-hint">Click a Frame’s number to select it.</span>
+          )}
+        </div>
+      )}
       {frames.length === 0 && editing !== "new" && (
         <EmptyState title="No Frames yet">
           {canEdit ? "Add the first one below. " : null}They appear in FrameDecks once the service PC is linked under{" "}
@@ -384,26 +506,44 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                 number={i + 1}
                 record={record}
                 onAir={onAir}
-                workspaceId={workspace.id}
                 brandColor={String(brand.color ?? "")}
                 otherNames={frames.filter((f) => f.id !== frame.id).map((f) => String(f.name))}
                 focus={focus}
                 kept={kept}
                 onKept={(name) => setKept((k) => new Set(k).add(name))}
-                onDone={(saved, text) => {
-                  if (saved) saved.forEach(upsert);
+                onStage={(frame, orderBody) => {
+                  put("frame", frame.id, frame.body);
+                  if (orderBody) put("order", "order", orderBody);
+                }}
+                onDone={(text) => {
                   setEditing(null);
                   if (text) setNotice({ ok: true, text });
                 }}
-                onReplace={upsert}
               />
             );
           }
           const form = frameFormOf(frame);
           return (
-            <li className={`frame-card plan-frame${onAir ? " is-on-air" : ""}`} key={id} id={`frame-${id}`}>
+            <li
+              className={`frame-card plan-frame${onAir ? " is-on-air" : ""}${picked.has(id) ? " is-picked" : ""}${current === id ? " is-current" : ""}`}
+              key={id}
+              id={`frame-${id}`}
+              onClick={(e) => !(e.target as HTMLElement).closest("button, a, input, select, textarea") && setCurrent(id)}
+            >
               <header>
-                <span className="frame-number">{i + 1}</span>
+                {canEdit && record ? (
+                  <button
+                    type="button"
+                    className="frame-number frame-pick"
+                    aria-pressed={picked.has(id)}
+                    aria-label={`Select ${form.name}`}
+                    onClick={() => pick(id)}
+                  >
+                    {picked.has(id) ? <Check aria-hidden="true" size={16} /> : i + 1}
+                  </button>
+                ) : (
+                  <span className="frame-number">{i + 1}</span>
+                )}
                 <div className="pf-title">
                   <h3>{form.name}</h3>
                   {/* 8.6 what the Frame holds at a glance: its Content, its animation, whether it has a script */}
@@ -490,19 +630,20 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             record={null}
             order={order}
             onAir={false}
-            workspaceId={workspace.id}
             brandColor={String(brand.color ?? "")}
             group={group}
             otherNames={frames.map((f) => String(f.name))}
             focus={focus}
             kept={kept}
             onKept={(name) => setKept((k) => new Set(k).add(name))}
-            onDone={(saved, text) => {
-              if (saved) saved.forEach(upsert);
+            onStage={(frame, orderBody) => {
+              put("frame", frame.id, frame.body);
+              if (orderBody) put("order", "order", orderBody);
+            }}
+            onDone={(text) => {
               setEditing(null);
               if (text) setNotice({ ok: true, text });
             }}
-            onReplace={upsert}
           />
         )}
       </FlipList>
@@ -518,7 +659,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         </button>
       )}
       </div>
-      <aside className="plan-side" aria-label="Timeline">
+      <aside className="plan-side" aria-label="Timeline" ref={sideRef}>
         <button type="button" className="plan-side-toggle" aria-expanded={sideOpen} onClick={() => setSideOpen((v) => !v)}>
           {sideOpen ? <PanelRightClose aria-hidden="true" size={16} /> : <PanelRightOpen aria-hidden="true" size={16} />}
           {sideOpen ? "Hide timeline" : "Timeline"}
@@ -529,7 +670,9 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             meeting={{ name: title || "Your meeting", date: multi ? sel.date : String(meetingBody.date ?? "") }}
             frames={frames}
             onAir={loaded.onAir}
-            active={editing}
+            active={editing && editing !== "new" ? editing : current}
+            picked={picked}
+            onPick={pick}
             canEdit={canEdit}
             busy={busy || editing !== null}
             onMove={move}
@@ -540,11 +683,57 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             onMeeting={() => setMeetingOpen((n) => n + 1)}
           />
         )}
+        {sideOpen && canEdit && picked.size > 0 && (
+          <button type="button" className="pick-delete fc-pick-delete" disabled={busy || editing !== null} onClick={() => removeMany([...picked])}>
+            <Trash2 aria-hidden="true" size={15} /> Delete {picked.size} selected
+          </button>
+        )}
+        {canEdit && waiting.count > 0 && <SyncBox waiting={waiting} syncing={syncing} onSync={syncNow} onDiscard={discard} />}
       </aside>
       </div>
       {previewAt !== null && <PreviewDialog frames={frames} start={previewAt} styleTx={styleTx} onClose={() => setPreviewAt(null)} />}
       {dialog}
     </>
+  );
+}
+
+/** 26.11.39 the waiting changes in words: "2 Frames changed, 1 added, 1 deleted, new order" */
+function syncWords(w: ReturnType<typeof summarize>): string {
+  const n = (k: number, word: string) => (k ? `${k} Frame${k === 1 ? "" : "s"} ${word}` : "");
+  return [n(w.added.length, "added"), n(w.changed.length, "changed"), n(w.deleted.length, "deleted"), w.moved ? "new order" : ""].filter(Boolean).join(", ") || "no changes";
+}
+
+/** 26.11.39 Sync Now, under the timeline: what is waiting, one big button, and Discard. */
+function SyncBox({ waiting, syncing, onSync, onDiscard }: Readonly<{ waiting: ReturnType<typeof summarize>; syncing: boolean; onSync: () => void; onDiscard: () => void }>) {
+  const lines: [string, string[]][] = [["Added", waiting.added], ["Changed", waiting.changed], ["Deleted", waiting.deleted]];
+  return (
+    <section className="sync-box" aria-labelledby="sync-box-title">
+      <h2 id="sync-box-title">
+        <CloudUpload aria-hidden="true" size={18} />
+        {waiting.count} change{waiting.count === 1 ? "" : "s"} waiting
+      </h2>
+      <ul>
+        {lines.filter(([, l]) => l.length).map(([word, l]) => (
+          <li key={word}>
+            <b>{word}</b> {l.join(", ")}
+          </li>
+        ))}
+        {waiting.moved && (
+          <li>
+            <b>Moved</b> Frames
+          </li>
+        )}
+      </ul>
+      <button type="button" className="sync-now" disabled={syncing} onClick={onSync}>
+        {syncing ? "Syncing…" : "Sync Now"}
+      </button>
+      <p className="sync-note">
+        Only these Frames are sent, never twice.{" "}
+        <button type="button" className="fd-link" disabled={syncing} onClick={onDiscard}>
+          Discard changes
+        </button>
+      </p>
+    </section>
   );
 }
 
@@ -738,12 +927,11 @@ function FrameFormEditor({
   record,
   order = null,
   onAir,
-  workspaceId,
   brandColor,
   group = "",
   otherNames,
+  onStage,
   onDone,
-  onReplace,
 }: Readonly<{
   ws: string;
   focus?: Focus;
@@ -753,18 +941,15 @@ function FrameFormEditor({
   record: PulledRecord | null;
   order?: PulledRecord | null;
   onAir: boolean;
-  workspaceId: string;
   brandColor: string;
   group?: string;
   otherNames: string[];
-  onDone: (saved: PulledRecord[] | null, text?: string) => void;
-  onReplace: (record: PulledRecord) => void;
+  /** 26.11.39 the Frame (and for a new one, the order that lists it) go into the waiting changes, sent by Sync Now */
+  onStage: (frame: { id: string; body: Obj }, orderBody?: Obj) => void;
+  onDone: (text?: string) => void;
 }>) {
-  const supabase = browserSupabase();
-  const [base, setBase] = useState(record);
-  const [initial, setInitial] = useState<FrameForm>(() => (record ? frameFormOf(record.body as Obj) : emptyFrame()));
+  const base = record;
   const [draft, setDraft] = useState<FrameForm>(() => (record ? frameFormOf(record.body as Obj) : { ...emptyFrame(), content: [emptyRow("question")] }));
-  const [busy, setBusy] = useState(false);
   const [problems, setProblems] = useState<string[]>([]);
   const [addType, setAddType] = useState<ContentType>("question");
   const card = useRef<HTMLLIElement>(null);
@@ -784,47 +969,20 @@ function FrameFormEditor({
       return { ...d, content };
     });
 
-  async function save() {
-    if (!supabase) return;
+  function save() {
     const found = problemsOf(draft);
     setProblems(found);
     if (found.length) return;
-    setBusy(true);
     if (!base) {
-      // A new Frame: its record and the order that lists it, in one push
+      // A new Frame: its record and the order that lists it, waiting together for Sync Now
       const body = frameFromForm({ ...draft, name: uniqueName(otherNames, draft.name) }, null, { brandColor, group });
       const id = String(body.id);
-      const orderBody = withFrame((order?.body as Obj) ?? null, id);
-      const [frameAnswer, orderAnswer] = await pushChanges(supabase, workspaceId, [
-        { kind: "frame", id, rev: 0, body },
-        { kind: "order", id: "order", rev: order?.rev ?? 0, body: orderBody },
-      ]);
-      setBusy(false);
-      if (frameAnswer.status !== "ok") return setProblems([frameAnswer.status === "error" ? frameAnswer.message : "The Frame could not be saved; try again."]);
-      const saved: PulledRecord[] = [{ kind: "frame", id, rev: frameAnswer.rev, seq: 0, body: body as PulledRecord["body"] }];
-      if (orderAnswer.status === "ok" && order) saved.push({ ...order, body: orderBody as PulledRecord["body"], rev: orderAnswer.rev });
-      else if (orderAnswer.status === "ok") saved.push({ kind: "order", id: "order", rev: orderAnswer.rev, seq: 0, body: orderBody as PulledRecord["body"] });
-      // If only the order conflicted, the PC still shows the new Frame (at the end of the meeting)
-      onDone(saved, orderAnswer.status === "ok" ? `“${String(body.name)}” added. ${SAVED}` : `“${String(body.name)}” added at the end of the meeting. ${SAVED}`);
+      onStage({ id, body }, withFrame((order?.body as Obj) ?? null, id));
+      onDone(`“${String(body.name)}” added. ${SAVED}`);
       return;
     }
-    const body = frameFromForm(draft, base.body as Obj, { brandColor });
-    const answer = await pushRecord(supabase, workspaceId, base, body);
-    setBusy(false);
-    if (answer.status === "ok") onDone([{ ...base, body: body as PulledRecord["body"], rev: answer.rev }], onAir ? SAVED_LIVE : SAVED);
-    else if (answer.status === "conflict") {
-      if (answer.current.deleted || !answer.current.body) {
-        setProblems(["This Frame was deleted on the PC while you were editing. Copy your text if you need it, then Cancel."]);
-        return;
-      }
-      const latest = { ...base, rev: answer.current.rev, body: answer.current.body as PulledRecord["body"] };
-      const fresh = frameFormOf(latest.body as Obj);
-      setDraft(rebaseFrame(fresh, draft, initial));
-      setInitial(fresh);
-      setBase(latest);
-      onReplace(latest);
-      setProblems(["This Frame was changed on the PC (or by someone else) while you were editing. The form now shows the latest version with your changes kept: check it and Save again."]);
-    } else setProblems([answer.message]);
+    onStage({ id: base.id, body: frameFromForm(draft, base.body as Obj, { brandColor }) });
+    onDone(onAir ? SAVED_LIVE : SAVED);
   }
 
   const customBg = !BACKGROUNDS.some(([n]) => n === draft.background);
@@ -913,10 +1071,10 @@ function FrameFormEditor({
         </div>
       )}
       <div className="edit-actions">
-        <button className="live-btn live-primary" type="button" disabled={busy} onClick={save}>
-          {busy ? "Saving…" : base ? "Save" : "Add Frame"}
+        <button className="live-btn live-primary" type="button" onClick={save}>
+          {base ? "Save" : "Add Frame"}
         </button>
-        <button className="live-btn" type="button" disabled={busy} onClick={() => onDone(null)}>
+        <button className="live-btn" type="button" onClick={() => onDone()}>
           Cancel
         </button>
       </div>

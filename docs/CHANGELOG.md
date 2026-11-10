@@ -10,6 +10,22 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.39] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.39.md](releases/v26.11.39.md).
+
+### Added
+- Plan page: Frame changes wait until Sync Now (`hosted/src/lib/plan-changes.ts`: `stage`, `overlay`, `summarize`,
+  `toPush`, `mergeOrder`, kept per workspace in `localStorage`); the Sync Now box under the timeline; Discard changes.
+  Only Frames whose content differs from the workspace are sent (save times aside), in one `sync_push`; a conflict keeps
+  the change waiting with the new revision; an order conflict is merged.
+- Select Frames by their number in the list and on the timeline (`picked`, `is-picked`), Delete selected in both.
+- The Frame last clicked is lit on the timeline (`active`) and scrolled into view.
+
+### Changed
+- The Frame editor adds to the waiting changes instead of pushing (`onStage`); the Sync pill has a Waiting state.
+- `tests/visual/plan-flow.mjs` presses Sync Now and checks multi-select.
+
 ## [26.11.38] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.38.md](releases/v26.11.38.md).

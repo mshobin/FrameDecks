@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.39': [
+    {title: 'Sync Now on the website', text: 'Frame changes on framedecks.com wait until you press Sync Now under the timeline. Only what changed is sent, never twice.', show: {settings: 'account'}},
+    {title: 'Delete several Frames at once', text: 'On the website, click Frame numbers to select them in the list or on the timeline, then delete them together.', show: {settings: 'account'}}
+  ],
   '26.11.38': [
     {title: 'Open your workspace with an email code', text: 'On framedecks.com type your email, then the 6-digit code it brings. Choose Someone else\u2019s on a work computer and it closes with the tab.', show: {settings: 'account'}},
     {title: 'Told where it was opened', text: 'An email tells you each time your workspace is opened with your code. Devices can sign out every other computer.', show: {settings: 'account'}}
