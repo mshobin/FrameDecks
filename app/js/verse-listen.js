@@ -190,7 +190,7 @@ function renderSettings(){
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Auto'}), h('label', {cls: 'check'}, [auto, ' Show it at once, without asking first'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Members'}), h('label', {cls: 'check'}, [meet, ' Also hear the meeting: when a member says a verse on Zoom or Teams, you are asked first (never Auto)'])]));
     box.appendChild(h('p', {cls: 'hint vl-private', text: 'Everything is heard on this PC only. Nothing is recorded or sent anywhere.'}));
-    box.appendChild(h('p', {cls: 'hint', text: 'It uses the microphone chosen for the Teleprompter’s Follow my voice. The voice files download once (about 40 MB) the first time. With Members on, it also hears what this PC plays (the others in Zoom or Teams), for Bible references only: nothing else they say is kept or understood.'}));
+    box.appendChild(h('p', {cls: 'hint', text: 'It listens with the microphone chosen above. The voice files download once (about 40 MB) the first time. With Members on, it also hears what this PC plays (the others in Zoom or Teams), for Bible references only: nothing else they say is kept or understood.'}));
   }).catch(function(){});
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'listening') renderSettings(); });

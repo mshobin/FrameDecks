@@ -54,11 +54,22 @@ def _names(items, n=3):
     return ", ".join(items[:n]) + (" and %d more" % (len(items) - n) if len(items) > n else "")
 
 
-def build(vcam=None, hints=None, mics=None, meeting=None, scenes=None, missing=None, guard=None, memory=None):
+HANDSFREE = ("hands-free", "handsfree", "hands free", "ag audio", "hfp")
+
+
+def handsfree(name):
+    """26.11.34 a Bluetooth headset's call microphone (Hands-Free profile): 8 or 16 kHz, thin sound. Windows names it
+    "Headset (Name Hands-Free AG Audio)", cut to 31 letters, or just "Headset (Name)"; a USB headset says USB."""
+    n = str(name or "").lower()
+    return any(k in n for k in HANDSFREE) or (n.startswith("headset (") and "usb" not in n)
+
+
+def build(vcam=None, hints=None, mics=None, meeting=None, scenes=None, missing=None, guard=None, memory=None, mic=None):
     """What was read -> {"ready": no fail, "warn": count, "items": [...]}.
     vcam: {"available", "reason", "status": {...}} · hints: src/vcam/hints.look() · mics: [{id, name}] or None (not
     Windows) · meeting: meeting_keys.status() · scenes: this meeting's Frames · missing: server.media_check() ·
-    guard: {"cameras": [...], "power": {...}} · memory: {"freeMB", ...}."""
+    guard: {"cameras": [...], "power": {...}} · memory: {"freeMB", ...} · mic: the microphone chosen for listening
+    (voiceMic; -1 the Windows default)."""
     items = []
 
     def add(i, label, state, text, action=None, more=None):
@@ -90,13 +101,25 @@ def build(vcam=None, hints=None, mics=None, meeting=None, scenes=None, missing=N
         else:
             add("look", "Light & framing", "ok", "Good light, and you're in the middle of the picture.")
 
-    # the microphone
+    # the microphone (26.11.34: the one chosen for listening, and a Bluetooth headset's call microphone)
     if mics is None:
         add("mic", "Microphone", "off", "Checked in the FrameDecks app on Windows.")
     else:
         real = [m for m in mics if m.get("id", -1) != -1]
+        chosen = next((m for m in real if m.get("id") == mic), None) if mic is not None and mic != -1 else None
         if not real:
             add("mic", "Microphone", "fail", "No microphone found. Plug one in, or check Windows sound settings.")
+        elif mic is not None and mic != -1 and chosen is None:
+            add("mic", "Microphone", "warn", "The microphone chosen for listening is not connected. FrameDecks listens with the "
+                "Windows default microphone until it is back.", "mic")
+        elif chosen is not None and handsfree(chosen.get("name")):
+            add("mic", "Microphone", "warn", chosen.get("name", "") + " is a Bluetooth headset's call microphone: its sound is "
+                "thin, so listening may miss words. A USB microphone, or a wireless one with its own receiver, hears better.", "mic")
+        elif chosen is None and all(handsfree(m.get("name")) for m in real):
+            add("mic", "Microphone", "warn", "The only microphone is a Bluetooth headset's call microphone: its sound is thin, "
+                "so listening may miss words. A USB microphone, or a wireless one with its own receiver, hears better.", "mic")
+        elif chosen is not None:
+            add("mic", "Microphone", "ok", chosen.get("name", "A microphone") + ", chosen for listening.")
         else:
             add("mic", "Microphone", "ok", real[0].get("name", "A microphone") + (" and %d more" % (len(real) - 1) if len(real) > 1 else "") + ".")
 

@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.34] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.34.md](releases/v26.11.34.md).
+
+### Added
+- Settings → Listening → Microphone (`app/js/microphone.js`): the `voiceMic` setting shared by Listen for scripture,
+  Voice commands and Follow my voice; Bluetooth call microphones marked.
+- Fallback to the Windows default microphone when the chosen one stops (`src/voice_follow.py` `_fall_back`, once per
+  run; reset when another microphone is chosen or everything stops); `mic` status part (`VOICE.mic_body()`) and a
+  one-time toast.
+- Ready check (`src/ready_check.py` `handsfree`, `build(mic=...)`): warns for a Bluetooth headset's call microphone
+  or a chosen microphone that is not connected, with the `mic` action (Choose a microphone).
+
 ## [26.11.33] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.33.md](releases/v26.11.33.md).

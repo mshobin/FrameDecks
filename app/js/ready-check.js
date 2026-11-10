@@ -56,7 +56,9 @@ function fetchVerses(btn){
 var ACT = {
   'close-camera': ['Close it', function(){ post('api/app/guard', {do: 'close-camera'}).then(function(){ setTimeout(load, 1500); }); }],
   'power': ['Battery settings', function(){ post('api/app/guard', {do: 'power'}); }],
-  'fetch-verses': ['Fetch the words', function(e){ fetchVerses(e.currentTarget); }]
+  'fetch-verses': ['Fetch the words', function(e){ fetchVerses(e.currentTarget); }],
+  /* 26.11.34 the microphone chosen for listening: Settings → How people see it → Listening */
+  'mic': ['Choose a microphone', function(){ close(); if (window.KCSetTab) KCSetTab('settings'); if (window.KCShowSection) KCShowSection('listening'); }]
 };
 
 /* ---------- the card ---------- */

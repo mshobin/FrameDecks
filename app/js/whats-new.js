@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.34': [
+    {title: 'Choose the microphone', text: 'Settings → Listening → Microphone: scripture, voice commands and Follow my voice all listen with it. A Bluetooth headset’s call microphone is marked.', show: {settings: 'listening', spot: '#mic-box'}},
+    {title: 'Listening goes on', text: 'If the chosen microphone drops out in a meeting, FrameDecks goes on with the Windows default microphone and tells you once.', show: {settings: 'listening', spot: '#mic-box'}}
+  ],
   '26.11.33': [
     {title: 'Songs, verse by verse', text: 'Add a Song Deck and paste a hymn: it splits into verses at the blank lines, and Next steps through them before the next Frame.', show: {settings: 'features', spot: '#ft-songs'}},
     {title: 'Name tags and polls', text: 'Engage → Name tags puts a name and role across the bottom of the picture. Engage → Polls asks members’ phones Yes / No, a poll or a rating.', show: {settings: 'features', spot: '#ft-nametags'}},

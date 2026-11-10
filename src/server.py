@@ -52,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.33"
+APP_VERSION = "26.11.34"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -2160,7 +2160,7 @@ def ready_report():
     st = state if isinstance(state, dict) else {}
     return ready_check.build(vcam=vcam_status(lite=True), hints=eng.hints.get() if eng is not None else None, mics=mics,
                              meeting=meeting, scenes=ready_check.meeting_scenes(st), missing=media_check(st), guard=guard,
-                             memory=meeting_guard.system_memory())
+                             memory=meeting_guard.system_memory(), mic=app_settings().get("voiceMic", -1))
 
 
 def media_check(st):
@@ -4119,6 +4119,7 @@ STATUS_PARTS = {
     "guard": lambda port, fresh: guard_brief(),
     "studio": lambda port, fresh: studio_status(),
     "vcam": lambda port, fresh: vcam_status(lite=True),
+    "mic": lambda port, fresh: VOICE.mic_body(),          # 26.11.34 the chosen microphone stopped: the Windows default
 }
 
 

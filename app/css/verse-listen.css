@@ -31,3 +31,6 @@
 .vc-own-in .vc-rec{width:auto;flex:none}
 .vc-own-in .vc-rec[hidden]{display:none}
 .vc-rec-said{margin:0}
+/* 26.11.34 Settings → Listening: Microphone (js/microphone.js) */
+.mic-box select{min-width:240px;max-width:100%}
+.mic-box .mic-warn{color:var(--ink);border-left:3px solid var(--warn);padding-left:8px}

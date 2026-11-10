@@ -102,6 +102,12 @@ class VoiceFollow:
         self.want_s, self.scripture_words, self.on_scripture = False, [], None     # 26.11.14 Listen for scripture
         self.want_c, self.command_words, self.on_command = False, [], None         # 26.11.20 Voice commands
         self.want_m, self.meeting_error = False, ""                                 # 26.11.24 also the meeting's sound
+        # 26.11.34 the chosen microphone stops (a Bluetooth headset switched off or out of range): listening goes on with
+        # the Windows default microphone, once, and the leader is told. Choosing another microphone, or everything
+        # stopping, tries the chosen one again next time.
+        self.device_now, self.fallback, self.fallback_from, self.fail_msg = -1, False, None, ""
+        self.notice, self.notice_at, self.notice_seq = "", 0.0, 0
+        self.names = None                                                           # tests: a stand-in microphone list
 
     def _wanted(self):
         return self.want or self.want_s or self.want_c
@@ -209,8 +215,12 @@ class VoiceFollow:
     # ---------- the worker ----------
     def _command(self):
         cfg = self.settings() or {}
+        chosen = int(cfg.get("voiceMic", -1))
+        if self.fallback and chosen != self.fallback_from:     # another microphone was chosen: try it
+            self.fallback = False
+        self.device_now = -1 if self.fallback else chosen
         args = ["--lib", str(self.runtime_dir), "--model", str(self.model_dir),
-                "--device", str(int(cfg.get("voiceMic", -1))), "--sensitivity", str(int(cfg.get("voiceSensitivity", 3)))]
+                "--device", str(self.device_now), "--sensitivity", str(int(cfg.get("voiceSensitivity", 3)))]
         test = os.environ.get("FRAMEDECKS_VOICE_CMD")          # tests: a stand-in worker
         if test:
             return json.loads(test) + args
@@ -223,6 +233,7 @@ class VoiceFollow:
             if self.proc or not self._wanted():
                 return
             self._set("starting")
+            self.fail_msg = ""
             try:
                 self.proc = subprocess.Popen(self._command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                              text=True, encoding="utf-8", bufsize=1, close_fds=True,
@@ -292,7 +303,12 @@ class VoiceFollow:
                 elif t == "level":
                     self.level = float(ev.get("v", 0) or 0)
                 elif t == "error":
-                    self._set("error", str(ev.get("msg", ""))[:200] or "Listening stopped.")
+                    msg = str(ev.get("msg", ""))[:200] or "Listening stopped."
+                    if self._can_fall_back():                 # 26.11.34 the chosen microphone: try the Windows default
+                        self.fail_msg = msg
+                        self._send(proc, {"quit": True})
+                    else:
+                        self._set("error", msg)
             if tell:
                 try:
                     tell(str(ev.get("text", ""))[:500], ev.get("t") == "final")
@@ -304,12 +320,48 @@ class VoiceFollow:
                 f.close()
             except (OSError, ValueError, AttributeError):
                 pass
+        again = False
         with self.lock:
             if proc is self.proc:
                 self.proc = None
-                if self.state not in ("error", "off"):
-                    self._set("error", "Listening stopped unexpectedly (%s)." % code)
-                self.want = self.want_s = self.want_c = False
+                if self.state not in ("error", "off") and self._can_fall_back() and self._wanted():
+                    self._fall_back()                         # 26.11.34 the same listening, on the Windows default
+                    again = True
+                else:
+                    if self.state not in ("error", "off"):
+                        self._set("error", self.fail_msg or "Listening stopped unexpectedly (%s)." % code)
+                    self.want = self.want_s = self.want_c = False
+        if again:
+            self._launch()
+
+    # ---------- 26.11.34 the chosen microphone stops: the Windows default takes over ----------
+    def _can_fall_back(self):
+        return self.device_now != -1 and not self.fallback
+
+    def _mic_name(self, device):
+        try:
+            if self.names is not None:
+                mics = self.names
+            else:
+                from voice_worker import microphones
+                mics = microphones()
+        except Exception:
+            mics = []
+        return next((str(m.get("name") or "") for m in mics if m.get("id") == device), "")
+
+    def _fall_back(self):
+        name = self._mic_name(self.device_now)
+        self.fallback, self.fallback_from = True, self.device_now
+        self.notice = ("%s stopped, so FrameDecks is listening with the Windows default microphone." % name if name else
+                       "The chosen microphone stopped, so FrameDecks is listening with the Windows default microphone.")
+        self.notice_at, self.notice_seq = time.monotonic(), self.notice_seq + 1
+
+    def mic_body(self):
+        """Which microphone listening uses now, and the last time the Windows default took over."""
+        with self.lock:
+            cfg = self.settings() or {}
+            return {"chosen": int(cfg.get("voiceMic", -1)), "fallback": self.fallback, "notice": self.notice,
+                    "seq": self.notice_seq, "ago": round(time.monotonic() - self.notice_at) if self.notice_seq else None}
 
     def _watch(self, proc):
         """Stop when the Teleprompter has stopped asking (closed, crashed, or the PC went to sleep)."""
@@ -381,6 +433,7 @@ class VoiceFollow:
         """Everything stops (leaving the app, removing the voice files)."""
         with self.lock:
             self.want = self.want_s = self.want_c = False
+            self.fallback = False                             # 26.11.34 next time, the chosen microphone first
             proc, self.proc = self.proc, None
             self.events.clear()
             self.level = 0.0
