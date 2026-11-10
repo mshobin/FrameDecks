@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.33': [
+    {title: 'Songs, verse by verse', text: 'Add a Song Deck and paste a hymn: it splits into verses at the blank lines, and Next steps through them before the next Frame.', show: {settings: 'features', spot: '#ft-songs'}},
+    {title: 'Name tags and polls', text: 'Engage → Name tags puts a name and role across the bottom of the picture. Engage → Polls asks members’ phones Yes / No, a poll or a rating.', show: {settings: 'features', spot: '#ft-nametags'}},
+    {title: 'Timing plan', text: 'Give each Frame its planned minutes: a quiet pill beside Go Live says whether you are on time, only to you.', show: {settings: 'features', spot: '#ft-timing'}}
+  ],
   '26.11.32': [
     {title: 'Settings, in six groups', text: 'Start here, Meeting look, Content, How people see it, People & devices and This PC. Nothing changed: each setting lives where you would look for it.', show: {settings: 'features'}},
     {title: 'Listening, in one place', text: 'Listen for scripture, Voice commands and Follow my voice: everything that can hear you, on one page.', show: {settings: 'listening'}}

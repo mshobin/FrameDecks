@@ -38,7 +38,8 @@ function stat(n, label){ return h('div', {cls: 'sum-stat'}, [h('b', {text: Strin
 function page(s){
   var stats = h('div', {cls: 'sum-stats'}, [stat(s.frames.length, s.frames.length === 1 ? 'Frame' : 'Frames'),
     stat(s.questionCount, s.questionCount === 1 ? 'question' : 'questions'), stat(s.verseCount, s.verseCount === 1 ? 'scripture' : 'scriptures'),
-    stat(s.memory, 'Memory Cards shown'), stat(s.prayer.received || 0, (s.prayer.received === 1 ? 'prayer request' : 'prayer requests'))]);
+    stat(s.memory, 'Memory Cards shown'), stat(s.prayer.received || 0, (s.prayer.received === 1 ? 'prayer request' : 'prayer requests')),
+    s.responses && s.responses.opened ? stat(s.responses.opened, s.responses.opened === 1 ? 'poll' : 'polls') : null]);   // 26.11.33
   var list = h('ol', {cls: 'sum-flow'});
   s.frames.forEach(function(f){
     var over = f.planMin && f.ms > f.planMin * 60000 * 1.1;

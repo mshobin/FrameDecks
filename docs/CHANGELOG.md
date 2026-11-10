@@ -10,6 +10,23 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.33] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.33.md](releases/v26.11.33.md).
+
+### Added
+- Songs: `song` Content kind (`app/js/store.js` `parseLyrics`, `songApply`, `songCan`, `songStep`; `c.items`, `c.at`),
+  rendered like the other text kinds on the overlay pages and FrameDecks vCam (`src/vcam/program.py` `TEXT_KINDS`);
+  Next steps verses first (`workspace.js`, `spotlight-remote.js`, `remote.js`, `voice-commands.js`).
+- Speaker name tags (`app/js/nametags.js`, `KCNameTags`): a `lowerthird` layer marked `c.tag` in the Frame on air;
+  Engage chip, Command Center scope, palette.
+- Polls from members' phones: `hosted/supabase/migrations/0022_room_polls.sql` (+ rollback, PGlite tests),
+  `/follow` question card, `src/room_responses.py`, `GET`/`POST /api/room/response` (this PC only; open refused while
+  the feature is off), `app/js/responses.js` (`KCResponses`); counted in the meeting log and summary.
+- Timing plan (`app/js/timing.js`, `Scenes.timing`): leader-only pill from each Frame's planned minutes.
+- Features `songs`, `nametags`, `responses`, `timing` (`src/features.py`, `app/js/features.js`); Bible study turns all
+  four on, Simple keeps `timing`.
+
 ## [26.11.32] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.32.md](releases/v26.11.32.md).

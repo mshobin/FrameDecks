@@ -2,7 +2,9 @@
 
 Commit identity (owner's instruction, 4 Nov 2026): every commit is authored as `Shobin Mathews <276174545+mshobin@users.noreply.github.com>`; set it at the start of each session with `git config user.name "Shobin Mathews"` and `git config user.email "276174545+mshobin@users.noreply.github.com"`, and add no co-author or tool lines.
 
-Updated 10 November 2026 (26.11.32 on `main`: Settings in six groups (Start here, Meeting look, Content, How people see it, People & devices, This PC); new pages sec-features, sec-pc, sec-listening, sec-memory; Recording on the vCam page (`recording` aliases to `vcam`). Owner: tag `v26.11.32`.)
+Updated 10 November 2026 (26.11.33 on `main`: songs (`song` kind, verses step on Next), speaker name tags (`nametags.js`), polls from members' phones (migration 0022, `room_responses.py`, `responses.js`), timing plan (`timing.js`); four new features. Owner: apply migration 0022, tag `v26.11.33`.)
+
+Previous: 10 November 2026 (26.11.32 on `main`: Settings in six groups (Start here, Meeting look, Content, How people see it, People & devices, This PC); new pages sec-features, sec-pc, sec-listening, sec-memory; Recording on the vCam page (`recording` aliases to `vcam`). Owner: tag `v26.11.32`.)
 
 Previous: 10 November 2026 (26.11.31 on `main`: features you switch on or off: `src/features.py` + `app/js/features.js`, `/api/app/features` (locked while live), Settings → General → Features, the Welcome's three sets, the Command Center's More → Features; off hides the feature everywhere (`data-feature`, `chips.js`) and stops its work. Owner: tag `v26.11.31`.)
 
