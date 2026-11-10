@@ -69,5 +69,14 @@ class Switches(unittest.TestCase):
         self.assertEqual(len(re.findall(r"\{id: '[a-z]+', group: '", read("app/js/features.js"))), len(F.FEATURES))
 
 
+
+class NeverOverTheWelcome(unittest.TestCase):
+    def test_polls_name_tags_and_members_phones_wait_for_the_welcome(self):
+        for f in ("app/js/responses.js", "app/js/nametags.js", "app/js/members-phones.js"):
+            js = read(f)
+            self.assertIn("function welcome(){ return !!(window.KCOnboarding && KCOnboarding.isOpen && KCOnboarding.isOpen()); }", js, f)
+            self.assertRegex(js, r"function open\(\)\{\s*if \(welcome\(\)\) return", f)
+        self.assertIn("d.focus > focusSeen && !welcome()", read("app/js/members-phones.js"))
+
 if __name__ == "__main__":
     unittest.main()

@@ -23,6 +23,10 @@ Full notes: [docs/releases/v26.11.34.md](releases/v26.11.34.md).
 - Ready check (`src/ready_check.py` `handsfree`, `build(mic=...)`): warns for a Bluetooth headset's call microphone
   or a chosen microphone that is not connected, with the `mic` action (Choose a microphone).
 
+### Fixed
+- `responses.js`, `nametags.js` and `members-phones.js` never open their dialogs while the Welcome is open
+  (`KCOnboarding.isOpen()`).
+
 ## [26.11.33] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.33.md](releases/v26.11.33.md).

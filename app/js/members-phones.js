@@ -99,7 +99,7 @@ var focusSeen = null;          // 26.11.25 the corner card's "All requests" brin
 function refresh(){
   return load().then(function(d){
     var before = cur ? cur.prayer.waiting : 0; cur = d;
-    if (focusSeen !== null && d.focus > focusSeen){ focusSeen = d.focus; dialog(); if (!dlg.open) dlg.showModal(); }
+    if (focusSeen !== null && d.focus > focusSeen && !welcome()){ focusSeen = d.focus; dialog(); if (!dlg.open) dlg.showModal(); }
     focusSeen = d.focus;
     draw(); badge(d, before);
   }).catch(function(){});
@@ -109,7 +109,9 @@ function badge(d, before){
   if (d.prayer.open && d.prayer.waiting > before && !(dlg && dlg.open) && window.KCActions && KCActions.toastAction)
     KCActions.toastAction('🙏 ' + (d.prayer.waiting === 1 ? 'A prayer request is waiting' : d.prayer.waiting + ' prayer requests are waiting'), 'Read', open);
 }
-function open(){ dialog(); if (!dlg.open) dlg.showModal(); return refresh(); }
+/* never over the Welcome (a new install): its own pages come first */
+function welcome(){ return !!(window.KCOnboarding && KCOnboarding.isOpen && KCOnboarding.isOpen()); }
+function open(){ if (welcome()) return Promise.resolve(); dialog(); if (!dlg.open) dlg.showModal(); return refresh(); }
 window.KCMembers = {open: open, state: function(){ return cur; }, refresh: refresh};
 window.KCPrayer = window.KCMembers;          // 26.11.23's name
 if (Store.ride) Store.ride('pr', refresh);

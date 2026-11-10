@@ -20,7 +20,8 @@ choose one and keeps listening going when one drops out.
 - A USB microphone, or a wireless one with its own receiver, is suggested where it would hear better.
 
 ## Fixes
-None in this version.
+- Polls, name tags and members' phones never open over the Welcome on a new install: they wait until it is
+  finished or skipped.
 
 ## Performance Improvements
 None in this version.

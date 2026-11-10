@@ -167,7 +167,10 @@ function draw(force){
 function refresh(){
   return load().then(function(d){ cur = d; draw(false); }).catch(function(){});
 }
+/* never over the Welcome (a new install): its own pages come first */
+function welcome(){ return !!(window.KCOnboarding && KCOnboarding.isOpen && KCOnboarding.isOpen()); }
 function open(){
+  if (welcome()) return;
   dialog(); if (!dlg.open) dlg.showModal();
   if (!timer) timer = setInterval(function(){ if (!document.hidden && !busy) refresh(); }, 2000);
   return load().then(function(d){ cur = d; draw(true); var f = dlg.querySelector('#rs-q'); if (f) f.focus(); }).catch(function(){ toast('Quick responses could not load. Try again.', true); });

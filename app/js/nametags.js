@@ -61,7 +61,10 @@ function hide(){
 /* ---------- the Studio's dialog ---------- */
 var dlg = null;
 function members(){ var api = window.KCMembersAPI; return api && api.directory ? api.directory().filter(function(m){ return m.name; }) : []; }
+/* never over the Welcome (a new install): its own pages come first */
+function welcome(){ return !!(window.KCOnboarding && KCOnboarding.isOpen && KCOnboarding.isOpen()); }
 function open(){
+  if (welcome()) return;
   if (!dlg){
     dlg = h('dialog', {cls: 'kc-dlg nt-dlg', id: 'nt-dlg', 'aria-labelledby': 'nt-title'});
     dlg.addEventListener('click', function(e){ if (e.target === dlg) dlg.close(); });
