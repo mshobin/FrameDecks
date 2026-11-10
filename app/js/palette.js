@@ -43,11 +43,14 @@ function comboOf(e){
 /* ---------- what can be found ---------- */
 var KIND = {cmd: 'Command', meeting: 'Meeting', card: 'Memory', frame: 'Frame', tpl: 'Template', lib: 'Library', content: 'Content', question: 'Question', verse: 'Scripture',
   text: 'Text', brand: 'Branding', bg: 'Background', member: 'Member', birthday: 'Birthday', setting: 'Settings', bible: 'Bible', recent: 'Recent'};
-var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
-  ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation listen microphone spoken voice'], ['transitions', 'Transitions', 'fade dip cut profile'],
-  ['output', 'How people see it', 'zoom teams share window projector tv obs camera'], ['recording', 'Recording', 'record mp4'], ['display', 'Projector, TV and OBS', 'zoom display overlay obs browser source links'], ['vcam', 'FrameDecks vCam', 'framedecks vcam framerelay camera zoom teams blur background look resolution'],
-  ['account', 'Sync', 'sync workspace website cloud link connect framedecks.com add a device invite someone allow team devices qr'],
-  ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
+var SECTIONS = [   // 26.11.32 in the order of Settings' six groups
+  ['features', 'Features', 'features switch on off simple bible study full lighter'], ['general', 'Running the meeting', 'smart next corner card sounds summary sermon notes general'],
+  ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent appearance theme dark light season christmas'], ['transitions', 'Transitions', 'fade dip cut profile'],
+  ['scripture', 'Scripture', 'bible esv api key translation'], ['overlays', 'Birthdays', 'birthday reminders'], ['memory', 'Memory Cards', 'memory cards chat bubbles capture beside below seconds'],
+  ['output', 'How people see it', 'zoom teams share window projector tv obs camera'], ['vcam', 'FrameDecks vCam and Recording', 'framedecks vcam framerelay camera zoom teams blur background look resolution record recording mp4'],
+  ['display', 'Projector, TV and OBS', 'zoom display overlay obs browser source links'], ['listening', 'Listening', 'listen microphone spoken voice commands right ctrl key follow my voice'],
+  ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['account', 'Sync', 'sync workspace website cloud link connect framedecks.com add a device invite someone allow team devices qr'], ['security', 'Security', 'pin privacy'],
+  ['pc', 'Window & performance', 'window tray minimize command center size graphics performance ribbon'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
   var PT = window.KCPresenterTools, TP = window.KCTeleprompter, sel = W() && W().selected();
@@ -63,7 +66,7 @@ function commands(){
     ['hideall', 'Hide all Content', 'clear escape', function(){ click($('hide-all') || document.querySelector('[data-cb="hideAll"]')); }, 'Esc'],
     ['blackout', 'Black screen on / off', 'blackout', function(){ if (PT) PT.blackout(); }, 'K'],
     ['freeze', 'Freeze the picture on / off', 'hold', function(){ if (PT) PT.freeze(); }, 'F'],
-    // 26.11.14 Listen for scripture: Ask when off, Off when on (Auto: Command Center, phone, Settings → Scripture)
+    // 26.11.14 Listen for scripture: Ask when off, Off when on (Auto: Command Center, phone, Settings → Listening)
     ['listen', 'Listen for scripture on / off', 'scripture verse bible reference spoken voice microphone listen hear auto', function(){
       var V = window.KCVerseListen, st = V && V.state(); if (V) V.mode(st && st.enabled ? 'off' : 'ask').then(function(d){ if (d) toast(d.enabled ? 'Listening for scripture while a Frame is live' : 'Listen for scripture is off'); }); }],
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
@@ -111,7 +114,7 @@ function featureItems(){
   return F.list.map(function(f){
     var on = F.on(f.id), lk = F.locked();
     return {key: 'feat:' + f.id, kind: 'setting', title: on ? 'Feature: ' + f.label : f.label + ' is off · Turn on?',
-      sub: lk ? 'Off air to change · Settings → General → Features' : (on ? 'On · Enter switches it off' : 'Enter switches it on') + ' · Settings → General → Features',
+      sub: lk ? 'Off air to change · Settings → Start here → Features' : (on ? 'On · Enter switches it off' : 'Enter switches it on') + ' · Settings → Start here → Features',
       words: 'feature switch turn on off ' + f.what,
       local: function(){
         if (F.locked()){ toast('Off air to change features.', true); return; }

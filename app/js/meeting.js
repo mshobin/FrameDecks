@@ -164,7 +164,7 @@ var slideInfo = null;
 window.KCSlideInfo = function(){ return slideInfo; };
 function renderRunning(){
   var ss = window.KCStudio && window.KCStudio.state ? window.KCStudio.state() : null, rec = ss && ss.recording;
-  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the FrameDecks output (Settings → Recording)'); }
+  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the FrameDecks output (Settings → How people see it → FrameDecks vCam)'); }
   var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
   if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
 }

@@ -99,16 +99,17 @@ function renderDataCard(){
     card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → People → Import / Export, or copy the files into the data folder while FrameDecks is closed.'}));
   }
 }
-/* About line in General */
+/* About line in This PC > Window & performance */
 function renderAbout(){
-  var sec = $('sec-general'); if (!sec || !info) return;
+  var sec = $('sec-pc'); if (!sec || !info) return;
   var p = $('app-about');
   if (!p){ p = h('p', {cls: 'hint', id: 'app-about'}); sec.appendChild(p); }
-  p.textContent = 'FrameDecks version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
+  p.textContent = 'FrameDecks version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.' +
+    (info.desktop ? '' : ' The window, tray, graphics and Command Center options are in the installed FrameDecks app on Windows.');   // 26.11.32
 }
-/* Settings > Controls > General > Performance (installed app): draw this window without the graphics card */
+/* Settings > This PC > Window & performance > Performance (installed app): draw this window without the graphics card */
 function renderPerf(){
-  var sec = $('sec-general'); if (!sec || !info || !info.desktop) return;
+  var sec = $('sec-pc'); if (!sec || !info || !info.desktop) return;
   var box = $('app-perf');
   if (!box){
     var cb = h('input', {type: 'checkbox', id: 'app-lowgpu'});
@@ -130,11 +131,11 @@ function renderPerf(){
   $('app-native-present').checked = info.settings.nativePresent !== false;
   $('app-lowgpu-state').textContent = 'Now: ' + (info.lowGpuActive ? 'on' : 'off') + (want !== !!info.lowGpuActive ? ' (restart the app to apply your change)' : '');
 }
-/* 6.8 Settings > Controls > General > Window and tray: ribbon, minimize, Spotlight shortcut */
+/* 6.8 Settings > This PC > Window & performance > Window and tray: ribbon, minimize, Spotlight shortcut */
 var SPOT_KEYS = [['Alt+Space', 'Alt + Space (like PowerToys Run)'], ['Ctrl+Space', 'Ctrl + Space'], ['Ctrl+Alt+Space', 'Ctrl + Alt + Space'],
   ['Ctrl+Shift+Space', 'Ctrl + Shift + Space'], ['Win+Shift+K', 'Win + Shift + K'], ['', 'Off']];
 function renderWindow(){
-  var sec = $('sec-general'); if (!sec || !info || !info.desktop) return;
+  var sec = $('sec-pc'); if (!sec || !info || !info.desktop) return;
   var st = info.settings || {}, box = $('app-win');
   function select(id, opts, val, key, msg){
     var s = h('select', {id: id}, opts.map(function(o){ return h('option', {value: o[0], text: o[1]}); })); s.value = val;

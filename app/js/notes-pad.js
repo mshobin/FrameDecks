@@ -3,7 +3,7 @@
  * the PC only (src/meeting_notes.py): each note is stamped with the time and the Frame on screen.
  *   On the PC: write, edit, delete; Copy all, Save as a file, Email to me (api/notes).
  *   On the phone (api/remote/notes): adding is on unless the PC turns it off; reading is off unless the PC turns it
- *   on (Settings > Controls > Phone & iPad Remote). Read notes are never kept on the phone: fetched only while the
+ *   on (Settings > People & devices > Phone & iPad Remote). Read notes are never kept on the phone: fetched only while the
  *   Notes tab is open, hidden after a minute without use and whenever the phone goes to sleep. Never on the website.
  * KCNotesPad.create({phone, getLive, SC, tell, onEscape}) returns {el, focus, paint, hide}. */
 (function(){
@@ -68,8 +68,8 @@ function create(o){
     setText(count, n ? n + (n === 1 ? ' note' : ' notes') : '');
     write.hidden = phone && !perm.canAdd;
     var msg = '';
-    if (phone && !perm.canAdd && !perm.canRead) msg = 'Notes from the phone are off on the PC (Settings → Controls → Phone & iPad Remote).';
-    else if (phone && !perm.canRead) msg = 'Your notes go to the PC, stamped with the time and the Frame. Reading them here is off: turn it on at the PC (Settings → Controls → Phone & iPad Remote).';
+    if (phone && !perm.canAdd && !perm.canRead) msg = 'Notes from the phone are off on the PC (Settings → People & devices → Phone & iPad Remote).';
+    else if (phone && !perm.canRead) msg = 'Your notes go to the PC, stamped with the time and the Frame. Reading them here is off: turn it on at the PC (Settings → People & devices → Phone & iPad Remote).';
     locked.hidden = !msg; setText(locked, msg);
     reveal.hidden = !(phone && perm.canRead && !notes);
     list.hidden = !notes;

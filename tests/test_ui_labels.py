@@ -91,7 +91,7 @@ class DesignSystem(unittest.TestCase):
         html = read("dashboard.html")
         for glyph in "★✝⇄🎂◉◧▭☁⚙⌨⛨⛁✚ⓘ":
             self.assertNotIn(f'<span class="sn-i">{glyph}</span>', html)
-        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 23)   # 9.12: 6 groups + 16 page tabs + Step-by-step guide
+        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 26)   # 26.11.32: 6 groups + 19 page tabs + Step-by-step guide
 
     def test_headings_use_the_interface_typeface(self):
         css = read("css/theme.css")
@@ -183,7 +183,8 @@ class RunningAService(unittest.TestCase):
         # under Advanced are tabs of the group they belong to (tests/test_command_center_912.py holds the groups)
         html = read("dashboard.html")
         for sec, group in (("output", "screens"), ("vcam", "screens"), ("display", "screens"), ("transitions", "look"),
-                           ("keys", "controls"), ("security", "workspace"), ("diag", "data")):
+                           ("keys", "pc"), ("security", "people"), ("diag", "pc"),   # 26.11.32
+                           ("features", "start"), ("general", "start"), ("listening", "screens"), ("memory", "content"), ("ipad", "people")):
             self.assertIn('data-in="' + group + '" data-sec="' + sec + '"', html)
 
     def test_people_has_a_list_and_a_table(self):

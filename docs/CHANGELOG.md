@@ -10,6 +10,20 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.32] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.32.md](releases/v26.11.32.md).
+
+### Changed
+- Settings groups (`app/dashboard.html` `#s-nav`, `#s-tabs`): start (features, general = Running the meeting), look,
+  content (scripture, overlays, memory), screens (output, vcam and display as `.st-sub` pages, listening), people
+  (ipad, account, security), pc (pc, keys, data, diag, about). Page ids kept; `recording` opens `vcam` (`ALIAS` in
+  `settings.js`), where Recording is now a box.
+- New pages: `sec-features` (`features-panel.js`), `sec-pc` (window, tray, performance from `app-bridge.js`),
+  `sec-listening` (`verse-listen.js`, `voice-commands.js` render into `#listening-body`; Follow my voice note),
+  `sec-memory` (`memory.js` `renderSection`, kept in step with the pane's gear). Reset keys follow the pages
+  (`studio-feel.js`); the palette's settings index lists every page.
+
 ## [26.11.31] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.31.md](releases/v26.11.31.md).

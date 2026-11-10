@@ -470,7 +470,7 @@ class Studio(unittest.TestCase):
         for need in ("window.KCActions.showItem('verse', item)", "post({op: 'shown', id: p.id})", "post({op: 'dismiss', id: p.id})",
                      "fetch('api/verse-listen?after=' + seq", "Everything is heard on this PC only. Nothing is recorded or sent anywhere.",
                      "Listen for scripture", "Show it at once, without asking first", "saveSetting({scriptureListen: on.checked})",
-                     "saveSetting({scriptureAuto: auto.checked})", "if (id === 'scripture') renderSettings();"):
+                     "saveSetting({scriptureAuto: auto.checked})", "if (id === 'listening') renderSettings();"):
             self.assertIn(need, js)
         self.assertNotIn("localStorage.setItem", js)                     # nothing heard is kept
 

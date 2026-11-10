@@ -36,7 +36,7 @@ function show(t){
   $('sub-members').hidden = g !== 'members';
   document.body.dataset.group = g;
   if (t === 'directory') renderDirectory();
-  if (t === 'settings' && $('sec-recording') && !$('sec-recording').hidden) loadRecordings();
+  if (t === 'settings' && $('sec-vcam') && !$('sec-vcam').hidden) loadRecordings();   // 26.11.32 Recording is on the vCam page
   if ((t === 'studio' || t === 'settings') && window.KCRenderLists) window.KCRenderLists();   // drawn when shown
   if (window.KCMeasure) window.KCMeasure();
 }

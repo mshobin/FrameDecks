@@ -391,12 +391,14 @@
   <nav class="s-nav" id="s-nav" aria-label="Settings sections">
     <label class="sn-find"><span class="sr-only">Find a setting</span><input type="search" id="sn-find" placeholder="Find a setting…" autocomplete="off" spellcheck="false"></label>
     <div class="sn-group" role="group" aria-label="Settings">
-      <button type="button" data-sgroup="look" data-k="meeting name logo colour color brand look theme dark light transition fade cut"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting look</b><small>Name, logo, colours and transitions</small></span><i class="sn-dot" id="sg-look"></i></button>
-      <button type="button" data-sgroup="content" data-k="bible scripture verse version esv kjv birthday dates reminder"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Content</b><small>Scripture and birthdays</small></span><i class="sn-dot" id="sg-content"></i></button>
-      <button type="button" data-sgroup="screens" data-k="how people see it zoom teams camera vcam projector tv obs display screen output overlay recording record video"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>Screens &amp; camera</b><small>Zoom, Teams, projector, OBS, vCam</small></span><i class="sn-dot" id="sg-screens"></i></button>
-      <button type="button" data-sgroup="controls" data-k="general window tray minimize command center spotlight performance graphics phone ipad remote pin qr keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Controls</b><small>Command Center, phone remote, keys</small></span><i class="sn-dot" id="sg-controls"></i></button>
-      <button type="button" data-sgroup="workspace" data-k="account website sync cloud workspace security privacy"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Workspace &amp; privacy</b><small>Sync and what stays on this PC</small></span><i class="sn-dot" id="sg-workspace"></i></button>
-      <button type="button" data-sgroup="data" data-k="data backup restore reset excel import export folder diagnostics problems log about version"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data &amp; help</b><small>Backups, Diagnostics and About</small></span><i class="sn-dot" id="sg-data"></i></button>
+<!-- 26.11.32 six groups a leader can name: start here, how it looks, what is shown, how people see it, who and what
+           connects, and this PC. Every page keeps its id, so links into Settings (data-sec) still open the right one. -->
+      <button type="button" data-sgroup="start" data-k="features switch on off simple bible study full running the meeting smart next corner card sounds summary"><span class="sn-i"><i data-icon="list-checks" data-size="16"></i></span><span class="sn-t"><b>Start here</b><small>Features and running the meeting</small></span><i class="sn-dot" id="sg-start"></i></button>
+      <button type="button" data-sgroup="look" data-k="meeting name logo colour color brand look theme dark light season christmas transition fade cut"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting look</b><small>Name, logo, colours, season and transitions</small></span><i class="sn-dot" id="sg-look"></i></button>
+      <button type="button" data-sgroup="content" data-k="bible scripture verse version esv kjv birthday dates reminder memory cards chat bubbles capture"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Content</b><small>Scripture, birthdays and Memory Cards</small></span><i class="sn-dot" id="sg-content"></i></button>
+      <button type="button" data-sgroup="screens" data-k="how people see it zoom teams camera vcam projector tv obs display screen output overlay recording record video listen listening microphone voice commands follow my voice"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, projector, OBS and listening</small></span><i class="sn-dot" id="sg-screens"></i></button>
+      <button type="button" data-sgroup="people" data-k="phone ipad remote pin qr wifi account website sync cloud workspace team devices security privacy"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>People &amp; devices</b><small>Phone remote, Sync and security</small></span><i class="sn-dot" id="sg-people"></i></button>
+      <button type="button" data-sgroup="pc" data-k="window tray minimize command center performance graphics keyboard shortcuts keys hotkey data backup restore reset excel import export folder diagnostics problems log about version"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>This PC</b><small>Window, keys, backups, Diagnostics and About</small></span><i class="sn-dot" id="sg-pc"></i></button>
     </div>
     <div class="sn-group" role="group" aria-label="Help">
       <button type="button" id="sn-guide" data-k="help guide step by step how to start new"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Step-by-step guide</b><small>Opens framedecks.com/help</small></span></button>
@@ -405,22 +407,25 @@
   </nav>
   <div class="s-body">
     <div class="s-tabs" id="s-tabs" role="tablist" aria-label="Pages in this group">
+      <button type="button" role="tab" class="st-tab" data-in="start" data-sec="features" data-k="features switch on off ready-made simple bible study full lighter"><span class="sn-i"><i data-icon="list-checks" data-size="16"></i></span><span class="sn-t"><b>Features</b><small>Switch on what you use</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="start" data-sec="general" data-k="running the meeting smart next corner card sounds summary sermon notes general"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>Running the meeting</b><small>Smart Next, corner card, sounds</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="look" data-sec="meeting" data-k="meeting name logo colour color brand leader organization look theme dark light appearance"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting &amp; Branding</b><small>Name, logo, colours and look</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="look" data-sec="transitions" data-k="transition fade cut style profile spotlight annotate circle ctrl"><span class="sn-i"><i data-icon="arrow-right-left" data-size="16"></i></span><span class="sn-t"><b>Transitions</b><small>How Frames change on screen</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="content" data-sec="scripture" data-k="bible esv version verse scripture key"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Scripture</b><small>Bible version and verses</small></span><i class="sn-dot" id="sn-scripture"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="content" data-sec="overlays" data-feature="birthdays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-feature="memory" data-in="content" data-sec="memory" data-k="memory cards chat bubbles capture beside below over seconds share"><span class="sn-i"><i data-icon="message-circle" data-size="16"></i></span><span class="sn-t"><b>Memory Cards</b><small>Chat bubbles on screen</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="output" data-k="how people see it zoom teams camera framedecks vcam framerelay share window projector tv obs display screen output"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, a projector or OBS</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="vcam" data-feature="vcam" data-k="framedecks vcam framerelay camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FrameDecks vCam</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Projector, TV and OBS</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="recording" data-feature="vcam" data-k="record recording video mp4"><span class="sn-i"><i data-icon="circle-dot" data-size="16"></i></span><span class="sn-t"><b>Recording</b><small>Save the meeting as a video</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="general" data-k="general window tray minimize spotlight performance graphics"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>General</b><small>Window, tray and performance</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="ipad" data-feature="remote" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="controls" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="account" data-feature="team" data-k="account website sync cloud link workspace companion add a device invite someone allow devices team qr scan join"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Sync</b><small>Your team’s phones and this PC</small></span><i class="sn-dot" id="sn-account"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="workspace" data-sec="security" data-k="security privacy"><span class="sn-i"><i data-icon="shield-check" data-size="16"></i></span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="data" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-in="data" data-sec="diag" data-k="diagnostics problems help troubleshooting log"><span class="sn-i"><i data-icon="activity" data-size="16"></i></span><span class="sn-t"><b>Diagnostics</b><small>Check that everything works</small></span><i class="sn-dot" id="sn-diag"></i></button>
-      <button type="button" role="tab" class="st-tab" data-in="data" data-sec="about" data-k="about version"><span class="sn-i"><i data-icon="info" data-size="16"></i></span><span class="sn-t"><b>About</b><small>Version and mission</small></span></button>
+      <button type="button" role="tab" class="st-tab st-sub" data-in="screens" data-sec="vcam" data-feature="vcam" data-k="framedecks vcam framerelay camera webcam zoom teams blur background virtual record recording video mp4"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FrameDecks vCam</b><small>Your camera in Zoom and Teams, and recording</small></span><i class="sn-dot" id="sn-vcam"></i></button>
+      <button type="button" role="tab" class="st-tab st-sub" data-in="screens" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Projector, TV and OBS</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="listening" data-k="listen listening scripture microphone voice commands right ctrl key follow my voice"><span class="sn-i"><i data-icon="mic" data-size="16"></i></span><span class="sn-t"><b>Listening</b><small>Scripture, voice commands, your voice</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="people" data-sec="ipad" data-feature="remote" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="people" data-sec="account" data-feature="team" data-k="account website sync cloud link workspace companion add a device invite someone allow devices team qr scan join"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>Sync</b><small>Your team’s phones and this PC</small></span><i class="sn-dot" id="sn-account"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="people" data-sec="security" data-k="security privacy"><span class="sn-i"><i data-icon="shield-check" data-size="16"></i></span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="pc" data-sec="pc" data-k="window tray minimize command center size place performance graphics ribbon spotlight"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Window &amp; performance</b><small>Window, tray, Command Center</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="pc" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="pc" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-in="pc" data-sec="diag" data-k="diagnostics problems help troubleshooting log"><span class="sn-i"><i data-icon="activity" data-size="16"></i></span><span class="sn-t"><b>Diagnostics</b><small>Check that everything works</small></span><i class="sn-dot" id="sn-diag"></i></button>
+      <button type="button" role="tab" class="st-tab" data-in="pc" data-sec="about" data-k="about version"><span class="sn-i"><i data-icon="info" data-size="16"></i></span><span class="sn-t"><b>About</b><small>Version and mission</small></span></button>
     </div>
     <section class="s-sec" id="sec-meeting" aria-labelledby="sech-meeting" hidden>
       <header class="s-head"><h2 id="sech-meeting">Meeting &amp; Branding</h2><p>Your meeting’s name, logo and colour. They appear only where you choose: Branding Content, and text Content that ask for them.</p></header>
@@ -434,8 +439,24 @@
       </section>
       <div id="meeting-body"></div>
     </section>
+    <section class="s-sec" id="sec-features" aria-labelledby="sech-features" hidden>
+      <header class="s-head"><h2 id="sech-features">Features</h2><p>Switch on what you use. What is off leaves every screen, and its work stops.</p></header>
+    </section>
     <section class="s-sec" id="sec-general" aria-labelledby="sech-general" hidden>
-      <header class="s-head"><h2 id="sech-general">General</h2><p>The window, the tray and how FrameDecks uses this PC.</p></header>
+      <header class="s-head"><h2 id="sech-general">Running the meeting</h2><p>How Next moves, the corner card, sounds and the summary after the meeting.</p></header>
+    </section>
+    <section class="s-sec" id="sec-pc" aria-labelledby="sech-pc" hidden>
+      <header class="s-head"><h2 id="sech-pc">Window &amp; performance</h2><p>The window, the tray, the Command Center and how FrameDecks uses this PC.</p></header>
+    </section>
+    <section class="s-sec" id="sec-memory" aria-labelledby="sech-memory" data-feature="memory" hidden>
+      <header class="s-head"><h2 id="sech-memory">Memory Cards</h2><p>Copied chat messages shown as bubbles. The same choices as the gear on the Memory Cards pane.</p></header>
+      <section class="box"><div id="memory-body"></div></section>
+    </section>
+    <section class="s-sec" id="sec-listening" aria-labelledby="sech-listening" hidden>
+      <header class="s-head"><h2 id="sech-listening">Listening</h2><p>Everything that can hear you: a spoken verse, voice commands, and the Teleprompter following your voice. Only on this PC; nothing you say is recorded or sent anywhere.</p></header>
+      <div id="listening-body"></div>
+      <section class="box" data-feature="follow" aria-labelledby="s-follow"><div class="box-head"><h2 id="s-follow">Teleprompter: Follow my voice</h2></div>
+        <p class="plain">The script moves as you speak. Its microphone and sensitivity are in the Teleprompter’s top bar, beside Follow my voice, so you can set them while you read.</p></section>
     </section>
     <section class="s-sec" id="sec-overlays" aria-labelledby="sech-overlays" hidden>
       <header class="s-head"><h2 id="sech-overlays">Birthdays</h2><p>Birthday reminders and how dates are read. Placement and style are in the Birthday Content’s settings.</p></header>
@@ -457,11 +478,6 @@
     <section class="s-sec" id="sec-transitions" aria-labelledby="sech-transitions" hidden>
       <header class="s-head"><h2 id="sech-transitions">Transitions</h2><p>The transition every Frame uses unless it has its own. The Transition menu in the top bar can override it for one take.</p></header>
       <section class="box"><div id="transitions-body"></div></section>
-    </section>
-    <section class="s-sec" id="sec-recording" aria-labelledby="sech-recording" hidden>
-      <header class="s-head"><h2 id="sech-recording">Recording</h2><p>Record exactly what FrameDecks vCam sends to Zoom or Teams. Recordings are saved on this PC.</p></header>
-      <section class="box"><div class="rec-ctl" id="rec-host"></div></section>
-      <div class="tabpanel" id="tab-recordings"></div>
     </section>
     <section class="s-sec" id="sec-output" aria-labelledby="sech-output" hidden>
       <header class="s-head"><h2 id="sech-output">How people see it</h2><p>Choose how your meeting reaches people. Most churches use one way; you can use more than one.</p></header>
@@ -488,6 +504,12 @@
     <section class="s-sec" id="sec-vcam" aria-labelledby="sech-vcam" hidden>
       <header class="s-head"><button class="linkish out-back" type="button" data-goto="settings" data-sec="output">← How people see it</button><h2 id="sech-vcam">FrameDecks vCam</h2><p>FrameDecks’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
       <div id="vcam-body"></div>
+      <!-- 26.11.32 Recording lives with the camera: it records exactly what FrameDecks vCam sends -->
+      <section class="box" id="rec-box" aria-labelledby="s-rec"><div class="box-head"><h2 id="s-rec">Recording</h2></div>
+        <p class="hint">Record exactly what FrameDecks vCam sends to Zoom or Teams. Recordings are saved on this PC.</p>
+      <section class="box"><div class="rec-ctl" id="rec-host"></div></section>
+      <div class="tabpanel" id="tab-recordings"></div>
+      </section>
     </section>
     <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
       <header class="s-head"><h2 id="sech-ipad">Phone &amp; iPad Remote</h2><p>Control the overlays from an iPhone, Android phone or iPad on the same Wi-Fi.</p></header>

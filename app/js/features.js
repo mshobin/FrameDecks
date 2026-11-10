@@ -1,4 +1,4 @@
-/* FrameDecks 26.11.31 - features you switch on or off. One list for every surface: Settings → General → Features,
+/* FrameDecks 26.11.31 - features you switch on or off. One list for every surface: Settings → Start here → Features,
  * the Command Center's More → Features, the Welcome's three ready-made sets, the chips (js/chips.js leaves out an
  * action whose feature is off), the command palette and the phone remote. The program keeps the switches
  * (src/features.py, kc-app-settings.json) and stops a feature's background work when it is off; they change only

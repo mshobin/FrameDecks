@@ -1,4 +1,4 @@
-/* FrameDecks 26.11.31 - Settings → General → Features: every switch in its group, each with one line on what it does
+/* FrameDecks 26.11.31 - Settings → Start here → Features (26.11.32: its own page): every switch in its group, each with one line on what it does
  * and what switching it off saves; the three ready-made sets above them; one quiet line under them ("8 of 12 on ·
  * lighter on this PC"). Locked while live ("Off air to change"). The switches themselves live in js/features.js. */
 (function(){
@@ -15,7 +15,7 @@ function h(tag, a, kids){
 function toast(m, bad){ if (window.KCActions && KCActions.toast) KCActions.toast(m, bad); }
 
 function box(){
-  var sec = $('sec-general'); if (!sec) return null;
+  var sec = $('sec-features'); if (!sec) return null;
   var b = $('features-box');
   if (!b){
     b = h('section', {cls: 'box ft-box', id: 'features-box', 'aria-labelledby': 'ft-h'});
@@ -56,11 +56,11 @@ function draw(){
   b.appendChild(h('p', {cls: 'hint ft-sum', id: 'ft-sum', text: F.summary()}));
 }
 F.onChange(draw);
-(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'general') F.load().then(draw); });
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'features') F.load().then(draw); });
 draw();
 window.KCFeaturesPanel = {draw: draw, show: function(){
   if (window.KCSetTab) KCSetTab('settings');
-  if (window.KCShowSection) KCShowSection('general');
+  if (window.KCShowSection) KCShowSection('features');
   setTimeout(function(){ var b = $('features-box'); if (b) b.scrollIntoView({block: 'start', behavior: 'smooth'}); }, 120);
 }};
 })();

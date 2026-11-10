@@ -38,7 +38,7 @@ function renderGeneral(){
     card.addEventListener('change', function(){ saved({leaderCard: card.checked}).then(function(){ toast(card.checked ? 'The corner card tells you what is waiting while the Studio is behind your meeting' : 'Corner card is off'); }); });
     smart.addEventListener('change', function(){ saved({smartNext: smart.checked}).then(function(){ toast(smart.checked ? 'Smart Next: questions, then scriptures, then the next Frame' : 'Next goes to the next Frame'); }); });
     snd.addEventListener('change', function(){ saved({uiSounds: snd.checked}).then(function(){ if (snd.checked && window.KCSound){ Store.loadSettings().then(function(){ KCSound.play('live'); }); } }); });
-    box.appendChild(h('h3', {cls: 'vl-set-h', id: 'feel-h', text: 'Running the meeting'}));
+    box.appendChild(h('h3', {cls: 'vl-set-h', id: 'feel-h', text: 'Next, the corner card and sounds'}));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Smart Next'}), h('label', {cls: 'check'}, [smart, ' Next shows the live Frame’s questions, then its scriptures, then the next Frame'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Corner card'}), h('label', {cls: 'check'}, [card, ' While the Studio is behind Zoom or Teams, a card in the corner shows a verse heard or a prayer request waiting (only you see it, never in screen sharing)'])]));
     box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Sounds'}), h('label', {cls: 'check'}, [snd, ' A soft chime on Go Live and Next (only you hear it)'])]));
@@ -49,13 +49,14 @@ function renderGeneral(){
 
 /* ---------- "Reset this section" ---------- */
 var SECTION_KEYS = {
-  general: ['minimizeTo', 'ccSize', 'ccPlace', 'lowGpu', 'customChrome', 'smartNext', 'uiSounds', 'leaderCard', 'studioMode'],
-  scripture: ['scriptureListen', 'scriptureAuto', 'scriptureMeeting', 'voiceCommands', 'voiceKey'],
+  general: ['smartNext', 'uiSounds', 'leaderCard', 'studioMode'],
+  pc: ['minimizeTo', 'ccSize', 'ccPlace', 'lowGpu', 'customChrome'],
+  listening: ['scriptureListen', 'scriptureAuto', 'scriptureMeeting', 'voiceCommands', 'voiceKey'],
+  memory: ['memDur', 'memShare', 'memLayout', 'memSide', 'memAuto'],
   ipad: ['remoteNotesAdd', 'remoteNotesRead'],
-  output: ['peopleSee'],
-  cards: ['memDur', 'memShare', 'memLayout', 'memSide', 'memAuto']
+  output: ['peopleSee']
 };
-var NAMES = {general: 'General', scripture: 'Scripture', ipad: 'Phone & iPad Remote', output: 'How people see it', cards: 'Memory Cards'};
+var NAMES = {general: 'Running the meeting', pc: 'Window & performance', listening: 'Listening', memory: 'Memory Cards', ipad: 'Phone & iPad Remote', output: 'How people see it'};
 function addReset(id){
   var keys = SECTION_KEYS[id], sec = $('sec-' + id); if (!keys || !sec || sec.querySelector('.kc-reset')) return;
   var head = sec.querySelector('.s-head'); if (!head) return;

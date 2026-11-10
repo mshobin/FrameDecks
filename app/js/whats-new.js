@@ -5,9 +5,13 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.32': [
+    {title: 'Settings, in six groups', text: 'Start here, Meeting look, Content, How people see it, People & devices and This PC. Nothing changed: each setting lives where you would look for it.', show: {settings: 'features'}},
+    {title: 'Listening, in one place', text: 'Listen for scripture, Voice commands and Follow my voice: everything that can hear you, on one page.', show: {settings: 'listening'}}
+  ],
   '26.11.31': [
-    {title: 'Choose the features you use', text: 'Settings → General → Features: switch off what you don’t use. It leaves the chips, the Command Center and the phone remote, and its work stops. Simple, Bible study or Full to start.', show: {settings: 'general', spot: '#features-box'}},
-    {title: 'Features in the Command Center', text: 'More → Features: the same switches in a list. They change only while nothing is on air.', show: {settings: 'general', spot: '#features-box'}}
+    {title: 'Choose the features you use', text: 'Settings → Start here → Features: switch off what you don’t use. It leaves the chips, the Command Center and the phone remote, and its work stops. Simple, Bible study or Full to start.', show: {settings: 'features', spot: '#features-box'}},
+    {title: 'Features in the Command Center', text: 'More → Features: the same switches in a list. They change only while nothing is on air.', show: {settings: 'features', spot: '#features-box'}}
   ],
   '26.11.30': [
     {title: 'If your plan file is ever damaged, you are told', text: 'FrameDecks keeps the damaged file and opens your newest backup. Now the Studio says so once, so you can check any Frames added since.', show: {settings: 'diag'}},

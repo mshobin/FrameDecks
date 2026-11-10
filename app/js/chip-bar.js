@@ -164,7 +164,7 @@ var mo = new MutationObserver(paint);
 document.addEventListener('kc-verse-listen', function(){ paint(); });
 if (window.KCStore) window.KCStore.subscribe(function(){ paint(); if (open === 'notes' && notesPad) notesPad.paint(); });
 paint();
-/* Settings > Controls > Phone & iPad Remote > Notes on the phone (9.13) */
+/* Settings > People & devices > Phone & iPad Remote > Notes on the phone (9.13) */
 var rnAdd = $('rn-add'), rnRead = $('rn-read');
 function rnFill(d){ var st = (d && d.settings) || {}; if (rnAdd) rnAdd.checked = st.remoteNotesAdd !== false; if (rnRead) rnRead.checked = !!st.remoteNotesRead; }
 document.addEventListener('kc-app-info', function(e){ rnFill(e.detail); });

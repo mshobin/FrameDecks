@@ -48,7 +48,7 @@ function setting(sec){ P.choose({key: 'set:' + sec, kind: 'setting', title: sec,
 function tell(msg, bad){ var s = box.querySelector('.cc-say'); if (!s) return; s.textContent = msg; s.classList.toggle('bad', !!bad); clearTimeout(tell.t); tell.t = setTimeout(function(){ s.textContent = ''; }, 2800); }
 function isLive(){ return !!(live && SC.liveScene(live)); }
 function goLive(on){
-  if (on && window.KCSound) KCSound.play('live');                // 26.11.22 a soft chime (Settings → General → Sounds)
+  if (on && window.KCSound) KCSound.play('live');                // 26.11.22 a soft chime (Settings → Start here → Running the meeting)
   if (!live) return;
   if (on){
     var first = SC.order(live)[0];
@@ -92,7 +92,7 @@ var SCOPES = {
 function featureItems(){
   var F = window.KCFeatures; if (!F) return [];
   var head = {key: 'feat-all', kind: 'setting', title: F.summary(), sub: F.locked() ? 'Off air to change' : 'All features in Settings… · Enter opens them', words: 'all features settings',
-    local: function(){ setting('general'); }};
+    local: function(){ setting('features'); }};
   return [head].concat(F.list.map(function(f){
     var on = F.on(f.id), grp = F.groups.filter(function(g){ return g.id === f.group; })[0];
     return {key: 'feat-' + f.id, kind: 'setting', title: f.label + (on ? ' · On' : ' · Off'),
@@ -426,7 +426,7 @@ document.addEventListener('mousedown', function(e){
   if (t === document.body || t === document.documentElement || t === box || t === stage || (t.classList && t.classList.contains('pal-back'))) post('api/app/win', {win: 'spotlight', op: 'hide'});
 });
 
-/* ---------- 9.12 its size and place (Settings > Controls > General > Command Center): compact (slim chips, a
+/* ---------- 9.12 its size and place (Settings > This PC > Window & performance): compact (slim chips, a
  * narrower bar) and top, centre or bottom of the screen. At the bottom the pieces stack upwards: the chips sit above
  * the search bar and the panels open above them. desktop_app calls look() before the window shows; the page also
  * reads the settings each time it opens, and remembers the last look for its first paint. ---------- */

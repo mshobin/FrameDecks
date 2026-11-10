@@ -1,4 +1,4 @@
-"""FrameDecks 26.11.31 - features you switch on or off (Settings > General > Features, the Command Center's More chip,
+"""FrameDecks 26.11.31 - features you switch on or off (Settings > Start here > Features, the Command Center's More chip,
 and the Welcome's three ready-made sets).
 
 The core is never a switch: the Studio, Frames, Decks, Go Live / Off air, Hide all, Black screen, the Emergency screen

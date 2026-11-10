@@ -43,7 +43,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import meeting_log  # 26.11.23 what was shown, for the meeting summary
-import features as FEAT   # 26.11.31 features you switch on or off (Settings > General > Features)
+import features as FEAT   # 26.11.31 features you switch on or off (Settings > Start here > Features)
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
 import member_room  # 26.11.24 members' phones: follow along and the sermon notes
 import leader_alerts  # 26.11.25 the leader's corner card while the Studio is behind the meeting
@@ -52,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.31"
+APP_VERSION = "26.11.32"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -887,7 +887,7 @@ def voice_commands_action(d, remote=False):
         return VOICE_CMD.search(bool(d.get("on")), [str(w)[:200] for w in words[:600]])
     if op == "enable":
         if d.get("value") and not feature_on("voice"):
-            raise ValueError("Voice commands are switched off (Settings → General → Features).")
+            raise ValueError("Voice commands are switched off (Settings → Start here → Features).")
         save_app_settings({"voiceCommands": bool(d.get("value"))})
         VOICE_CMD.tick()
         return VOICE_CMD.body()
@@ -941,7 +941,7 @@ def verse_listen_action(d, remote=False):
         if not mode:
             raise ValueError("Choose off, ask or auto.")
         if mode[0] and not feature_on("listen"):
-            raise ValueError("Listen for scripture is switched off (Settings → General → Features).")
+            raise ValueError("Listen for scripture is switched off (Settings → Start here → Features).")
         save_app_settings({"scriptureListen": mode[0], "scriptureAuto": mode[1]})
         VERSE_LISTEN.tick()                                    # start or stop listening now, not at the next check
         return VERSE_LISTEN.body()
@@ -959,7 +959,7 @@ def voice_action(data):
         raise ValueError("words must be a list")
     if op == "start":
         if not feature_on("follow"):
-            raise ValueError("Follow my voice is switched off (Settings → General → Features).")
+            raise ValueError("Follow my voice is switched off (Settings → Start here → Features).")
         return VOICE.start(words)
     if op == "words":
         return VOICE.words(words)
@@ -3596,7 +3596,7 @@ class Handler(BaseHTTPRequestHandler):
             return ok({"styled": bool(hook(data.get("theme") != "light")) if hook else False})
         if action == "remote":
             if data.get("enabled") and not feature_on("remote"):
-                return bad("The phone remote is switched off (Settings → General → Features).", 409)
+                return bad("The phone remote is switched off (Settings → Start here → Features).", 409)
             res = set_remote(bool(data.get("enabled")))
             return ok(res)
         if action == "grant":

@@ -129,7 +129,7 @@ class SettingsGroups(unittest.TestCase):
         start = html.index('<nav class="s-nav"')
         nav = html[start:html.index("</nav>", start)]
         groups = re.findall(r'data-sgroup="([a-z]+)"', nav)
-        self.assertEqual(groups, ["look", "content", "screens", "controls", "workspace", "data"])
+        self.assertEqual(groups, ["start", "look", "content", "screens", "people", "pc"])   # 26.11.32 the regrouping
         self.assertNotIn("data-sec=", nav)
         tabs = html[html.index('<div class="s-tabs" id="s-tabs"'):]
         tabs = tabs[:tabs.index("</div>\n    <section")]

@@ -1,4 +1,4 @@
-/* FrameDecks 26.11.22 - soft sounds for the presses that matter (Settings → General → Sounds; off by default):
+/* FrameDecks 26.11.22 - soft sounds for the presses that matter (Settings → Start here → Running the meeting; off by default):
  * Go Live, Next, and a light tap for Hide all / Black screen. Made with Web Audio (no sound files), only in the window
  * that was pressed, very quiet, and never while the setting is off. */
 (function(){

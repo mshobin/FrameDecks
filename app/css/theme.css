@@ -2068,7 +2068,7 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 @media (prefers-reduced-motion:reduce){ .kc-holdable.holding .kc-hold-bar{transition:none;transform:scaleX(1);opacity:.6} }
 .cb-btn.take.is-off,.cb-btn.take.is-off:hover{background:var(--neutral-btn);border-color:var(--line-strong);color:var(--ink)}
 
-/* 26.11.31 Settings → General → Features (js/features-panel.js): groups of switches, each with its one line */
+/* 26.11.31 Settings → Start here → Features (js/features-panel.js): groups of switches, each with its one line */
 .ft-box .ft-sets button[aria-checked="true"]{font-weight:700}
 .ft-g{margin:18px 0 4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .ft-row{padding:8px 0;border-top:1px solid var(--line-soft)}
@@ -2078,3 +2078,7 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 .ft-row.is-off .check b{color:var(--muted);font-weight:600}
 .ft-lock{margin-top:8px}
 .ft-sum{margin-top:14px}
+
+/* 26.11.32 a page that belongs to the one before it (vCam and Projector under How people see it): a quiet joiner */
+.st-tab.st-sub{position:relative;margin-left:14px}
+.st-tab.st-sub::before{content:"";position:absolute;left:-10px;top:50%;width:6px;height:6px;border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:translateY(-70%);border-bottom-left-radius:3px}

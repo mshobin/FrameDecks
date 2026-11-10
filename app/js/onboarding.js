@@ -169,12 +169,12 @@ function seePanel(){
 }
 
 /* 26.11.31 What do you use? Three ready-made sets of features (js/features.js); any switch can change later in
-   Settings → General → Features or the Command Center's More → Features */
+   Settings → Start here → Features or the Command Center's More → Features */
 function usePanel(){
   var F = window.KCFeatures; if (!F) return null;
   var cur = F.state().preset || 'full';
   var hint = h('p', {cls: 'onb-hint'});
-  function say(){ var p = F.presets.filter(function(x){ return x.id === cur; })[0]; hint.textContent = (p ? p.text + ' ' : '') + 'Change any of them later: Settings → General → Features.'; }
+  function say(){ var p = F.presets.filter(function(x){ return x.id === cur; })[0]; hint.textContent = (p ? p.text + ' ' : '') + 'Change any of them later: Settings → Start here → Features.'; }
   var group = h('div', {cls: 'onb-kinds', role: 'radiogroup', 'aria-labelledby': 'onb-use-t'}, F.presets.map(function(p){
     var btn = h('button', {cls: 'onb-kind', type: 'button', role: 'radio', 'aria-checked': String(cur === p.id), 'data-use': p.id}, [h('span', {html: I(p.icon, 18)}), h('span', {text: p.label})]);
     btn.addEventListener('click', function(){

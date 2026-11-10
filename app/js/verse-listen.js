@@ -169,13 +169,12 @@ function loop(){
 function refresh(){ fetch('api/verse-listen', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(take).catch(function(){}); }
 if (Store.ride && Store.ride('vl', refresh)) refresh(); else loop();
 
-/* ---------- Settings > Scripture: the two switches ---------- */
+/* ---------- Settings > Listening (26.11.32; was Scripture): the two switches ---------- */
 function saveSetting(o){ return fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(o)}).catch(function(){}); }
 function renderSettings(){
-  var body = $('scripture-body'); if (!body || !Store.served) return;
-  var host = body.closest('section.box'); if (!host) return;
+  var host = $('listening-body'); if (!host || !Store.served) return;     // 26.11.32 Settings → How people see it → Listening
   var box = $('vl-settings');
-  if (!box){ box = h('section', {cls: 'box vl-settings', id: 'vl-settings', 'aria-labelledby': 'vl-set-h', 'data-feature': 'listen'}); host.parentNode.insertBefore(box, host.nextSibling); }
+  if (!box){ box = h('section', {cls: 'box vl-settings', id: 'vl-settings', 'aria-labelledby': 'vl-set-h', 'data-feature': 'listen'}); host.insertBefore(box, host.firstChild); }
   fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     var s = d.settings || {};
     box.innerHTML = '';
@@ -194,7 +193,7 @@ function renderSettings(){
     box.appendChild(h('p', {cls: 'hint', text: 'It uses the microphone chosen for the Teleprompter’s Follow my voice. The voice files download once (about 40 MB) the first time. With Members on, it also hears what this PC plays (the others in Zoom or Teams), for Bible references only: nothing else they say is kept or understood.'}));
   }).catch(function(){});
 }
-(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') renderSettings(); });
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'listening') renderSettings(); });
 
 /* 26.11.14 Off · Ask · Auto, the same switch as in the Command Center and on the phone */
 function setMode(m){

@@ -139,10 +139,9 @@ var SAY = [['Next Frame', '“next frame”, “go back”, “frame three”'],
   ['What shows', '“show question”, “show scripture”, “show both”'], ['The screen', '“hide all”, “black screen”, “picture back”, “freeze”'],
   ['A verse', '“show John three sixteen”, then Show (or “show it”)'], ['Your meeting app', '“mute”, “camera”']];
 function renderSettings(){
-  var after = $('vl-settings') || ($('scripture-body') && $('scripture-body').closest('section.box'));
-  if (!after) return;
+  var host = $('listening-body'); if (!host) return;                       // 26.11.32 Settings → Listening
   var box = $('vc-settings');
-  if (!box){ box = h('section', {cls: 'box vl-settings vc-settings', id: 'vc-settings', 'aria-labelledby': 'vc-set-h', 'data-feature': 'voice'}); after.parentNode.insertBefore(box, after.nextSibling); }
+  if (!box){ box = h('section', {cls: 'box vl-settings vc-settings', id: 'vc-settings', 'aria-labelledby': 'vc-set-h', 'data-feature': 'voice'}); host.appendChild(box); }
   fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     var s = d.settings || {};
     box.innerHTML = '';
@@ -223,7 +222,7 @@ function keyName(v){
   if (/^k:/.test(v || '')) return v.slice(2).split('+').map(function(k){ return NAME[+k] || '?'; }).join(' + ');
   return {f8: 'F8', lctrl: 'Left Ctrl', off: 'the microphone button'}[v] || 'Right Ctrl';
 }
-(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') setTimeout(renderSettings, 0); });
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'listening') setTimeout(renderSettings, 0); });
 
 window.KCVoiceCommands = {state: function(){ return info; }, run: run, commands: Object.keys(RUN)};
 })();

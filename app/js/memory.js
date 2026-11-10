@@ -44,8 +44,42 @@ function apply(d){
   if (!d || d.rev == null) return;
   data = d; rev = d.rev;
   if (POPUP){ renderPopup(); painted = true; return; }
-  renderPane(); painted = true;
+  renderPane(); renderSection(); painted = true;
 }
+
+/* 26.11.32 Settings → Content → Memory Cards: the same five choices as the pane's gear, kept in step with it */
+function renderSection(){
+  var host = document.getElementById('memory-body'); if (!host || !data) return;
+  if (!host.firstChild){
+    var opt = function(v, t){ var o = document.createElement('option'); o.value = v; o.textContent = t; return o; };
+    var row = function(lbl, ctl){ var r = document.createElement('div'); r.className = 'row'; var l = document.createElement('span'); l.className = 'lbl'; l.textContent = lbl; r.appendChild(l); r.appendChild(ctl); return r; };
+    var lay = document.createElement('select'); lay.id = 'ms-layout'; lay.setAttribute('aria-label', 'Where the bubbles go on FrameDecks vCam');
+    [['beside', 'Beside the video'], ['below', 'Below the video'], ['over', 'Over the picture']].forEach(function(x){ lay.appendChild(opt(x[0], x[1])); });
+    var side = document.createElement('select'); side.id = 'ms-side'; side.setAttribute('aria-label', 'Side');
+    [['right', 'Right'], ['left', 'Left']].forEach(function(x){ side.appendChild(opt(x[0], x[1])); });
+    var dur = document.createElement('input'); dur.type = 'number'; dur.id = 'ms-dur'; dur.min = 3; dur.max = 120; dur.step = 1; dur.setAttribute('aria-label', 'Seconds an unpinned card stays');
+    var durWrap = document.createElement('span'); durWrap.appendChild(dur); durWrap.appendChild(document.createTextNode(' seconds'));
+    var chk = function(id, text){ var l = document.createElement('label'); l.className = 'check'; var c = document.createElement('input'); c.type = 'checkbox'; c.id = id; l.appendChild(c); l.appendChild(document.createTextNode(' ' + text)); return l; };
+    host.appendChild(row('On FrameDecks vCam', lay));
+    host.appendChild(row('Side', side));
+    host.appendChild(row('Unpinned cards stay', durWrap));
+    host.appendChild(row('', chk('ms-auto', 'Show a card as soon as it’s copied')));
+    host.appendChild(row('', chk('ms-share', 'Also on the Share Window and overlay pages')));
+    var hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = 'Turn on Capture copies (Engage) and every Ctrl+C in Teams, Zoom, ChatGPT, Claude, Slack or a browser becomes a card. Pinned cards stay until you hide them.'; host.appendChild(hint);
+    lay.addEventListener('change', function(){ act({action: 'settings', layout: lay.value}); });
+    side.addEventListener('change', function(){ act({action: 'settings', side: side.value}); });
+    dur.addEventListener('change', function(){ act({action: 'settings', dur: Number(dur.value) || 12}); });
+    host.querySelector('#ms-auto').addEventListener('change', function(){ act({action: 'settings', auto: this.checked}); });
+    host.querySelector('#ms-share').addEventListener('change', function(){ act({action: 'settings', share: this.checked}); });
+  }
+  var g = function(id){ return document.getElementById(id); };
+  if (document.activeElement !== g('ms-layout')) g('ms-layout').value = data.layout;
+  if (document.activeElement !== g('ms-side')) g('ms-side').value = data.side;
+  if (document.activeElement !== g('ms-dur')) g('ms-dur').value = data.dur;
+  g('ms-auto').checked = !!data.auto; g('ms-share').checked = !!data.share;
+  g('ms-side').closest('.row').hidden = data.layout === 'below';
+}
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'memory') renderSection(); });
 
 /* ---------- one card (pane and popup share it) ---------- */
 function card(it, opts){

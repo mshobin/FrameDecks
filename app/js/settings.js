@@ -13,8 +13,8 @@ function h(tag, attrs, kids){
 window.KCh = h;
 
 /* ---------- Section navigation ----------
- * 9.12 six groups in the menu (Meeting look, Content, Screens & camera, Controls, Workspace & privacy, Data & help)
- * instead of sixteen entries. A group's pages are tabs under the page title (#s-tabs, moved into the page shown);
+ * 9.12 groups in the menu instead of sixteen entries; 26.11.32 the six a leader can name: Start here, Meeting look,
+ * Content, How people see it, People & devices, This PC. A group's pages are tabs under the page title (#s-tabs, moved into the page shown);
  * every page keeps its id, so showSection('vcam') and the links into Settings (data-sec) open the right tab. */
 var current = null;
 /* Sections built on their first visit, so the page carries less while they are hidden (design audit DD-25) */
@@ -25,9 +25,12 @@ var buildOnce = {keys: function(){
 var tabs = $('s-tabs');
 function tabOf(id){ return tabs && tabs.querySelector('[data-sec="' + id + '"]'); }
 function groupOf(id){ var t = tabOf(id); return t ? t.dataset.in : ''; }
-function firstIn(g){ var t = tabs && tabs.querySelector('[data-in="' + g + '"]'); return t ? t.dataset.sec : 'general'; }
+function firstIn(g){ var t = tabs && tabs.querySelector('[data-in="' + g + '"]'); return t ? t.dataset.sec : 'features'; }
+var ALIAS = {recording: 'vcam'};     // 26.11.32 Recording is a box on the vCam page now
 function showSection(id){
-  if (!$('sec-' + id)) id = 'general';
+  var focusRec = id === 'recording';
+  id = ALIAS[id] || id;
+  if (!$('sec-' + id)) id = 'features';
   current = id;
   var g = groupOf(id);
   Array.prototype.forEach.call(document.querySelectorAll('.s-sec'), function(s){ s.hidden = s.id !== 'sec-' + id; });
@@ -48,7 +51,8 @@ function showSection(id){
   if (buildOnce[id]){ buildOnce[id](); delete buildOnce[id]; }
   if (id === 'diag') renderDiag();
   if (id === 'security') renderSecurity();
-  if (id === 'recording' && window.KCLoadRecordings) window.KCLoadRecordings();
+  if (id === 'vcam' && window.KCLoadRecordings) window.KCLoadRecordings();
+  if (focusRec) setTimeout(function(){ var r = $('rec-box'); if (r) r.scrollIntoView({block: 'start', behavior: 'smooth'}); }, 80);
   (window.KCSectionHooks || []).forEach(function(f){ try { f(id); } catch(e){} });     // v6: Scripture, Transitions
 }
 window.KCShowSection = showSection;
@@ -96,7 +100,7 @@ $('sn-find').addEventListener('keydown', function(e){
   else if (e.key === 'Escape' && this.value){ this.value = ''; findSetting(''); e.stopPropagation(); }
 });
 var saved = null; try { saved = localStorage.getItem(SEC_KEY); } catch(e){}
-showSection(saved || 'general');
+showSection(saved || 'features');
 
 /* ---------- Nav status dots ---------- */
 function dot(id, cls){ var d = $(id); if (d) d.className = 'sn-dot ' + (cls || ''); }
