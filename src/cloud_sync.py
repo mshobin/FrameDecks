@@ -443,6 +443,17 @@ class CloudApi:
     def pc_room_close(self):
         return self._rpc("pc_room_close", {})
 
+    # 26.11.33 quick responses and polls in the members' room (0022_room_polls.sql), with this PC's own key
+    def pc_room_response_open(self, question, kind, options=None, show_results=False):
+        return self._rpc("pc_room_response_open", {"question": question, "kind": kind, "options": options,
+                                                   "show_results": bool(show_results)})
+
+    def pc_room_response_close(self):
+        return self._rpc("pc_room_response_close", {})
+
+    def pc_room_response_results(self):
+        return self._rpc("pc_room_response_results", {})
+
     def pc_devices(self):
         return self._rpc("pc_devices", {})
 

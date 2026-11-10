@@ -60,3 +60,18 @@
 .fl-sec ul{margin:0;padding-left:20px;color:var(--text);line-height:1.6}
 .fl-print{margin-top:10px}
 @media print{body *{visibility:hidden}.fl-notes,.fl-notes *{visibility:visible}.fl-notes{position:absolute;inset:0 auto auto 0;width:100%}.fl-print{display:none}}
+/* 26.11.33 quick responses and polls under the screen: big answers to tap, the chosen one marked, calm bars (no motion) */
+.fl-resp{display:grid;gap:10px;padding:16px 0 0;border-top:1px solid var(--hairline)}
+.fl-resp-q{margin:0;color:var(--text);font-family:var(--serif);font-size:24px;line-height:1.3}
+.fl-resp-opts{display:grid;gap:8px}
+.fl-yesno .fl-resp-opts{grid-template-columns:1fr 1fr}
+.fl-rating .fl-resp-opts{grid-template-columns:repeat(5,1fr)}
+.fl-rating .fl-resp-opts button::after,.fl-rating .fl-bar>span:first-child::after{content:" ★";content:" ★"/"";color:var(--gold)}
+.fl-resp-opts button{min-height:56px;padding:10px 14px;border:1px solid var(--hairline-strong);border-radius:14px;background:none;color:var(--text);font:inherit;font-size:18px;font-weight:600;cursor:pointer}
+.fl-resp-opts button[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft);box-shadow:inset 0 0 0 1px var(--gold)}
+.fl-resp-opts button:disabled{cursor:progress}
+.fl-resp-note{margin:0;color:var(--text-2);font-size:14px;line-height:1.5}
+.fl-bars{display:grid;gap:10px;margin-top:4px}
+.fl-bar{display:grid;grid-template-columns:1fr auto;gap:4px 10px;color:var(--text);font-size:15px;font-variant-numeric:tabular-nums}
+.fl-bar-track{grid-column:1/-1;height:10px;border-radius:999px;background:var(--hairline);overflow:hidden}
+.fl-bar-track span{display:block;height:100%;border-radius:999px;background:var(--gold)}

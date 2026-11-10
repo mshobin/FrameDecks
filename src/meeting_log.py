@@ -144,7 +144,8 @@ class MeetingLog:
         return None
 
     def count(self, what, n=1):
-        """Engagement counted for the run in progress: 'memory' (a Memory Card shown), 'prayer.received', 'prayer.shown'."""
+        """Engagement counted for the run in progress: 'memory' (a Memory Card shown), 'prayer.received', 'prayer.shown',
+        26.11.33 'responses.opened' and 'responses.shown' (quick responses and polls)."""
         with self.lock:
             r = self.run
             if r is None:
@@ -155,6 +156,10 @@ class MeetingLog:
                 k = what.split(".", 1)[1]
                 if k in r["prayer"]:
                     r["prayer"][k] += n
+            elif what in ("responses.opened", "responses.shown"):
+                k = what.split(".", 1)[1]
+                got = r.setdefault("responses", {"opened": 0, "shown": 0})
+                got[k] = got.get(k, 0) + n
             self._dirty()
 
     # ---------- reading ----------
@@ -223,7 +228,8 @@ def summary(run, plan=None):
             seen_v.add(x["label"])
     return {"id": run.get("id"), "meeting": run.get("meeting") or "Meeting", "started": run.get("started", 0), "ended": run.get("ended", 0),
             "ms": max(0, end - run.get("started", 0)), "frames": frames, "questionCount": len(seen_q), "verseCount": len(seen_v),
-            "memory": run.get("memory", 0), "prayer": run.get("prayer") or {"received": 0, "shown": 0}}
+            "memory": run.get("memory", 0), "prayer": run.get("prayer") or {"received": 0, "shown": 0},
+            "responses": run.get("responses") or {"opened": 0, "shown": 0}}
 
 
 def as_text(s):

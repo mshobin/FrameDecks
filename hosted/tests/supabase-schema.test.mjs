@@ -26,6 +26,7 @@ test("every table has at least one policy and none is open to anon", () => {
     "join_codes", "join_failures", "recovery_codes", // 0018: only the scan-to-join functions touch them
     "prayer_walls", "prayer_requests", // 0019: only the prayer wall functions touch them
     "member_rooms", // 0020: only the members' phones functions touch it
+    "room_responses", "room_votes", // 0022: only the quick responses and polls functions touch them
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -72,6 +73,10 @@ const ANON_BY_DESIGN = [
   "pc_room_close",
   // 0021: the church PC makes an Add a device code that signs the phone in as the person who connected it, by its key
   "pc_device_code_create",
+  // 0022: the church PC opens and closes a quick response or poll in its members' room and counts it, by its key
+  "pc_room_response_open",
+  "pc_room_response_close",
+  "pc_room_response_results",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
@@ -90,7 +95,9 @@ const PUBLIC_HELP = ["help_vote"];
 const PUBLIC_PRAYER = ["prayer_peek", "prayer_send"];
 // 0020: people in the meeting read one room (what is already on the meeting screen, and notes the leader shared) with
 // only its code; wrong codes are limited.
-const PUBLIC_ROOM = ["room_view"];
+// 0022: they also read the room's open question (counts only when the leader shows them) and answer it once per phone
+// (only a hash of the phone's own id is kept), with only the code; wrong codes are limited.
+const PUBLIC_ROOM = ["room_view", "room_response", "room_respond"];
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];

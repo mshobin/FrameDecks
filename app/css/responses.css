@@ -1,0 +1,22 @@
+/* FrameDecks 26.11.33 - Quick responses and polls (app/js/responses.js): the same dialog as Members' phones, with calm
+ * bars for the counts (no motion) */
+.rs-dlg{width:min(620px,94vw)}
+.rs-dlg .field input{font-size:16px}
+.rs-label{margin:14px 0 6px;font-size:13px;color:var(--muted)}
+.rs-kinds{max-width:420px}
+.rs-kinds button{min-height:36px}
+.rs-opts-wrap{margin-top:4px}
+.rs-opts{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:6px}
+.rs-opt{display:flex;align-items:center;gap:8px}
+.rs-opt input{flex:1}
+.rs-switch{margin-top:14px}
+.rs-results{margin-top:12px}
+.rs-bars{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.rs-bar{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:15px;color:var(--ink)}
+.rs-bar-n{color:var(--muted);font-variant-numeric:tabular-nums}
+.rs-bar-track{grid-column:1/-1;height:10px;border-radius:999px;background:var(--line-soft);overflow:hidden}
+.rs-bar-fill{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.rs-total{margin-top:8px}
+.rs-last{margin-top:18px;padding:14px 16px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2)}
+.rs-last .rs-label{margin-top:0;color:var(--ink);font-weight:600}
+.rs-last .btn{margin-top:10px}

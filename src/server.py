@@ -1088,6 +1088,31 @@ def members_body():
     return {"room": ROOM.body(), "prayer": PRAYER.body(), "focus": MEMBERS_FOCUS["n"]}
 
 
+# ---------- 26.11.33 quick responses and polls from members' phones (src/room_responses.py; 0022_room_polls.sql) ----------
+import room_responses  # noqa: E402
+
+RESPONSES = room_responses.RoomResponses(lambda: SYNC._team(), room_open=lambda: ROOM.is_open())
+
+
+def room_response_http(handler, data=None):
+    """GET /api/room/response (the question and its counts, polled by the dialog) and POST {op: open|close|show}
+    (this PC only). Show puts the results on screen as a Memory Card."""
+    if not handler.is_local():
+        return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+    try:
+        if data is None:
+            RESPONSES.refresh()
+            res = RESPONSES.body()
+        else:
+            res = _linked(lambda: RESPONSES.action(data if isinstance(data, dict) else {}, _prayer_card, MEETING_LOG.count))
+    except cloud_sync.Offline as e:
+        return handler.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
+    except (ValueError, OSError) as e:
+        return handler.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+    return handler.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+# ---------- end of 26.11.33 quick responses and polls ----------
+
+
 def _alert_show(on):
     hook = DESKTOP.get("alert_card")
     if hook:
@@ -3367,6 +3392,8 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(members_body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/room/response":                # 26.11.33 quick responses and polls (this PC only)
+            return room_response_http(self)
         if path == "/api/alerts":                       # 26.11.25 the corner card (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3909,6 +3936,8 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/room/response":                # 26.11.33 quick responses and polls (this PC only)
+            return room_response_http(self, data if isinstance(data, dict) else {})
         if path in ("/api/prayer", "/api/members", "/api/alerts"):   # 26.11.23 prayer; 26.11.24 members; 26.11.25 card
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

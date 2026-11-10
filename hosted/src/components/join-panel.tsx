@@ -11,6 +11,7 @@ import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
 import { signInWithCode } from "@/lib/quick-sign-in";
 import { TERMS_VERSION } from "@/lib/legal";
 import { PRAYER_MAX, PRAYER_NAME_MAX, isPrayerCode, prayerCodeFromHash, tidyPrayerCode } from "@/lib/prayer-code";
+import { percentages, tidyResponse, voterId, type RoomResponse } from "@/lib/room-responses";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession, useSessionAtArrival } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
@@ -400,6 +401,47 @@ function ScreenView({ s }: Readonly<{ s: Screen }>) {
   );
 }
 
+/** 26.11.33 a quick response or poll the leader opened (0022_room_polls.sql): big answers to tap, the answer kept and
+ * changeable while the question is open, and calm bars when the leader shows the results. */
+function ResponseBox({ r, problem, onAnswer }: Readonly<{ r: RoomResponse; problem: string | null; onAnswer: (i: number) => void }>) {
+  const pct = r.counts && percentages(r.counts);
+  // a rating's stars are drawn by join.css (.fl-rating), so a screen reader hears the number and the note below
+  return (
+    <section className={`fl-resp fl-${r.kind}`}>
+      <h2 className="fl-resp-q">{r.question}</h2>
+      <div className="fl-resp-opts">
+        {r.options.map((o, i) => (
+          <button key={i} aria-pressed={r.mine === i} onClick={() => onAnswer(i)}>
+            {o}
+          </button>
+        ))}
+      </div>
+      <p className="fl-resp-note" role="status">
+        {r.mine !== null ? "Thanks, your answer is in. You can still change it." : r.kind === "rating" ? "1 is low, 5 is high." : "Nobody sees who answered what."}
+      </p>
+      {problem && (
+        <p className="auth-error" role="alert">
+          {problem}
+        </p>
+      )}
+      {pct && (
+        <div className="fl-bars" aria-live="polite">
+          {r.options.map((o, i) => (
+            <div key={i} className="fl-bar">
+              <span>{o}</span>
+              <span>{pct[i]}%</span>
+              <span className="fl-bar-track">
+                <span style={{ width: `${pct[i]}%` }} />
+              </span>
+            </div>
+          ))}
+          <p className="fl-resp-note">Answers so far: {r.total}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 /** 26.11.24 /follow: everyone in the meeting, on their own phone, with only the code: what is on the meeting screen as
  * it changes, a prayer request when the leader takes them, and the sermon notes once shared. Asks every 3 seconds while
  * the page is in view (a tiny answer when nothing changed); nothing is stored. */
@@ -410,6 +452,20 @@ export function FollowPanel() {
   const [tab, setTab] = useState<"screen" | "pray" | "notes">("screen");
   const [checking, setChecking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+
+  // 26.11.33 a quick response or poll: looked at again whenever the room changes (opening or closing one moves the
+  // room's rev), and with each look while one is open (a tiny answer when nothing changed)
+  const [resp, setResp] = useState<{ rev: number; r: RoomResponse | null }>({ rev: 0, r: null });
+  const [answerProblem, setAnswerProblem] = useState<string | null>(null);
+  const lookResponse = useCallback(
+    async (c: string, after = 0) => {
+      if (!supabase) return;
+      const { data, error } = await supabase.rpc("room_response", { code: c, after, voter: voterId() });
+      const d = (data ?? {}) as { status?: string; rev?: number; same?: boolean; response?: unknown };
+      if (!error && !d.same) setResp({ rev: Number(d.rev) || 0, r: d.status === "open" ? tidyResponse(d.response) : null });
+    },
+    [supabase],
+  );
 
   const look = useCallback(
     async (c: string, rev = 0) => {
@@ -425,8 +481,9 @@ export function FollowPanel() {
       setCode(c);
       const r = data as Room;
       setRoom((old) => (r.same && old ? old : r));
+      if (!r.same) void lookResponse(c);
     },
-    [supabase],
+    [supabase, lookResponse],
   );
 
   useEffect(() => {
@@ -436,13 +493,25 @@ export function FollowPanel() {
   }, [look]);
 
   const rev = room?.status === "open" ? (room.rev ?? 0) : -1;
+  const respRev = resp.r ? resp.rev : -1;
   useEffect(() => {
     if (!code || rev < 0) return;
     const t = window.setInterval(() => {
-      if (document.visibilityState === "visible") void look(code, rev);
+      if (document.visibilityState === "visible") {
+        void look(code, rev);
+        if (respRev >= 0) void lookResponse(code, respRev);
+      }
     }, 3000);
     return () => window.clearInterval(t);
-  }, [code, rev, look]);
+  }, [code, rev, respRev, look, lookResponse]);
+
+  async function answer(i: number) {
+    if (!supabase || !code || !resp.r) return;
+    // the look that follows brings this phone's answer back (or the next question, if the leader asked another)
+    const { error } = await supabase.rpc("room_respond", { code, voter: voterId(), choice: i, response: resp.r.id });
+    setAnswerProblem(error && userSafeError(error, "Couldn’t send your answer. Try again."));
+    void lookResponse(code);
+  }
 
   if (!supabase) return <p className="auth-message">Following the meeting is not available here right now.</p>;
   if (!room || room.status !== "open" || !code) {
@@ -488,6 +557,7 @@ export function FollowPanel() {
         </div>
       )}
       {shown === "screen" && <ScreenView s={s} />}
+      {shown === "screen" && resp.r && <ResponseBox r={resp.r} problem={answerProblem} onAnswer={(i) => void answer(i)} />}
       {shown === "pray" && s.prayer && <PrayerForm code={s.prayer} />}
       {shown === "notes" && room.notes && <NotesView notes={room.notes} />}
     </div>
