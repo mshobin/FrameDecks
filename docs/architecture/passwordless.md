@@ -57,6 +57,21 @@ code.
   the link. If no email could be sent, `device_alert_release` gives the alert back. Missing secrets are logged and
   answered with 200: nothing crashes and the website still shows the alert.
 
+## 5. The phone is the key (26.11.37)
+
+- **Open in this PC's browser** (Settings → Sync, `app/js/account.js` `openHere`): the program asks for the same
+  one-time `self` code as Add a device (`/api/sync` `add-device`, `pc_device_code_create`) and opens
+  `{site}/join#c=CODE&go=1` in the default browser (`api/app/open-external`). The join page reads `go=1` and, for a
+  `self` code only, presses Open by itself, so the browser opens as the person who connected the PC. The code works
+  once and lasts 2 minutes, like a scanned one.
+- **Open with your phone** is the main way in on Open your workspace (`join_request_create` / `join_request_status`),
+  drawn as a flowchart (`components/connect-steps.tsx`) that ticks each step and lights up the workspace by name.
+- The passkey button shows only where this browser saved a passkey (`localStorage` `fd-passkey` = `saved`); elsewhere
+  "Use a passkey" is a quiet link under Other ways in.
+- A device that joined by scanning has no email: **Keep your workspace safe** asks once to add one
+  (`auth.updateUser({email})`, confirmed by email) and then offers a passkey. Each "Not now" is remembered per device.
+- The PC setup card hides Connect this PC once `workspace_devices` lists a PC for the team.
+
 ## Owner steps (Supabase dashboard, project `slrsykiknlqlivlnpvrb`)
 
 1. **SQL editor:** run `hosted/supabase/migrations/0021_passwordless.sql` (after 0020). Undo:

@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.37': [
+    {title: 'Open in this PC’s browser', text: 'Settings → Sync opens your workspace on framedecks.com in this PC’s browser, already as you.', show: {settings: 'account'}},
+    {title: 'Your phone is the key', text: 'On framedecks.com choose Open with your phone: scan, allow, and your workspace opens.', show: {settings: 'account'}}
+  ],
   '26.11.36': [
     {title: 'A first sync you see first', text: 'Connecting a PC shows, meeting by meeting, what syncing will do. What already exists is skipped and meetings are never mixed.', show: {settings: 'account'}},
     {title: 'Undo this connection', text: 'For 7 days after connecting, Settings → Sync → More puts the workspace and this PC back as they were.', show: {settings: 'account'}}

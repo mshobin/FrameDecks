@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { ensureWorkspace } from "@/components/auth-callback";
+import { ConnectSteps, settle, type StepState } from "@/components/connect-steps";
 import { CodeStopped, JoinCodeCard, useRotatingCode } from "@/components/join-code-card";
 import { QuickSignIn } from "@/components/quick-sign-in";
 import { Button } from "@/components/ui/button";
@@ -115,11 +116,12 @@ export function WorkspaceSyncChooser() {
       {mode === "code" && (
         <>
           <h1 className="fd-auth-title">Open your workspace.</h1>
-          <p className="auth-lede">With a phone that’s already in your team. No email, nothing to remember.</p>
+          <p className="auth-lede">Your phone is the key: scan, allow, and your workspace opens. No email, nothing to remember.</p>
           <QuickSignIn />
           <OpenWithPhone />
           <div className="jc-more">
             <p>Other ways in</p>
+            <QuickSignIn quiet />
             <button type="button" className="fd-link" onClick={() => setMode("email")}>
               Use an email code instead
             </button>
@@ -194,6 +196,7 @@ function OpenWithPhone() {
       live = false;
       window.clearInterval(t);
       setAllowed(answer.organizationName ?? "your team");
+      await settle();                                  // 26.11.37 the last tick and the workspace light up first
       await finishDevice(supabase, name.trim() || guessDeviceName(), !shared, answer.organizationId);
     }, 2000);
     return () => {
@@ -220,25 +223,27 @@ function OpenWithPhone() {
     else setStarted(true);
   }
 
-  if (allowed) {
-    return (
-      <p className="jc-ask" role="status">
-        Allowed ✓ Opening <strong>{allowed}</strong>…
-      </p>
-    );
-  }
+  // 26.11.37 the way in as a flowchart: this browser shows a code, the phone scans it, you allow it, the workspace opens
+  const steps = ["This browser shows a code", "Scan it with your phone", "Allow it on your phone", "Your workspace opens"].map(
+    (t, i): [string, StepState] => [t, allowed ? "done" : code ? (i === 0 ? "done" : i === 1 ? "now" : "next") : i === 0 ? "now" : "next"],
+  );
+  const flow = <ConnectSteps steps={steps} team={allowed} label="Opening your workspace with your phone" />;
+  if (allowed) return flow;
   if (started) {
     if (rotating.stopped || rotating.problem) return <CodeStopped problem={rotating.problem} onAgain={rotating.again} />;
     if (!code) {
       return (
-        <p className="auth-message" role="status">
-          Making a code…
-        </p>
+        <>
+          {flow}
+          <p className="auth-message" role="status">
+            Making a code…
+          </p>
+        </>
       );
     }
     return (
       <>
-        <p className="jc-note">Scan this with a phone that’s already in your team. It asks there whether to let this browser in.</p>
+        {flow}
         <JoinCodeCard
           url={allowUrl(window.location.origin, code)}
           code={code}
@@ -255,17 +260,21 @@ function OpenWithPhone() {
   }
   return (
     <>
-      <label className="jc-field">
-        Name this browser
-        <input value={name} maxLength={80} autoComplete="off" onChange={(e) => setName(e.target.value)} />
-      </label>
-      <label className="auth-agree">
-        <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} />
-        <span>This is a shared computer: forget me when I close this tab.</span>
-      </label>
+      {flow}
       <Button className="auth-primary" type="button" disabled={starting} onClick={start}>
-        {starting ? "One moment…" : "Show a code for this browser"}
+        {starting ? "One moment…" : "Open with your phone"}
       </Button>
+      <details className="jc-opts">
+        <summary>This browser: {name || guessDeviceName()}</summary>
+        <label className="jc-field">
+          Name this browser
+          <input value={name} maxLength={80} autoComplete="off" onChange={(e) => setName(e.target.value)} />
+        </label>
+        <label className="auth-agree">
+          <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} />
+          <span>This is a shared computer: forget me when I close this tab.</span>
+        </label>
+      </details>
       {problem && (
         <p className="auth-error" role="alert">
           {problem}

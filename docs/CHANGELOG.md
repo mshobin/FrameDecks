@@ -10,6 +10,27 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.37] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.37.md](releases/v26.11.37.md).
+
+### Added
+- Settings → Sync **Open in this PC's browser** (`app/js/account.js` `openHere`): an Add a device code (`add-device`)
+  opened in the default browser with `&go=1`; the join page opens a `self` code without a click.
+- The animated connect flowchart (`hosted/src/components/connect-steps.tsx`, `.cs-*` in `app/join.css`) on Open your
+  workspace and the join page; `settle()` lets the last tick land before the page changes (none for reduced motion).
+- Keep your workspace safe card (`components/passkey-prompt.tsx`): add an email to a phone that joined by scanning,
+  then the passkey offer; each asked once.
+
+### Changed
+- Open your workspace leads with **Open with your phone**; the passkey button shows only where one is saved
+  (`fd-passkey`), else as a quiet link under Other ways in.
+- The PC setup card hides Connect this PC once the team has a PC (`workspace_devices`).
+- `cn()` is plain `clsx` and the Button uses lookup tables (tailwind-merge and class-variance-authority removed).
+
+### Fixed
+- A phone added from the program was shown a passkey prompt for a passkey it never saved.
+
 ## [26.11.36] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.36.md](releases/v26.11.36.md).

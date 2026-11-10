@@ -207,6 +207,7 @@ function buildLinked(root, d){
     h('span', {cls: 'sync-team', text: d.workspace || ''})]));
   root.appendChild(h('div', {cls: 'sync-actions'}, [
     h('button', {cls: 'btn primary', type: 'button', id: 'sync-add', text: 'Add a device', onclick: function(){ allowBox = false; openInvite('self'); }}),
+    h('button', {cls: 'btn', type: 'button', id: 'sync-browser', text: 'Open in this PC’s browser', title: 'Opens your workspace on framedecks.com in this PC’s browser, already signed in as you', onclick: function(e){ openHere(e.currentTarget); }}),
     h('button', {cls: 'btn', type: 'button', id: 'sync-invite', text: 'Invite someone', onclick: function(){ allowBox = false; invite = {phase: 'choose'}; drawPanel(); }}),
     h('button', {cls: 'btn', type: 'button', id: 'sync-allow', text: 'Allow a device', onclick: function(){ closeInvite(); allowBox = true; drawPanel(); var i = $('sync-allow-code'); if (i) i.focus(); }})]));
   root.appendChild(h('div', {id: 'sync-panel'}));
@@ -236,6 +237,21 @@ function buildLinked(root, d){
   root.appendChild(more);
   drawPanel(); paintDevices();
   loadDevices();
+}
+
+/* 26.11.37 Open in this PC's browser: the same one-time code a phone scans for Add a device, opened here in the default
+   browser (#c=…&go=1), so framedecks.com opens the workspace as you without a click, a passkey or an email */
+function openHere(btn){
+  btn.disabled = true; btn.textContent = 'Opening…';
+  post({action: 'add-device'}).then(function(r){
+    if (!r.joinUrl) throw new Error('No code came back. Try again.');
+    return fetch('api/app/open-external', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: r.joinUrl + '&go=1'})})
+      .then(function(x){ return x.json(); }).then(function(d){
+        if (!d.opened) throw new Error('The browser could not be opened.');
+        toast('Your workspace is opening in this PC’s browser');
+      });
+  }).catch(function(e){ toast(e.message, true); })
+    .then(function(){ btn.disabled = false; btn.textContent = 'Open in this PC’s browser'; });
 }
 
 /* Add a device / Invite someone: a QR code that lasts 2 minutes and works once */

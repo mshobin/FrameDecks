@@ -75,3 +75,42 @@
 .fl-bar{display:grid;grid-template-columns:1fr auto;gap:4px 10px;color:var(--text);font-size:15px;font-variant-numeric:tabular-nums}
 .fl-bar-track{grid-column:1/-1;height:10px;border-radius:999px;background:var(--hairline);overflow:hidden}
 .fl-bar-track span{display:block;height:100%;border-radius:999px;background:var(--gold)}
+/* 26.11.37 opening the workspace as a flowchart (components/connect-steps.tsx): each step ticks in turn, the line between
+   them fills, and the last connects into a picture of the workspace that lights up with its name. Only transform and
+   opacity move, and only for motion (the same guard as flourish.css). */
+.cs{margin:4px 0 18px}
+.cs-list{display:grid;margin:0;padding:0;list-style:none}
+.cs-list li{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;color:var(--text-3);font-size:15px}
+.cs-list li::before,.cs-list li::after{content:"";position:absolute;left:11px;top:34px;bottom:-10px;width:2px;border-radius:2px;background:var(--hairline)}
+.cs-list li::after{background:var(--gold);transform:scaleY(0);transform-origin:top}
+.cs-list .cs-done::after{transform:scaleY(1)}
+.cs-dot{position:relative;flex:none;width:24px;height:24px;border:2px solid var(--hairline-strong);border-radius:50%;background:var(--surface-solid)}
+.cs-now{color:var(--text);font-weight:600}
+.cs-now .cs-dot{border-color:var(--gold)}
+.cs-now .cs-dot::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold);opacity:0}
+.cs-done{color:var(--text-2)}
+.cs-done .cs-dot{border-color:var(--gold);background:var(--gold)}
+.cs-done .cs-dot::after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid var(--surface-solid);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.cs-ws{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 10px;margin-top:6px;padding:12px 14px;border:1px solid var(--hairline-strong);border-radius:16px;background:var(--surface);opacity:.5}
+.cs-ws b{overflow:hidden;color:var(--text);font-size:15px;text-overflow:ellipsis;white-space:nowrap}
+.cs-ws-top{width:10px;height:10px;border-radius:50%;background:var(--gold-soft);box-shadow:inset 0 0 0 1.5px var(--gold)}
+.cs-ws-rows{display:grid;grid-column:1/-1;gap:6px;margin-top:4px}
+.cs-ws-rows i{display:block;height:7px;border-radius:999px;background:var(--hairline)}
+.cs-ws-rows i:nth-child(2){width:72%}
+.cs-ws-rows i:nth-child(3){width:48%}
+.cs-in .cs-ws{border-color:var(--gold);opacity:1;box-shadow:0 0 0 4px var(--gold-soft)}
+.cs-in .cs-ws-rows i{background:var(--gold-soft)}
+.cs-in .cs-ws-top{background:var(--gold)}
+@media (prefers-reduced-motion: no-preference){
+  html.fd-motion:not(.fd-calm) .cs-list li::after{transition:transform .45s var(--fd-ease) calc(var(--i) * .2s)}
+  html.fd-motion:not(.fd-calm) .cs-done .cs-dot::after{animation:cs-tick .3s var(--fd-ease) calc(var(--i) * .2s) both}
+  html.fd-motion:not(.fd-calm) .cs-now .cs-dot::before{animation:cs-ping 1.6s ease-out 4}
+  html.fd-motion:not(.fd-calm) .cs-ws{transition:opacity .5s var(--fd-ease) .7s,transform .5s var(--fd-ease) .7s}
+  html.fd-motion:not(.fd-calm) .cs-in .cs-ws{transform:scale(1.03)}
+}
+@keyframes cs-tick{from{opacity:0;transform:rotate(45deg) scale(.2)}to{opacity:1;transform:rotate(45deg) scale(1)}}
+@keyframes cs-ping{from{opacity:.7;transform:scale(.7)}to{opacity:0;transform:scale(1.3)}}
+/* 26.11.37 this browser's name and the shared-computer choice, folded under the button */
+.jc-opts{margin-top:12px;color:var(--text-3);font-size:14px}
+.jc-opts summary{cursor:pointer}
+.jc-opts[open] summary{margin-bottom:8px}

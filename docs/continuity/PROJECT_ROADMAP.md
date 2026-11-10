@@ -78,7 +78,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.33: songs, speaker name tags, polls from members' phones (0022), timing plan | Released; 0022 applied |
 | 26.11.34: Bluetooth microphones (microphone choice in Listening, default-microphone fallback, Ready check warning) | Released |
 | 26.11.35: No season fix, Go Live always Go Live (hold for off air), instant Hide all | Released with 26.11.36 (or tagged on its own) |
-| 26.11.36: smart first sync with preview and Undo; passkey-first sign-in; new-device alerts (0023) | On `main`; owner runs 0023, sets up device-alert, tags `v26.11.36` |
+| 26.11.36: smart first sync with preview and Undo; passkey-first sign-in; new-device alerts (0023) | Released; 0023 applied, device-alert live (Resend) |
+| 26.11.37: phone is the key (Open with your phone, Open in this PC's browser), animated connect flowchart, passkey only where saved, add-email nudge | On `main`; owner tags `v26.11.37` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

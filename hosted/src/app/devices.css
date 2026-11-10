@@ -25,3 +25,6 @@
 .device-invite{display:grid;justify-items:start;gap:4px;margin-top:16px;padding-top:16px;border-top:1px solid var(--hairline)}
 .device-invite-role{margin-top:14px}
 @media (max-width:520px){.device-row{grid-template-columns:auto 1fr auto}.device-row .member-action{grid-column:2/-1;justify-self:start}.device-row>span[aria-hidden]:last-child{display:none}.device-invite{justify-items:stretch}}
+/* 26.11.37 Keep your workspace safe: the email box beside its button */
+.fd-trust-email{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fd-trust-email input{flex:1 1 200px;min-height:40px;padding:0 12px;border:1px solid var(--hairline-strong);border-radius:12px;background:var(--field);color:var(--text);font:inherit}

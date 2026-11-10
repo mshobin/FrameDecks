@@ -5,6 +5,7 @@ import "@/app/join.css";
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
+import { ConnectSteps, settle, type StepState } from "@/components/connect-steps";
 import { Button } from "@/components/ui/button";
 import { codeFromHash, codeProblem, guessDeviceName, isShortCode, tidyCode, type JoinRole } from "@/lib/join-code";
 import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
@@ -42,6 +43,7 @@ export function JoinPanel() {
   const [org, setOrg] = useState("");
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  const [opened, setOpened] = useState<string | null>(null);
 
   const look = useCallback(
     async (c: string) => {
@@ -58,6 +60,7 @@ export function JoinPanel() {
       }
       setCode(c);
       setPeek(data as Peek);
+      return data as Peek;
     },
     [supabase],
   );
@@ -65,8 +68,13 @@ export function JoinPanel() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(guessDeviceName());
+    // 26.11.37 opened by the PC's "Open in this PC's browser" (#c=…&go=1): opens without a click
+    const go = /(^|[#&])go=1(&|$)/.test(window.location.hash);
     const c = takeHashCode(codeFromHash);
-    if (c) void look(c);
+    if (c)
+      void look(c).then((p) => {
+        if (go && p?.status === "self") window.setTimeout(() => document.getElementById("jc-join-go")?.click(), 60);
+      });
   }, [look]);
 
   if (!supabase) {
@@ -81,8 +89,14 @@ export function JoinPanel() {
   const needTerms = (fresh || termsAsked) && peek?.status !== "self"; // a self code signs in to an account that agreed already
   const ready = peek?.status === "invite" || peek?.status === "pc" || peek?.status === "self";
 
-  async function join(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const openAs = async (organizationId?: string | null, team?: string | null) => {
+    setOpened(team || (peek && "team" in peek ? peek.team : null) || "your workspace");
+    await settle();                                  // 26.11.37 the last tick and the workspace light up first
+    await finishDevice(supabase!, name.trim() || guessDeviceName(), (fresh || peek?.status === "self") && !shared, organizationId);
+  };
+
+  async function join(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
     if (!supabase || !code || busy || (needTerms && !agreed)) return;
     setBusy(true);
     setProblem(null);
@@ -95,7 +109,7 @@ export function JoinPanel() {
         setProblem(done.problem);
         return;
       }
-      await finishDevice(supabase, deviceName, !shared, done.organizationId);
+      await openAs(done.organizationId);
       return;
     }
     const started = await startDevice(supabase, shared);
@@ -127,8 +141,26 @@ export function JoinPanel() {
       setPeek({ status: "expired" });
       return;
     }
-    await finishDevice(supabase, deviceName, fresh && !shared, answer.organizationId);
+    await openAs(answer.organizationId, teams?.find((t) => t.id === answer.organizationId)?.name);
   }
+
+  // 26.11.37 the way in as a flowchart: the code, this device, the workspace opening
+  const plan: string[] | null =
+    peek?.status === "self"
+      ? [peek.byPc ? "Your PC made a one-time code" : "A one-time code for you", `This browser opens as ${peek.who || "you"}`, `${peek.team} opens`]
+      : peek?.status === "pc"
+        ? [`${peek.pc} shows a code`, "This device joins as the owner", `${peek.pc} connects to your workspace`, "Your workspace opens"]
+        : peek?.status === "invite"
+          ? [`An invitation to ${peek.team}`, `This device joins as ${peek.role === "admin" ? "an Admin" : "a Helper"}`, `${peek.team} opens`]
+          : null;
+  const flow = plan && (
+    <ConnectSteps
+      label="Opening your workspace"
+      team={opened}
+      name={peek && "team" in peek ? peek.team : null}
+      steps={plan.map((t, i): [string, StepState] => [t, opened || i === 0 || (busy && i === 1) ? "done" : i === (busy ? 2 : 1) ? "now" : "next"])}
+    />
+  );
 
   const title = !peek
     ? "Join a team"
@@ -137,7 +169,7 @@ export function JoinPanel() {
       : peek.status === "invite"
       ? `Join ${peek.team}`
       : peek.status === "pc"
-        ? "Connect the church PC"
+        ? `Connect ${peek.pc}`
         : peek.status === "expired"
           ? "This code has run out"
           : "That code doesn’t match";
@@ -145,6 +177,7 @@ export function JoinPanel() {
   return (
     <>
       <h1 className="fd-auth-title">{title}</h1>
+      {flow}
 
       {peek?.status === "invite" && (
         <p className="jc-ask">
@@ -194,8 +227,8 @@ export function JoinPanel() {
               </span>
             </label>
           )}
-          <Button className="auth-primary" type="submit" disabled={busy || (needTerms && !agreed)}>
-            {busy ? "Joining…" : peek?.status === "pc" ? "Connect the PC" : peek?.status === "self" ? "Open my workspace" : "Join"}
+          <Button id="jc-join-go" className="auth-primary" type="submit" disabled={busy || (needTerms && !agreed)}>
+            {busy ? "Opening…" : peek?.status === "pc" ? "Connect and open my workspace" : peek?.status === "self" ? "Open my workspace" : "Join"}
           </Button>
         </form>
       )}

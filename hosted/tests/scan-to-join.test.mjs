@@ -188,7 +188,7 @@ test("the pages: the code is looked at before any session, read from the fragmen
 test("the email also carries a code, and the screens use the agreed words", () => {
   const form = src("components/workspace-sync-form.tsx");
   assert.match(form, /verifyOtp\(\{ email: email\.trim\(\), token: digits, type: "email" \}\)/);
-  for (const words of ["Show a code for this browser", "Use an email code instead", "Lost every device? Use your recovery code", "Start with email", "Sync → Allow a device"])
+  for (const words of ["Open with your phone", "Use an email code instead", "Lost every device? Use your recovery code", "Start with email", "Sync → Allow a device"])
     assert.ok(form.includes(words), words);
   const devices = src("components/devices-panel.tsx");
   for (const words of ["Add a device", "Invite someone", "Make a recovery code", "Emergency email", "This device", "confirmationText: row.name"])

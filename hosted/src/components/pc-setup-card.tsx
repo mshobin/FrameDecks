@@ -30,6 +30,15 @@ export function PcSetupCard({ org }: Readonly<{ org?: string }>) {
   });
   const [problem, setProblem] = useState("");
   const [sent, setSent] = useState(false);
+  const [linked, setLinked] = useState<string | null>(null); // 26.11.37 a PC already in this team: no Connect this PC
+  useEffect(() => {
+    const supabase = browserSupabase();
+    if (!supabase || !org) return;
+    void supabase.rpc("workspace_devices", { org }).then(({ data }) => {
+      const pc = ((data as { kind: string; name: string }[] | null) ?? []).find((d) => d.kind === "pc");
+      setLinked(pc ? pc.name : null);
+    });
+  }, [org]);
   const connect = async () => {
     const supabase = browserSupabase();
     if (!supabase || !org) return;
@@ -119,6 +128,11 @@ export function PcSetupCard({ org }: Readonly<{ org?: string }>) {
             </p>
           </>
         )}
+        {linked && (
+          <p role="status">
+            <strong>{linked}</strong> is connected to this team.
+          </p>
+        )}
         {sent && (
           <p role="status">FrameDecks opens on this PC and asks once: choose Connect. Nothing to type.</p>
         )}
@@ -133,7 +147,7 @@ export function PcSetupCard({ org }: Readonly<{ org?: string }>) {
               Check this PC
             </button>
           )}
-          {org && (found || setup === "ask") && (
+          {org && !linked && (found || setup === "ask") && (
             <button className={found ? "pc-setup-primary" : "pc-setup-quiet"} type="button" onClick={connect}>
               Connect this PC
             </button>
