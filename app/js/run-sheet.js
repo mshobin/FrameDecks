@@ -1,7 +1,7 @@
-/* FrameDecks 26.11.14 - the run sheet. Leaders always ask "how long have we got?": the Frames list's header shows
- * the meeting clock (from the first Go Live; live.since in js/store.js), and the live Frame shows how long it has
- * been on screen, against its planned time when it has one (the Frame's "Planned time", sc.plan in minutes): gold
- * once it runs over. Frames that are not live show their plan. Click the clock to start it again.
+/* FrameDecks 26.11.14 - the run sheet. Leaders always ask "how long have we got?": the live Frame shows how long it
+ * has been on screen, against its planned time when it has one (the Frame's "Planned time", sc.plan in minutes): gold
+ * once it runs over. Frames that are not live show their plan. 26.11.41 the meeting clock left the Frames header to
+ * make room for Sync (js/frames-sync.js); it stays in the Command Center and on the phone remote.
  * It also marks the page while a Frame is live (body.kc-live), so the top bar can bring Control forward and let the
  * planning chips step back (css/theme.css). Light: it ticks once a second only while a Frame is live, and only
  * rewrites the few words that changed. */
@@ -10,17 +10,6 @@
 var Store = window.KCStore, SC = window.KCScenes;
 var list = document.getElementById('scene-list');
 if (!Store || !SC || !list) return;
-var head = list.closest('.scenes-pane') && list.closest('.scenes-pane').querySelector('.pane-head');
-var clock = document.createElement('button');
-clock.type = 'button'; clock.className = 'rs-clock'; clock.id = 'rs-clock'; clock.hidden = true;
-clock.title = 'How long the meeting has been live. Click to start the clock again.';
-clock.addEventListener('click', function(e){
-  e.stopPropagation();
-  Store.update(function(n){ if (n.live.scene) n.live.since = Date.now(); });
-  if (window.KCActions) window.KCActions.toast('Meeting clock started again');
-});
-if (head){ var h2 = head.querySelector('h2'); head.insertBefore(clock, h2 ? h2.nextSibling : head.firstChild); }
-
 var cur = null, timer = 0;
 function mmss(ms){
   var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60;
@@ -31,8 +20,6 @@ function paint(){
   var st = cur; if (!st) return;
   var L = st.live || {}, now = Date.now(), on = !!L.scene;
   document.body.classList.toggle('kc-live', on);
-  clock.hidden = !(on && L.since);
-  if (on && L.since){ set(clock, 'textContent', mmss(now - L.since)); clock.setAttribute('aria-label', 'Meeting clock ' + mmss(now - L.since)); }
   Array.prototype.forEach.call(list.querySelectorAll('.scene-item'), function(li){
     var sc = SC.find(st, li.dataset.id); if (!sc) return;
     var t = li.querySelector('.rs-t'), live = on && L.scene === sc.id, plan = (sc.plan || 0) * 60000, txt = '', over = false;

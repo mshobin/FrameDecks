@@ -2,7 +2,9 @@
 
 Commit identity (owner's instruction, 4 Nov 2026): every commit is authored as `Shobin Mathews <276174545+mshobin@users.noreply.github.com>`; set it at the start of each session with `git config user.name "Shobin Mathews"` and `git config user.email "276174545+mshobin@users.noreply.github.com"`, and add no co-author or tool lines.
 
-Updated 10 November 2026 (26.11.40 on `main`: the website's left panel has a Next meeting card under Help (`components/side-card.tsx`: meeting name/date/Frames, 5 readiness checks, church PC, changes waiting for Sync Now), sharing Home's load (`lib/glance-data.ts`, cached a minute). JS 378/401 KB. No migration. Owner: tag `v26.11.40`.)
+Updated 10 November 2026 (26.11.41 on `main`: voice commands understand natural speech and spoken name forms (`src/voice_commands.py` spoken_forms/understand/_relative; Frame "Also called" = `scene.aka`, only when set), Frames panel Sync with a read-only preview (`app/js/frames-sync.js`, `Engine.sync_preview`, `/api/sync` preview), per-round duplicate Frame guard, bigger scripture/corner cards and toasts, meeting clock out of the Frames header. 4 GB check green (studio idle ~3% settled, server 76 MB). No migration. Owner: tag `v26.11.41`.)
+
+Previous: 10 November 2026 (26.11.40 on `main`: the website's left panel has a Next meeting card under Help (`components/side-card.tsx`: meeting name/date/Frames, 5 readiness checks, church PC, changes waiting for Sync Now), sharing Home's load (`lib/glance-data.ts`, cached a minute). JS 378/401 KB. No migration. Owner: tag `v26.11.40`.)
 
 Previous: 10 November 2026 (26.11.39 on `main`: website Plan changes wait until Sync Now (`hosted/src/lib/plan-changes.ts`, box under the timeline, only differing Frames sent in one push, conflicts stay waiting, order merged, kept in localStorage); multi-select by Frame number in list and timeline with Delete selected; clicked Frame lit on the timeline. No migration. JS budget 400.94/401 KB: the next website feature needs a trim first. Owner: tag `v26.11.39`.)
 

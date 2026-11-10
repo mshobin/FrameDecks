@@ -84,10 +84,13 @@ await main.p.keyboard.type("frame 3"); await main.p.waitForTimeout(500);
 await main.p.keyboard.press("Escape");
 await measure(main, "members", 2000, () => main.p.evaluate(() => window.KCSetTab("members")), "action");
 await measure(main, "settings", 2000, () => main.p.evaluate(() => window.KCSetTab("settings")), "action");
-for (const g of ["look", "content", "screens", "controls", "workspace", "data"])
+for (const g of ["start", "look", "content", "screens", "people", "pc"])          // the six groups as they are now (26.11.31)
   await measure(main, "settings: " + g, 1200, () => main.p.click(`#s-nav [data-sgroup="${g}"]`), "action");
 await measure(main, "settings idle", 4000);
 await main.p.evaluate(() => window.KCSetTab("studio")); await main.p.waitForTimeout(800);
+// 26.11.41 the Frames panel's Sync: its preview dialog (here unlinked, so it says how to link)
+await measure(main, "frames: sync preview", 1500, () => main.p.click("#frames-sync"), "action");
+await main.p.keyboard.press("Escape"); await main.p.waitForTimeout(300);
 const mainMem = await heapAfterGC(main);
 console.log(JSON.stringify({ mainWindowHeapAfterGC: +mainMem.toFixed(1) }));
 

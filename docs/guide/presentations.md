@@ -85,11 +85,20 @@ picture**) to jump there. Drag it far up and the Studio changes to a compact lay
 the column under it, and the editor beside them at full height. Drag the border between them to the right, or press
 **Big stage**, for the big picture again. FrameDecks remembers your layout on this PC.
 
-**The run sheet.** While you are live, the Frames list shows a **meeting clock** in its header (from your first Go
-Live; click it to start it again), and the live Frame shows how long it has been on screen. Give a Frame a **Planned
+**The run sheet.** While you are live, the live Frame shows how long it has been on screen (the meeting clock, from
+your first Go Live, is in the Command Center's **Control** and on the phone remote). Give a Frame a **Planned
 time** (in the Frame's settings, in minutes) and the list shows its time against the plan, such as *1:11 / 1:00*,
 turning gold once it runs over; Frames that are not live show their plan, such as *5 min*. While a Frame is live, the
 top bar brings **Control** forward and lets **Prepare** and **More** step back; before you go live, the reverse.
+
+**Sync in the Frames panel.** When this PC is linked to your team, **Sync** (beside Quick Start) first shows what
+would change, Frame by Frame: what comes from framedecks.com, what this PC sends, and what was changed in both places
+(the website's version is kept and this PC's beside it as a copy). Nothing changes until you press **Sync now**, and a
+Frame made in both places is kept once, never twice.
+
+**Voice commands in your own words.** Hold your talk key and say it naturally: *"let's see the verse"*, *"let's go to
+day 2"*, *"the next day"*, *"jump to Bible Study"*. Frame names are understood as you say them ("Day2" is "day two"),
+and a Frame's **Also called** box (under its name) adds the other names you use for it, such as *the opening*.
 
 **Simple and Advanced.** The Studio opens in **Simple**: the essentials only. **Advanced** (the switch at the right
 of the editor's bar, which stays there when the editor is folded) shows every control again: Transition and

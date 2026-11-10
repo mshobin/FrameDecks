@@ -62,7 +62,16 @@ function contentStep(st, k, d){
 }
 function qs(st, m){
   var ls = SC.liveScene(st); if (!ls) throw new Error('Nothing is live yet.');
-  if (!SC.qsMode(ls)) throw new Error('This Frame shows one thing at a time.');
+  if (!SC.qsMode(ls)){
+    /* 26.11.41 "the verse" / "the question" on a Frame that shows one thing at a time: its own scripture or question
+       (the one chosen, else the first) */
+    var k = m === 'question' ? 'question' : m === 'verse' ? 'verse' : '';
+    var l = k ? SC.items(st, k) : [];
+    if (!l.length) throw new Error(m === 'question' ? 'This Frame has no questions.' : m === 'verse' ? 'This Frame has no scriptures.' : 'This Frame shows one thing at a time.');
+    var id = st[k] && st[k].itemId, at = 0;
+    for (var i = 0; i < l.length; i++) if (l[i].id === id) at = i;
+    return showItem(st, k, at);
+  }
   return update(function(n){ SC.setQS(n, ls.id, m); });
 }
 var RUN = {
@@ -78,7 +87,8 @@ var RUN = {
   prev: function(st){ return step(st, -1); },
   frame: function(st, c){ return frameNo(st, c.frame); },
   goto: function(st, c){                                   // 26.11.27 a Frame by its name
-    var sc = SC.order(st).filter(function(x){ return x.id === c.scene; })[0];
+    var ids = (c.scenes && c.scenes.length ? c.scenes : [c.scene]);   // 26.11.41 the same name in other meetings: this one's
+    var sc = SC.order(st).filter(function(x){ return ids.indexOf(x.id) >= 0; })[0];
     if (!sc) throw new Error('That Frame is not in this meeting.');
     return update(function(n){ SC.take(n, sc.id, null); });
   },
@@ -137,7 +147,8 @@ function start(){ if (!(Store.ride && Store.ride('vc', refresh))) loop(); }
 
 /* ---------- Settings → Scripture: Voice commands ---------- */
 function saveSetting(o){ return post('api/app/settings', o).catch(function(){}); }
-var SAY = [['Next Frame', '“next frame”, “go back”, “frame three”'], ['By name', '“go to Welcome”, a Deck’s own name'], ['The Content', '“next question”, “next scripture”, “next slide”'],
+var SAY = [['Next Frame', '“next frame”, “go back”, “frame three”'], ['By name', '“let’s go to day 2”, “jump to Welcome”, a Deck’s own name, or a Frame’s Also called'],
+  ['Your own words', '“let’s see the verse”, “bring up the question”, “the next day”'], ['The Content', '“next question”, “next scripture”, “next slide”'],
   ['What shows', '“show question”, “show scripture”, “show both”'], ['The screen', '“hide all”, “black screen”, “picture back”, “freeze”'],
   ['A verse', '“show John three sixteen”, then Show (or “show it”)'], ['Your meeting app', '“mute”, “camera”']];
 function renderSettings(){

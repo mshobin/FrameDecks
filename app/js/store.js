@@ -436,6 +436,11 @@ function drawInk(cv, items){
 
 function cleanScene(sc){
   if (!isObj(sc)) return null;
+  var o = cleanScene0(sc);
+  if (sc.aka && String(sc.aka).trim()) o.aka = str(String(sc.aka).trim(), 200);   /* 26.11.41 Also called (only when set, so older Frames do not change) */
+  return o;
+}
+function cleanScene0(sc){
   var tx = isObj(sc.tx) ? sc.tx : {}, auto = isObj(sc.auto) ? sc.auto : {}, out = isObj(sc.out) ? sc.out : {};
   return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Frame', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),

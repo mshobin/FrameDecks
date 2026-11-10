@@ -119,6 +119,8 @@
   <aside class="ws-left" aria-label="Frames and Content">
     <section class="pane scenes-pane" aria-labelledby="scenes-title">
       <header class="pane-head"><h2 id="scenes-title">Frames</h2>
+        <!-- 26.11.41 Sync, as on framedecks.com: a preview of what changes first (js/frames-sync.js) -->
+        <button class="btn small fs-btn" type="button" id="frames-sync" title="Sync with framedecks.com: see what changes first, then Sync now. Nothing is added twice."><i data-icon="refresh-cw" data-size="15"></i> Sync</button>
         <button class="btn small qs-btn" type="button" id="quick-start" title="Quick Start: a ready-made set of Frames for a Bible study, prayer meeting, youth gathering or fellowship"><i data-icon="sparkles" data-size="15"></i> Quick Start</button>
         <button class="btn primary small" type="button" id="scene-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Frame</button></header>
       <div class="mt-bar" id="mt-bar">
@@ -653,6 +655,7 @@
 <script src="js/voice-commands.js"></script><!-- 26.11.20 Voice commands, hold to talk -->
 <script src="js/microphone.js"></script><!-- 26.11.34 the microphone for listening, Bluetooth fallback -->
 <script src="js/run-sheet.js"></script>
+<script src="js/frames-sync.js"></script>
 <script src="js/simple-mode.js"></script>
 <script src="js/annotate.js"></script>
 <script src="js/memory.js"></script>

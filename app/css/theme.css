@@ -815,6 +815,28 @@ html[data-theme="light"] .console-top .brand h1{background:linear-gradient(180de
 /* Pane head: Quick Start + Scene */
 .pane-head .qs-btn{margin-left:auto}
 .pane-head .qs-btn + #scene-add{margin-left:0}
+/* 26.11.41 Sync in the Frames panel (js/frames-sync.js), first in the row where the meeting clock was */
+.pane-head .fs-btn{margin-left:auto}
+.pane-head .fs-btn + .qs-btn{margin-left:0}
+.fs-btn .ic{color:var(--muted)}
+.fs-btn.is-busy .ic{animation:fs-spin .9s linear infinite}
+@keyframes fs-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.fs-btn.is-busy .ic{animation:none}}
+.kc-dlg.fsync-dlg{width:min(620px,94vw)}
+.fsync-body{display:grid;gap:14px;margin:18px 0 6px;max-height:52vh;overflow:auto}
+.fsync-group h3{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:14px;font-weight:700}
+.fsync-ic{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:999px;background:var(--fill,var(--surface-2));color:var(--gold-strong);font-size:13px}
+.fsync-n{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.fsync-group .hint{margin:0 0 6px}
+.fsync-list{display:grid;gap:4px;margin:0;padding:0;list-style:none}
+.fsync-list li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--line-soft);border-radius:12px;font-size:13px}
+.fsync-name{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.fsync-what{padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;background:var(--fill,var(--surface-2));color:var(--muted)}
+.fsync-what.fsync-new{color:var(--live)}
+.fsync-what.fsync-removed{color:var(--danger)}
+.fsync-held{color:var(--muted);font-size:12px}
+.fsync-msg{margin:0;font-size:14px}
+.fsync-result{min-height:1.2em;margin:4px 0 0;font-size:13px;color:var(--muted)}
 .qs-btn{border-color:var(--kc-gold-line);color:var(--gold-strong)}
 .qs-btn .ic{color:var(--gold)}
 
@@ -1072,11 +1094,7 @@ body.kc-resizing iframe{pointer-events:none}
   body.studio-focus .ws-center{grid-column:1;grid-row:1}
   body.studio-focus .kc-split,body.studio-focus .ws-left,body.studio-focus .ws-right{display:none}
 }
-/* 26.11.14 the run sheet (js/run-sheet.js): the meeting clock in the Frames header, each Frame's time on screen */
-.rs-clock{flex:none;margin-left:6px;min-height:24px;padding:0 8px;border:1px solid var(--line-soft);border-radius:999px;background:var(--surface);
-  color:var(--live);font:inherit;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer}
-.rs-clock[hidden]{display:none}
-.rs-clock::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:999px;background:var(--live);vertical-align:1px}
+/* 26.11.14 the run sheet (js/run-sheet.js): each Frame's time on screen */
 .rs-t{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .rs-t::after{content:" \00B7  ";font-weight:400;color:var(--faint)}
 .rs-t.on{color:var(--live)}
@@ -1997,17 +2015,18 @@ body.kc-live .ws-right.inspector:not(:hover):not(:focus-within){filter:saturate(
 }
 /* ---------- 26.11.25 the leader's corner card (app/alert-card.html): medium, calm, clearly seen over the meeting ---------- */
 body.ac-body{margin:0;background:var(--surface);overflow:hidden}
-.ac{display:grid;gap:10px;padding:14px 16px 16px;border:1px solid var(--kc-gold-line);border-radius:16px;background:var(--surface);color:var(--ink);box-shadow:var(--elev-3)}
+/* 26.11.41 slightly bigger (460 px wide, roomier, larger labels and buttons) so the leader does not miss it */
+.ac{display:grid;gap:10px;padding:16px 18px 18px;border:1px solid var(--kc-gold-line);border-radius:16px;background:var(--surface);color:var(--ink);box-shadow:var(--elev-3)}
 .ac-head{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted)}
 .ac-dot{width:8px;height:8px;border-radius:999px;background:var(--gold)}
-.ac-item{display:grid;gap:6px;padding:12px 14px;border-radius:12px;background:var(--panel-2);border-left:3px solid var(--gold)}
-.ac-kick{margin:0;font-size:13px;font-weight:700;color:var(--gold-strong)}
+.ac-item{display:grid;gap:6px;padding:14px 16px;border-radius:12px;background:var(--panel-2);border-left:3px solid var(--gold)}
+.ac-kick{margin:0;font-size:14px;font-weight:700;color:var(--gold-strong)}
 .ac-ref{margin:0;font-family:var(--serif);font-size:30px;line-height:1.15;color:var(--ink)}
 .ac-body-text{margin:0;font-size:16px;line-height:1.45;color:var(--ink);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .ac-sub{margin:0;font-size:13px;color:var(--muted)}
 .ac-err{margin:0;font-size:13px;color:var(--warn)}
 .ac-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.ac-btn{min-height:40px;padding:0 16px;border:1px solid var(--line);border-radius:12px;background:var(--neutral-btn,var(--raised));color:var(--ink);font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.ac-btn{min-height:44px;padding:0 18px;border:1px solid var(--line);border-radius:12px;background:var(--neutral-btn,var(--raised));color:var(--ink);font:inherit;font-size:15px;font-weight:700;cursor:pointer}
 .ac-btn.primary{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
 .ac-btn.quiet{background:none;border-color:transparent;color:var(--muted);padding:0 10px}
 .ac-btn:active{transform:scale(.97)}

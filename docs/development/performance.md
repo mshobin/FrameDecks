@@ -153,3 +153,36 @@ resize, a change in the bar's buttons (shown, hidden, new words: a MutationObser
 once the fonts are ready, at most once per drawn frame; it never polls. A fit is a handful of layout reads (one per
 level tried). The 4 GB check is unchanged: studio idle 4 % busy, worst frame 17 ms.
 
+
+## 26.11.41: audit for older PCs
+
+Both checks were run again against the same budgets (`tests/visual/perf-4gb.mjs` and `tests/visual/perf.mjs`: no
+graphics card, processor slowed 4×, 1366 × 768). Every screen is within its budget.
+
+| What | Result | Budget |
+| --- | ---: | ---: |
+| Studio at rest, 40 Frames (once the page has settled) | 3 % busy | 15 % |
+| Busiest screen at rest (any window) | 12 % (Studio, first 1.5 s after load) | 15 % |
+| Slowest frame, every window and panel | 50 ms | 250 ms |
+| JavaScript memory, largest window | 14.7 MB | 40 MB |
+| Elements, largest window | 3,483 | 6,000 |
+| Kept after 15 rounds of opening and closing everything | 0.13 MB | 2 MB |
+| The program (Python server) | 76 MB | 260 MB |
+| Frames panel Sync preview (opening it) | 7 % busy, 17 ms | |
+| Welcome screen (`perf.mjs`) | 60 fps, worst frame 33 ms | 45 fps, 120 ms |
+| Command Center and phone remote at rest | 3 % busy | 25 % |
+
+The Studio's 12 % in the 4 GB check is the page still finishing its start: measured over 4 s from 3 s, 6 s and 10 s
+after loading it is 3 % each time (45–55 ms of script in 4 s).
+
+Voice commands (26.11.41) stay light: the listener's word list grows from 154 to about 213 words (each Frame's spoken
+forms and a few dozen joining words), working out the words for 300 Frames takes 35 ms the first time and 2 ms after
+that (cached per name), and understanding what was said takes 6.5 ms with 300 Frames. Nothing runs while nobody
+holds the talk key. The Frames panel's Sync does nothing until it is pressed; its preview only reads.
+
+Worth watching (within budget, but heavier than in 9.5.1): choosing a Frame in the Studio in `perf.mjs` is 59 % busy
+with a worst frame of 183 ms (9.5.1: 33 %, 83 ms). The 4 GB check, with 40 Frames, measures the same action at 30 % and
+33 ms. The preview frames reload on every choice; that is the place to look first if it grows.
+
+`tests/visual/perf-4gb.mjs` now opens the six Settings groups as they are since 26.11.31 (it still looked for the
+older group names) and measures the Sync preview.

@@ -10,6 +10,29 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.41] - 2026-11-10
+
+Full notes: [docs/releases/v26.11.41.md](releases/v26.11.41.md).
+
+### Added
+- Voice commands understand what is meant (`src/voice_commands.py`): spoken forms of names (`spoken_forms`: "Day2" is
+  "day two" and "second day", camelCase, abbreviations, Roman numerals, cached per name), fillers and verbs read as one
+  (`understand`), "the next day" from the live Frame's number (`_relative`), part of one Frame's name. A Frame's
+  "Also called" (`scene.aka`, kept only when set) in both Frame editors and the voice names (`server.py _voice_names`).
+- Sync in the Frames panel (`app/js/frames-sync.js`): a read-only preview (`Engine.sync_preview`, `/api/sync`
+  `preview`) before the same Sync now as everywhere else.
+
+### Changed
+- "The verse" / "the question" on a one-thing-at-a-time Frame shows its own item; a name in several meetings goes to
+  the one on screen (`scenes`).
+- The scripture card, the corner card (460 px) and toasts are a little bigger. The meeting clock left the Frames
+  header (still in the Command Center and on the phone remote).
+- `tests/visual/perf-4gb.mjs` follows the current Settings groups and measures the Sync preview.
+
+### Fixed
+- A Frame made in both places and never synced is kept once on any sync round, not only the first
+  (`_drop_duplicate_starters`).
+
 ## [26.11.40] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.40.md](releases/v26.11.40.md).

@@ -1000,6 +1000,19 @@ function FrameFormEditor({
           <input value={draft.name} maxLength={LIMITS.name} placeholder="Welcome" onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
         </label>
         <label>
+          Also called
+          <input
+            value={draft.aka ?? ""}
+            maxLength={200}
+            placeholder="the opening, start"
+            aria-describedby="aka-hint"
+            onChange={(e) => setDraft({ ...draft, aka: e.target.value })}
+          />
+          <small id="aka-hint" className="workspace-hint">
+            Other names to say for voice commands on the service PC, with commas.
+          </small>
+        </label>
+        <label>
           Purpose / description
           <input value={draft.desc} maxLength={200} onChange={(e) => setDraft({ ...draft, desc: e.target.value })} />
         </label>

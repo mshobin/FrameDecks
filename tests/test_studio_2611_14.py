@@ -19,7 +19,9 @@ class Studio(unittest.TestCase):
     def test_the_meeting_clock_starts_with_the_first_go_live_and_is_kept(self):
         self.assertIn("since: Number(l.since) || 0", self.store)            # kept through saves and reloads
         self.assertIn("if (!n.live.scene || !n.live.since || now - (n.live.at || 0) > 6 * 3600e3) n.live.since = now;", self.store)
-        self.assertIn("n.live.since = Date.now()", self.rs)                 # a click starts it again
+        # 26.11.41 the clock left the Frames header for Sync (tests/test_frames_sync_2611_41.py); the Command Center
+        # and the phone remote still show it (tests/test_live_everywhere_2611_16.py)
+        self.assertNotIn("rs-clock", self.rs)
         self.assertIn('<script src="js/run-sheet.js"></script>', self.html)
 
     def test_each_frame_has_a_planned_time_and_runs_gold_when_over(self):

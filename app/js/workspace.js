@@ -1032,6 +1032,9 @@ function sceneForm(gen, sc){
   var sid = sc.id;
   var nm = h('input', {type: 'text', value: sc.name, id: 'sc-name', 'aria-label': 'Frame name'}); nm.addEventListener('keydown', stop);
   nm.addEventListener('input', function(){ later('nm', function(){ if (nm.value.trim()) edit(sid, function(x){ x.name = nm.value.trim().slice(0, 80); }); }); });
+  /* 26.11.41 Also called: the other names you use for this Frame, for voice commands ("the opening, start") */
+  var aka = h('input', {type: 'text', value: sc.aka || '', id: 'sc-aka', maxlength: 200, placeholder: 'the opening, start', 'aria-label': 'Also called'}); aka.addEventListener('keydown', stop);
+  aka.addEventListener('input', function(){ later('aka', function(){ var v = aka.value.trim().slice(0, 200); edit(sid, function(x){ if (v) x.aka = v; else delete x.aka; }); }); });
   var sec = h('input', {type: 'number', min: 2, max: 3600, step: 1, value: String(sc.auto.sec), 'aria-label': 'Seconds before the next Frame', id: 'sc-auto-sec'});
   sec.disabled = !sc.auto.on; sec.addEventListener('keydown', stop);
   sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
@@ -1042,7 +1045,7 @@ function sceneForm(gen, sc){
   var auto = h('input', {type: 'checkbox', id: 'sc-auto'}); auto.checked = !!sc.auto.on;
   auto.addEventListener('change', function(){ var v = auto.checked; sec.disabled = !v; edit(sid, function(x){ x.auto.on = v; }); });
   /* 26.11.2 the name and the everyday settings in a column on the left, the Teleprompter script filling the rest */
-  var main = h('div', {cls: 'ip-sec sc-main'}, [h('div', {cls: 'sc-side'}, [field('Name', nm),
+  var main = h('div', {cls: 'ip-sec sc-main'}, [h('div', {cls: 'sc-side'}, [field('Name', nm), field('Also called', aka, 'Other names to say for voice commands, with commas'),
     h('div', {cls: 'sc-auto'}, [h('label', {cls: 'check', title: 'Moves on only while Auto-advance is on in the top bar'}, [auto, ' Next Frame after']), sec, h('span', {cls: 'hint', text: 'seconds'})]),
     h('div', {cls: 'sc-auto sc-plan'}, [h('label', {'for': 'sc-plan', title: 'The Frames list shows the time on screen against it, and turns gold when it runs over'}, ['Planned time']), plan, h('span', {cls: 'hint', text: 'minutes'})]),
     h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', id: 'sc-dup', html: I('copy', 15) + ' Duplicate Frame', title: 'A copy of this Frame, right after it (Ctrl+D)', onclick: function(){ duplicate(sid, {}); }})])]),

@@ -696,7 +696,7 @@ def main():
     # of screen sharing, and sits in the corner above the Memory Card popup when that is open. src/leader_alerts.py
     # decides when it shows (something waits, and the Studio is not the window in front).
     ALERT = {"win": None, "open": False, "h": 210}
-    ALERT_W = 420
+    ALERT_W = 460                                       # 26.11.41 a little larger again, so it is not missed
 
     def alert_hwnd():
         w = ALERT["win"]

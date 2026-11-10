@@ -52,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.40"
+APP_VERSION = "26.11.41"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -857,12 +857,13 @@ def _key_down():
 
 def _voice_names():
     """26.11.27 what a voice command may name: every Frame (not the templates), and the live Frame's Scripture and
-    Question Decks by their own names."""
+    Question Decks by their own names. 26.11.41 with each Frame's Also called, and the live Frame's id."""
     st = state if isinstance(state, dict) else {}
     scenes = [x for x in st.get("scenes") or [] if isinstance(x, dict) and not x.get("tpl")]
     live_id = (st.get("live") or {}).get("scene") if isinstance(st.get("live"), dict) else ""
     live = next((x for x in scenes if x.get("id") == live_id), None) or {}
-    return {"frames": [{"id": x.get("id"), "name": x.get("name")} for x in scenes[:300]],
+    # 26.11.41 each Frame's "Also called" names, and which one is live ("the next day")
+    return {"live": live_id, "frames": [{"id": x.get("id"), "name": x.get("name"), "aka": str(x.get("aka") or "")[:200]} for x in scenes[:300]],
             "decks": [{"kind": l.get("kind"), "name": l.get("name")} for l in live.get("layers") or []
                       if isinstance(l, dict) and l.get("kind") in ("scripture", "question")]}
 
@@ -4021,6 +4022,8 @@ class Handler(BaseHTTPRequestHandler):
                 if action == "now":
                     SYNC.poke(0)
                     return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
+                if action == "preview":                            # 26.11.41 the Frames panel's Sync: what would change
+                    return self.reply(200, json.dumps(SYNC.frames_preview()), TYPES[".json"])
                 if action in ("resync", "sync-now"):               # Sync now (8.4 Resync): a round now, with its outcome
                     return self.reply(200, json.dumps(SYNC.resync()), TYPES[".json"])
                 # 26.11.12 Scan to join (0018_scan_to_join.sql), with this PC's own key

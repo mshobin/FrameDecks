@@ -139,6 +139,76 @@ class Engine:
         out["here"] = len(FS.meetings_of((local.get("meeting/meeting") or {}).get("body")))
         return out
 
+    def sync_preview(self):
+        """26.11.41 the Frames panel's Sync: what Sync now would change, Frame by Frame, before anything does. Reads
+        only (nothing written, the cursor stays). {"in": [{name, what, held}], "out": [{name, what}], "both": [names],
+        "same": [names], "otherIn", "otherOut", "empty"}; what: "new" | "changed" | "removed"."""
+        records, _ = self._pull_all()
+        known = self.state["known"]
+        latest = {}
+        for r in list(self.state["held"]) + records:
+            latest[key_of(r["kind"], r["id"])] = r
+        plan, members = self.read()
+        local = self._local_records(plan, members)
+        live = self._live_frame(plan)
+        arriving = {k: r for k, r in latest.items() if k not in local}
+        dup = {}
+        self._drop_duplicate_starters(local, arriving, dup, (FRAME_KINDS,))
+        out = {"in": [], "out": [], "both": [], "same": [], "otherIn": 0, "otherOut": 0}
+        settled = set()
+        for k, r in latest.items():
+            mine = local.get(k)
+            remote_hash = None if r.get("deleted") else fingerprint(r.get("body"))
+            mine_hash = fingerprint(mine["body"]) if mine else None
+            if remote_hash == mine_hash:
+                settled.add(k)
+                continue
+            agreed = known.get(k)
+            changed_here = mine is not None and mine_hash != (agreed["hash"] if agreed else None)
+            frame = r["kind"] in FRAME_KINDS
+            if not frame:
+                out["otherIn"] += 1
+                settled.add(k)
+                continue
+            name = record_name(r, mine)
+            if changed_here and not r.get("deleted"):
+                out["both"].append(name)                  # the website's kept, this PC's kept as a copy
+                settled.add(k)
+                continue
+            if r.get("deleted"):
+                if mine is None:
+                    settled.add(k)
+                    continue
+                if changed_here:                          # changed here, deleted there: ours goes up again
+                    continue
+                what = "removed"
+            else:
+                what = "new" if mine is None else "changed"
+            out["in"].append({"name": name, "what": what, "held": bool(live and r["id"] == live and mine is not None)})
+            settled.add(k)
+        for k, mine in local.items():
+            if k in settled or k in dup:
+                continue
+            agreed = known.get(k)
+            if fingerprint(mine["body"]) == (agreed["hash"] if agreed else None):
+                continue
+            if mine["kind"] in FRAME_KINDS:
+                out["out"].append({"name": record_name(mine), "what": "changed" if agreed else "new"})
+            else:
+                out["otherOut"] += 1
+        for k, agreed in known.items():
+            if k not in local and agreed.get("hash") is not None and k not in latest:
+                kind, rid = k.split("/", 1)
+                if kind in FRAME_KINDS:
+                    out["out"].append({"name": "A Frame removed here", "what": "removed"})
+                else:
+                    out["otherOut"] += 1
+        out["same"] = [record_name(local[k]) for k in dup]
+        out["empty"] = not (out["in"] or out["out"] or out["both"] or out["otherIn"] or out["otherOut"])
+        for part in ("in", "out"):
+            out[part] = out[part][:200]
+        return out
+
     def _prepare_first(self, plan, members, fp):
         """This PC's plan made ready for the first sync: Frames already in the workspace taken out (the workspace's
         arrive), this PC's own meetings filed under their own (unique) names with fresh ids where the workspace uses the
@@ -255,9 +325,11 @@ class Engine:
                 self._keep_overwritten(r)               # 9.3 (audit L12): theirs is kept on this PC as well
                 known[k] = {"rev": r["rev"], "hash": remote_hash}
 
-        if first_link:                                 # only against records that arrive now, never held ones
-            arriving = {k: r for k, r in latest.items() if r not in held}
+        arriving = {k: r for k, r in latest.items() if r not in held}   # only records that arrive now, never held ones
+        if first_link:
             self._drop_duplicate_starters(local, arriving, apply)
+        elif not adopt:                                 # 26.11.41 the same new Frame made in both places: kept once
+            self._drop_duplicate_starters(local, arriving, apply, (FRAME_KINDS,))
         if fp:                                         # a member already there gets this PC's missing details
             for k, body in fp["lists"]["fill"].items():
                 if k in latest and k not in [key_of(x["kind"], x["id"]) for x in held]:
@@ -348,14 +420,17 @@ class Engine:
         print(f"Sync: the member list was missing on this PC; {len(ids)} people restored from the workspace")
         return len(ids)
 
-    def _drop_duplicate_starters(self, local, latest, apply):
+    def _drop_duplicate_starters(self, local, latest, apply, kinds_list=(FRAME_KINDS, ("member",))):
         """First link: a Frame or person here with the same content as one in the workspace (ids and times aside),
-        such as the starter Frames every PC makes, is not added twice. Any difference and both are kept."""
-        for kinds in (FRAME_KINDS, ("member",)):
-            theirs = {E.canon(_without_identity(r["body"])) for r in latest.values()
-                      if r["kind"] in kinds and not r.get("deleted")}
+        such as the starter Frames every PC makes, is not added twice. Any difference and both are kept.
+        26.11.41 every round, for Frames: a Frame made here and never synced that arrives from the workspace as well
+        (the same .frame file imported in both places) is kept once, as the workspace's."""
+        for kinds in kinds_list:
+            theirs = {E.canon(_without_identity(r["body"])) for k, r in latest.items()
+                      if r["kind"] in kinds and not r.get("deleted") and k not in local}
             for k, mine in local.items():
-                if mine["kind"] in kinds and k not in latest and E.canon(_without_identity(mine["body"])) in theirs:
+                if (mine["kind"] in kinds and k not in latest and k not in self.state["known"]
+                        and E.canon(_without_identity(mine["body"])) in theirs):
                     apply[k] = {"kind": mine["kind"], "id": mine["id"], "deleted": True, "body": None}
 
     def _apply(self, plan, members, apply, copies):
@@ -1148,6 +1223,26 @@ class Service:
         api, _ = self._team()
         api.pc_device_remove(person)
         return self.devices()
+
+    def frames_preview(self):
+        """26.11.41 the Frames panel's Sync: what Sync now would change ({"preview": ...} or {"result": failed})."""
+        with self.lock:
+            link, cloud, key = self.state.get("link"), self.state.get("cloud"), self.secrets.get()
+            if not (link and cloud and key):
+                return {**self.info(), "result": {"outcome": "failed", "message": "This PC is not linked to a workspace yet. Settings → Sync links it."}}
+            if self.state.get("firstPending"):
+                return {**self.info(), "first": True}
+            try:
+                engine = Engine(self.make_api(cloud, link["organizationId"], key), self.state, self.read, self.write,
+                                self.computer_name, self.member_authority())
+                prev = engine.sync_preview()
+            except Offline:
+                return {**self.info(), "result": {"outcome": "failed", "message": "No internet right now. Presenting is not affected; try again when the PC is online."}}
+            except Refused as e:
+                return {**self.info(), "result": {"outcome": "failed", "message": f"Sync could not look: {e}"}}
+            except Exception as e:                   # never let a button stop the program
+                return {**self.info(), "result": {"outcome": "failed", "message": f"Sync could not look: {e}"}}
+        return {**self.info(), "preview": prev}
 
     def resync(self):
         """8.4 Resync Linked PCs: one round now, whatever the timer says, and what it did in plain words

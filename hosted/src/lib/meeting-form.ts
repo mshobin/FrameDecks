@@ -103,7 +103,8 @@ export type ContentRow = {
   questions: QuestionRow[];
   scriptures: ScriptureRow[];
 };
-export type FrameForm = { name: string; desc: string; script: string; background: string; transition: string; content: ContentRow[] };
+// 26.11.41 aka: the Frame's "Also called" names for voice commands on the service PC ("the opening, start")
+export type FrameForm = { name: string; aka?: string; desc: string; script: string; background: string; transition: string; content: ContentRow[] };
 export type MeetingForm = Record<string, string>;
 
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -117,7 +118,7 @@ export function emptyRow(type: ContentType = "question"): ContentRow {
   return { type, name: TYPE_NAME[type], main: "", label: "", duration: "", anim: "", pptBg: "show", questions: [], scriptures: [] };
 }
 export function emptyFrame(): FrameForm {
-  return { name: "", desc: "", script: "", background: "None", transition: "profile", content: [] };
+  return { name: "", aka: "", desc: "", script: "", background: "None", transition: "profile", content: [] };
 }
 
 // ---- Record -> form (as the Excel export reads a Frame, meeting-book.js exportSheets) ----
@@ -186,6 +187,7 @@ export function frameFormOf(frame: Obj): FrameForm {
   const bgColor = bg && isObj(bg.c) && isObj(bg.c.props) ? str(bg.c.props.color) : "";
   return {
     name: str(frame.name),
+    aka: str(frame.aka),
     desc,
     script: notes,
     background: bg ? backgroundName(bgColor) || "None" : "None",
@@ -368,6 +370,11 @@ export function frameFromForm(form: FrameForm, base: Obj | null, opts: FrameOpti
     ? clone(base)
     : { id: newId("sc_"), group: cut(opts.group ?? "", LIMITS.group), created: now, creator: cut(opts.creator ?? "", 80), from: "Website", template: "Meeting Form" };
   frame.name = cut(form.name.trim() || "Frame", LIMITS.name);
+  if (form.aka !== undefined) {
+    const aka = cut(form.aka.trim(), 200);
+    if (aka) frame.aka = aka;
+    else delete frame.aka; // only kept when set, as on the PC
+  }
   frame.modified = now;
   const desc = form.desc.trim();
   frame.notes = cut([form.script.replace(/\r\n/g, "\n").trim(), desc ? ABOUT + desc.replace(/\n/g, " ") : ""].filter(Boolean).join("\n"), LIMITS.script);
@@ -429,7 +436,7 @@ export function withFrame(order: Obj | null, id: string): Obj {
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 export function rebaseFrame(latest: FrameForm, draft: FrameForm, initial: FrameForm): FrameForm {
-  const pick = <K extends "name" | "desc" | "script" | "background" | "transition">(k: K) => (draft[k] !== initial[k] ? draft[k] : latest[k]);
+  const pick = <K extends "name" | "aka" | "desc" | "script" | "background" | "transition">(k: K) => (draft[k] !== initial[k] ? draft[k] : latest[k]);
   const initialRows = new Map(initial.content.filter((r) => r.layerId).map((r) => [r.layerId as string, r]));
   const draftIds = draft.content.filter((r) => r.layerId).map((r) => r.layerId as string);
   const removed = new Set([...initialRows.keys()].filter((id) => !draftIds.includes(id)));
@@ -454,5 +461,5 @@ export function rebaseFrame(latest: FrameForm, draft: FrameForm, initial: FrameF
       });
     content.push(...draft.content.filter((r) => !r.layerId));
   }
-  return { name: pick("name"), desc: pick("desc"), script: pick("script"), background: pick("background"), transition: pick("transition"), content };
+  return { name: pick("name"), aka: pick("aka"), desc: pick("desc"), script: pick("script"), background: pick("background"), transition: pick("transition"), content };
 }

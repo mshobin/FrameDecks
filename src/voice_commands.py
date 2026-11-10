@@ -27,7 +27,21 @@ How it fits together:
 while held is typed into the box (cmd "search"), never run; the words it listens for are the ones the Command Center
 can find (its Frames, Decks, Content, verses, commands and settings), so it stays accurate offline. It also works
 when nothing is live.
+26.11.41 (owner, 10 November: "let's see the verse", "let's go to day 2"):
+  * Layer 1, the ways a name is said (spoken_forms()): "Day2" is also "day two" and "second day", "BibleStudy" is
+    "bible study", "Wk3 Q&A" is "week three q and a", "Part II" is "part two". A Frame's "Also called" (scene.aka,
+    set in the Frame editor on the PC and on framedecks.com) adds the names you use for it ("the opening").
+  * Layer 2, what you mean, not the exact phrase (understand()): the words around a command are dropped ("let's",
+    "can we", "please"), the verbs are read as one ("see", "bring up", "pull up" are show; "jump to", "switch to",
+    "take us to" are go to), and pointing words are read from what is live: "the verse" is the live Frame's scripture
+    (shown even where the Frame shows one thing at a time), "the question" its question, "the next day" the Frame
+    whose name has the next number after the live one's ("Day 2" -> "Day 3"). Part of one Frame's name is enough
+    when no other Frame has it ("go to day two" for "Day 2: Romans").
+  * Still offline and small: the listener's words grow only by the names' forms and a few dozen joining words, and
+    nothing is worked out while nobody holds the key (the forms are cached per plan).
 Nothing heard is recorded, kept or sent anywhere."""
+import functools
+import re
 import threading
 import time
 
@@ -83,8 +97,10 @@ COMMANDS = (
     ("prev-verse", "Previous scripture", ("previous scripture", "previous verse", "last scripture", "last verse")),
     ("next-slide", "Next slide", ("next slide",)),
     ("prev-slide", "Previous slide", ("previous slide", "last slide")),
-    ("show-question", "Show the question", ("show question", "show the question", "question")),
-    ("show-verse", "Show the scripture", ("show scripture", "show the scripture", "scripture", "show verse", "show the verse")),
+    ("show-question", "Show the question", ("show question", "show the question", "question", "the question")),
+    ("show-verse", "Show the scripture", ("show scripture", "show the scripture", "scripture", "show verse", "show the verse",
+                                          "the verse", "the scripture", "show the passage", "show passage", "the passage",
+                                          "show the bible verse", "the bible verse")),
     ("show-both", "Show both", ("show both", "both")),
     ("hide", "Hide all", ("hide all", "hide everything", "hide", "clear screen", "clear the screen", "clear")),
     ("black", "Black screen", ("black screen", "black", "go black", "blackout")),
@@ -102,7 +118,202 @@ DECK_CMD = {"scripture": ("show-verse", "the scripture"), "question": ("show-que
 
 
 def _words(text):
-    return [w for w in str(text or "").lower().replace("-", " ").split() if w and w != "[unk]"]
+    out = []
+    for w in str(text or "").lower().replace("-", " ").split():
+        if not w or w == "[unk]":
+            continue
+        if w.isdigit() and len(w) <= 3:
+            out.extend(say_number(int(w)))               # 26.11.41 typed "day 2" is said "day two"
+        else:
+            out.append(w)
+    return out
+
+
+# ---------- 26.11.41 layer 1: the ways a name is said ----------
+ONES = ("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
+        "seventeen eighteen nineteen").split()
+TENS_W = ("", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety")
+ORDINAL = {1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth",
+           9: "ninth", 10: "tenth", 11: "eleventh", 12: "twelfth"}
+ORDINAL_N = {v: k for k, v in ORDINAL.items()}
+ROMAN = {"ii": 2, "iii": 3, "iv": 4, "vi": 6, "vii": 7, "viii": 8, "ix": 9, "x": 10, "xi": 11, "xii": 12}
+ABBREV = {"wk": "week", "pt": "part", "ch": "chapter", "intro": "introduction", "qa": "q and a", "vs": "verse",
+          "sess": "session", "les": "lesson", "mtg": "meeting", "bk": "book"}
+FORMS_MAX = 8                                             # forms per Frame (its name, Also called and their variants)
+
+
+def say_number(n):
+    """0..999 as spoken words: 23 -> ["twenty", "three"], 105 -> ["one", "hundred", "five"]."""
+    n = int(n)
+    if n < 0 or n > 999:
+        return [ONES[int(d)] for d in str(abs(n))]
+    if n < 20:
+        return [ONES[n]]
+    if n < 100:
+        return [TENS_W[n // 10]] + ([ONES[n % 10]] if n % 10 else [])
+    rest = n % 100
+    return [ONES[n // 100], "hundred"] + (say_number(rest) if rest else [])
+
+
+def _tokens41(text):
+    """A name as plain tokens: camelCase and letters/digits apart, "&" as "and", "1st" as "first"."""
+    s = str(text or "")[:120].replace("&", " and ").replace("+", " plus ").replace("#", " number ")
+    s = re.sub(r"\b(\d{1,2})(st|nd|rd|th)\b", lambda m: " " + ORDINAL.get(int(m.group(1)), m.group(1)) + " ", s, flags=re.I)
+    s = re.sub(r"([a-z])([A-Z])", r"\1 \2", s)
+    s = re.sub(r"([A-Za-z])(\d)", r"\1 \2", s)
+    s = re.sub(r"(\d)([A-Za-z])", r"\1 \2", s)
+    return re.findall(r"[a-z0-9']+", s.lower())
+
+
+def _say(tokens, roman=False):
+    out = []
+    for i, t in enumerate(tokens):
+        t = t.strip("'")
+        if not t:
+            continue
+        if t.isdigit():
+            out.extend(say_number(int(t)) if len(t) <= 3 else [ONES[int(d)] for d in t])
+        elif roman and i and t in ROMAN:
+            out.extend(say_number(ROMAN[t]))             # "Part II" -> "part two" (never "I" alone: it is a word)
+        else:
+            out.append(t)
+    return out
+
+
+def spoken_forms(name, aka=""):
+    """Every way a Frame's name (and its "Also called") is said, as word lists, most likely first. Pure."""
+    return [list(f) for f in _forms_cached(str(name or "")[:120], str(aka or "")[:200])]
+
+
+@functools.lru_cache(maxsize=2048)
+def _forms_cached(name, aka):
+    """spoken_forms, worked out once per name (the listener asks again every few seconds while live)."""
+    forms = []
+
+    def add(words):
+        words = [w for w in words if w][:8]
+        if words and words not in forms and len(forms) < FORMS_MAX:
+            forms.append(words)
+
+    phrases = [str(name or "")] + [p for p in re.split(r"[,;/\n]+", str(aka or "")[:200]) if p.strip()][:5]
+    for k, phrase in enumerate(phrases):
+        toks = _tokens41(phrase)
+        if not toks:
+            continue
+        base = _say(toks)
+        add(base)
+        if k == 0:
+            rom = _say(toks, roman=True)
+            add(rom)
+            exp = []
+            for w in rom:
+                exp.extend(ABBREV.get(w, w).split())
+            add(exp)
+            if len(base) > 1 and base[0] == "the":
+                add(base[1:])                             # "The Welcome" is also "welcome"
+            if len(toks) == 2 and toks[1].isdigit() and 0 < int(toks[1]) <= 12 and not toks[0].isdigit():
+                add([ORDINAL[int(toks[1])], ABBREV.get(toks[0], toks[0])])      # "Day 2" is also "second day"
+    return tuple(tuple(f) for f in forms)
+
+
+def _name_words(name):
+    """A Frame or Deck name as the words it is said with ("Bible Study!" -> ["bible", "study"])."""
+    forms = spoken_forms(name)
+    return forms[0] if forms else []
+
+
+def _forms_of(item):
+    return spoken_forms(item.get("name"), item.get("aka", ""))
+
+
+def _number_at(words, i):
+    """A spoken number at words[i]: (value, next index) or None ("twenty three" -> 23)."""
+    if i < len(words) and words[i] in ORDINAL_N:
+        return ORDINAL_N[words[i]], i + 1
+    return scripture_speech.number(words, i)
+
+
+# ---------- 26.11.41 layer 2: what you mean, not the exact phrase ----------
+LEAD = {"let's", "lets", "let", "us", "can", "could", "would", "will", "you", "we", "please", "okay", "ok", "so",
+        "now", "alright", "right", "and", "then", "i", "i'd", "we'll", "want", "like", "shall", "just", "um", "uh",
+        "hey", "to", "time", "need", "should"}
+TRAIL = {"please", "now", "then", "thanks", "thank", "you"}
+LEAD_MAX, TRAIL_MAX = 6, 2
+# whole phrases read as one verb (longest first); the right side is what the matcher already knows
+REWRITE = (
+    ("move on to", "go to"), ("go on to", "go to"), ("go back to", "go to"), ("take us to", "go to"),
+    ("take me to", "go to"), ("jump to", "go to"), ("switch to", "go to"), ("skip to", "go to"), ("move to", "go to"),
+    ("head to", "go to"), ("turn to", "go to"), ("return to", "go to"), ("change to", "go to"), ("bring up", "show"),
+    ("pull up", "show"), ("put up", "show"), ("look at", "show"), ("show me", "show"), ("show us", "show"),
+    ("give me", "show"), ("put on", "show"), ("see", "show"), ("view", "show"), ("display", "show"), ("read", "show"),
+    ("following", "next"), ("preceding", "previous"),
+)
+REWRITE_WORDS = sorted({w for a, b in REWRITE for w in (a + " " + b).split()})
+RELATIVE = {"next": 1, "previous": -1, "last": -1}
+NOT_UNITS = {"frame", "question", "verse", "scripture", "slide", "passage", "one", "thing", "part"}
+
+
+def understand(words):
+    """The words that carry the meaning: fillers off both ends, verbs read as one ("let's see the verse" ->
+    ["show", "the", "verse"]). A sentence keeps its other words, so it still is not a command."""
+    w = list(words)
+    i = 0
+    while i < len(w) and i < LEAD_MAX and w[i] in LEAD:
+        i += 1
+    if i < len(w):
+        w = w[i:]
+    n = 0
+    while len(w) > 1 and n < TRAIL_MAX and w[-1] in TRAIL:
+        w.pop()
+        n += 1
+    out, i = [], 0
+    while i < len(w):
+        for a, b in REWRITE:
+            aw = a.split()
+            if w[i:i + len(aw)] == aw:
+                out.extend(b.split())
+                i += len(aw)
+                break
+        else:
+            out.append(w[i])
+            i += 1
+    return out
+
+
+def _relative(words, names):
+    """"the next day" / "previous week": the Frame whose name has the live one's number plus or minus one."""
+    w = [x for x in words if x not in ("go", "to", "the", "show", "open")]
+    if len(w) != 2 or w[0] not in RELATIVE or w[1] in NOT_UNITS:
+        return None
+    unit, step = w[1], RELATIVE[w[0]]
+    frames = (names or {}).get("frames", [])
+    live = next((f for f in frames if f.get("id") == (names or {}).get("live")), None)
+    if not live:
+        return None
+
+    def num_of(item):
+        for form in _forms_of(item):
+            for j, x in enumerate(form):
+                if x == unit:
+                    got = _number_at(form, j + 1)
+                    if got:
+                        return got[0]
+                    if j and form[j - 1] in ORDINAL_N:
+                        return ORDINAL_N[form[j - 1]]
+        return None
+
+    have = num_of(live)
+    if have is None:
+        return None
+    want = have + step
+    ids = [f.get("id") for f in frames if f.get("id") != live.get("id") and num_of(f) == want]
+    if not ids:
+        return {"cmd": None}                              # no such day: nothing, never "Previous Frame" instead
+    hit = next(f for f in frames if f.get("id") == ids[0])
+    r = {"cmd": "goto", "label": "Go to " + str(hit.get("name"))[:60], "scene": str(ids[0])}
+    if len(ids) > 1:
+        r["scenes"] = [str(x) for x in ids[:20]]
+    return r
 
 
 def _name_words(name):
@@ -118,33 +329,61 @@ def grammar_words(names=None):
         for p in phrases:
             out.update(p.split())
     out.update(scripture_speech.grammar_words())
+    out.update(LEAD | TRAIL | set(RELATIVE) | set(REWRITE_WORDS) | set(ORDINAL.values()))
     for item in (names or {}).get("frames", []) + (names or {}).get("decks", []):
-        out.update(_name_words(item.get("name")))
+        for form in _forms_of(item):
+            out.update(form)
     return sorted(out)
 
 
 def _by_name(words, names):
-    """The Frame or Deck whose whole name was said, with only "go to (the)", "open" or "please" around it:
-    (name length, result) or None. The longest name wins; a Frame wins over a Deck of the same length."""
+    """The Frame or Deck whose whole name (any of its spoken forms) was said, with only "go to (the)", "open" or
+    "please" around it: (score, result) or None. The longest name wins; a Frame wins over a Deck of the same length.
+    26.11.41 part of a name is enough when only one Frame has it (scored a little under a whole name)."""
     best = None
-    for kind, items in (("frame", (names or {}).get("frames", [])), ("deck", (names or {}).get("decks", []))):
+    go = set(" ".join(GO_WORDS).split()) | {"please"}
+    frames = (names or {}).get("frames", [])
+    for kind, items in (("frame", frames), ("deck", (names or {}).get("decks", []))):
         for it in items:
-            nw = _name_words(it.get("name"))
-            if not nw or not _find(words, nw):
-                continue
-            i = next(i for i in range(len(words) - len(nw) + 1) if words[i:i + len(nw)] == nw)
-            rest = words[:i] + words[i + len(nw):]
-            if len(rest) > 3 or any(w not in " ".join(GO_WORDS).split() + ["please"] for w in rest):
-                continue
-            if kind == "frame":
-                r = {"cmd": "goto", "label": "Go to " + str(it.get("name"))[:60], "scene": str(it.get("id"))}
-            elif it.get("kind") in DECK_CMD:
-                r = {"cmd": DECK_CMD[it["kind"]][0], "label": "Show " + str(it.get("name"))[:60]}
-            else:
-                continue
-            if not best or len(nw) > best[0]:
-                best = (len(nw), r)
-    return best
+            for nw in _forms_of(it):
+                i = next((i for i in range(len(words) - len(nw) + 1) if words[i:i + len(nw)] == nw), None)
+                if i is None:
+                    continue
+                rest = words[:i] + words[i + len(nw):]
+                if len(rest) > 3 or any(w not in go for w in rest):
+                    continue
+                if kind == "frame":
+                    r = _goto(it, frames, nw)
+                elif it.get("kind") in DECK_CMD:
+                    r = {"cmd": DECK_CMD[it["kind"]][0], "label": "Show " + str(it.get("name"))[:60]}
+                else:
+                    continue
+                if not best or len(nw) > best[0]:
+                    best = (len(nw), r)
+    if best:
+        return best
+    # part of one Frame's name: "go to day two" for "Day 2: Romans"
+    k = 0
+    while k < len(words) and words[k] in go:
+        k += 1
+    said, verb = words[k:], k > 0
+    if not said or not (len(said) >= 2 or (verb and len(said[0]) >= 4)):
+        return None
+    hits = [it for it in frames if any(_find(f, said) for f in _forms_of(it))]
+    names_hit = {str(it.get("name") or "").strip().lower() for it in hits}
+    if len(names_hit) != 1:
+        return None
+    return (len(said) - 0.5, _goto(hits[0], frames, None))
+
+
+def _goto(it, frames, form):
+    """Go to this Frame; other Frames of the same name (other meetings) go along, and the Studio takes the first one
+    that is in the meeting on screen."""
+    same = [f for f in frames if str(f.get("name") or "").strip().lower() == str(it.get("name") or "").strip().lower()]
+    r = {"cmd": "goto", "label": "Go to " + str(it.get("name"))[:60], "scene": str(it.get("id"))}
+    if len(same) > 1:
+        r["scenes"] = [str(f.get("id")) for f in same[:20]]
+    return r
 
 
 def _find(seq, sub):
@@ -160,7 +399,9 @@ def match(text, names=None):
     words = _words(text)
     if not words:
         return None
-    if " ".join(words) in CONFIRM:
+    raw = words
+    words = understand(words) or words                     # 26.11.41 what you mean ("let's see the verse")
+    if " ".join(words) in CONFIRM or " ".join(raw) in CONFIRM:
         return {"cmd": "show-offer", "label": "Show the verse"}
     ref = scripture_speech.find(" ".join(words))
     if ref:
@@ -170,6 +411,9 @@ def match(text, names=None):
         num = scripture_speech.number(words, i + 1) if i + 1 < len(words) else None
         if num and num[0] <= 200:
             return {"cmd": "frame", "label": "Frame %d" % num[0], "frame": num[0]}
+    rel = _relative(words, names)                          # 26.11.41 "the next day"
+    if rel:
+        return rel if rel.get("cmd") else None
     named = _by_name(words, names)
     best = None
     for cid, label, phrases in COMMANDS:

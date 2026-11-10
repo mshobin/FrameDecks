@@ -1,44 +1,45 @@
-## FrameDecks v26.11.40
+## FrameDecks v26.11.41
 
-Your next meeting at a glance on every page of framedecks.com. Download from **framedecks.com/download**, or let
-FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members, settings,
-notes, pinned Memory Cards and recordings.
+Say it your way: voice commands now understand "let's see the verse" and "let's go to day 2". Download from
+**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all your
+meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Next meeting card.** The left panel on framedecks.com now shows a card under Help with the meeting the service PC
-  shows: its name, date ("Tue 3 Nov · in 2 days") and how many Frames it has.
-- **How ready it is.** A bar and "4 of 5 ready" count five checks: the meeting has a name and a date, it has Frames,
-  every Frame has words or media, nothing is waiting for Sync Now, and the church PC is online.
-- **The church PC.** A green dot when it is online; click it to open Devices.
-- **Changes waiting.** When Frame changes wait on Plan, a gold "2 changes waiting · Sync Now" appears on the card on
-  every page, and takes you to Plan.
+- **Voice commands understand what you mean.** Hold your talk key and speak naturally: "let's see the verse", "can we
+  bring up the question", "jump to Bible Study", "take us to the opening". The extra words around a command are
+  understood, and "see", "bring up" and "pull up" all mean show.
+- **Frame names as you say them.** "Day2" is also "day two" and "second day", "BibleStudy" is "bible study", "Wk3 Q&A"
+  is "week three Q and A", "Part II" is "part two". Part of a name is enough when only one Frame has it: "go to day
+  three" finds "Day 3: Romans".
+- **"The next day".** Say "the next day" or "the previous week" and FrameDecks goes to the Frame with the next number
+  after the one on screen ("Day 2" → "Day 3").
+- **Also called.** Give a Frame other names to say, such as "the opening, start", in the Frame editor on the PC or on
+  framedecks.com. They sync with the Frame.
+- **Sync in the Frames panel.** A Sync button sits beside Quick Start. It first shows what would change, Frame by
+  Frame: what comes from framedecks.com, what this PC sends, and what was changed in both places. Nothing changes until
+  you press **Sync now**.
 
 ## Enhancements
-- Home and the card share one load of the workspace, kept for a minute, so moving between pages stays quick.
-- Home's Frame count is now the count for the meeting the PC shows.
+- "The verse" and "the question" also work on a Frame that shows one thing at a time: its scripture or question comes
+  up.
+- When the same Frame name is in more than one meeting, a voice command goes to the one in the meeting on screen.
+- The scripture card ("You asked for John 3:16"), the corner card over your meeting and the messages at the bottom of
+  the screen are a little bigger, so they are not missed during a meeting.
+- The meeting clock moved out of the Frames panel to make room for Sync. It is still in the Command Center and on the
+  phone remote.
 
 ## Fixes
-None in this version.
+- A Frame made in both places (for example the same .frame file imported on the PC and on framedecks.com) is now kept
+  once when it syncs, not twice.
 
 ## Performance Improvements
-- The website loads less JavaScript in all (378 KB, from 401 KB).
+- Checked on an older PC (processor slowed 4×, no graphics card): every screen stays within its limits. At rest the
+  Studio uses about 3% of the processor, the program uses 76 MB, and nothing grows after opening and closing everything
+  15 times.
+- Voice commands stay light. The listener knows about 210 words instead of 150, and understanding a command takes a few
+  milliseconds, even with 300 Frames.
 
 ## Known Issues
-- On short windows (under 760 pixels high) and on phones the card is hidden, so the menu stays first.
+- Voice commands still need you to hold the talk key. Go Live, Leave, Share screen and Emergency always stay a press.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.
-
-## Also in this release: 26.11.39
-- **Sync Now on the website Plan.** Frame changes (added, edited, moved, deleted) wait on the page until you press
-  the big **Sync Now** box under the timeline. Only the Frames that really differ are sent, in one go, so nothing is
-  sent twice; **Discard changes** undoes them. Waiting changes are kept in your browser.
-- **Delete several Frames at once.** Click Frame numbers, in the list or on the timeline, to select them, then delete
-  them together.
-- **The Frame you click lights up on the timeline**, which scrolls to it.
-
-## Also in this release: 26.11.37
-- **Your phone is the key.** On framedecks.com, **Open with your phone** opens your workspace by scanning a code with a
-  phone already in your team, shown as a short animated checklist into your workspace.
-- **Open in this PC's browser.** Settings → Sync opens your workspace in the PC's own browser, already as you.
-- The passkey button shows only where a passkey is saved; a phone that joined by scanning is asked once to add an
-  email and save a passkey; **Connect this PC** is no longer offered once a PC is connected.

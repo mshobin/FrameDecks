@@ -222,3 +222,19 @@ test("after a conflict the latest version is shown with the person's own changes
   assert.equal(out.content[0].main, "my words");
   assert.equal(out.content[1].main, "their prayer");
 });
+
+test("Also called: kept by the website and the PC only when set, so older Frames do not change (26.11.41)", () => {
+  const form = { ...emptyFrame(), name: "Day2", aka: "  the second day, day two  " };
+  const body = frameFromForm(form, null);
+  assert.equal(body.aka, "the second day, day two");
+  assert.equal(normalized(body).aka, "the second day, day two");
+  assert.equal(frameFormOf(body).aka, "the second day, day two");
+  const cleared = frameFromForm({ ...frameFormOf(body), aka: "" }, body);
+  assert.equal("aka" in cleared, false);
+  const old = normalized(frameFromForm({ ...emptyFrame(), name: "Welcome" }, null));
+  assert.equal("aka" in old, false);
+  assert.equal(frameFromForm({ ...emptyFrame(), aka: "x".repeat(300) }, null).aka.length, 200);
+  const merged = rebaseFrame({ ...frameFormOf(body), name: "Day 2" }, { ...frameFormOf(body), aka: "start" }, frameFormOf(body));
+  assert.equal(merged.aka, "start");
+  assert.equal(merged.name, "Day 2");
+});

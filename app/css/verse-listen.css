@@ -2,12 +2,13 @@
  * and its switches in Settings > Scripture. Theme tokens only. */
 .vl-card{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .vl-card[hidden]{display:none}
-.vl-card.vl-ask{border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--el-1)}
+.vl-card.vl-ask{gap:10px;padding:14px 16px;border-width:2px;border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--el-2,var(--el-1))}   /* 26.11.41 slightly bigger */
 .vl-head{display:flex;align-items:baseline;gap:8px;min-width:0}
-.vl-k{flex:none;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.vl-ref{min-width:0;font-size:16px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vl-k{flex:none;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.vl-ref{min-width:0;font-size:20px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vl-acts{display:flex;gap:8px}
 .vl-acts .btn{flex:1}
+.vl-ask .vl-acts .btn{min-height:40px;font-size:15px}
 .vl-card.vl-quiet{padding:6px 10px;border-color:var(--line-soft)}
 .vl-line{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;color:var(--muted)}
 .vl-dot{flex:none;width:7px;height:7px;border-radius:999px;background:var(--faint)}

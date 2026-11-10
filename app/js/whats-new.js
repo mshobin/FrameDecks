@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.41': [
+    {title: 'Say it your way', text: 'Voice commands understand \u201clet\u2019s see the verse\u201d, \u201clet\u2019s go to day 2\u201d and \u201cthe next day\u201d. Give a Frame other names in its Also called box.', show: {settings: 'listening'}},
+    {title: 'Sync in the Frames panel', text: 'Sync beside Quick Start shows what would change, Frame by Frame, before anything does. A Frame made in both places is kept once.', show: {spot: '#frames-sync'}}
+  ],
   '26.11.40': [
     {title: 'Next meeting on framedecks.com', text: 'The website\u2019s left panel shows the next meeting, how ready it is, the church PC and any changes waiting for Sync Now.', show: {settings: 'account'}}
   ],
