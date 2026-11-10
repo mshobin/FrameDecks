@@ -817,7 +817,7 @@ function toggleLayer(sid, lid){
   });
 }
 /* + Content: the content types, then Free Content */
-var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['text', 'Text', 'type'],
+var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['song', 'Song', 'music'], ['text', 'Text', 'type'],
   ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['audio', 'Audio…', 'volume-2'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
 var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
   ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
@@ -1141,10 +1141,46 @@ function brandForm(gen, sc, l, tab, set){
     gen.appendChild(h('p', {cls: 'hint', text: 'The plate behind your logo and name. At None only the logo and name show, with a soft shadow so they stay readable on any picture. If your logo image has its own box, use Remove the logo\u2019s background (Content).'}));
   }
 }
+/* 26.11.33 a Song: its title, the lyrics (pasted; verses split at blank lines, "Verse 2" / "Chorus" lines become labels),
+   a credit line, and the verses as buttons (on the live Frame, a click puts that verse on screen; Next steps them) */
+function songText(items){ return (items || []).map(function(it){ return (it.label ? it.label + '\n' : '') + it.text; }).join('\n\n'); }
+function songForm(gen, sc, l, tab, set){
+  var sid = sc.id, lid = l.id, c = l.c;
+  if (tab === 'label'){
+    var title = h('input', {type: 'text', value: c.song, 'aria-label': 'Song title', id: 'sg-title', cls: 'tl-label-in', placeholder: 'e.g. Amazing Grace'});
+    title.addEventListener('keydown', stop);
+    title.addEventListener('input', function(){ var v = title.value; set(function(x){ x.c.song = v.slice(0, 200); SC.songApply(x); }); });
+    gen.appendChild(h('div', {cls: 'two tl-label-row'}, [title, checkCtl('Show the title', c.label, function(v){ set(function(x){ x.c.label = v; }, true); })]));
+    return;
+  }
+  var ta = h('textarea', {rows: 10, id: 'sg-lyrics', 'aria-label': 'Lyrics', placeholder: 'Verse 1\nAmazing grace, how sweet the sound…\n\nChorus\n…'});
+  ta.value = songText(c.items); ta.addEventListener('keydown', stop);
+  ta.addEventListener('input', function(){
+    var v = ta.value;
+    later('sg', function(){ set(function(x){ x.c.items = SC.parseLyrics(v); SC.songApply(x); }); });
+  });
+  var credit = h('input', {type: 'text', value: c.credit, id: 'sg-credit', 'aria-label': 'Credit line', placeholder: 'Words: John Newton · Public domain (or your licence line)'});
+  credit.addEventListener('keydown', stop);
+  credit.addEventListener('input', function(){ var v = credit.value; set(function(x){ x.c.credit = v.slice(0, 200); SC.songApply(x); }); });
+  gen.appendChild(field('Lyrics', ta));
+  gen.appendChild(h('p', {cls: 'hint', text: 'Leave a blank line between verses. A first line such as Verse 2, Chorus or Bridge becomes that verse’s label.'}));
+  gen.appendChild(field('Credit', credit));
+  var items = c.items || [], liveNow = isLiveScene(sid) && live.live.on[lid];
+  if (items.length){
+    gen.appendChild(h('div', {cls: 'sg-verses', role: 'group', 'aria-label': 'Verses'}, items.map(function(it, i){
+      var on = liveNow && (c.at || 0) === i;
+      return h('button', {cls: 'btn small' + (on ? ' primary' : ' ghost'), type: 'button', 'aria-pressed': String(!!on), title: it.text.split('\n')[0],
+        onclick: function(){ commit(function(n){ var x = SC.layer(SC.find(n, sid), lid); if (!x) return; SC.songApply(x, i); if (n.live.scene === sid) n.live.on[lid] = true; }); }},
+        [(i + 1) + '. ' + (it.label || it.text.split('\n')[0].slice(0, 24))]);
+    })));
+  }
+  gen.appendChild(h('p', {cls: 'hint', text: items.length ? items.length + (items.length === 1 ? ' verse' : ' verses') + '. While it is on screen, Next and Previous step through the verses, then move to the next Frame.' : 'Paste the lyrics to begin.'}));
+}
 function textForm(gen, sc, l, tab){
   var sid = sc.id, lid = l.id, c = l.c;
   function set(fn, now){ if (now) editLayer(sid, lid, fn); else editLayerSoon(sid, lid, fn); }
   if (l.kind === 'brand' && (tab === 'content' || tab === 'layout' || tab === 'style')){ brandForm(gen, sc, l, tab, set); return; }
+  if (l.kind === 'song' && (tab === 'label' || tab === 'content')){ songForm(gen, sc, l, tab, set); return; }
   if (tab === 'label'){                                          // v6.7 the label first (also editable on the canvas)
     var title = h('input', {type: 'text', value: c.title, 'aria-label': l.kind === 'lowerthird' ? 'Name' : 'Label', id: 'tl-title', cls: 'tl-label-in',
       placeholder: l.kind === 'lowerthird' ? 'Name (first line)' : 'e.g. Group Discussion, Opening Thought'}); title.addEventListener('keydown', stop);
@@ -1324,6 +1360,12 @@ function takeScene(id){
 /* 26.11.22 Undo for 5 s after Next, Previous, Hide all, Black screen and Emergency off (Store.snapshot / restore) */
 function offerUndo(keep, msg){ if (A.toastAction) A.toastAction(msg, 'Undo', function(){ Store.restore(keep).then(function(){ toast('↩ Undone'); }); }); else toast(msg); }
 function stepScene(d){
+  if (SC.songCan(live, d)){                                                            // 26.11.33 a song on screen: its next verse
+    var keepS = Store.snapshot(), lab = '';
+    if (window.KCSound) KCSound.play('next');
+    Store.update(function(n){ lab = SC.songStep(n, d); }).then(function(){ offerUndo(keepS, lab + ' is on screen'); });
+    return;
+  }
   if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
     var t = SC.smartNext(live);
     if (!t){ toast('That’s the last of the meeting.'); return; }

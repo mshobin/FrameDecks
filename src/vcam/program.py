@@ -26,7 +26,7 @@ from .spotlight import Follow, Spotlight
 from . import chatcard
 from .cards import CardDrawer, Card, accent_palette, logo_rgba, surface_of, _premult, GOLD_TEXT as _GOLD_TEXT
 
-TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
+TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown", "song")   # 26.11.33 song: the verse on screen
 # 8.2 retired transitions play as the one that replaced them (store.js TX_ALIAS)
 TX_ALIAS = {"dissolve": "fade", "cinema": "fade", "church": "fade", "slide-right": "slide-left", "soft-scale": "zoom-fade"}
 

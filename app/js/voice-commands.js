@@ -28,6 +28,7 @@ function toast(m, bad){ if (window.KCActions && window.KCActions.toast) window.K
 /* ---------- the commands: the same steps as the Command Center's buttons (js/spotlight-remote.js) ---------- */
 function update(fn){ return Store.update(fn); }
 function step(st, d){
+  if (SC.songCan(st, d)) return update(function(n){ SC.songStep(n, d); });      // 26.11.33 a song on screen: its next verse
   var ls = SC.liveScene(st);
   var nx = st.live.scene ? SC.neighbour(st, st.live.scene, d) : (d > 0 ? SC.order(st)[0] : null);
   if (!ls && d < 0) throw new Error('Nothing is live yet.');
@@ -66,6 +67,7 @@ function qs(st, m){
 }
 var RUN = {
   next: function(st, c){                                   // 26.11.22 Smart Next when it is on
+    if (SC.songCan(st, 1)) return step(st, 1);             // 26.11.33 a song on screen goes verse by verse first
     if (st.live.scene && Store.setting && Store.setting('smartNext')){
       var t = SC.smartNext(st);
       if (!t) throw new Error('That is the last of the meeting.');

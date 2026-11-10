@@ -87,8 +87,24 @@ var SCOPES = {
   memory: {id: 'memory', label: 'Memory Cards', hue: 'violet', icon: 'message-circle', empty: 'No Memory Cards yet. Turn on Capture copies, then copy a message.', items: memoryItems},
   settings: {id: 'settings', label: 'All settings', hue: 'slate', icon: 'settings', items: function(all){ return all.filter(function(it){ return it.kind === 'setting' && it.key.indexOf('feat:') !== 0; }); }},
   /* 26.11.31 More → Features: every switch, in its group; Enter switches one. Locked while live. */
-  features: {id: 'features', label: 'Features', hue: 'slate', icon: 'list-checks', items: featureItems}
+  features: {id: 'features', label: 'Features', hue: 'slate', icon: 'list-checks', items: featureItems},
+  /* 26.11.33 Engage → Name tags: the recent ones (and a typed name); Enter shows it on the Frame on air */
+  nametags: {id: 'nametags', label: 'Name tags', hue: 'violet', icon: 'user', empty: 'Type a name, then Enter. Names you show in the Studio come back here.', items: nameTagItems}
 };
+function ntNow(){ return window.KCNameTags ? KCNameTags.showing() : null; }
+function nameTagItems(){
+  var N = window.KCNameTags; if (!N) return [];
+  var now = N.showing(), typed = (input.value || '').trim(), out = [];
+  if (now) out.push({key: 'nt-hide', kind: 'cmd', title: 'Hide name tag', sub: 'On screen: ' + now.name + (now.role ? ' · ' + now.role : ''), words: 'hide off',
+    local: function(){ N.hide().then(function(){ tell('✓ Name tag hidden'); input.dispatchEvent(new Event('input')); }); }});
+  if (typed) out.push({key: 'nt-typed', kind: 'member', title: typed.split(/\s*[·,]\s*/)[0], sub: 'Enter shows this name' + (typed.indexOf('·') > 0 || typed.indexOf(',') > 0 ? ' with its role' : ' · add a role after a comma'), words: typed,
+    local: function(){ var p = typed.split(/\s*[·,]\s*/); N.show(p[0], p.slice(1).join(' · ')).then(function(ok){ if (ok){ tell('✓ Name tag on'); clearScope(); } }); }});
+  N.recents().forEach(function(r){
+    out.push({key: 'nt-' + r.name, kind: 'member', title: r.name, sub: (r.role ? r.role + ' · ' : '') + 'Enter shows it', words: r.role || '',
+      local: function(){ N.show(r.name, r.role).then(function(ok){ if (ok) tell('✓ Name tag: ' + r.name); input.dispatchEvent(new Event('input')); }); }});
+  });
+  return out;
+}
 function featureItems(){
   var F = window.KCFeatures; if (!F) return [];
   var head = {key: 'feat-all', kind: 'setting', title: F.summary(), sub: F.locked() ? 'Off air to change' : 'All features in Settings… · Enter opens them', words: 'all features settings',
@@ -135,6 +151,8 @@ var MAKE = {
   brand: function(){ return T('brand', function(){ setting('meeting'); }); },
   keys: function(){ return T('keys', function(){ keySheet(true); }); },
   features: function(){ return T('features', function(){ scope('features'); }, null, window.KCFeatures ? KCFeatures.summary() : null); },
+  nametags: function(){ return T('nametags', function(){ scope('nametags'); }, {on: !!ntNow()}, ntNow() ? 'On: ' + ntNow().name : null); },
+  responses: function(){ return T('responses', function(){ run('cmd:responses', false); }); },
   all: function(){ return T('all', function(){ scope('settings'); }); },
   help: function(){ return T('help', function(){ run('cmd:welcome', false); }); }};
 var GROUPS = CH.list.map(function(c){

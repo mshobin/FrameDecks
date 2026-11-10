@@ -98,6 +98,7 @@ COOKIE = "kc_remote"
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/js/chips.js", "/js/icons.js", "/js/notes-pad.js", "/css/notes-pad.css",   # 9.13 the chips and the Notes pad
                  "/js/features.js",       # 26.11.31 which features are on (the phone hides what is off)
+                 "/js/timing.js",         # 26.11.33 the timing plan, for the leader
                  "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js", "/js/remote-listen.js",
                  "/js/remote-voice.js",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",

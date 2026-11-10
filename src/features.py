@@ -23,6 +23,11 @@ FEATURES = (
     ("summary", "after", "Meeting summary, sermon notes and Moment"),
     ("ready", "helpers", "Ready check and light hints"),
     ("guard", "helpers", "Lighter during meetings"),
+    # 26.11.33
+    ("songs", "screen", "Songs and lyrics"),
+    ("nametags", "screen", "Speaker name tags"),
+    ("responses", "people", "Polls and responses from members’ phones"),
+    ("timing", "helpers", "Timing plan"),
 )
 IDS = tuple(f[0] for f in FEATURES)
 
@@ -32,9 +37,11 @@ DERIVED = ("vcam",)
 # the Welcome's ready-made sets (the camera follows How people see it, chosen on the same page)
 PRESETS = {
     "simple": {"memory": False, "birthdays": False, "seasons": False, "listen": False, "voice": False, "follow": False,
-               "remote": False, "team": False, "summary": False, "ready": True, "guard": True},
+               "remote": False, "team": False, "summary": False, "ready": True, "guard": True,
+               "songs": False, "nametags": False, "responses": False, "timing": True},
     "study": {"memory": True, "birthdays": True, "seasons": True, "listen": True, "voice": False, "follow": False,
-              "remote": True, "team": False, "summary": True, "ready": True, "guard": True},
+              "remote": True, "team": False, "summary": True, "ready": True, "guard": True,
+              "songs": True, "nametags": True, "responses": True, "timing": True},
     "full": {i: True for i in IDS if i not in DERIVED},
 }
 

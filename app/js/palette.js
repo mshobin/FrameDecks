@@ -73,6 +73,8 @@ function commands(){
     ['sharedraw', 'Draw on the Share Window', 'draw pen ink annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'draw'}); }],   /* 9.7 */
     ['sharespot', 'Spotlight on the Share Window', 'spotlight pointer point laser annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'spot'}); }],
     ['prompter', 'Teleprompter on / off', 'script notes prompter speaker overlay zoom teams on top', function(){ if (TP) TP.toggle(); }, 'R'],
+    ['nametags', 'Name tags (a speaker’s name and role)', 'name tag lower third speaker reader host role caption', function(){ if (window.KCNameTags) KCNameTags.open(); }],
+    ['responses', 'Polls and responses (members’ phones)', 'poll vote yes no rating question response survey phones', function(){ if (window.KCResponses) KCResponses.open(); }],
     ['capture', 'Capture copies on / off (Memory Cards)', 'memory card chat overlay copy clipboard capture zoom teams chatgpt claude copilot slack discord', function(){ if (window.KCMemory) window.KCMemory.toggleCapture(); }],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['frameimport', 'Import Frame File (.frame)', 'import frame file offline service pc website plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); }],
@@ -106,7 +108,7 @@ function commands(){
   c = c.filter(function(x){ return !F || F.allOn(CMD_FEATURE[x[0]]); });
   return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
-var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary',
+var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary', nametags: 'nametags', responses: 'responses',
   camera: 'vcam', sharedraw: '', sharespot: ''};
 /* 26.11.31 the features themselves: "Memory Cards is off · Turn on?" finds it from anywhere, and teaches where they live */
 function featureItems(){

@@ -76,7 +76,7 @@ class BrandBackground(unittest.TestCase):
         self.assertIn("var bg = c.plate === false ? 0 : (c.bg == null ? 1 : c.bg);", ws)
         st = read("app/js/store.js")
         self.assertIn("plate: true, pad: 1, margin: 4, bg: 1}", st)
-        self.assertIn("bg: [0, 1]}", st)
+        self.assertIn("bg: [0, 1], at: [0, 99]}", st)   # 26.11.33 at: the song verse on screen
 
     def test_overlay_and_camera_fade_the_plate(self):
         self.assertIn("x.card.style.setProperty('--bga', String(bga));", read("app/js/overlay.js"))

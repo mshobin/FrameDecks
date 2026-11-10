@@ -228,7 +228,7 @@ var Present = {
  * All helpers edit a copy inside Store.update(); they never send anything themselves.
  * ===================================================================================================== */
 var CARD_KINDS = ['scripture', 'question', 'birthday'];
-var TEXT_KINDS = ['announcement', 'prayer', 'lowerthird', 'countdown', 'brand'];
+var TEXT_KINDS = ['announcement', 'prayer', 'lowerthird', 'countdown', 'brand', 'song'];   // 26.11.33 song: verses stepped with Next
 var MEDIA_KINDS = ['camera', 'screen', 'window', 'image', 'video', 'pdf', 'background', 'text', 'rect', 'ellipse'];
 /* M-D4: sound only. Plays from the program's own window while its Frame is live (js/audio-player.js); never part of
  * the picture, the cards or the overlay pages. */
@@ -240,7 +240,8 @@ var KIND_INFO = {
   countdown: {name: 'Countdown', icon: 'timer'}, brand: {name: 'Branding', icon: 'star'}, camera: {name: 'Camera', icon: 'video'}, screen: {name: 'Screen', icon: 'monitor'},
   window: {name: 'Window', icon: 'app-window'}, image: {name: 'Image', icon: 'image'}, video: {name: 'Video', icon: 'film'},
   pdf: {name: 'PowerPoint', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
-  rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}, audio: {name: 'Audio', icon: 'volume-2'}
+  rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}, audio: {name: 'Audio', icon: 'volume-2'},
+  song: {name: 'Song', icon: 'music'}
 };
 /* Scene transitions. In FrameDecks every type plays on the whole picture; on the overlay pages the dips cover the
  * screen and the cards follow (cut = instant). */
@@ -305,9 +306,13 @@ var TEXT_DEFAULTS = {
     /* 6.7: plate = the navy plate behind the badge (off: the logo / name alone, with a soft shadow); pad = inner padding
        (x the standard); margin = the safe margin from the picture's edges (in 1/100 of the picture width);
        26.11.8 bg = how solid the plate is (1 = the standard plate, 0 = none: only the logo and name) */
-    plate: true, pad: 1, margin: 4, bg: 1}
+    plate: true, pad: 1, margin: 4, bg: 1},
+  /* 26.11.33 a song: its verses (c.items: {id, label, text}) shown one at a time (c.at); title and text are the verse
+     on screen, filled in by Scenes.songApply, so every screen draws it like any text card. credit: shown on the first
+     and last verse (e.g. "Words: John Newton · Public domain", or your licence line) */
+  song: {title: '', text: '', song: '', credit: '', at: 0, pos: 'center', w: 70, scale: 1, label: true, anim: 'fade', logo: false}
 };
-var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12], bg: [0, 1]};      // numbers; anything else 0.4 .. 3
+var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12], bg: [0, 1], at: [0, 99]};      // numbers; anything else 0.4 .. 3
 function cleanLayer(l){
   if (!isObj(l)) return null;
   var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS, SOUND_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;
@@ -325,6 +330,11 @@ function cleanLayer(l){
     if (POS.indexOf(c.pos) < 0) c.pos = d.pos;
     if (['fade', 'rise', 'none'].indexOf(c.anim) < 0) c.anim = d.anim;
     if (['duration', 'until'].indexOf(c.mode) < 0) c.mode = d.mode;
+    if (kind === 'song'){
+      c.items = (Array.isArray(c.items) ? c.items : []).filter(isObj).slice(0, 60).map(function(it){
+        return {id: str(it.id || rid('v'), 40), label: str(it.label, 40), text: str(it.text, 2000)}; });
+      c.at = Math.round(Math.min(c.at, Math.max(0, c.items.length - 1)));
+    }
   }
   if (CARD_KINDS.indexOf(kind) >= 0){
     c.itemId = str(c.itemId, 40);                       // the item of this Frame's own list that is shown now
@@ -927,7 +937,7 @@ var Scenes = {
     n.question.out = {vcam: vcamOk(q), obs: obsOk(q)}; n.verse.out = {vcam: vcamOk(v), obs: obsOk(v)}; n.birthday.out = {vcam: vcamOk(b), obs: obsOk(b)};
     // text layers
     n.live.on = {}; n.live.cd = {};
-    sc.layers.forEach(function(l){ if ((TEXT_KINDS.indexOf(l.kind) >= 0 || SOUND_KINDS.indexOf(l.kind) >= 0) && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
+    sc.layers.forEach(function(l){ if ((TEXT_KINDS.indexOf(l.kind) >= 0 || SOUND_KINDS.indexOf(l.kind) >= 0) && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); if (l.kind === 'song') Scenes.songApply(l, 0); } });
     var now = Date.now();                                    // 26.11.14 the meeting clock starts with the first Go Live (or after 6 quiet hours)
     if (!n.live.scene || !n.live.since || now - (n.live.at || 0) > 6 * 3600e3) n.live.since = now;
     n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = now; n.live.tx = tx.type; n.live.txMs = tx.ms;
@@ -1029,6 +1039,68 @@ var Scenes = {
     return {scene: sc, items: items, warn: warn, tx: tx, txName: Scenes.txName(tx.type), pos: i + 1, of: o.length};
   },
   /* Text layers on the program (for the overlay pages and FrameDecks) */
+  /* 26.11.33 songs. Lyrics pasted as text: verses split at blank lines; a first line such as "Verse 2", "Chorus",
+     "[Bridge]" or "V1:" becomes that verse's label. */
+  parseLyrics: function(text){
+    var LABEL = /^\s*\[?\s*((?:verse|chorus|refrain|bridge|pre-?chorus|tag|ending|intro|outro|coda|stanza)\b[^\]:]{0,12}|[vc]\d{1,2})\s*\]?\s*:?\s*$/i;
+    return String(text || '').replace(/\r/g, '').split(/\n\s*\n/).map(function(b){
+      var lines = b.split('\n').map(function(x){ return x.replace(/\s+$/, ''); }).filter(function(x){ return x.trim(); });
+      if (!lines.length) return null;
+      var label = '';
+      var m = lines[0].match(LABEL);
+      if (m && lines.length > 1){
+        label = m[1].replace(/^v(\d+)$/i, 'Verse $1').replace(/^c(\d*)$/i, function(_, d){ return 'Chorus' + (d ? ' ' + d : ''); });
+        label = label.charAt(0).toUpperCase() + label.slice(1);
+        lines.shift();
+      }
+      return {id: rid('v'), label: label.slice(0, 40), text: lines.join('\n').slice(0, 2000)};
+    }).filter(Boolean).slice(0, 60);
+  },
+  /* the verse at `at` into the card's title and text (the credit on the first and last verse) */
+  songApply: function(l, at){
+    var c = l.c, items = c.items || [];
+    if (!items.length){ c.at = 0; c.title = c.song || ''; c.text = ''; return; }
+    at = Math.max(0, Math.min(items.length - 1, at == null ? c.at || 0 : at));
+    var it = items[at], edge = at === 0 || at === items.length - 1;
+    c.at = at;
+    c.title = [c.song, it.label].filter(function(x){ return String(x || '').trim(); }).join(' · ');
+    c.text = it.text + (c.credit && edge ? '\n\n' + c.credit : '');
+  },
+  /* the song of the live Frame that is on screen (the first, top down), or null */
+  liveSong: function(st){
+    var sc = Scenes.liveScene(st); if (!sc) return null;
+    return sc.layers.filter(function(l){ return l.kind === 'song' && st.live.on[l.id] && (l.c.items || []).length; })[0] || null;
+  },
+  /* Next and Previous step through the verses of a song on screen before they move to another Frame */
+  songCan: function(st, d){ var l = Scenes.liveSong(st); if (!l) return false; var to = (l.c.at || 0) + d; return to >= 0 && to < l.c.items.length; },
+  songStep: function(n, d){
+    var l = Scenes.liveSong(n); if (!l) return '';
+    Scenes.songApply(l, (l.c.at || 0) + d);
+    var it = l.c.items[l.c.at];
+    return (it.label || 'Verse ' + (l.c.at + 1)) + ' (' + (l.c.at + 1) + ' of ' + l.c.items.length + ')';
+  },
+  /* 26.11.33 the timing plan (each Frame's planned minutes, `plan`): where the meeting stands against it, for the
+     leader only (Studio, Command Center, phone), never on screen. null: nothing live, or no Frame so far has a plan.
+     drift (seconds, + = over): how late the live Frame started against the plan, plus how far it has run past its own. */
+  timing: function(st, now){
+    var L = st && st.live, sid = L && L.scene; if (!sid) return null;
+    var order = Scenes.order(st), i = -1;
+    for (var k = 0; k < order.length; k++) if (order[k].id === sid){ i = k; break; }
+    if (i < 0) return null;
+    now = now || Date.now();
+    var before = 0, any = false;
+    for (var j = 0; j < i; j++){ if (order[j].plan) any = true; before += (order[j].plan || 0) * 60; }
+    var sc = order[i], plan = (sc.plan || 0) * 60;
+    if (!any && !plan) return null;
+    var at = L.at || now, since = L.since || at;
+    var inFrame = Math.max(0, (now - at) / 1000), elapsed = Math.max(0, (now - since) / 1000);
+    var drift = Math.round(((at - since) / 1000 - before) + Math.max(0, plan ? inFrame - plan : 0));
+    var mins = Math.round(Math.abs(drift) / 60);
+    var state = Math.abs(drift) < 60 ? 'ontime' : drift > 0 ? 'over' : 'ahead';
+    return {drift: drift, state: state, inFrame: inFrame, plan: plan, elapsed: elapsed,
+      label: state === 'ontime' ? 'On time' : mins + ' min ' + (state === 'over' ? 'over' : 'ahead'),
+      frame: plan ? Math.floor(inFrame / 60) + ':' + ('0' + Math.floor(inFrame % 60)).slice(-2) + ' of ' + (plan / 60) + ' min' : ''};
+  },
   liveText: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc) return [];
     if (output && sc.out[output] === false) return [];

@@ -40,6 +40,9 @@ var ACTIONS = [
   A('engage', 'spot', 'Spotlight', 'circle-dot', 'Double-click a word', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'clear', 'Clear drawings', 'eraser', 'Everywhere at once', ['cc', 'app', 'phone']),
   A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
+  // 26.11.33 a speaker's name across the bottom; a question answered on members' phones
+  A('engage', 'nametags', 'Name tags', 'user', 'A name and role on screen', ['cc', 'app'], {feature: 'nametags'}),
+  A('engage', 'responses', 'Polls', 'list-checks', 'Answered on members’ phones', ['cc', 'app'], {feature: 'responses'}),
   // Control (Previous, Next, Go Live and Hide all are pinned in plain view on every surface)
   A('control', 'golive', 'Go Live', 'radio', 'On air or off air', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'prevnext', 'Previous and Next', 'chevron-right', 'The Frames in order', ['cc', 'app', 'phone'], {pinned: true}),
