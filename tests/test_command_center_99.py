@@ -112,10 +112,10 @@ class SeeThrough(unittest.TestCase):
     """26.11.3 nothing behind the glass over the desktop: the hidden-made window is not left a layered window"""
     def test_the_window_is_not_layered(self):
         src = read("src/desktop_app.py")
-        prep = src[src.index("    def spot_prepare(w):"):src.index("    def spotlight(on=True):")]
+        prep = src[src.index("    def spot_prepare(w):"):src.index("    def spotlight(on=True, then=None):")]
         self.assertLess(prep.index("dw.clear_back("), prep.index("dw.unlayer(hwnd)"))
         self.assertLess(prep.index("dw.unlayer(hwnd)"), prep.index("dw.glass(hwnd, False)"))
-        opened = src[src.index("    def spotlight(on=True):"):src.index("    def palette_index():")]
+        opened = src[src.index("    def spotlight(on=True, then=None):"):src.index("    def palette_index():")]
         self.assertLess(opened.index("dw.unlayer(hwnd)"), opened.index("spot.show()"))   # every open, before it shows
         win = read("src/desktop_win.py")
         body = win[win.index("def unlayer(hwnd):"):win.index("def clear_frame(hwnd):")]

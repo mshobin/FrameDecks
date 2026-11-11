@@ -2082,7 +2082,9 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 .kc-hold-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--danger);transform:scaleX(0);transform-origin:left;pointer-events:none}
 .kc-holdable.holding .kc-hold-bar{transform:scaleX(1);transition:transform var(--hold-ms,1s) linear}
 .cb-btn.take.is-off .tk-ic::before{content:"●";color:var(--red)}
-.ls-go.is-off{background:var(--neutral-btn);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-strong),0 -10px 14px var(--app-bg)}
+/* 26.11.42 on air looks on (the owner: Go Live is on by default; the hold only switches it off) */
+.ls-go.is-off{background:var(--live-soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--live),0 -10px 14px var(--app-bg)}
+.ls-go.is-off .ls-go-t::after{content:"\25CF";color:var(--live)}
 .ls-go.is-off .ls-go-sub{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){ .kc-holdable.holding .kc-hold-bar{transition:none;transform:scaleX(1);opacity:.6} }
 .cb-btn.take.is-off,.cb-btn.take.is-off:hover{background:var(--neutral-btn);border-color:var(--line-strong);color:var(--ink)}
@@ -2101,3 +2103,8 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 /* 26.11.32 a page that belongs to the one before it (vCam and Projector under How people see it): a quiet joiner */
 .st-tab.st-sub{position:relative;margin-left:14px}
 .st-tab.st-sub::before{content:"";position:absolute;left:-10px;top:50%;width:6px;height:6px;border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:translateY(-70%);border-bottom-left-radius:3px}
+
+/* 26.11.42 the status pill while a Frame is live but nothing shows yet: Live, with a green dot and a calm outline
+   (full green is for something on screen) */
+.live-ind.framed{border-color:var(--live);color:var(--ink)}
+.live-ind.framed i{background:var(--live)}

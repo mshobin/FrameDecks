@@ -240,8 +240,27 @@ var foot = box.querySelector('.pal-foot');
 if (foot) foot.remove();                                       // the hints live in the panels now
 
 /* the Control panel: Go Live as a switch, then the live remote (js/spotlight-remote.js puts it in the slot) */
-var golive = h('button', {cls: 'cc-switch', type: 'button', role: 'switch', 'aria-checked': 'false', id: 'cc-golive', onclick: function(){ goLive(!isLive()); }},
-  [h('span', {cls: 'cc-switch-t'}, [h('b', {text: 'Go Live'}), h('small', {id: 'cc-golive-sub'})]), h('span', {cls: 'cc-knob', 'aria-hidden': 'true'}, [h('i')])]);
+var golive = h('button', {cls: 'cc-switch', type: 'button', role: 'switch', 'aria-checked': 'false', id: 'cc-golive', 'aria-describedby': 'cc-golive-sub',
+    onclick: function(){ if (Date.now() < goHeld) return; if (!isLive()) goLive(true); else tell('Hold Go Live for a second to go off air.'); }},
+  [h('span', {cls: 'cc-switch-t'}, [h('b', {text: 'Go Live'}), h('small', {id: 'cc-golive-sub'})]), h('span', {cls: 'cc-knob', 'aria-hidden': 'true'}, [h('i')]),
+   h('i', {cls: 'cc-hold-bar', 'aria-hidden': 'true'})]);
+/* 26.11.42 (owner, 11 November) Go Live is on by a press and off only by a hold, here as in the Studio's top bar
+ * (js/off-air.js): a press while off air goes live; while live, a press only says to hold, and holding the switch (or
+ * Space / Enter) for a second goes off air. A bar fills along the switch while it is held. */
+var goHold = 0, goHeld = 0, GO_HOLD = 1000;
+function goHoldStart(){
+  if (goHold || !isLive()) return false;
+  golive.style.setProperty('--hold-ms', GO_HOLD + 'ms'); golive.classList.add('holding');
+  goHold = setTimeout(function(){ goHold = 0; golive.classList.remove('holding'); goHeld = Date.now() + 600; goLive(false); }, GO_HOLD);
+  return true;
+}
+function goHoldStop(){ if (!goHold) return; clearTimeout(goHold); goHold = 0; golive.classList.remove('holding'); }
+golive.addEventListener('pointerdown', function(e){ if (e.button === 0 && goHoldStart()){ try { golive.setPointerCapture(e.pointerId); } catch(x){} } });
+['pointerup', 'pointercancel', 'lostpointercapture', 'blur'].forEach(function(k){ golive.addEventListener(k, goHoldStop); });
+golive.addEventListener('keydown', function(e){
+  if ((e.key === ' ' || e.key === 'Enter') && isLive()){ e.preventDefault(); e.stopPropagation(); if (!e.repeat) goHoldStart(); }
+});
+golive.addEventListener('keyup', function(e){ if ((e.key === ' ' || e.key === 'Enter') && goHold){ e.preventDefault(); goHoldStop(); tell('Hold Go Live for a second to go off air.'); } });
 var control = h('div', {cls: 'cc-control'}, [golive, h('p', {cls: 'cc-offair', id: 'cc-offair'}), h('div', {id: 'cc-remote-slot'})]);
 /* 26.11.7 the meeting guard, before you go live: what is in the way (the Windows Camera app holding the webcam,
  * battery saver, a very busy PC), each with its one action. Read only while Control is open and in front. */
@@ -300,6 +319,7 @@ function closeGroup(keepPin){                               // closed by its chi
   if (!keepPin) pin('');
   open = null; box.classList.remove('cc-open'); delete box.dataset.group;
   panel.classList.remove('in');                               // its opening animation no longer holds it visible
+  holdSize();                                                 // 26.11.42 the kept size goes with it
   chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); });
   glide.classList.remove('on');
   layout();
@@ -346,6 +366,39 @@ function build(g){
   parts.list.push(h('p', {cls: 'cc-hint'}, [h('kbd', {text: 'Alt 1–5'}), ' groups · ', h('kbd', {text: 'Esc'}), ' back · type to search everything']));
   return parts;
 }
+/* ---------- 26.11.42 (owner, 11 November) the open panel keeps its size while you use it: pressing Next moves to a
+ * Frame with fewer rows (no questions, an Undo line gone), and the panel used to shrink under the pointer. Now it only
+ * grows: it holds the tallest it has been for this chip (and for Control, for on air or off air) until another chip
+ * opens, it closes or the program goes on or off air. It never runs past the bottom of the window: what does not fit
+ * scrolls inside the panel, with the scrollbar's room kept so nothing shifts sideways. ResizeObserver only: nothing
+ * polls, and it rests while no panel is open. ---------- */
+var keep = {key: '', h: 0};
+function keepKey(){ return open ? open.id + (open.control ? (isLive() ? ':live' : ':off') : '') : ''; }
+function room(){
+  var r = panel.getBoundingClientRect(), bottom = box.classList.contains('cc-bottom') ? r.bottom : innerHeight - r.top;
+  return Math.max(220, Math.floor(bottom - 26));
+}
+/* the panel's own content height, whatever its box is stretched to (at the bottom of the screen the column can stretch
+   it): from its first child's top to its last child's bottom, plus its padding and border */
+function natural(){
+  var first = panel.firstElementChild, last = panel.lastElementChild;
+  if (!first) return 0;
+  var cs = getComputedStyle(panel), extra = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+  return Math.ceil(last.offsetTop + last.offsetHeight - first.offsetTop + extra);
+}
+function holdSize(){
+  var k = keepKey();
+  if (!k){ keep.key = ''; keep.h = 0; panel.style.minHeight = ''; panel.style.maxHeight = ''; return; }
+  var max = room();
+  if (k !== keep.key){ keep.key = k; keep.h = 0; panel.style.minHeight = ''; }
+  if (panel.style.maxHeight !== max + 'px') panel.style.maxHeight = max + 'px';
+  var h = Math.min(max, natural());
+  if (h > keep.h){ keep.h = h; panel.style.minHeight = h + 'px'; }
+}
+if (window.ResizeObserver){
+  var holdRaf = 0;
+  new ResizeObserver(function(){ if (!holdRaf) holdRaf = requestAnimationFrame(function(){ holdRaf = 0; holdSize(); }); }).observe(panel);
+}
 function fill(){
   var g = open, parts = built[g.id] || (built[g.id] = build(g));
   if (!g.control) hold.appendChild(control);
@@ -353,7 +406,7 @@ function fill(){
   panel.replaceChildren.apply(panel, parts.list);
   tileEls = parts.tiles;
   if (parts.recent) recentRow(parts.recent);
-  paint(); layout();
+  paint(); layout(); holdSize();
 }
 /* 26.11.31 a feature switched on or off (here, in Settings or another window): the chips are drawn again without it */
 if (window.KCFeatures) KCFeatures.onChange(function(){
@@ -373,6 +426,7 @@ function recentRow(el){
 function chip(id){ return chips[GROUPS.map(function(g){ return g.id; }).indexOf(id)]; }
 function paint(){
   chip('control').classList.toggle('live', isLive());
+  if (open && keep.key && keep.key !== keepKey()) holdSize(); // 26.11.42 on or off air: Control finds its new size
   chip('engage').classList.toggle('live', !!(mem && mem.capture));
   chip('more').classList.toggle('warn', !!(sync && (sync.phase === 'failed' || sync.phase === 'offline')));
   if (!open) return;
@@ -380,7 +434,7 @@ function paint(){
   if (open.control){
     var on = isLive(), ls = live && SC.liveScene(live), order = live ? SC.order(live) : [];
     golive.setAttribute('aria-checked', String(on)); golive.classList.toggle('on', on);
-    setText(golive.querySelector('#cc-golive-sub'), on ? 'Live · Frame ' + (order.indexOf(ls) + 1) + ' of ' + order.length + ' · ' + ls.name + ' · switch off to leave the screen'
+    setText(golive.querySelector('#cc-golive-sub'), on ? 'Live · Frame ' + (order.indexOf(ls) + 1) + ' of ' + order.length + ' · ' + ls.name + ' · hold to go off air'
       : order.length ? 'Off air · switch on to put “' + order[0].name + '” on screen' : 'Off air · no Frames yet');
     setText(control.querySelector('#cc-offair'), on ? '' : 'Go Live and the remote appears here: Frames, the Content one by one, Hide all, Black screen and your meeting app’s Mute and Camera. Draw and Spotlight are in Engage.');
     return;
@@ -489,6 +543,14 @@ var orig = window.KCSpotlight && window.KCSpotlight.opened;
 window.KCSpotlight = window.KCSpotlight || {};
 window.KCSpotlight.opened = function(){ if (orig) orig(); opened(); };
 window.KCSpotlight.look = look;
+/* 26.11.42 the Studio's top bar asks for Draw or Spotlight: the Command Center opens on Engage with that tool started
+ * (desktop_app spotlight(then=...)); also any chip by its id */
+window.KCSpotlight.then = function(o){
+  var g = o && GROUPS.filter(function(x){ return x.id === o.open; })[0];
+  if (!g) return;
+  if (open !== g) openGroup(g);
+  if (o.tool === 'draw' || o.tool === 'spot') tool(o.tool);
+};
 window.KCCommandCenter = {expanded: function(){ return !!input.value.trim() || !!current; }, layout: layout,
   open: function(id){ var g = GROUPS.filter(function(x){ return x.id === id; })[0]; if (g) openGroup(g); else closeGroup(); }};
 opened();

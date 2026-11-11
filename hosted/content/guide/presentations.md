@@ -197,9 +197,9 @@ on. Press the same control again to turn it off.
 Annotate works like ZoomIt: draw over whatever is on screen, slides and cards included. Everyone in Zoom, Teams and
 on the projector sees it.
 
-1. Press **D** (or, in a browser, choose **Engage → Draw**). In the desktop app, **Engage → Draw** opens the Share Window
-   to draw on instead, as Spotlight does: see [Draw and Spotlight on the Share Window](#draw-and-spotlight-on-the-share-window).
-   In the Command Center, Draw opens a draw pad right there: see [Draw and Spotlight in the Command Center](#draw-and-spotlight-in-the-command-center).
+1. Press **D** (or, in a browser, choose **Engage → Draw**). In the desktop app, **Engage → Draw** in the top bar opens
+   the Command Center on Engage with its draw pad ready, as Spotlight does: see [Draw and Spotlight in the Command Center](#draw-and-spotlight-in-the-command-center).
+   When people see a shared window, it opens the Share Window instead: see [Draw and Spotlight on the Share Window](#draw-and-spotlight-on-the-share-window).
 2. Pick a tool and draw on the Studio Canvas.
 3. Press **Esc** (or **Done**) to stop. The drawings are hidden.
 
@@ -466,8 +466,12 @@ Notes stay on this PC (in the program's data folder, one file per meeting): they
 never shown on screen or on the phone remote, and never in the file sent when asking for help. **Alt+←** and
 **Alt+→** still move the Frames while you type.
 
-**Go Live** in Control is a switch. On: the first Frame of the meeting goes on screen. Off: everything leaves the
-screen and you are off air. A green dot on **Control** shows you are live.
+**Go Live** in Control is a switch that stays on. A press puts the first Frame of the meeting on screen. While you are
+live, a press only reminds you; **hold** the switch for a second (a thin bar fills along it) and everything leaves the
+screen. A green dot on **Control** shows you are live.
+
+A panel keeps its size while you use it (pressing Next never makes it jump), and on a short screen what does not fit
+scrolls inside it.
 
 Only you see the Command Center. Like the Teleprompter, it is left out of screen sharing and recordings, even when you
 share the whole screen in Zoom, Teams or Google Meet.

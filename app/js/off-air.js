@@ -70,7 +70,7 @@ function attach(btn, armed, label, tap){      // tap: a quick press stays a norm
     if (label) label(false);
     if (tap){ if (viaKey && !held) btn.click(); return; }           // let go sooner: an ordinary Go Live
     swallow = Date.now() + 600;
-    if (!held) toast('Hold Off air for a second to take everything off screen');
+    if (!held) toast('Hold it for a second to go off air');
   }
   btn.addEventListener('pointerdown', function(e){ viaKey = false; if (e.button === 0 && start()){ e.preventDefault(); try { btn.setPointerCapture(e.pointerId); } catch(x){} } });
   ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(k){ btn.addEventListener(k, stop); });
@@ -110,7 +110,7 @@ if (take){
 var go = $('ls-go');
 if (go){
   var goT = $('ls-go-t');
-  attach(go, function(){ return go.classList.contains('is-off') && onAir(); }, function(h){ if (goT && go.classList.contains('is-off')) goT.textContent = h ? 'Keep holding…' : 'Off air'; });
+  attach(go, function(){ return go.classList.contains('is-off') && onAir(); }, function(h){ if (goT && go.classList.contains('is-off')) goT.textContent = h ? 'Keep holding…' : 'On air'; });
 }
 window.KCOffAir = {offAir: offAir, hold: HOLD};
 })();

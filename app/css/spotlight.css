@@ -743,3 +743,21 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .spr-undo{margin-left:8px;padding:2px 10px;border:1px solid var(--cc-rim-2);border-radius:999px;background:var(--cc-cell);color:var(--ink);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
 .spr-undo:hover{background:var(--cc-cell-2)}
 @media (prefers-reduced-motion: reduce){.cc .spr-b,.cc .spr-round,.cc .spr-kinds button{transition:none}.cc .spr-b:active,.cc .cc-g:active{transform:none}}
+/* ---------- 26.11.42 the open panel keeps its size while you use it and scrolls inside itself when it does not fit
+   the window (js/command-center.js holdSize()). The frame's look is unchanged. ---------- */
+.cc:not([data-group="notes"]) .cc-panel{box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
+.cc-panel::-webkit-scrollbar{width:6px}
+.cc-panel::-webkit-scrollbar-thumb{border-radius:999px;background:var(--cc-rim-2)}
+.cc-panel::-webkit-scrollbar-track{background:transparent}
+/* 26.11.42 while on air, an all-good Ready check steps aside (it is for before you go live), so the remote fits the
+   window; a warning or a failure still shows */
+body.spr-live #cc-rc-line.ok{display:none}
+/* 26.11.42 Go Live: off only by a hold (js/command-center.js); a thin bar fills along the switch while it is held */
+.cc-switch{position:relative;overflow:hidden}
+.cc-hold-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--danger,var(--red));transform:scaleX(0);transform-origin:left;pointer-events:none}
+.cc-switch.holding .cc-hold-bar{transform:scaleX(1);transition:transform var(--hold-ms,1s) linear}
+@media (prefers-reduced-motion:reduce){ .cc-switch.holding .cc-hold-bar{transition:none;opacity:.6} }
+/* 26.11.42 the waterfall joins again: the tray's two curves (.cc-tray::before/::after, 9.10.5) sit just outside its box,
+   and the paint containment of 9.10.2 clipped them away, so the chips fell as a plain box. The tray keeps its layout
+   containment; only its paint is no longer clipped to its box. */
+.cc .cc-tray{contain:layout;overflow:visible}

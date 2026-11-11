@@ -1,45 +1,39 @@
-## FrameDecks v26.11.41
+## FrameDecks v26.11.42
 
-Say it your way: voice commands now understand "let's see the verse" and "let's go to day 2". Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all your
-meetings, members, settings, notes, pinned Memory Cards and recordings.
+A Command Center that keeps its size, Draw and Spotlight from the top bar, and Go Live that stays on.
+Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
+keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Voice commands understand what you mean.** Hold your talk key and speak naturally: "let's see the verse", "can we
-  bring up the question", "jump to Bible Study", "take us to the opening". The extra words around a command are
-  understood, and "see", "bring up" and "pull up" all mean show.
-- **Frame names as you say them.** "Day2" is also "day two" and "second day", "BibleStudy" is "bible study", "Wk3 Q&A"
-  is "week three Q and A", "Part II" is "part two". Part of a name is enough when only one Frame has it: "go to day
-  three" finds "Day 3: Romans".
-- **"The next day".** Say "the next day" or "the previous week" and FrameDecks goes to the Frame with the next number
-  after the one on screen ("Day 2" → "Day 3").
-- **Also called.** Give a Frame other names to say, such as "the opening, start", in the Frame editor on the PC or on
-  framedecks.com. They sync with the Frame.
-- **Sync in the Frames panel.** A Sync button sits beside Quick Start. It first shows what would change, Frame by
-  Frame: what comes from framedecks.com, what this PC sends, and what was changed in both places. Nothing changes until
-  you press **Sync now**.
+- **Draw and Spotlight from the top bar open the Command Center.** In the Studio's Engage, Draw or Spotlight now opens
+  the Command Center on Engage with that tool ready, so you draw or point right there, beside Zoom or Teams.
+- **Go Live stays on.** A press goes live, and only holding for a second goes off air, in the Command Center as in the
+  Studio. While live, the Command Center's switch says "hold to go off air", and a press only reminds you.
 
 ## Enhancements
-- "The verse" and "the question" also work on a Frame that shows one thing at a time: its scripture or question comes
-  up.
-- When the same Frame name is in more than one meeting, a voice command goes to the one in the meeting on screen.
-- The scripture card ("You asked for John 3:16"), the corner card over your meeting and the messages at the bottom of
-  the screen are a little bigger, so they are not missed during a meeting.
-- The meeting clock moved out of the Frames panel to make room for Sync. It is still in the Command Center and on the
-  phone remote.
+- With nothing on air, **Next** goes live with the Frame you selected, the same as Go Live.
+- While a Frame is live, everything reads as on: the status pill says **Live** (even before a question or verse is
+  shown) and, after the last Frame, the big button says **On air**, hold to go off air.
+- The Command Center is as tall as your screen allows, so the whole live remote fits under the chips. On a short
+  screen it never runs past the taskbar.
+- While you are live, an all-good Ready check steps aside to make room. A warning still shows.
 
 ## Fixes
-- A Frame made in both places (for example the same .frame file imported on the PC and on framedecks.com) is now kept
-  once when it syncs, not twice.
+- The Command Center no longer shrinks when you press Next. It keeps its size while you use it, and anything that
+  doesn't fit scrolls inside the panel. Its look is unchanged.
+- With nothing on air, Next skipped the selected Frame and went live with the one after it. In a short meeting that
+  was the last Frame, so the button read Off air and asked for a hold.
+- The curved, waterfall-like joins where the chips meet the search bar are back. They had been clipped away, so
+  the chips hung as a plain box.
+- The bottom row of the live remote (your meeting app's Mute, Camera and Share) was cut off by the Command Center's
+  window.
 
 ## Performance Improvements
-- Checked on an older PC (processor slowed 4×, no graphics card): every screen stays within its limits. At rest the
-  Studio uses about 3% of the processor, the program uses 76 MB, and nothing grows after opening and closing everything
-  15 times.
-- Voice commands stay light. The listener knows about 210 words instead of 150, and understanding a command takes a few
-  milliseconds, even with 300 Frames.
+- Checked on an older PC (processor slowed 4×, no graphics card): the Command Center rests at 4% and opens a chip
+  within budget, nothing grows after 15 rounds, and the program uses 76 MB. Keeping the panel's size watches its size
+  only when it changes, and nothing runs on a timer.
 
 ## Known Issues
-- Voice commands still need you to hold the talk key. Go Live, Leave, Share screen and Emergency always stay a press.
+- On screens shorter than about 800 pixels, the live remote's last row scrolls inside the Command Center.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

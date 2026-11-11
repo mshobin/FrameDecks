@@ -27,9 +27,10 @@ function paintGo(){
   var up = $('upnext'), name = ($('un-name') || {}).textContent || '', meta = ($('un-meta') || {}).textContent || '';
   var warn = up && !up.hidden && $('un-warn') && $('un-warn').firstChild ? ' · ⚠︎ ' + $('un-warn').firstChild.textContent : '';
   if (!up || up.hidden || !name){
-    // 26.11.29 after the last Frame the button goes Off air, by press and hold (js/off-air.js)
-    if (!go.classList.contains('holding')) goT.textContent = 'Off air';
-    goSub.textContent = 'That was the last Frame · hold to end'; go.disabled = false; go.classList.add('is-off');
+    // 26.11.29 after the last Frame the button goes off air by press and hold (js/off-air.js); 26.11.42 it reads On air
+    // and looks on (the owner: Go Live is on by default, the hold only switches it off)
+    if (!go.classList.contains('holding')) goT.textContent = 'On air';
+    goSub.textContent = 'Last Frame · hold to go off air'; go.disabled = false; go.classList.add('is-off');
     go.title = 'Hold for a second to take everything off screen.';
     go.removeAttribute('aria-label');                          // 26.11.30 (audit M3) its name is what it shows;
     go.setAttribute('aria-describedby', 'kc-hold-hint');       // the hold is its description (js/off-air.js)

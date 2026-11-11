@@ -1380,6 +1380,13 @@ function stepScene(d){
     }
   }
   var base = live.live.scene || selScene, nx = SC.neighbour(live, base, d);
+  /* 26.11.42 (owner, 11 November): with nothing on air, Next goes live with the Frame you selected (the first one if
+     none), the same as Go Live, instead of skipping past it to the one after (in a short meeting that was the last
+     Frame, and everything then read Off air) */
+  if (d > 0 && !live.live.scene){
+    var picked = SC.find(live, selScene);
+    nx = picked && !picked.tpl && SC.order(live).indexOf(picked) >= 0 ? picked : SC.order(live)[0] || null;
+  }
   if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
   var keep = Store.snapshot(), wasLive = !!live.live.scene;
   selScene = nx.id; lsSet('bcc-sel-scene', nx.id); selLayer = null;

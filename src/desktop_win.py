@@ -331,7 +331,8 @@ def center_on_cursor(hwnd, top_third=True, where=None):
 
 
 def spot_y(top, bottom, h, where):
-    """The window's top edge for a place on a work area from top to bottom (screen pixels), never above the top."""
+    """The window's top edge for a place on a work area from top to bottom (screen pixels), never above the top and
+    (26.11.42) never so low that its bottom goes past the work area's bottom, where its panel would be cut off."""
     tall = bottom - top
     if where == "bottom":
         y = bottom - h
@@ -339,7 +340,7 @@ def spot_y(top, bottom, h, where):
         y = top + tall * 2 // 5 - h // 8          # the bar a little above the middle, its panel opening below
     else:
         y = top + tall // 4 - h // 6
-    return max(top, y)
+    return max(top, min(y, bottom - h))       # 26.11.42 and never below the taskbar: its panel stays on the screen
 
 
 def round_corners(hwnd):

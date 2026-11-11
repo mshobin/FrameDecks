@@ -303,15 +303,19 @@ function refreshStatus(){
   var state = live.live && (live.live.blackout || live.live.emergency) ? ' alert' : live.live && live.live.freeze && on.length ? ' held' : '';
   if (live.live && live.live.freeze && on.length && on[0] !== 'Black screen' && on[0] !== 'Emergency screen') on = ['Frozen'].concat(on);
   var what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');
+  /* 26.11.42 (owner, 11 November): a Frame on air reads Live even before its question or verse shows, never Off air */
+  var word = on.length ? 'LIVE' : ls ? 'Live' : 'Off air';
+  if (ls && !on.length) what = ls.name + ' · nothing shown yet';
+  el.classList.toggle('framed', !!ls && !on.length);
   el.classList.toggle('on', on.length > 0); el.classList.toggle('alert', state === ' alert'); el.classList.toggle('held', state === ' held');
   document.body.classList.toggle('kc-on-air', on.length > 0);         // Hide all turns red only while something is on screen
   var b = el.querySelector('b'), w = el.querySelector('.live-what');
-  if (b.textContent !== (on.length ? 'LIVE' : 'Off air') || w.textContent !== what){
+  if (b.textContent !== word || w.textContent !== what){
     el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap');
   }
-  if (b.textContent !== (on.length ? 'LIVE' : 'Off air')) b.textContent = on.length ? 'LIVE' : 'Off air';
+  if (b.textContent !== word) b.textContent = word;
   if (w.textContent !== what) w.textContent = what;
-  el.title = on.length ? 'On screen now: ' + what : 'Nothing is on screen';
+  el.title = on.length ? 'On screen now: ' + what : ls ? ls.name + ' is live. Show a question or verse to put it on screen.' : 'Nothing is on screen';
 }
 function refreshMode(){
   var m = $('mode');

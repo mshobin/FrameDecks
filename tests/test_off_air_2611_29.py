@@ -22,7 +22,7 @@ class OffAir(unittest.TestCase):
     def test_a_hold_of_a_second_never_a_click(self):
         self.assertIn("var HOLD = 1000;", self.js)
         self.assertRegex(self.js, r"t = setTimeout\(function\(\)\{ t = 0; held = true;.*offAir\(\); \}, HOLD\);")
-        self.assertIn("if (!held) toast('Hold Off air for a second to take everything off screen');", self.js)
+        self.assertIn("if (!held) toast('Hold it for a second to go off air');", self.js)   # 26.11.42 it reads On air
         # an armed button's click (and the one that follows letting go) is caught before the page's own handlers
         self.assertIn("(b.armed() || Date.now() < swallow)){ e.stopImmediatePropagation(); e.preventDefault(); return; }", self.js)
         self.assertIn("}, true);", self.js)

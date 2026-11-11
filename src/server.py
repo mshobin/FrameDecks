@@ -52,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.41"
+APP_VERSION = "26.11.42"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -853,6 +853,24 @@ def _key_down():
         return desktop_win.key_down if desktop_win.IS_WIN else None
     except Exception:
         return None
+
+
+CC_GROUPS = ("prepare", "engage", "control", "notes", "more")
+CC_TOOLS = ("draw", "spot")
+
+
+def spotlight_then(value):
+    """26.11.42 a request to open the Command Center on a chip, and optionally start Draw or Spotlight there:
+    {"open": "engage", "tool": "draw"} -> the same, checked; anything else -> None."""
+    if not isinstance(value, dict):
+        return None
+    group = value.get("open")
+    if group not in CC_GROUPS:
+        return None
+    out = {"open": group}
+    if value.get("tool") in CC_TOOLS and group == "engage":
+        out["tool"] = value["tool"]
+    return out
 
 
 def _voice_names():
@@ -3715,7 +3733,11 @@ class Handler(BaseHTTPRequestHandler):
             hook = DESKTOP.get("spotlight")
             if not hook:
                 return ok({"desktop": False})
-            hook(data.get("on", True))
+            then = spotlight_then(data.get("then"))           # 26.11.42 what the Command Center does once it shows
+            if then:
+                hook(True, then)
+            else:
+                hook(data.get("on", True))
             return ok({"desktop": True})
         if action == "palette-index":
             # Spotlight asks the main window for everything it can find (the main window keeps running in the tray)

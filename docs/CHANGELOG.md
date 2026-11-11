@@ -10,6 +10,29 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.42] - 2026-11-11
+
+Full notes: [docs/releases/v26.11.42.md](releases/v26.11.42.md).
+
+### Added
+- Top-bar Draw / Spotlight open the Command Center on Engage with the tool (`chip-bar.js engageTool`, `/api/app/spotlight`
+  `then`, `server.spotlight_then`, `desktop_app.spotlight(then=)`, `KCSpotlight.then`).
+- The Command Center's Go Live switch goes off air only by a one-second hold (press while live only says so).
+
+### Changed
+- The Command Center window is as tall as the screen allows (`desktop_app.spot_height`, up to 900) and never below the
+  taskbar (`desktop_win.spot_y`). An all-good Ready check hides while live.
+- Status pill reads Live while a Frame is live with nothing shown (`dashboard.js`, `.live-ind.framed`); the Live Stage's
+  last-Frame button reads On air (`live-stage.js`, `off-air.js`).
+
+### Fixed
+- The open panel keeps its size while used (`command-center.js holdSize`/`natural`, ResizeObserver; capped at the
+  window with scrolling inside); Next no longer shrinks it.
+- Next with nothing on air goes live with the selected Frame instead of the one after it (`workspace.js stepScene`).
+- The live remote's bottom row was cut off by the window.
+- The tray's waterfall joins (9.10.5 `.cc-tray::before/::after`) were clipped by the tray's paint containment;
+  `.cc .cc-tray{contain:layout;overflow:visible}`.
+
 ## [26.11.41] - 2026-11-10
 
 Full notes: [docs/releases/v26.11.41.md](releases/v26.11.41.md).

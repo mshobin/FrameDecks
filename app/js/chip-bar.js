@@ -34,8 +34,8 @@ var DO = {
     if (pane && pane.classList.contains('closed') && fold) fold.click();
     if (pane) pane.scrollIntoView({block: 'nearest', behavior: 'smooth'});
   },
-  draw: function(){ share('draw'); },
-  spot: function(){ share('spot'); },
+  draw: function(){ engageTool('draw'); },
+  spot: function(){ engageTool('spot'); },
   clear: function(){ if (window.KCPresenterTools && window.KCPresenterTools.clear) window.KCPresenterTools.clear(); toast('Drawings cleared'); },
   hidecards: function(){ post('api/memory', {action: 'hideall'}).then(function(){ toast('Cards hidden'); }).catch(function(){}); },
   members: function(){ if (window.KCMembers) window.KCMembers.open(); },
@@ -55,6 +55,15 @@ var DO = {
  * Center; choosing the one that is on gives the window back. In a browser there is no Share Window, so they work on
  * the Studio's picture instead (D and S there, as before). */
 var shareMode = '';
+/* 26.11.42 (owner, 11 November): in the program, Draw and Spotlight are done in the Command Center: the top bar opens
+ * it on Engage with that tool started (its draw pad, or the Share Window when people see a shared window), so the
+ * tools are in front of you, beside Zoom or Teams. In a browser (no Command Center) they work as before. */
+function engageTool(mode){
+  if (!desktop()){ share(mode); return; }
+  close();
+  post('api/app/spotlight', {then: {open: 'engage', tool: mode}}).then(function(d){ if (!d || !d.desktop) share(mode); })
+    .catch(function(){ share(mode); });
+}
 function desktop(){ return !!(window.KCAppInfo && window.KCAppInfo.desktop); }
 function useShare(){ var see = window.KCPeopleSee && window.KCPeopleSee.get(); return desktop() && (!see || see === 'window'); }
 function share(mode){

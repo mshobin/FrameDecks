@@ -762,6 +762,17 @@ def main():
     # see-through window by itself whenever its page starts loading (edgechromium on_navigation_start: Show + Activate,
     # whatever "hidden" says), so a Spotlight made at start-up popped up over the welcome after an install.
     SPOT_H = 720                                  # 9.10.2 the Command Center's fixed height (see spot_window)
+    SPOT_H_MAX = 900                              # 26.11.42 taller where the screen allows (spot_height)
+
+    def spot_height():
+        """26.11.42 the Command Center's one fixed height, set when it is made: as tall as the screen allows, up to
+        SPOT_H_MAX, so the live remote fits under the chips without scrolling on most screens (the window is
+        see-through and cut to the shape of what it shows, so the extra height costs nothing). Never resized after."""
+        wa = dw.work_area()
+        if not wa:
+            return SPOT_H
+        tall = int(wa[3] / (dw.display_scale() or 1.0))
+        return max(560, min(SPOT_H_MAX, tall - 16))
     spot_holder = {"w": None}
     spot_lock = threading.Lock()
     state["spot_ready"] = False
@@ -783,7 +794,7 @@ def main():
                 # 26.11.2 made off the screen and see-through from its first paint (?glass=1): pywebview shows a new
                 # window by itself while its page loads, and that showed an empty 820 x 720 box before the bar; the
                 # shortcut moves it to where you are (center_on_cursor) only when it opens for real
-                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html?glass=1", width=820, height=SPOT_H,
+                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html?glass=1", width=820, height=spot_height(),
                                           x=-32000, y=-32000,
                                           background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
                                           on_top=True, text_select=False, transparent=True)
@@ -841,7 +852,9 @@ def main():
         except Exception as _e:
             _swallowed("desktop_app.spot_prepare", _e)
 
-    def spotlight(on=True):
+    def spotlight(on=True, then=None):
+        """then (26.11.42): what the Command Center does once it shows, e.g. {"open": "engage", "tool": "draw"} when
+        the Studio's top bar asks for Draw or Spotlight (they are done in the Command Center's Engage)."""
         if on == "toggle":
             on = not state.get("spot_open")
         if not on:
@@ -884,6 +897,11 @@ def main():
                              % ("true" if state.get("spot_glass") else "false"))
         except Exception as _e:
             _swallowed("desktop_app.spotlight", _e)
+        if then:
+            try:                                      # 26.11.42 e.g. Engage with the draw pad, asked by the Studio's top bar
+                spot.evaluate_js("window.KCSpotlight && KCSpotlight.then && KCSpotlight.then(%s)" % json.dumps(then))
+            except Exception as _e:
+                _swallowed("desktop_app.spotlight", _e)
 
     def palette_index():
         try:

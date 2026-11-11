@@ -82,9 +82,12 @@ class TopBar(unittest.TestCase):
         self.assertIn("if (e.key === 'Escape' && open){", js)
 
     def test_draw_and_spotlight_open_the_share_window(self):
+        # 26.11.42 in the program they open the Command Center's Engage with the tool (tests/test_connected_2611_42.py);
+        # share() is still what a browser uses, and what the Command Center falls back to for a shared window
         js = read("app/js/chip-bar.js")
-        self.assertIn("draw: function(){ share('draw'); },", js)
-        self.assertIn("spot: function(){ share('spot'); },", js)
+        self.assertIn("draw: function(){ engageTool('draw'); },", js)
+        self.assertIn("spot: function(){ engageTool('spot'); },", js)
+        self.assertIn("if (!desktop()){ share(mode); return; }", js)
         self.assertIn("post('api/app/annotate', {op: 'mode', mode: shareMode === mode ? '' : mode})", js)
 
 

@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.42': [
+    {title: 'Draw and Spotlight in the Command Center', text: 'Draw and Spotlight in the top bar open the Command Center on Engage. Its panels keep their size while you use them.', show: {spot: '#lc-engage'}},
+    {title: 'Go Live stays on', text: 'A press goes live; only holding for a second goes off air, in the Command Center too. With nothing on air, Next goes live with your selected Frame.', show: {spot: '#cb-take'}}
+  ],
   '26.11.41': [
     {title: 'Say it your way', text: 'Voice commands understand \u201clet\u2019s see the verse\u201d, \u201clet\u2019s go to day 2\u201d and \u201cthe next day\u201d. Give a Frame other names in its Also called box.', show: {settings: 'listening'}},
     {title: 'Sync in the Frames panel', text: 'Sync beside Quick Start shows what would change, Frame by Frame, before anything does. A Frame made in both places is kept once.', show: {spot: '#frames-sync'}}
