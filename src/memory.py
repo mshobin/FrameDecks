@@ -258,15 +258,15 @@ class Memory:
         with self.cond:
             if self.hidden:
                 return [], None
-            pinned = [i for i in self.items if i["pinned"]]
-            timed = [i for i in self.items if not i["pinned"] and i["shownAt"] and ms < i["shownAt"] + dur]
+            pinned = [i for i in self.items if i["pinned"] or (i.get("stay") and i["shownAt"])]   # 26.11.43 stay: until taken off
+            timed = [i for i in self.items if not i["pinned"] and not i.get("stay") and i["shownAt"] and ms < i["shownAt"] + dur]
             room = max(0, MAX_VISIBLE - len(pinned))
             timed = sorted(timed, key=lambda i: (i["shownAt"], i["at"]), reverse=True)[:room]
             order = {id(i): k for k, i in enumerate(self.items)}                   # newest first: ties keep copy order
             shown = sorted(pinned[:MAX_VISIBLE] + timed, key=lambda i: (i["at"], -order[id(i)]))   # 9.1 the order copied
             nxt = min([(i["shownAt"] + dur - ms) / 1000 for i in timed], default=None)
-            cards = [{"id": i["id"], "title": i["title"], "text": i["text"], "src": i["src"], "pinned": i["pinned"],
-                      "full": i["full"]} for i in shown]
+            cards = [dict({"id": i["id"], "title": i["title"], "text": i["text"], "src": i["src"], "pinned": i["pinned"],
+                           "full": i["full"]}, **({"everywhere": True} if i.get("everywhere") else {})) for i in shown]
             return cards, nxt
 
     # ---------- changing ----------
@@ -344,6 +344,29 @@ class Memory:
                           made[0]["id"])
             return "added", dict(made[0])
 
+    def put(self, title, text, src="phone", stay=False):
+        """26.11.43 a card the leader puts on screen from the members' side (the members' phones code, a prayer request,
+        a poll's results): found again by its text or made new (never refused as a recent copy), shown with its full
+        text on every screen, the Share Window too, whatever "Also show on Share Window" says. stay: it stays until it
+        is taken off (the code people type), not for the overlay's seconds."""
+        text = _one_line(str(text or ""))[:MAX_TEXT]
+        if not text:
+            return None
+        with self.cond:
+            key, ms = _key(text), int(self.clock() * 1000)
+            item = next((i for i in self.items if _key(i["text"]) == key), None)
+            if not item:
+                item = {"id": "m" + uuid.uuid4().hex[:10], "title": "", "text": text, "src": src if src in SOURCES else "phone",
+                        "private": False, "at": ms, "pinned": False, "full": True, "shownAt": 0}
+                self.items.insert(0, item)
+                for old in [i for i in self.items if not i["pinned"]][MAX_ITEMS:]:
+                    self.items.remove(old)
+            item["title"] = _one_line(str(title or ""))[:MAX_NAME]
+            item["shownAt"], item["full"], item["everywhere"], item["stay"] = ms, True, True, bool(stay)
+            self.hidden = False
+            self._changed(save=item["pinned"])
+            return dict(item)
+
     def edit(self, item_id, title=None, text=None):
         with self.cond:
             item = self._find(item_id)
@@ -406,14 +429,14 @@ class Memory:
             if not item:
                 return None
             item["shownAt"], was = 0, item["pinned"]
-            item["pinned"] = False
+            item["pinned"], item["stay"] = False, False
             self._changed(save=was)
             return dict(item)
 
     def hide_all(self):
         with self.cond:
             for i in self.items:
-                i["shownAt"] = 0
+                i["shownAt"], i["stay"] = 0, False
             if not self.hidden:
                 self.hidden = True
                 self._changed()

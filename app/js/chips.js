@@ -32,7 +32,6 @@ var ACTIONS = [
   A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app'], {feature: 'vcam'}),
   // Engage
   A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
-  A('engage', 'members', 'Members’ phones', 'smartphone', 'Follow along, prayer requests', ['app'], {feature: 'team'}),   // 26.11.24 one code for everyone
   // 26.11.15 the Teleprompter is used live, so it lives in Engage only (Command Center, top bar and phone alike)
   A('engage', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone']),
   A('engage', 'capture', 'Capture copies', 'copy', 'Each Ctrl+C is a card', ['cc', 'app'], {toggle: true, feature: 'memory'}),
@@ -40,9 +39,12 @@ var ACTIONS = [
   A('engage', 'spot', 'Spotlight', 'circle-dot', 'Double-click a word', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'clear', 'Clear drawings', 'eraser', 'Everywhere at once', ['cc', 'app', 'phone']),
   A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
-  // 26.11.33 a speaker's name across the bottom; a question answered on members' phones
+  // 26.11.33 a speaker's name across the bottom
   A('engage', 'nametags', 'Name tags', 'user', 'A name and role on screen', ['cc', 'app'], {feature: 'nametags'}),
-  A('engage', 'responses', 'Polls', 'list-checks', 'Answered on members’ phones', ['cc', 'app'], {feature: 'responses'}),
+  // 26.11.43 what members do on their own phones, last in Engage under its own heading (SIDES) on every surface:
+  // 26.11.24 one code for everyone (follow along, prayer requests, sermon notes); 26.11.33 a question they answer
+  A('engage', 'members', 'Members’ phones', 'smartphone', 'Follow along, prayer requests', ['cc', 'app'], {feature: 'team', side: 'members'}),
+  A('engage', 'responses', 'Polls', 'list-checks', 'Ask, then show the answers', ['cc', 'app'], {feature: 'responses', side: 'members'}),
   // Control (Previous, Next, Go Live and Hide all are pinned in plain view on every surface)
   A('control', 'golive', 'Go Live', 'radio', 'On air or off air', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'prevnext', 'Previous and Next', 'chevron-right', 'The Frames in order', ['cc', 'app', 'phone'], {pinned: true}),
@@ -82,6 +84,8 @@ function actions(chipId, where, withPinned, everyFeature){
   var also = where ? ACTIONS.filter(function(a){ return a.alsoIn && (a.alsoIn[chipId] || []).indexOf(where) >= 0; }) : [];
   return everyFeature ? own.concat(also) : own.concat(also).filter(featureOn);
 }
-root.KCChips = {list: CHIPS, all: ACTIONS, chip: chip, action: function(id){ return byId[id] || null; }, actions: actions, offered: featureOn,
+/* 26.11.43 the heading over a chip's actions that happen on members' own phones, so it is clear they are for members */
+var SIDES = {members: {label: 'On members’ phones', icon: 'smartphone', feature: 'team'}};
+root.KCChips = {list: CHIPS, all: ACTIONS, sides: SIDES, chip: chip, action: function(id){ return byId[id] || null; }, actions: actions, offered: featureOn,
   chipOf: function(id){ return byId[id] ? byId[id].chip : null; }};
 })(typeof window !== 'undefined' ? window : this);

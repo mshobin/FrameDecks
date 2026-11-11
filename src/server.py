@@ -52,7 +52,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.42"
+APP_VERSION = "26.11.43"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1074,15 +1074,31 @@ def memory_action(data):
 PRAYER = prayer_wall.PrayerWall(lambda: SYNC._team(), on_received=lambda n: MEETING_LOG.count("prayer.received", n))
 
 
-def _prayer_card(title, text):
-    """A request (or the "We're praying for" list) on screen, as a Memory Card with this title and text."""
-    status, item = MEMORY.add(text, source="phone", show=False)
+def _prayer_card(title, text, stay=False):
+    """Something from the members' side on screen (a prayer request, the "We're praying for" list, a poll's results, the
+    members' phones code), as a Memory Card with this title and text. 26.11.43: on every screen, the Share Window too
+    (the leader chose to show it), found again by its text even just after it was removed, and with stay it stays until
+    it is taken off instead of for the overlay's seconds."""
+    item = MEMORY.put(title, text, "phone", stay)
     if not item:
         raise ValueError("That could not be shown.")
-    MEMORY.edit(item["id"], title, text)
-    MEMORY.show(item["id"], True)
     memory_sync()
     return item["id"]
+
+
+_INVITE = {"id": ""}          # 26.11.43 the members' phones code card while it is on screen
+
+
+def invite_on_screen():
+    """Whether the members' phones code is on screen now."""
+    return bool(_INVITE["id"]) and any(c["id"] == _INVITE["id"] for c in MEMORY.overlay(app_settings()["memDur"])[0])
+
+
+def invite_off():
+    if _INVITE["id"]:
+        MEMORY.hide(_INVITE["id"])
+        _INVITE["id"] = ""
+        memory_sync()
 
 
 ROOM = member_room.MemberRoom(lambda: SYNC._team(), lambda: state,
@@ -1104,7 +1120,7 @@ MEMBERS_FOCUS = {"n": 0}       # 26.11.25 the corner card's "All requests": the 
 
 
 def members_body():
-    return {"room": ROOM.body(), "prayer": PRAYER.body(), "focus": MEMBERS_FOCUS["n"]}
+    return {"room": ROOM.body(), "prayer": PRAYER.body(), "focus": MEMBERS_FOCUS["n"], "codeOnScreen": invite_on_screen()}
 
 
 # ---------- 26.11.33 quick responses and polls from members' phones (src/room_responses.py; 0022_room_polls.sql) ----------
@@ -1197,6 +1213,7 @@ def members_action(data):
         if PRAYER.is_open():
             PRAYER.close()
         ROOM.close()
+        invite_off()                                   # the code means nothing once the room is closed
     elif op == "prayer":
         if data.get("on"):
             if not PRAYER.is_open():
@@ -1216,8 +1233,10 @@ def members_action(data):
         b = ROOM.body()
         if not b["open"]:
             raise ValueError("Open members' phones first.")
-        _prayer_card("Follow along on your phone", "Go to %s and type the code %s" % (
-            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]))
+        _INVITE["id"] = _prayer_card("Follow along on your phone", "Go to %s and type the code %s" % (
+            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]), stay=True)
+    elif op == "uninvite":                             # 26.11.43 the code off screen again
+        invite_off()
     else:
         raise ValueError("Unknown action.")
     ROOM.poke()

@@ -79,7 +79,9 @@ function draw(){
     else right.push(h('p', {cls: 'pw-empty', text: 'Phones follow the meeting screen. Switch on prayer requests whenever you want them.'}));
     var join = [qr(room.url), h('p', {cls: 'pw-code', text: room.code}),
       h('p', {cls: 'pw-how', text: 'Scan, or go to ' + room.url.replace(/^https?:\/\//, '').replace(/#.*$/, '') + ' and type the code.'}),
-      h('button', {cls: 'btn ghost small', type: 'button', text: 'Show the code on screen', title: 'For people joining on Zoom or Teams', onclick: function(){ act('api/members', {op: 'invite'}, 'On screen'); }})];
+      cur.codeOnScreen   // 26.11.43 the code stays on every screen until it is taken off
+        ? h('button', {cls: 'btn ghost small', type: 'button', text: 'Take the code off screen', title: 'It is on the camera and the Share Window', onclick: function(){ act('api/members', {op: 'uninvite'}, 'Code taken off screen'); }})
+        : h('button', {cls: 'btn ghost small', type: 'button', text: 'Show the code on screen', title: 'For people joining on Zoom or Teams. It stays until you take it off.', onclick: function(){ act('api/members', {op: 'invite'}, 'The code is on screen'); }})];
     if (room.notesShared) join.push(h('p', {cls: 'pw-shared'}, ['Sermon notes shared ', h('button', {cls: 'linkish', type: 'button', text: 'Take back', onclick: function(){ act('api/members', {op: 'unshare-notes'}, 'Notes taken back'); }})]));
     kids.push(h('h2', {id: 'pw-title', text: pr.waiting ? pr.waiting + (pr.waiting === 1 ? ' prayer request waiting' : ' prayer requests waiting') : 'Members can join'}),
       h('div', {cls: 'pw-grid'}, [h('div', {cls: 'pw-join'}, join), h('div', {cls: 'pw-list-wrap'}, right)]));

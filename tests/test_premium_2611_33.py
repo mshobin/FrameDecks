@@ -54,7 +54,7 @@ class NameTags(unittest.TestCase):
         self.assertIn("delete n.live.on[l.id]", js, "Hide takes it off")
         chips = read("app/js/chips.js")
         self.assertIn("A('engage', 'nametags', 'Name tags', 'user', 'A name and role on screen', ['cc', 'app'], {feature: 'nametags'}),", chips)
-        self.assertIn("A('engage', 'responses', 'Polls', 'list-checks', 'Answered on members’ phones', ['cc', 'app'], {feature: 'responses'}),", chips)
+        self.assertIn("A('engage', 'responses', 'Polls', 'list-checks', 'Ask, then show the answers', ['cc', 'app'], {feature: 'responses', side: 'members'}),", chips)   # 26.11.43 under On members' phones
         self.assertIn("nametags: {id: 'nametags', label: 'Name tags'", read("app/js/command-center.js"))
 
 

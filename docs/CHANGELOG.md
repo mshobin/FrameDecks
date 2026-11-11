@@ -10,6 +10,24 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.43] - 2026-11-11
+
+Full notes: [docs/releases/v26.11.43.md](releases/v26.11.43.md).
+
+### Added
+- "On members' phones": member-side actions carry `side: 'members'` in `app/js/chips.js` (`SIDES`), sit last in Engage
+  and get one heading in the Command Center (`.cc-side`) and the top bar (`.lc-side`). Members' phones is offered in
+  the Command Center too (`cmd:members`).
+- Feature group `members` (`src/features.py`, `app/js/features.js`) for `team` and `responses`; `people` reads "Your
+  phone".
+- Website Help topic "Members' phones" (`hosted/src/components/help-topics.tsx`); user guide section.
+
+### Fixed
+- Show the code on screen: member-side cards go through `Memory.put` (found again by text, never refused as a recent
+  copy, `everywhere` so the overlay pages show them without `memShare`, `stay` for the code until taken off). `/api/members`
+  `uninvite`, `codeOnScreen`, and close takes the code off (`server.py _prayer_card`, `invite_off`). `store.js
+  liveMemory` keeps `everywhere` cards on the outputs.
+
 ## [26.11.42] - 2026-11-11
 
 Full notes: [docs/releases/v26.11.42.md](releases/v26.11.42.md).

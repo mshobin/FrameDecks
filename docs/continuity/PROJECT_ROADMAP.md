@@ -84,7 +84,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.39: website Plan Sync Now (changes wait, only differences sent), multi-select delete, timeline highlight | Released |
 | 26.11.40: website left-panel Next meeting card (readiness, church PC, changes waiting) | Released |
 | 26.11.41: voice commands understand natural speech + Also called; Frames panel Sync with preview; bigger alert cards | Released |
-| 26.11.42: Command Center keeps its size, top-bar Draw/Spotlight open it, Go Live on by press / off by hold | On `main`; owner tags `v26.11.42` |
+| 26.11.42: Command Center keeps its size, top-bar Draw/Spotlight open it, Go Live on by press / off by hold | Released |
+| 26.11.43: the members' side grouped (On members' phones) in the Command Center, top bar, Features and website Help; Show the code on screen fixed | On `main`; owner tags `v26.11.43` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

@@ -761,3 +761,8 @@ body.spr-live #cc-rc-line.ok{display:none}
    and the paint containment of 9.10.2 clipped them away, so the chips fell as a plain box. The tray keeps its layout
    containment; only its paint is no longer clipped to its box. */
 .cc .cc-tray{contain:layout;overflow:visible}
+/* 26.11.43 "On members' phones": a quiet heading across the grid over the actions that happen on members' own phones
+   (Members' phones, Polls), in the same small capitals as the Recent line, so the tiles keep their look */
+.cc-side{grid-column:1/-1;display:flex;align-items:center;gap:6px;margin:6px 2px 0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.cc-side::after{content:"";flex:1;height:1px;background:var(--line)}
+.cc-side svg{flex:none;opacity:.85}

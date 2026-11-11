@@ -105,7 +105,11 @@ CH.list.forEach(function(c){
     if (notesPad) pop.appendChild(notesPad.el);
   } else {
     var grid = h('div', {cls: 'lc-grid'});
+    var side = '';
     CH.actions(c.id, 'app', false, true).forEach(function(a){       // 26.11.31 a tile whose feature is off hides itself (data-feature)
+      var S = a.side && a.side !== side && CH.sides && CH.sides[a.side];
+      if (S) grid.appendChild(h('p', {cls: 'lc-side', 'data-feature': S.feature, html: I(S.icon, 12) + '<span>' + S.label + '</span>'}));   // 26.11.43 for members
+      side = a.side || '';
       grid.appendChild(tile(a));
     });
     pop.appendChild(grid);

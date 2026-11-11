@@ -13,6 +13,7 @@ import {
   MonitorPlay,
   Rocket,
   ScrollText,
+  Smartphone,
   TriangleAlert,
   UserRound,
   type LucideIcon,
@@ -291,6 +292,64 @@ export const TOPICS: Topic[] = [
               </li>
               <li>Pin it above Zoom or Teams and choose how see-through it is.</li>
               <li>The phone remote has the Teleprompter too.</li>
+            </ul>
+          </section>
+        </div>
+        <More links={[["/docs/presentations", "Presenting and the Teleprompter"]]} />
+      </>
+    ),
+  },
+  {
+    // 26.11.43 the members' side on its own, so it is clear what members do on their phones and what the leader does
+    id: "members",
+    label: "Members’ phones",
+    icon: Smartphone,
+    blurb: "What members do on their own phones, and how you start each one from the PC.",
+    body: () => (
+      <>
+        <div className="hc-cards">
+          <section>
+            <h3>On members’ phones</h3>
+            <ul>
+              <li>
+                <b>Follow along</b>: the Frame, scripture and question on screen, as it changes.
+              </li>
+              <li>
+                <b>Prayer requests</b>: they send one, with or without their name.
+              </li>
+              <li>
+                <b>Sermon notes</b>: the notes you share, to keep after the meeting.
+              </li>
+              <li>
+                <b>Polls</b>: yes or no, a choice or a 1–5 rating, answered on the phone.
+              </li>
+              <li>Nothing to install: they scan the QR code or type the code at framedecks.com/follow.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>On the PC</h3>
+            <ul>
+              <li>
+                Engage → <b>On members’ phones</b> → <b>Members’ phones</b>, then <b>Open for members’ phones</b>.
+              </li>
+              <li>
+                <b>Show the code on screen</b> puts the code on the camera and the Share Window for people on Zoom or Teams.
+                It stays until you take it off.
+              </li>
+              <li>Prayer requests wait for you. Nothing is shown unless you choose it, and a name only if you choose.</li>
+              <li>
+                Engage → <b>Polls</b> asks a question; <b>Show</b> puts the answers on screen.
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h3>Before you start</h3>
+            <ul>
+              <li>This PC is connected to your workspace (Settings → Sync).</li>
+              <li>
+                Settings → Features: <b>Prayer wall, members’ phones and Sync</b> and <b>Polls</b> are on.
+              </li>
+              <li>Close it after the meeting, or it closes by itself a few hours later.</li>
             </ul>
           </section>
         </div>

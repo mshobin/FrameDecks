@@ -549,8 +549,10 @@ var MEMORY_SOURCES = ['zoom', 'teams', 'meet', 'webex', 'slack', 'discord', 'cha
 function cleanMemory(m){
   if (!isObj(m) || !Array.isArray(m.cards)) return null;
   var cards = m.cards.filter(function(c){ return isObj(c) && c.id && String(c.text || '').trim(); }).slice(0, 6).map(function(c){
-    return {id: str(c.id, 40), title: str(c.title, 40), text: str(c.text, 500), src: MEMORY_SOURCES.indexOf(c.src) >= 0 ? c.src : 'clipboard',
+    var o = {id: str(c.id, 40), title: str(c.title, 40), text: str(c.text, 500), src: MEMORY_SOURCES.indexOf(c.src) >= 0 ? c.src : 'clipboard',
       pinned: !!c.pinned, full: !!c.full};
+    if (c.everywhere) o.everywhere = true;          // 26.11.43 from the members' side: every screen (kept only when set)
+    return o;
   });
   if (!cards.length) return null;
   return {cards: cards, layout: ['beside', 'below', 'over'].indexOf(m.layout) >= 0 ? m.layout : 'beside', side: m.side === 'left' ? 'left' : 'right', share: !!m.share};
@@ -1122,8 +1124,9 @@ var Scenes = {
    * Window" and always floating over the page (an OBS page cannot shrink the video under it). */
   liveMemory: function(st, output){
     var m = st && st.live && cleanMemory(st.live.memory); if (!m) return [];
-    if (output && !m.share) return [];
-    return [{id: 'memory', kind: 'memory', visible: true, c: {cards: m.cards, layout: output ? 'over' : m.layout, side: m.side, anim: 'chat'}}];
+    var cards = output && !m.share ? m.cards.filter(function(c){ return c.everywhere; }) : m.cards;   // 26.11.43 the members' side: every screen
+    if (!cards.length) return [];
+    return [{id: 'memory', kind: 'memory', visible: true, c: {cards: cards, layout: output ? 'over' : m.layout, side: m.side, anim: 'chat'}}];
   },
   cleanMemory: function(m){ return cleanMemory(m); },
   /* v6.2 Branding: badges on the program, {meeting} / {org} in text, the accent colour */

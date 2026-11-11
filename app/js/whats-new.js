@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.43': [
+    {title: 'On members\u2019 phones', text: 'Members\u2019 phones and Polls sit together under their own heading in Engage, in the Command Center and the top bar, so the members\u2019 side is easy to tell apart.', show: {spot: '#lc-engage'}},
+    {title: 'The code stays on screen', text: 'Show the code on screen now puts it on the camera and the Share Window until you take it off.', show: {spot: '#lc-members'}}
+  ],
   '26.11.42': [
     {title: 'Draw and Spotlight in the Command Center', text: 'Draw and Spotlight in the top bar open the Command Center on Engage. Its panels keep their size while you use them.', show: {spot: '#lc-engage'}},
     {title: 'Go Live stays on', text: 'A press goes live; only holding for a second goes off air, in the Command Center too. With nothing on air, Next goes live with your selected Frame.', show: {spot: '#cb-take'}}

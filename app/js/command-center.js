@@ -153,13 +153,14 @@ var MAKE = {
   features: function(){ return T('features', function(){ scope('features'); }, null, window.KCFeatures ? KCFeatures.summary() : null); },
   nametags: function(){ return T('nametags', function(){ scope('nametags'); }, {on: !!ntNow()}, ntNow() ? 'On: ' + ntNow().name : null); },
   responses: function(){ return T('responses', function(){ run('cmd:responses', false); }); },
+  members: function(){ return T('members', function(){ run('cmd:members', false); }); },     // 26.11.43 the Studio's Members' phones
   all: function(){ return T('all', function(){ scope('settings'); }); },
   help: function(){ return T('help', function(){ run('cmd:welcome', false); }); }};
 var GROUPS = CH.list.map(function(c){
   var g = {id: c.id, label: c.label, icon: c.icon, hue: c.hue, lede: c.lede};
   if (c.id === 'control') g.control = true;
   else if (c.id === 'notes') g.notes = true;
-  else g.tiles = function(){ return CH.actions(c.id, 'cc').map(function(a){ return MAKE[a.id] ? MAKE[a.id]() : null; }).filter(Boolean); };
+  else g.tiles = function(){ return CH.actions(c.id, 'cc').map(function(a){ var t = MAKE[a.id] ? MAKE[a.id]() : null; if (t) t.side = a.side || ''; return t; }).filter(Boolean); };
   return g;
 });
 function meetingSub(){ var c = live && SC.meetings(live).length ? SC.currentMeeting(live) : null; return c ? c.name : 'Switch and plan'; }
@@ -353,9 +354,13 @@ function build(g){
   parts.list.push(parts.head);
   if (g.control){ parts.list.push(control); return parts; }
   if (g.notes){ parts.list.push(Notes.el); parts.list.push(h('p', {cls: 'cc-hint'}, [h('kbd', {text: 'Enter'}), ' saves a note · ', h('kbd', {text: 'Shift Enter'}), ' new line · ', h('kbd', {text: 'Alt ← →'}), ' still move the Frames'])); return parts; }
-  var grid = h('div', {cls: 'cc-tiles'});
+  var grid = h('div', {cls: 'cc-tiles'}), side = '';
   g.tiles().forEach(function(t, i){
+    if (t.side && t.side !== side && CH.sides[t.side])     // 26.11.43 "On members' phones" over what members do on theirs
+      grid.appendChild(h('p', {cls: 'cc-side', html: I(CH.sides[t.side].icon, 13) + '<span>' + CH.sides[t.side].label + '</span>'}));
+    side = t.side;
     var b = h('button', {cls: 'cc-t' + (t.opt.toggle ? ' toggle' : '') + (t.opt.on ? ' on' : ''), type: 'button', id: 'cc-t-' + t.id, style: '--i:' + i,
+      title: t.side ? t.label + ': ' + t.sub : null,     // 26.11.43 the full name where a narrow tile cuts it short
       'aria-pressed': t.opt.toggle ? String(!!t.opt.on) : null, onclick: function(){ t.fn(); }}, [
       h('span', {cls: 'cc-t-sq', 'aria-hidden': 'true', html: I(t.icon, 20)}), h('span', {cls: 'cc-t-x'}, [h('b', {text: t.label}), h('small', {text: t.sub})])]);
     b.addEventListener('pointermove', light);

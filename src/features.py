@@ -19,14 +19,14 @@ FEATURES = (
     ("voice", "listening", "Voice commands"),
     ("follow", "listening", "Teleprompter: Follow my voice"),
     ("remote", "people", "Phone remote"),
-    ("team", "people", "Prayer wall, members’ phones and Sync"),
+    ("team", "members", "Prayer wall, members’ phones and Sync"),       # 26.11.43 its own group: on members' phones
     ("summary", "after", "Meeting summary, sermon notes and Moment"),
     ("ready", "helpers", "Ready check and light hints"),
     ("guard", "helpers", "Lighter during meetings"),
     # 26.11.33
     ("songs", "screen", "Songs and lyrics"),
     ("nametags", "screen", "Speaker name tags"),
-    ("responses", "people", "Polls and responses from members’ phones"),
+    ("responses", "members", "Polls and responses from members’ phones"),
     ("timing", "helpers", "Timing plan"),
 )
 IDS = tuple(f[0] for f in FEATURES)

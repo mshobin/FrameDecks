@@ -202,6 +202,20 @@ FrameDecks, restart that app.
 - Upright: chips at the bottom. Sideways or on a tablet: the picture on the left, the chips on the right.
 - The **Emergency** screen is on the PC only.
 
+### Members' phones (for members, on their own phones)
+Not the phone remote: this is for everyone in the meeting, with nothing to install. In Engage, under
+**On members' phones**:
+- **Members' phones** → **Open for members' phones**. Members scan the QR code or type the code at
+  framedecks.com/follow. On their phones they **follow along** (the Frame, scripture and question on screen), send
+  **prayer requests** (with or without their name) and keep the **sermon notes** you share.
+- **Show the code on screen** puts the code on the camera and the Share Window for people on Zoom or Teams. It stays
+  until you press **Take the code off screen** (or close members' phones).
+- **Polls**: ask yes or no, a choice or a 1–5 rating; members answer on their phones and **Show** puts the answers
+  on screen.
+- Prayer requests wait in the list for you. Nothing is shown unless you choose it, and a name only if you choose.
+- It needs this PC connected to your workspace (Settings → Sync). In Settings → Features these switches are together
+  under **On members' phones**.
+
 ## 7. Excel (optional)
 FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review and bulk editing. To move a
 plan to another PC, use a .frame file instead (see [Service planning](service-planning.md#move-a-plan-to-a-service-pc)).

@@ -10,7 +10,8 @@
 var GROUPS = [
   {id: 'screen', label: 'On screen'},
   {id: 'listening', label: 'Listening'},
-  {id: 'people', label: 'People'},
+  {id: 'people', label: 'Your phone'},
+  {id: 'members', label: 'On members’ phones'},      // 26.11.43 what members do on their own phones, on its own
   {id: 'after', label: 'After the meeting'},
   {id: 'helpers', label: 'Helpers'}];
 // the same ids, groups and names as src/features.py (tests/test_features_2611_31.py)
@@ -23,14 +24,14 @@ var LIST = [
   {id: 'voice', group: 'listening', label: 'Voice commands', what: 'Hold Right Ctrl and say “next frame”.', off: 'Off: the key and the microphone are left alone.'},
   {id: 'follow', group: 'listening', label: 'Teleprompter: Follow my voice', what: 'The script scrolls as you speak. The Teleprompter stays either way.'},
   {id: 'remote', group: 'people', label: 'Phone remote', what: 'Run the meeting from a phone or iPad on the same Wi-Fi.', off: 'Off: this PC takes no connections from the network.'},
-  {id: 'team', group: 'people', label: 'Prayer wall, members’ phones and Sync', what: 'Your team and members, through framedecks.com.', off: 'Off: hidden here. A PC already added keeps syncing until you disconnect it in Sync.'},
+  {id: 'team', group: 'members', label: 'Prayer wall, members’ phones and Sync', what: 'Your team and members, through framedecks.com.', off: 'Off: hidden here. A PC already added keeps syncing until you disconnect it in Sync.'},
   {id: 'summary', group: 'after', label: 'Meeting summary, sermon notes and Moment', what: 'What was shown, kept for the summary after the meeting.', off: 'Off: nothing is recorded about the meeting.'},
   {id: 'ready', group: 'helpers', label: 'Ready check and light hints', what: 'One look at everything before you go live.'},
   {id: 'guard', group: 'helpers', label: 'Lighter during meetings', what: 'FrameDecks does less while the PC is busy with your meeting.'},
   // 26.11.33
   {id: 'songs', group: 'screen', label: 'Songs and lyrics', what: 'Paste a hymn: it splits into verses you step through with Next.'},
   {id: 'nametags', group: 'screen', label: 'Speaker name tags', what: 'A name and role across the bottom of the picture, in two clicks.'},
-  {id: 'responses', group: 'people', label: 'Polls and responses from members’ phones', what: 'Yes or no, a poll or a 1–5 rating, answered on their phones.', off: 'Off: no question is sent to phones.'},
+  {id: 'responses', group: 'members', label: 'Polls and responses from members’ phones', what: 'Yes or no, a poll or a 1–5 rating, answered on their phones.', off: 'Off: no question is sent to phones.'},
   {id: 'timing', group: 'helpers', label: 'Timing plan', what: 'On time or minutes over, against each Frame’s planned minutes. Only you see it.'}];
 var PRESETS = [
   {id: 'simple', label: 'Simple', icon: 'layout-grid', text: 'The essentials and the Teleprompter.'},

@@ -2108,3 +2108,7 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
    (full green is for something on screen) */
 .live-ind.framed{border-color:var(--live);color:var(--ink)}
 .live-ind.framed i{background:var(--live)}
+/* 26.11.43 the top bar's Engage: the same "On members' phones" heading over Members' phones and Polls */
+.lc-side{grid-column:1/-1;display:flex;align-items:center;gap:6px;margin:6px 2px 0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.lc-side::after{content:"";flex:1;height:1px;background:var(--line)}
+.lc-side svg{flex:none}
