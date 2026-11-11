@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.44] - 2026-11-11
+
+Full notes: [docs/releases/v26.11.44.md](releases/v26.11.44.md).
+
+### Added
+- A QR code encoder written for FrameDecks (`src/qr_encode.py`: byte mode, medium error correction, versions 1-10,
+  mask chosen by penalty) and `src/join_qr.py` (SVG for the pages, PIL picture for the camera, cached per link).
+- The members' phones code card carries its link (`Memory.put(qr=)`) and shows it as a QR code on the camera
+  (`vcam/chatcard.bubble`) and the overlay pages (`overlay.js .chat-qr`, `/api/join-qr.svg`).
+- Settings -> Meeting & Branding "Members' phones QR code" (`joinQr`: off / beside / below, this PC only). While members'
+  phones is open the server keeps `live.join` (`server.join_live`, set in `save_state`); the Branding badge draws it on
+  the camera (`vcam/program._badge`) and the overlay pages (`.brand-qr`).
+
 ## [26.11.43] - 2026-11-11
 
 Full notes: [docs/releases/v26.11.43.md](releases/v26.11.43.md).

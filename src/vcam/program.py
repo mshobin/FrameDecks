@@ -43,6 +43,14 @@ def brand_text(st, s):
     return s
 
 
+def _join_of(live):
+    """26.11.44 live.join as (link, beside|below) for the Branding badge's QR, or None (server.py join_live)."""
+    j = (live or {}).get("join") if isinstance(live, dict) else None
+    if isinstance(j, dict) and isinstance(j.get("url"), str) and j.get("pos") in ("beside", "below"):
+        return (j["url"][:200], j["pos"])
+    return None
+
+
 def live_brand(st, output="vcam"):
     """v6.2 The live scene's Branding layers that have something to show (same rules as KCScenes.liveBrand)."""
     live = st.get("live") or {}
@@ -272,7 +280,7 @@ class ProgramFX:
             M["layout"] = m.get("layout") if m.get("layout") in chatcard.SQUEEZE or m.get("layout") == "over" else "beside"
             M["side"] = "left" if m.get("side") == "left" else "right"
             sig = tuple((c["id"], str(c.get("title") or ""), str(c.get("text") or "")[:500], bool(c.get("pinned")),
-                         bool(c.get("full")), str(c.get("src") or "")) for c in cards)
+                         bool(c.get("full")), str(c.get("src") or ""), str(c.get("qr") or "")) for c in cards)
             key = ("@memory", sig, M["layout"], M["side"], W, H)
             if key != M["want"]:
                 M["want"] = key
@@ -470,8 +478,31 @@ class ProgramFX:
             if lw > 24 * s:                                   # very wide logos
                 lw = int(24 * s)
                 lh = max(1, int(round(lw * logo.height / max(1, logo.width))))
-        inner_h = max(lh, text_h)
-        w = int(round(2 * pad + lw + (gap if lw and lines else 0) + text_w))
+        row_h = max(lh, text_h)
+        row_w = lw + (gap if lw and lines else 0) + text_w
+        # 26.11.44 the members' phones QR beside or below the logo (Settings -> Meeting & Branding), while it is open
+        jq, qimg, cap_f = None, None, None
+        join = d.get("join")
+        if join:
+            try:
+                import join_qr as jq
+            except ImportError:
+                jq = None
+        if jq and jq.valid(join[0]):
+            qimg = jq.image(join[0], max(logo_h, 7.6 * s))
+            cap_f = fonts.get("sans", 700, 0.95 * s)
+        cap = "Scan to follow"
+        qw = max(qimg.width, int(math.ceil(cap_f.getlength(cap)))) if qimg else 0
+        qh = qimg.height + 0.35 * s + cap_f.size * 1.2 if qimg else 0
+        below = bool(qimg) and join[1] == "below"
+        if not qimg:
+            inner_w, inner_h = row_w, row_h
+        elif below:
+            inner_w, inner_h = max(row_w, qw), row_h + (gap if row_w else 0) + qh
+        else:
+            inner_w, inner_h = row_w + (gap if row_w else 0) + qw, max(row_h, qh)
+        row_top = pad + ((inner_h - row_h) / 2 if qimg and not below else 0)
+        w = int(round(2 * pad + inner_w))
         h = int(round(2 * pad + inner_h))
         img = Image.new("RGBA", (max(1, w), max(1, h)), (0, 0, 0, 0))
         dr = ImageDraw.Draw(img)
@@ -490,12 +521,12 @@ class ProgramFX:
         x = pad
         if logo is not None:
             lg = logo.resize((lw, lh), Image.LANCZOS)
-            at = (int(round(x)), int(round((h - lh) / 2)))
+            at = (int(round(x)), int(round(row_top + (row_h - lh) / 2)))
             if soft:                                          # 6.7 no plate: a soft shadow keeps the logo readable
                 img.alpha_composite(_shadow(lg, u), (at[0], at[1] + max(1, int(round(u * 0.08)))))
             img.alpha_composite(lg, at)
             x += lw + (gap if lines else 0)
-        y = (h - text_h) / 2
+        y = row_top + (row_h - text_h) / 2
         for t, f, col in lines:
             if soft:
                 sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -503,6 +534,18 @@ class ProgramFX:
                 img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(max(1.0, u * 0.25))))
             dr.text((x, y + f.size * 0.125), t, font=f, fill=col + (255,))
             y += f.size * 1.25
+        if qimg:
+            if below:
+                qx, qy = pad + (inner_w - qw) / 2, pad + row_h + (gap if row_w else 0)
+            else:
+                qx, qy = pad + row_w + (gap if row_w else 0), pad + (inner_h - qh) / 2
+            img.alpha_composite(qimg, (int(round(qx + (qw - qimg.width) / 2)), int(round(qy))))
+            cy = qy + qimg.height + 0.35 * s
+            if soft:
+                sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
+                ImageDraw.Draw(sh).text((qx + qw / 2, cy + max(1, u * 0.08)), cap, font=cap_f, fill=(0, 0, 0, 215), anchor="ma")
+                img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(max(1.0, u * 0.25))))
+            dr.text((qx + qw / 2, cy), cap, font=cap_f, fill=(251, 246, 234, 255), anchor="ma")
         base = _premult(img)
         empty = np.zeros_like(base)
         card = Card("brand", w, h, 0, (base, empty, empty.copy()), [], [], 0, None)
@@ -519,10 +562,10 @@ class ProgramFX:
             accent = b.get("color") or ""
             if l["kind"] == "brand":
                 data = {"brand": True, "meeting": b.get("meeting") or "", "org": b.get("org") or "", "logo": c.get("logo") and b.get("logo"),
-                        "name": bool(c.get("name")), "show_org": bool(c.get("org"))}
+                        "name": bool(c.get("name")), "show_org": bool(c.get("org")), "join": _join_of(live)}
                 L = {"scale": float(c.get("scale") or 1), "accent": accent, "pad": _num(c.get("pad"), 1.0), "plate": c.get("plate", True) is not False,
                      "bg": max(0.0, min(1.0, _num(c.get("bg"), 1.0))), "margin": _num(c.get("margin"), 4.0), "look": look}
-                key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"),
+                key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], data["join"], L["scale"], accent, c.get("pos"),
                        L["pad"], L["plate"], L["bg"], L["margin"], str(sorted(look.items())), W, H)
             else:
                 text = countdown_text(st, l) if l["kind"] == "countdown" else brand_text(st, c.get("text"))

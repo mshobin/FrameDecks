@@ -417,6 +417,12 @@ function fillChat(x, l){
     var nm = li.querySelector('.chat-name'); nm.textContent = title; nm.style.color = lighter(col, .45);
     li.querySelector('.chat-app').textContent = app.toLowerCase() === title.toLowerCase() ? '' : app;
     var t = li.querySelector('.chat-text'); if (t.textContent !== m.text) t.textContent = m.text;
+    var q = li.querySelector('.chat-qr');            // 26.11.44 the members' phones code card: its QR to scan
+    if (m.qr){
+      if (!q){ q = document.createElement('img'); q.className = 'chat-qr'; q.alt = 'QR code to follow on your phone'; li.querySelector('.chat-bubble').appendChild(q); }
+      var qs = 'api/join-qr.svg?c=' + encodeURIComponent((String(m.qr).match(/c=([A-Za-z0-9]+)/) || [])[1] || '');
+      if (q.getAttribute('src') !== qs) q.setAttribute('src', qs);
+    } else if (q) q.remove();
     li.classList.toggle('pinned', !!m.pinned); li.classList.toggle('full', !!m.full);
     var at = x.list.querySelectorAll('.chat-msg:not(.leave)')[i];
     if (at !== li) x.list.insertBefore(li, at || null);
@@ -462,8 +468,11 @@ function TextLayers(root){
       var lg = document.createElement('img'); lg.className = 'brand-logo'; lg.alt = '';
       var bt = el('div', 'brand-t'), bn = el('b', 'brand-name'), bo = el('span', 'brand-org');
       bt.appendChild(bn); bt.appendChild(bo); card.appendChild(lg); card.appendChild(bt);
+      // 26.11.44 the members' phones QR, beside or below the logo (Settings → Meeting & Branding), while it is open
+      var qf = el('figure', 'brand-qr'), qi = document.createElement('img'); qi.alt = 'QR code to follow on your phone';
+      qf.appendChild(qi); qf.appendChild(el('figcaption', '', 'Scan to follow')); qf.hidden = true; card.appendChild(qf);
       var z = el('div', 'zone-x zone-brand'); z.appendChild(card); root.appendChild(z);
-      return {zone: z, card: card, logo: lg, name: bn, org: bo};
+      return {zone: z, card: card, logo: lg, name: bn, org: bo, qr: qf, qrImg: qi};
     }
     var label = el('header', 'card-label', TEXT_ICON[l.kind] || ''), lt = el('span'); label.appendChild(lt);
     var logo = document.createElement('img'); logo.className = 'card-logo'; logo.alt = ''; label.appendChild(logo);
@@ -471,6 +480,7 @@ function TextLayers(root){
     var zone = el('div', 'zone-x'); zone.appendChild(card); root.appendChild(zone);
     return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text')};
   }
+  function setQr(img, code){ var src = 'api/join-qr.svg?c=' + encodeURIComponent(code || ''); if (img.getAttribute('src') !== src) img.setAttribute('src', src); }
   function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
   function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
   function fill(x, l, st){
@@ -488,6 +498,10 @@ function TextLayers(root){
       setLogo(x.logo, c.logo ? logoSrc(st) : '');
       x.name.textContent = c.name ? b.meeting : ''; x.org.textContent = c.org ? b.org : '';
       x.name.hidden = !x.name.textContent; x.org.hidden = !x.org.textContent;
+      var j = S.join && S.join(st);
+      x.card.classList.toggle('qr-beside', !!j && j.pos === 'beside'); x.card.classList.toggle('qr-below', !!j && j.pos === 'below');
+      if (j) setQr(x.qrImg, j.code);
+      x.qr.hidden = !j;
       x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
       return;
     }

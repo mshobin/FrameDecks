@@ -546,12 +546,20 @@ function compToMedia(o){
 }
 /* 9.0 live.memory: the Memory Cards in the chat overlay (server.py memory_view; memory.py Memory.overlay) */
 var MEMORY_SOURCES = ['zoom', 'teams', 'meet', 'webex', 'slack', 'discord', 'chatgpt', 'claude', 'copilot', 'youtube', 'twitch', 'facebook', 'whatsapp', 'sms', 'phone', 'clipboard'];
+/* 26.11.44 the members' phones link (https, printable, short) and live.join: that link and where the Branding badge
+ * shows it as a QR code (server.py join_live; the QR itself is /api/join-qr.svg, drawn once on the PC) */
+function joinUrl(u){ return typeof u === 'string' && /^https:\/\/[\x21-\x7e]{4,192}$/.test(u); }
+function cleanJoin(j){
+  if (!isObj(j) || !joinUrl(j.url) || ['beside', 'below'].indexOf(j.pos) < 0) return null;
+  return {url: j.url, code: str(j.code, 12).replace(/[^A-Z0-9]/g, ''), pos: j.pos};
+}
 function cleanMemory(m){
   if (!isObj(m) || !Array.isArray(m.cards)) return null;
   var cards = m.cards.filter(function(c){ return isObj(c) && c.id && String(c.text || '').trim(); }).slice(0, 6).map(function(c){
     var o = {id: str(c.id, 40), title: str(c.title, 40), text: str(c.text, 500), src: MEMORY_SOURCES.indexOf(c.src) >= 0 ? c.src : 'clipboard',
       pinned: !!c.pinned, full: !!c.full};
     if (c.everywhere) o.everywhere = true;          // 26.11.43 from the members' side: every screen (kept only when set)
+    if (joinUrl(c.qr)) o.qr = c.qr;                 // 26.11.44 the members' phones code card: its QR to scan
     return o;
   });
   if (!cards.length) return null;
@@ -572,6 +580,7 @@ var Scenes = {
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
       meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
     var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)
+    var jn = cleanJoin(l.join); if (jn) st.live.join = jn;           // 26.11.44 the members' phones QR on the Branding badge
     if (isObj(l.smart) && typeof l.smart.scene === 'string' && isFinite(l.smart.at)) st.live.smart = {scene: str(l.smart.scene, 40), at: Math.max(-1, Math.min(999, Number(l.smart.at) | 0))};   // 26.11.22 Smart Next's place
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
@@ -1129,6 +1138,7 @@ var Scenes = {
     return [{id: 'memory', kind: 'memory', visible: true, c: {cards: cards, layout: output ? 'over' : m.layout, side: m.side, anim: 'chat'}}];
   },
   cleanMemory: function(m){ return cleanMemory(m); },
+  join: function(st){ return st && st.live ? cleanJoin(st.live.join) : null; },   // 26.11.44 the members' phones QR on the badge
   /* v6.2 Branding: badges on the program, {meeting} / {org} in text, the accent colour */
   liveBrand: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc || (output && sc.out[output] === false)) return [];

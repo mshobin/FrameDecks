@@ -333,8 +333,12 @@ export const TOPICS: Topic[] = [
                 Engage → <b>On members’ phones</b> → <b>Members’ phones</b>, then <b>Open for members’ phones</b>.
               </li>
               <li>
-                <b>Show the code on screen</b> puts the code on the camera and the Share Window for people on Zoom or Teams.
-                It stays until you take it off.
+                <b>Show the code on screen</b> puts the code and a QR code to scan on the camera and the Share Window for
+                people on Zoom or Teams. It stays until you take it off.
+              </li>
+              <li>
+                For latecomers: Settings → Meeting &amp; Branding → <b>Members’ phones QR code</b> puts a small QR code
+                beside or below your logo while members’ phones is open.
               </li>
               <li>Prayer requests wait for you. Nothing is shown unless you choose it, and a name only if you choose.</li>
               <li>

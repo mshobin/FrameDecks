@@ -208,8 +208,10 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
 - **Members' phones** → **Open for members' phones**. Members scan the QR code or type the code at
   framedecks.com/follow. On their phones they **follow along** (the Frame, scripture and question on screen), send
   **prayer requests** (with or without their name) and keep the **sermon notes** you share.
-- **Show the code on screen** puts the code on the camera and the Share Window for people on Zoom or Teams. It stays
-  until you press **Take the code off screen** (or close members' phones).
+- **Show the code on screen** puts the code and a QR code to scan on the camera and the Share Window for people on
+  Zoom or Teams. It stays until you press **Take the code off screen** (or close members' phones).
+- For people who arrive late: Settings → Meeting & Branding → **Members' phones QR code** puts a small QR code beside
+  or below your logo on the Branding badge while members' phones is open.
 - **Polls**: ask yes or no, a choice or a 1–5 rating; members answer on their phones and **Show** puts the answers
   on screen.
 - Prayer requests wait in the list for you. Nothing is shown unless you choose it, and a name only if you choose.

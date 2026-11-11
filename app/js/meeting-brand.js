@@ -224,6 +224,20 @@ function build(){
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Apply to all badges', onclick: function(){ var p = el.pos.value; commit(function(n){ n.scenes.forEach(function(sc){ sc.layers.forEach(function(l){ if (l.kind === 'brand') l.c.pos = p; }); }); }).then(function(){ toast('Every badge moved'); }); }})]),
     el.list,
     h('label', {cls: 'check'}, [el.auto, ' New Frames include branding (Quick Start, Library, + Frame)'])]));
+  // 26.11.44 the members' phones QR on the Branding badge, so someone who arrives late scans it straight from the screen
+  el.qr = h('select', {id: 'mb-qr', 'aria-label': 'Members’ phones QR code on the badge'},
+    [['off', 'Off'], ['beside', 'Beside the logo'], ['below', 'Below the logo']].map(function(p){ return h('option', {value: p[0], text: p[1]}); }));
+  el.qr.addEventListener('change', function(){
+    var v = el.qr.value;
+    fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({joinQr: v})})
+      .then(function(){ toast(v === 'off' ? 'No QR code on the badge' : 'The QR code shows on the badge while members’ phones is open'); })
+      .catch(function(){ toast('Could not save', true); });
+  });
+  fetch('api/app/info').then(function(r){ return r.json(); }).then(function(d){ el.qr.value = (d.settings && d.settings.joinQr) || 'off'; }).catch(function(){});
+  root.appendChild(h('section', {cls: 'box', id: 'mb-join', 'data-feature': 'team'}, [
+    h('div', {cls: 'box-head'}, [h('h2', {text: 'Members’ phones QR code'})]),
+    h('p', {cls: 'plain', text: 'A small QR code on the Branding badge, beside or below your logo, so someone who joins late scans it and follows on their phone. It shows only while members’ phones is open (Engage → On members’ phones), on the camera and the shared screen.'}),
+    h('label', {cls: 'mb-inline'}, [h('span', {text: 'On the badge'}), el.qr])]));
   // materials
   root.appendChild(h('section', {cls: 'box'}, [
     h('div', {cls: 'box-head'}, [h('h2', {text: 'Branded templates & meeting materials'})]),

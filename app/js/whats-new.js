@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.44': [
+    {title: 'A QR code to scan', text: 'Show the code on screen now puts a QR code beside the code, on the camera and the Share Window, so people point their phone at the screen.', show: {spot: '#lc-members'}},
+    {title: 'QR code on your badge', text: 'Settings \u2192 Meeting & Branding: a small QR code beside or below your logo while members\u2019 phones is open, for anyone who arrives late.', show: {settings: 'meeting'}}
+  ],
   '26.11.43': [
     {title: 'On members\u2019 phones', text: 'Members\u2019 phones and Polls sit together under their own heading in Engage, in the Command Center and the top bar, so the members\u2019 side is easy to tell apart.', show: {spot: '#lc-engage'}},
     {title: 'The code stays on screen', text: 'Show the code on screen now puts it on the camera and the Share Window until you take it off.', show: {spot: '#lc-members'}}

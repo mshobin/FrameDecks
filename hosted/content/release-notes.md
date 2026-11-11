@@ -1,38 +1,31 @@
-## FrameDecks v26.11.43
-The members' side made clear, and Show the code on screen that works.
+## FrameDecks v26.11.44
+A QR code to scan for members' phones: on the code's card, and small on your Branding badge for anyone who arrives late.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **On members' phones.** What members do on their own phones now sits together, under its own heading at the end of
-  Engage: **Members' phones** (follow along, prayer requests, sermon notes) and **Polls**. It reads the same in the
-  Command Center and in the Studio's top bar, so the leader's own tools and the members' side are never mixed up.
-- **Members' phones in the Command Center.** The tile opens the Studio's Members' phones beside Zoom or Teams.
-- **A Members' phones topic in Help on framedecks.com.** It shows what members do on their phones and what you do on
-  the PC, side by side.
+- **Show the code on screen now shows a QR code too.** The card has the code and a QR code to scan, on the camera and
+  on the Share Window, so people on Zoom or Teams point their phone at the screen and follow along.
+- **A small QR code on your Branding badge.** Settings → Meeting & Branding → **Members' phones QR code**: Off, Beside
+  the logo or Below the logo. It shows on the badge only while members' phones is open, with "Scan to follow" under it,
+  so someone who arrives late joins without asking for the code.
 
 ## Enhancements
-- **Show the code on screen stays until you take it off.** The button then reads **Take the code off screen**, and
-  closing members' phones takes it off too.
-- In Settings → Features, **Prayer wall, members' phones and Sync** and **Polls** have their own group, **On members'
-  phones**. The phone remote's switch is under **Your phone**.
-- Polls now says what it does: **Ask, then show the answers**.
-- The user guide has a short section on members' phones.
+- The QR code is drawn on this PC and is the same everywhere: the camera, the Share Window, the overlay pages and the
+  Studio's preview. Each QR code opens that meeting's members' phones page with today's code already filled in.
+- It stays readable when the meeting app sends the picture at 720p, and it has its own white square so it reads on any
+  plate or picture.
+- The setting is shown only while members' phones is switched on in Settings → Features.
 
 ## Fixes
-- **Show the code on screen did nothing for most people.** The code went out as a Memory Card, which reaches the Share
-  Window only with "Also show on Share Window" ticked (off unless you chose it) and leaves after 12 seconds. The code
-  now appears on the camera and on the Share Window and stays.
-- Pressing Show the code on screen again straight after removing the card said "That could not be shown". It now shows
-  the code again.
-- Prayer requests and poll answers you choose to show now reach the Share Window too, whatever the Memory Cards
-  setting.
+- None in this release.
 
 ## Performance Improvements
-- Nothing new runs in the background. The code stays on screen because of a mark on its card, not a timer. The
-  heading is one line of text, and nothing is redrawn while you use the panel.
+- The QR code is made once per code and kept. Nothing new runs while you are live, and with members' phones closed
+  nothing changes at all.
 
 ## Known Issues
-- On screens shorter than about 800 pixels, the live remote's last row scrolls inside the Command Center.
+- The badge's QR code shows on Frames that have Branding. Add Branding to a Frame in Meeting & Branding → Where branding
+  appears.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

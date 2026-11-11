@@ -368,3 +368,14 @@ html[data-season="christmas"] .card::after{content:"";position:absolute;inset:-4
   background-size:83px 71px,37px 43px,59px 97px;background-position:0 0,19px 11px,41px 53px;animation:season-snow 14s linear infinite}
 @keyframes season-snow{from{transform:translateY(0)}to{transform:translateY(29%)}}
 @media (prefers-reduced-motion:reduce){html[data-season="christmas"] .card::after{animation:none}}
+/* 26.11.44 the members' phones QR code (one SVG from the PC, /api/join-qr.svg). On the code's chat bubble, under the
+   message, big enough to scan through a video call; on the Branding badge beside or below the logo (Settings → Meeting &
+   Branding), small, with a quiet caption. Its own white tile keeps it readable on any plate or picture. */
+.chat-qr{display:block;width:calc(var(--u)*11);height:calc(var(--u)*11);margin:calc(var(--u)*.8) 0 calc(var(--u)*.2);image-rendering:pixelated}
+.card-brand .brand-qr{margin:0;display:flex;flex-direction:column;align-items:center;gap:calc(var(--s)*.35);flex:none}
+.card-brand .brand-qr[hidden]{display:none}
+.card-brand .brand-qr img{width:calc(var(--s)*7.6);height:calc(var(--s)*7.6);image-rendering:pixelated}
+.card-brand .brand-qr figcaption{font-family:var(--sans);font-weight:700;font-size:calc(var(--s)*.95);line-height:1.1;color:#fbf6ea;white-space:nowrap}
+.card-brand.qr-below{flex-wrap:wrap;justify-content:center}
+.card-brand.qr-below .brand-qr{flex-basis:100%}
+.card-brand.no-plate .brand-qr figcaption,.card-brand.faint-plate .brand-qr figcaption{text-shadow:0 calc(var(--u)*.08) calc(var(--u)*.4) rgba(0,0,0,.85)}

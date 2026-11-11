@@ -266,7 +266,8 @@ class Memory:
             shown = sorted(pinned[:MAX_VISIBLE] + timed, key=lambda i: (i["at"], -order[id(i)]))   # 9.1 the order copied
             nxt = min([(i["shownAt"] + dur - ms) / 1000 for i in timed], default=None)
             cards = [dict({"id": i["id"], "title": i["title"], "text": i["text"], "src": i["src"], "pinned": i["pinned"],
-                           "full": i["full"]}, **({"everywhere": True} if i.get("everywhere") else {})) for i in shown]
+                           "full": i["full"]}, **({"everywhere": True} if i.get("everywhere") else {}),
+                           **({"qr": i["qr"]} if i.get("qr") else {})) for i in shown]
             return cards, nxt
 
     # ---------- changing ----------
@@ -344,11 +345,12 @@ class Memory:
                           made[0]["id"])
             return "added", dict(made[0])
 
-    def put(self, title, text, src="phone", stay=False):
+    def put(self, title, text, src="phone", stay=False, qr=""):
         """26.11.43 a card the leader puts on screen from the members' side (the members' phones code, a prayer request,
         a poll's results): found again by its text or made new (never refused as a recent copy), shown with its full
         text on every screen, the Share Window too, whatever "Also show on Share Window" says. stay: it stays until it
-        is taken off (the code people type), not for the overlay's seconds."""
+        is taken off (the code people type), not for the overlay's seconds. 26.11.44 qr: a link the card shows as a QR
+        code to scan (the members' phones code)."""
         text = _one_line(str(text or ""))[:MAX_TEXT]
         if not text:
             return None
@@ -363,6 +365,10 @@ class Memory:
                     self.items.remove(old)
             item["title"] = _one_line(str(title or ""))[:MAX_NAME]
             item["shownAt"], item["full"], item["everywhere"], item["stay"] = ms, True, True, bool(stay)
+            if isinstance(qr, str) and qr.startswith("https://") and len(qr) <= 200:
+                item["qr"] = qr
+            else:
+                item.pop("qr", None)
             self.hidden = False
             self._changed(save=item["pinned"])
             return dict(item)

@@ -102,8 +102,8 @@ class ServerInvite(unittest.TestCase):
 
     def test_every_members_side_card_goes_through_one_place(self):
         src = read("src/server.py")
-        self.assertIn('item = MEMORY.put(title, text, "phone", stay)', src)
-        self.assertIn('stay=True)', src)
+        self.assertIn('item = MEMORY.put(title, text, "phone", stay, qr)', src)       # 26.11.44 qr: the code card's QR
+        self.assertIn('stay=True, qr=b["url"])', src)
         self.assertIn('elif op == "uninvite":', src)
 
 

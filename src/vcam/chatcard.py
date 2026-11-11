@@ -113,6 +113,15 @@ def _lighter(col, k=0.35):
     return tuple(int(v + (255 - v) * k) for v in col)
 
 
+def _join_qr():
+    """26.11.44 the members' phones QR helper (src/join_qr.py), or None where it cannot be loaded."""
+    try:
+        import join_qr
+        return join_qr
+    except ImportError:
+        return None
+
+
 def bubble(fonts, c, W, H, max_w, max_lines=2, measure=False):
     """One chat bubble (avatar + bubble) as a Card, as narrow as its text allows (at most max_w wide).
     measure: only its size (w, h), without drawing."""
@@ -132,8 +141,14 @@ def bubble(fonts, c, W, H, max_w, max_lines=2, measure=False):
     line_h = F["msg"].size * 1.3
     head_w = F["name"].getlength(name) + app_w + tag_w
     inner_w = min(inner_max, max([head_w] + [F["msg"].getlength(ln) for ln in lines]))
+    # 26.11.44 the members' phones code card carries its QR under the message, big enough to scan through a call
+    jq = _join_qr()
+    qr = c.get("qr") if jq and jq.valid(c.get("qr")) else ""
+    qside = min(11 * u, inner_max) if qr else 0
+    inner_w = max(inner_w, qside)
     bw = int(math.ceil(inner_w + 2 * pad))
-    bh = int(math.ceil(pad * 0.85 + F["name"].size * 1.25 + 0.25 * u + line_h * len(lines) + pad * 0.85))
+    bh = int(math.ceil(pad * 0.85 + F["name"].size * 1.25 + 0.25 * u + line_h * len(lines) + pad * 0.85
+                       + (qside + 0.8 * u if qr else 0)))
     w, h = int(math.ceil(av + gap + bw)), max(int(math.ceil(av)), bh)
     if measure:
         return w, h
@@ -177,6 +192,9 @@ def bubble(fonts, c, W, H, max_w, max_lines=2, measure=False):
     for ln in lines:
         dr.text((tx, ty), ln, font=F["msg"], fill=INK + (255,))
         ty += line_h
+    if qr:
+        tile = jq.image(qr, qside)
+        img.alpha_composite(tile, (int(round(tx)), int(round(ty + 0.8 * u))))
     base = _premult(img)
     empty = np.zeros_like(base)
     card = Card("memory", w, h, margin, (base, empty, empty.copy()), [], [], 0, None)

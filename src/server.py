@@ -46,13 +46,14 @@ import meeting_log  # 26.11.23 what was shown, for the meeting summary
 import features as FEAT   # 26.11.31 features you switch on or off (Settings > Start here > Features)
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
 import member_room  # 26.11.24 members' phones: follow along and the sermon notes
+import join_qr  # 26.11.44 the members' phones link as a QR code (the code's card, the Branding badge)
 import leader_alerts  # 26.11.25 the leader's corner card while the Studio is behind the meeting
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.43"
+APP_VERSION = "26.11.44"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -104,7 +105,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
-REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
+REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/join-qr.svg", "/api/remote/live.jpg",
                     "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
                     "/api/remote/meeting-key", "/api/remote/voice-commands",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
@@ -347,6 +348,12 @@ def save_state(new):
         new["rev"] = int(state.get("rev", 0)) + 1
         mem_before = (state.get("live") or {}).get("memory")
         mem_after = (new.get("live") or {}).get("memory")
+        if "join_live" in globals():                   # 26.11.44 live.join is the server's: the open room, the setting
+            j = join_live() if "ROOM" in globals() and ROOM.is_open() else None
+            if j:
+                new.setdefault("live", {})["join"] = j
+            elif isinstance(new.get("live"), dict):
+                new["live"].pop("join", None)
         library_changed = new.get("library") != state.get("library")
         if library_changed:
             LIBRARY["rev"] = new["rev"]
@@ -1074,12 +1081,12 @@ def memory_action(data):
 PRAYER = prayer_wall.PrayerWall(lambda: SYNC._team(), on_received=lambda n: MEETING_LOG.count("prayer.received", n))
 
 
-def _prayer_card(title, text, stay=False):
+def _prayer_card(title, text, stay=False, qr=""):
     """Something from the members' side on screen (a prayer request, the "We're praying for" list, a poll's results, the
     members' phones code), as a Memory Card with this title and text. 26.11.43: on every screen, the Share Window too
     (the leader chose to show it), found again by its text even just after it was removed, and with stay it stays until
-    it is taken off instead of for the overlay's seconds."""
-    item = MEMORY.put(title, text, "phone", stay)
+    it is taken off instead of for the overlay's seconds. 26.11.44 qr: the link the card shows as a QR code to scan."""
+    item = MEMORY.put(title, text, "phone", stay, qr)
     if not item:
         raise ValueError("That could not be shown.")
     memory_sync()
@@ -1099,6 +1106,25 @@ def invite_off():
         MEMORY.hide(_INVITE["id"])
         _INVITE["id"] = ""
         memory_sync()
+
+
+def join_live():
+    """26.11.44 live.join: the members' phones link and where the Branding badge shows it as a QR code (beside or below
+    the logo), while members' phones is open and Settings -> Meeting & Branding asks for it; None otherwise. The camera
+    (vcam/program.py) and the overlay pages (overlay.js, /api/join-qr.svg) draw it on the badge."""
+    if "ROOM" not in globals() or not ROOM.is_open() or not feature_on("team"):
+        return None
+    pos = app_settings().get("joinQr", "off")
+    b = ROOM.body()
+    if pos not in ("beside", "below") or not join_qr.valid(b["url"]):
+        return None
+    return {"url": b["url"], "code": b["code"], "pos": pos}
+
+
+def join_refresh():
+    """Put live.join in step at once (members' phones opened or closed, the setting changed): save_state sets it."""
+    if (state.get("live") or {}).get("join") != join_live():
+        update_state(lambda st: st)
 
 
 ROOM = member_room.MemberRoom(lambda: SYNC._team(), lambda: state,
@@ -1234,12 +1260,13 @@ def members_action(data):
         if not b["open"]:
             raise ValueError("Open members' phones first.")
         _INVITE["id"] = _prayer_card("Follow along on your phone", "Go to %s and type the code %s" % (
-            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]), stay=True)
+            b["url"].split("#")[0].replace("https://", "").replace("http://", ""), b["code"]), stay=True, qr=b["url"])
     elif op == "uninvite":                             # 26.11.43 the code off screen again
         invite_off()
     else:
         raise ValueError("Unknown action.")
     ROOM.poke()
+    join_refresh()                                     # 26.11.44 the Branding badge's QR follows the room
     return members_body()
 
 
@@ -1612,6 +1639,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
                          "memDur": 12,            # 9.0 Memory Cards: seconds an unpinned card stays in the chat overlay (3..120)
                          "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
+                         "joinQr": "off",         # 26.11.44 the members' phones QR on the Branding badge: off / beside / below
                          "memLayout": "beside",   # 9.0 on FrameDecks vCam: beside the video, below it, or over it
                          "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
                          "memAuto": True,         # 9.0 a copied card goes into the chat overlay at once
@@ -1645,7 +1673,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
-                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced")}
+                       "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced"),
+                       "joinQr": ("off", "beside", "below")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
@@ -1786,6 +1815,8 @@ def _save_app_settings(changes):
         from desktop_win import format_hotkey
         cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
     write_atomic(APP_SETTINGS_FILE, json.dumps(cur, indent=2))
+    if "joinQr" in changes and "join_refresh" in globals():     # 26.11.44 the badge's QR shows or goes at once
+        threading.Thread(target=join_refresh, daemon=True).start()
     eff = FEAT.effective(cur["features"], cur["peopleSee"])
     if eff != FEATURE_STATE["eff"]:
         FEATURE_STATE["eff"] = eff
@@ -3174,6 +3205,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps(res), TYPES[".json"])
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path == "/api/join-qr.svg":                  # 26.11.44 the open members' phones link as a QR code (it is on screen)
+            room = ROOM.body()
+            if not room["open"] or not join_qr.valid(room["url"]):
+                return self.reply(404, "Members' phones is closed", "text/plain; charset=utf-8")
+            return self.reply(200, join_qr.svg(room["url"]).encode("utf-8"), "image/svg+xml", [("Cache-Control", "no-store")])
         if path == "/api/brand/logo":                    # v6.2 the leader's logo (PNG), for overlays, the camera and the remote
             if not BRAND_LOGO.exists():
                 return self.reply(404, "No logo", "text/plain; charset=utf-8")
