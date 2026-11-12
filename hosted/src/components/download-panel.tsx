@@ -4,11 +4,17 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Apple,
+  Camera,
+  Cpu,
   Download,
+  HardDrive,
   LoaderCircle,
+  MemoryStick,
   Monitor,
+  MonitorSmartphone,
   ShieldCheck,
-  Terminal,
+  Video,
+  Wifi,
 } from "lucide-react";
 
 import { FlourishLater } from "@/components/landing/flourish-later";
@@ -29,6 +35,25 @@ import {
 // never shows a link it has not been given, so there is no dead download button.
 
 type Fallback = { version: string; notes: string };
+
+// 26.11.45 what the PC that runs the meeting screen needs (docs/guide/installation.md, the 4 GB check in
+// docs/development/performance.md: FrameDecks is measured on a 4 GB PC with no graphics card)
+const NEEDS = [
+  { icon: Monitor, title: "Windows 10 or 11", text: "64-bit" },
+  { icon: Cpu, title: "Dual-core processor", text: "No graphics card needed" },
+  { icon: MemoryStick, title: "4 GB memory", text: "8 GB with Zoom or Teams open" },
+  { icon: HardDrive, title: "1 GB free space", text: "For the program and backups" },
+  { icon: MonitorSmartphone, title: "1280 × 720 screen", text: "Or larger" },
+  { icon: Camera, title: "A webcam", text: "Optional, for FrameDecks vCam" },
+  { icon: Wifi, title: "Internet", text: "For sync, members’ phones and updates" },
+  { icon: Video, title: "Zoom, Teams or Meet", text: "Any meeting app that can choose a camera" },
+];
+
+const STEPS = [
+  { title: "Download and open", text: "If Windows protects your PC, choose More info, then Run anyway." },
+  { title: "Keep the camera ticked", text: "“Install the FrameDecks vCam” needs one administrator prompt." },
+  { title: "Follow the Setup guide", text: "FrameDecks opens with it. About ten minutes, then you are ready." },
+];
 
 export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
   const [release, setRelease] = useState<Release | null>(null);
@@ -103,127 +128,126 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
   return (
     <div className="fd-dl">
       <FlourishLater />
-      <section className="fd-dl-card" aria-labelledby="fd-dl-title" data-spotlight="">
-        <span className="fd-dl-icon" aria-hidden="true">
-          {os === "macos" ? (
-            <Apple size={26} />
-          ) : os === "linux" ? (
-            <Terminal size={26} />
-          ) : (
-            <Monitor size={26} />
-          )}
-        </span>
-        {elsewhere ? (
-          <>
-            <h2 id="fd-dl-title">
-              FrameDecks for {os === "macos" ? "Mac" : "Linux"} is coming later
-            </h2>
-            <p>
-              FrameDecks runs on Windows 10 and 11 today. You can plan on this
-              website from any computer, and download the Windows version for
-              the PC that runs your screen.
-            </p>
-            <div className="fd-dl-actions">
-              {state === "ready" ? (
-                <a
-                  className="fd-btn fd-btn-primary fd-btn-lg"
-                  href={href}
-                  onClick={() => setStarted(true)}
-                >
-                  <Download aria-hidden="true" size={18} /> Download for Windows
-                  · {version}
-                </a>
-              ) : (
-                waitButton
-              )}
-              <Link
-                className="fd-btn fd-btn-ghost fd-btn-lg"
-                href="/sync?intent=save"
-              >
-                Start a free workspace
-              </Link>
+      <div className="fd-dl-main">
+        <section className="fd-dl-card" aria-labelledby="fd-dl-title" data-spotlight="">
+          <div className="fd-dl-head">
+            <span className="fd-dl-icon" aria-hidden="true">
+              <Monitor size={26} />
+            </span>
+            <div>
+              <h2 id="fd-dl-title">FrameDecks {version} for Windows</h2>
+              <p>
+                Free for every church, school and team.
+                {date ? ` Released ${date}.` : ""}
+              </p>
             </div>
-          </>
-        ) : (
-          <>
-            <h2 id="fd-dl-title">FrameDecks {version} for Windows</h2>
-            <p>
-              Free for every church, school and team. Windows 10 or 11, 64-bit.
-              {date ? ` Released ${date}.` : ""}
-            </p>
-            <div className="fd-dl-actions">
-              {state === "ready" ? (
-                <a
-                  className="fd-btn fd-btn-primary fd-btn-lg"
-                  href={href}
-                  onClick={() => setStarted(true)}
-                >
-                  <Download aria-hidden="true" size={18} /> Download for Windows
-                  {win?.size ? ` · ${formatSize(win.size)}` : ""}
-                </a>
-              ) : (
-                waitButton
-              )}
-              {state === "unavailable" && (
-                <Link
-                  className="fd-btn fd-btn-ghost fd-btn-lg"
-                  href="/sync?intent=save"
-                >
-                  Start a free workspace
-                </Link>
-              )}
-            </div>
-          </>
-        )}
-        <p className="fd-dl-fine">
-          By downloading you accept the{" "}
-          <Link href="/eula">End User License Agreement</Link>. Installed copies
-          update themselves.
-        </p>
-        {started && (
-          <div className="fd-dl-next" role="status">
-            <strong>Your download has started.</strong>
-            <ol>
-              <li>
-                Open the file when it finishes. If Windows says it protected
-                your PC, choose More info, then Run anyway.
-              </li>
-              <li>
-                Keep “Install the FrameDecks vCam” ticked, and allow the one
-                administrator prompt.
-              </li>
-              <li>
-                FrameDecks opens with a Setup guide. It takes about ten minutes.
-              </li>
-            </ol>
           </div>
-        )}
-        {win?.sha256 && (
-          <details className="fd-dl-hash">
-            <summary>
-              <ShieldCheck aria-hidden="true" size={16} /> Check the download
-              (SHA-256)
-            </summary>
-            <code>{win.sha256}</code>
-            <p>
-              In PowerShell:{" "}
-              <code>
-                Get-FileHash .\{win.file || "FrameDecks-Setup.exe"} -Algorithm
-                SHA256
-              </code>
-              . The two must match.
+          {elsewhere && (
+            <p className="fd-dl-note">
+              You are on {os === "macos" ? "a Mac" : "Linux"}. Download the
+              Windows version for the PC that runs your meeting screen; plan on
+              this website from any computer.
             </p>
-          </details>
-        )}
-        {state === "unavailable" && (
-          <p id="fd-dl-soon" className="fd-dl-soon" role="status">
-            <strong>Downloads open here very soon.</strong> The download service
-            is not answering yet, so there is nothing to download at this
-            moment. Come back to this page in a little while; meanwhile you can
-            create your workspace and plan your first service on the website.
+          )}
+          <div className="fd-dl-actions">
+            {state === "ready" ? (
+              <a
+                className="fd-btn fd-btn-primary fd-btn-lg"
+                href={href}
+                onClick={() => setStarted(true)}
+              >
+                <Download aria-hidden="true" size={18} /> Download for Windows
+                {win?.size ? ` · ${formatSize(win.size)}` : ""}
+              </a>
+            ) : (
+              waitButton
+            )}
+            <button
+              type="button"
+              className="fd-btn fd-btn-ghost fd-btn-lg fd-dl-mac"
+              disabled
+              aria-describedby="fd-dl-mac-soon"
+            >
+              <Apple aria-hidden="true" size={18} /> Download for Mac
+              <span className="fd-dl-soon-tag" id="fd-dl-mac-soon">
+                Coming soon
+              </span>
+            </button>
+          </div>
+          {state === "unavailable" && (
+            <p id="fd-dl-soon" className="fd-dl-soon" role="status">
+              <strong>Downloads open here very soon.</strong> The download
+              service is not answering yet, so there is nothing to download at
+              this moment. Come back to this page in a little while; meanwhile{" "}
+              <Link href="/sync?intent=save">start a free workspace</Link> and
+              plan your first service on the website.
+            </p>
+          )}
+          {started && (
+            <div className="fd-dl-next" role="status">
+              <strong>Your download has started.</strong> Follow the three steps
+              below.
+            </div>
+          )}
+          <div className="fd-dl-req" aria-labelledby="fd-dl-req-title">
+            <h3 id="fd-dl-req-title">Minimum requirements</h3>
+            <ul>
+              {NEEDS.map((n) => (
+                <li key={n.title}>
+                  <n.icon aria-hidden="true" size={18} />
+                  <span>
+                    <b>{n.title}</b>
+                    <small>{n.text}</small>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="fd-dl-fine">
+            By downloading you accept the{" "}
+            <Link href="/eula">End User License Agreement</Link>. Installed
+            copies update themselves.
           </p>
-        )}
-      </section>
+          {win?.sha256 && (
+            <details className="fd-dl-hash">
+              <summary>
+                <ShieldCheck aria-hidden="true" size={16} /> Check the download
+                (SHA-256)
+              </summary>
+              <code>{win.sha256}</code>
+              <p>
+                In PowerShell:{" "}
+                <code>
+                  Get-FileHash .\{win.file || "FrameDecks-Setup.exe"} -Algorithm
+                  SHA256
+                </code>
+                . The two must match.
+              </p>
+            </details>
+          )}
+        </section>
+
+        <section className="fd-dl-steps" aria-labelledby="fd-dl-steps-title" data-spotlight="">
+          <h2 id="fd-dl-steps-title">Install in three steps</h2>
+          <ol>
+            {STEPS.map((st, i) => (
+              <li key={st.title}>
+                <span className="fd-dl-step-n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span>
+                  <b>{st.title}</b>
+                  <small>{st.text}</small>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="fd-dl-fine">
+            Plan together on the website from any computer: <Link href="/sync?intent=save">start a free workspace</Link>.
+            Full guide: <Link href="/docs/installation">Installing FrameDecks</Link>.
+          </p>
+        </section>
+      </div>
 
       <section className="fd-dl-notes" aria-labelledby="fd-dl-notes-title" data-spotlight="">
         <h2 id="fd-dl-notes-title">What&apos;s new in {version}</h2>

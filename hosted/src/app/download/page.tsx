@@ -8,6 +8,8 @@ import { PublicPage } from "@/components/public-page";
 import brand from "@/lib/brand.json";
 import { pageMetadata } from "@/lib/site";
 
+import "./download.css";
+
 export const metadata: Metadata = pageMetadata("Download", "/download");
 
 export default function DownloadPage() {

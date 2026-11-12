@@ -1,0 +1,33 @@
+/* framedecks.com/download (26.11.45): the download card with Windows and Mac (coming soon), the minimum
+   requirements under the buttons and the install steps, beside What's new. Loaded on /download only. */
+.fd-dl{grid-template-columns:minmax(0,1fr)}
+.fd-dl-main{display:grid;gap:20px;min-width:0}
+.fd-dl-head{display:flex;gap:16px;align-items:center}
+.fd-dl-head h2{margin:0}
+.fd-dl-head p{margin:2px 0 0}
+.fd-dl-note{padding:10px 14px;border:1px solid var(--hairline);border-radius:12px;background:var(--fill);font-size:14px}
+.fd-dl-actions .fd-dl-mac:disabled{opacity:1;color:var(--text-2);border-color:var(--hairline-strong)}
+.fd-dl-mac svg{opacity:.75}
+.fd-dl-soon-tag{margin-left:2px;padding:2px 8px;border:1px solid var(--gold);border-radius:999px;background:var(--gold-soft);color:var(--gold-2);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fd-dl-req{margin-top:6px;padding-top:16px;border-top:1px solid var(--hairline)}
+.fd-dl-req h3,.fd-dl-steps h2{margin:0 0 12px;color:var(--gold);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.fd-dl-req ul{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.fd-dl-req li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--hairline);border-radius:12px;background:var(--fill)}
+.fd-dl-req li svg{flex:none;margin-top:2px;color:var(--gold-2)}
+.fd-dl-req b,.fd-dl-steps b{display:block;color:var(--text);font-size:14px;font-weight:600}
+.fd-dl-req small,.fd-dl-steps small{display:block;color:var(--text-3);font-size:13px;line-height:1.45}
+.fd-dl-steps{display:grid;gap:4px;padding:clamp(22px,3vw,32px);border:1px solid var(--hairline);border-radius:16px;background:var(--surface-solid)}
+.fd-dl-steps ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 10px;padding:0;list-style:none}
+.fd-dl-steps li{display:grid;gap:8px;align-content:start}
+.fd-dl-step-n{display:inline-grid;width:30px;height:30px;place-items:center;border:1px solid var(--gold);border-radius:999px;background:var(--gold-soft);color:var(--gold-2);font-size:14px;font-weight:700}
+.fd-dl-steps p.fd-dl-fine{margin:0;color:var(--text-3)}
+/* What's new: two columns of text under the cards, whatever its length */
+.fd-dl-notes{display:block;column-count:2;column-gap:40px}
+.fd-dl-notes h2{column-span:all;margin-bottom:4px}
+.fd-dl-notes>div{break-inside:avoid}
+@media (max-width:960px){.fd-dl-req ul{grid-template-columns:repeat(2,minmax(0,1fr))}.fd-dl-notes{column-count:1}}
+@media (max-width:640px){
+  .fd-dl-req ul,.fd-dl-steps ol{grid-template-columns:minmax(0,1fr)}
+  .fd-dl-steps li{grid-template-columns:auto 1fr;align-items:start}
+  .fd-dl-actions .fd-btn{width:100%;justify-content:center}
+}
