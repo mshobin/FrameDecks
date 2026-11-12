@@ -25,7 +25,7 @@ function ago(t){ var m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'j
 
 function verse(it){
   return h('section', {cls: 'ac-item ac-verse'}, [
-    h('p', {cls: 'ac-kick', text: it.from === 'voice' ? 'You asked for' : it.from === 'meeting' ? 'Heard in the meeting' : 'Heard'}),
+    h('p', {cls: 'ac-kick', text: it.from === 'voice' ? 'You asked for' : it.from === 'slide' ? 'On this slide' : it.from === 'meeting' ? 'Heard in the meeting' : 'Heard'}),
     h('p', {cls: 'ac-ref', text: it.label}),
     it.planned ? h('p', {cls: 'ac-sub', text: 'In your plan'}) : null,
     it.error ? h('p', {cls: 'ac-err', text: it.error}) : null,

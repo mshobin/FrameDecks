@@ -179,6 +179,25 @@ cards across the width, and scriptures are rows beside **Fetch scripture**. **Po
     **✎ Write Script**, **⇪ Upload** and **Each Frame** / **Whole meeting**.
   - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
     default) the whole window fades, text included; with it off, only the background is see-through.
+- **PowerPoint slides** (26.11.45). With a Frame that has a PowerPoint deck on screen:
+  - **Every slide at once**: press **Slide 3 / 12** in the top bar (or Control → **Every slide**, the command
+    palette's *Every slide*, or **Slide 3 of 12** in the Command Center and on the phone). The slide on screen and the
+    next one are marked; click any slide to put it on screen. **Search** finds words in the slides' titles, text and
+    speaker notes.
+  - **Run order**: hide a slide or move it for this meeting only (drag it, or ◀ ▶). The PowerPoint file is not
+    changed, and Next and Previous follow the new order everywhere.
+  - **Zoom**: click the part of the slide to show larger (1.5× to 4×); **Whole slide** goes back. The next slide
+    starts whole again.
+  - **Hold ▾**: Black screen, "We'll be right back" or "Please stay with us" over the slides, and back.
+    **You ▾**: the slide fills the picture, you beside the slide, or you in a corner over it.
+  - A slide that names a passage (John 10:11) shows **Show John 10:11**, and it is offered as the scripture card when
+    the slide comes on screen (Settings → Listening → **Scripture on a slide**). Nothing shows until you press Show.
+  - Select song slides in Run order and choose **Make a Songs Deck**: one verse per slide.
+  - **Slides to members' phones** puts the slides' text on members' phones; while members' phones is open they also
+    see the slide on screen.
+  - The **Teleprompter** shows the slides beside the script: the slide on screen, the next one, its speaker notes and
+    how long it has been up, with **Next slide** and **All**.
+  - Voice commands: "next slide", "previous slide", "slide twelve", "the slide about grace".
 
 ## 5. The FrameDecks vCam
 Choose **FrameDecks** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live

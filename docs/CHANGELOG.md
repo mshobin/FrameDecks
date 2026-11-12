@@ -10,6 +10,32 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.45] - 2026-11-12
+
+Full notes: [docs/releases/v26.11.45.md](releases/v26.11.45.md).
+
+### Added
+- `src/slides.py`: a deck's slides (title, text, speaker notes, Bible references) read from the .pptx it was made from
+  (recorded at upload, `Content/.slides/<pdf>.source`) or from the PDF's text; cached per file version; JPEG thumbnails
+  made once per slide and width; run order helpers (`sequence`, `step`), `search`, `best`, `words`, `song_text`.
+- Server-owned `live.deck` (`deck_live` in `save_state`, `deck_go`): the slide on screen of the live Frame's deck, its
+  run order position and zoom. A stale save cannot move it back; the compositor reads the page and zoom from it
+  (`scene_media`). `GET /api/slides`, `GET /api/slides/thumb`, `POST /api/slides` (go, step, zoom, unzoom, scripture,
+  search, about); the phone remote may use both.
+- Every slide at once (`app/js/slide-sorter.js`, `app/css/slides.css`) in the Studio (top bar slide number, Control →
+  Every slide, palette), the Command Center and the phone remote; Studio tools (`app/js/slide-tools.js`): run order
+  (`c.order`, `c.skip`), hold screens, layouts, a Songs Deck from slides, slides to members' phones.
+- The Teleprompter's slide column (`app/js/teleprompter-slides.js`): current, next, notes, time on the slide.
+- Zoom into part of a slide on the camera (`vcam/layers.zoom_crop`, `c.zoom`).
+- A passage named on a slide is offered as the scripture card (`VERSE_LISTEN.ask(source="slide")`, "On this slide");
+  setting `slideScripture` (Settings → Listening).
+- Members' phones: the slide on screen (`member_room.SLIDE`, a JPEG data URL up to 90 KB) and `share-slides`; the
+  website's follow page shows it.
+- Voice commands "slide N" and "the slide about ..." (`voice_commands._slide`), with the deck's words in the grammar.
+
+### Fixed
+- The phone remote and the top bar know the slide number of a PDF deck when FrameDecks vCam is not running.
+
 ## [26.11.44] - 2026-11-11
 
 Full notes: [docs/releases/v26.11.44.md](releases/v26.11.44.md).

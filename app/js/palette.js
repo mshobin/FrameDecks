@@ -74,6 +74,7 @@ function commands(){
     ['sharespot', 'Spotlight on the Share Window', 'spotlight pointer point laser annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'spot'}); }],
     ['prompter', 'Teleprompter on / off', 'script notes prompter speaker overlay zoom teams on top', function(){ if (TP) TP.toggle(); }, 'R'],
     ['nametags', 'Name tags (a speaker’s name and role)', 'name tag lower third speaker reader host role caption', function(){ if (window.KCNameTags) KCNameTags.open(); }],
+    ['slides', 'Every slide of the PowerPoint on screen', 'slides powerpoint ppt overview grid all slides jump search run order hide zoom sorter', function(){ if (window.KCSlides) KCSlides.open({studio: !!window.KCSlideTools}); }],
     ['responses', 'Polls and responses (members’ phones)', 'poll vote yes no rating question response survey phones', function(){ if (window.KCResponses) KCResponses.open(); }],
     ['capture', 'Capture copies on / off (Memory Cards)', 'memory card chat overlay copy clipboard capture zoom teams chatgpt claude copilot slack discord', function(){ if (window.KCMemory) window.KCMemory.toggleCapture(); }],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],

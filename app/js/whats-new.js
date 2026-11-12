@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.45': [
+    {title: 'Every slide at once', text: 'Press Slide 3 / 12 in the top bar: every slide of your PowerPoint, search through its words and notes, and click one to put it on screen. It is also in Control → Every slide.', show: {spot: '#lc-control'}},
+    {title: 'Run order, zoom and hold', text: 'Hide or move slides for this meeting without changing the file, zoom into part of a slide, put yourself beside it, or hold with a kind message. A passage named on a slide is offered as the scripture card.', show: {settings: 'listening'}},
+    {title: 'Slides in the Teleprompter', text: 'The slide on screen, the next one and its speaker notes sit beside your script, with how long the slide has been up.'}
+  ],
   '26.11.44': [
     {title: 'A QR code to scan', text: 'Show the code on screen now puts a QR code beside the code, on the camera and the Share Window, so people point their phone at the screen.', show: {spot: '#lc-members'}},
     {title: 'QR code on your badge', text: 'Settings \u2192 Meeting & Branding: a small QR code beside or below your logo while members\u2019 phones is open, for anyone who arrives late.', show: {settings: 'meeting'}}

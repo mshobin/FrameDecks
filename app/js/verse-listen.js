@@ -45,10 +45,10 @@ function render(){
   var c = cardEl(); if (!c) return;
   var p = info && info.pending, on = !!(info && info.enabled && info.live);
   c.innerHTML = '';
-  var member = p && (p.from === 'meeting' || p.from === 'voice');  // 26.11.24 a member said it, 26.11.27 or you asked by voice: always asked
+  var member = p && (p.from === 'meeting' || p.from === 'voice' || p.from === 'slide');  // 26.11.24 a member said it, 26.11.27 or you asked by voice: always asked
   if (p && ((p.status === 'waiting' && (!info.auto || member)) || p.id === failed)){
     c.className = 'vl-card vl-ask';
-    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: p.from === 'voice' ? 'You asked for' : member ? 'Heard in the meeting' : 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
+    c.appendChild(h('div', {cls: 'vl-head'}, [h('span', {cls: 'vl-k', text: p.from === 'voice' ? 'You asked for' : p.from === 'slide' ? 'On this slide' : member ? 'Heard in the meeting' : 'Heard'}), h('b', {cls: 'vl-ref', text: p.label}), p.planned ? h('span', {cls: 'vl-k', text: '· in your plan'}) : null]));
     c.appendChild(h('div', {cls: 'vl-acts'}, [
       h('button', {cls: 'btn primary small', type: 'button', id: 'vl-show', text: busy === p.id ? 'Showing…' : 'Show', disabled: busy ? 'disabled' : null, onclick: function(){ show(p); }}),
       h('button', {cls: 'btn quiet small', type: 'button', id: 'vl-dismiss', text: 'Dismiss', disabled: busy ? 'disabled' : null, onclick: function(){ dismiss(p); }})]));

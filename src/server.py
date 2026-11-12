@@ -47,13 +47,14 @@ import features as FEAT   # 26.11.31 features you switch on or off (Settings > S
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
 import member_room  # 26.11.24 members' phones: follow along and the sermon notes
 import join_qr  # 26.11.44 the members' phones link as a QR code (the code's card, the Branding badge)
+import slides  # 26.11.45 PowerPoint slides: what each slide holds, thumbnails, the run order
 import leader_alerts  # 26.11.25 the leader's corner card while the Studio is behind the meeting
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.44"
+APP_VERSION = "26.11.45"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -102,10 +103,12 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/js/timing.js",         # 26.11.33 the timing plan, for the leader
                  "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js", "/js/remote-listen.js",
                  "/js/remote-voice.js",
+                 "/js/slide-sorter.js", "/css/slides.css",   # 26.11.45 every slide at once
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/join-qr.svg", "/api/remote/live.jpg",
+                    "/api/slides", "/api/slides/thumb",
                     "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
                     "/api/remote/meeting-key", "/api/remote/voice-commands",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
@@ -348,6 +351,8 @@ def save_state(new):
         new["rev"] = int(state.get("rev", 0)) + 1
         mem_before = (state.get("live") or {}).get("memory")
         mem_after = (new.get("live") or {}).get("memory")
+        if "deck_live" in globals():                   # 26.11.45 live.deck: the slide on screen, kept by the server
+            deck_live(new)
         if "join_live" in globals():                   # 26.11.44 live.join is the server's: the open room, the setting
             j = join_live() if "ROOM" in globals() and ROOM.is_open() else None
             if j:
@@ -425,6 +430,12 @@ def scene_media(st):
             continue
         c.update(id=str(l.get("id") or ""), name=l.get("name") or l["kind"], type=l["kind"],
                  visible=l.get("visible", True) is not False, locked=bool(l.get("locked")), opacity=l.get("opacity", 1))
+        deck = live.get("deck") if isinstance(live.get("deck"), dict) else {}
+        if l["kind"] == "pdf" and deck.get("layer") == c["id"] and isinstance(deck.get("page"), int):
+            c["page"] = deck["page"]                   # 26.11.45 the slide on screen is the live state's (live.deck)
+            z = deck.get("zoom")
+            if isinstance(z, dict) and z.get("s", 1) > 1:
+                c["zoom"] = z                          # 26.11.45 zoom into part of the slide
         out.append(c)
     return out
 
@@ -890,7 +901,20 @@ def _voice_names():
     # 26.11.41 each Frame's "Also called" names, and which one is live ("the next day")
     return {"live": live_id, "frames": [{"id": x.get("id"), "name": x.get("name"), "aka": str(x.get("aka") or "")[:200]} for x in scenes[:300]],
             "decks": [{"kind": l.get("kind"), "name": l.get("name")} for l in live.get("layers") or []
-                      if isinstance(l, dict) and l.get("kind") in ("scripture", "question")]}
+                      if isinstance(l, dict) and l.get("kind") in ("scripture", "question")],
+            "slides": _deck_words(st)}
+
+
+def _deck_words(st):
+    """26.11.45 the words of the slides on screen (titles first), so "the slide about grace" can be heard."""
+    d = (st.get("live") or {}).get("deck") if isinstance(st.get("live"), dict) else None
+    if not isinstance(d, dict) or not d.get("file"):
+        return []
+    try:
+        return slides.words(slides.info(LAYERS_DIR, d["file"])["slides"])
+    except Exception as e:
+        _swallowed("deck_words", e)
+        return []
 
 
 VOICE_CMD = voice_commands.VoiceCommands(VOICE, settings=lambda: app_settings(), is_live=_frame_is_live,
@@ -1253,6 +1277,8 @@ def members_action(data):
         ROOM.share_notes(notes)
     elif op == "share-moment":                         # 26.11.28 the summary's Moment, as a one-section set of notes
         ROOM.share_notes(moment_notes(data.get("moment")))
+    elif op == "share-slides":                         # 26.11.45 the slides' text, to read on members' phones
+        ROOM.share_notes(slides_notes(str(data.get("file") or ((state.get("live") or {}).get("deck") or {}).get("file") or "")))
     elif op == "unshare-notes":
         ROOM.unshare_notes()
     elif op == "invite":                               # the code on screen, for people on Zoom or Teams
@@ -1640,6 +1666,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "memDur": 12,            # 9.0 Memory Cards: seconds an unpinned card stays in the chat overlay (3..120)
                          "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
                          "joinQr": "off",         # 26.11.44 the members' phones QR on the Branding badge: off / beside / below
+                         "slideScripture": True,  # 26.11.45 a slide naming a passage offers it as the scripture card
                          "memLayout": "beside",   # 9.0 on FrameDecks vCam: beside the video, below it, or over it
                          "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
                          "memAuto": True,         # 9.0 a copied card goes into the chat overlay at once
@@ -2519,6 +2546,219 @@ def scripture_info():
             "translation": st["translation"], "cached": len(_scr_cache()), "cacheMax": SCRIPTURE_CACHE_MAX, "health": SCRIPTURE_HEALTH}
 
 
+# ---------- 26.11.45 PowerPoint slides: the deck on screen (live.deck), its run order, the overview ----------
+_DECK = {"want": None, "pages": {}}
+
+
+def deck_pages(name):
+    """How many slides a PDF deck in the Content folder has (0 when it cannot be read); kept per file version."""
+    p = LAYERS_DIR / name
+    try:
+        key = (name, p.stat().st_mtime)
+    except OSError:
+        return 0
+    if key not in _DECK["pages"]:
+        try:
+            _DECK["pages"][key] = slides.page_count(p)
+        except Exception as e:
+            _swallowed("deck_pages", e)
+            _DECK["pages"][key] = 0
+    return _DECK["pages"][key]
+
+
+def deck_layer(st):
+    """The slide deck of the live Frame (its top visible PowerPoint Content with a file), or None."""
+    live = st.get("live") if isinstance(st.get("live"), dict) else {}
+    sid = live.get("scene")
+    sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None) if sid else None
+    for l in (sc or {}).get("layers") or []:
+        if isinstance(l, dict) and l.get("kind") == "pdf" and l.get("visible", True) is not False:
+            c = l.get("c") if isinstance(l.get("c"), dict) else {}
+            if safe_name(c.get("file")) and str(c.get("file")).lower().endswith(".pdf"):
+                return l
+    return None
+
+
+def deck_seq(l, pages):
+    c = l.get("c") or {}
+    return slides.sequence(pages, c.get("order"), c.get("skip"))
+
+
+def deck_live(new):
+    """Keep live.deck in step with the live Frame (called from save_state, under the state lock): the slide on screen
+    is the server's, so a save from a window that has not caught up never moves it back. A new deck starts at its
+    "Start at slide" (or the first slide of its run order); _DECK["want"] (deck_go) moves it."""
+    live = new.get("live") if isinstance(new.get("live"), dict) else None
+    if live is None:
+        return
+    want, _DECK["want"] = _DECK["want"], None
+    l = deck_layer(new)
+    f = safe_name(((l or {}).get("c") or {}).get("file")) if l else ""
+    pages = deck_pages(f) if f else 0
+    if not pages:
+        live.pop("deck", None)
+        return
+    seq = deck_seq(l, pages)
+    old = (state.get("live") or {}).get("deck") if isinstance((state.get("live") or {}).get("deck"), dict) else {}
+    now = int(time.time() * 1000)
+    if old.get("layer") == l.get("id") and old.get("file") == f and isinstance(old.get("page"), int) and 0 <= old["page"] < pages:
+        page, at, zoom = old["page"], old.get("at") or now, old.get("zoom")
+    else:
+        start = (l.get("c") or {}).get("page")
+        page = start if isinstance(start, int) and start in seq else seq[0]
+        at, zoom = now, None
+    if want:
+        if "page" in want and want["page"] != page:
+            page, at, zoom = want["page"], now, None    # a new slide starts unzoomed, its timer from now
+        if "zoom" in want:
+            zoom = want["zoom"]
+    d = {"layer": str(l.get("id") or ""), "file": f, "page": page, "pages": pages,
+         "pos": seq.index(page) + 1 if page in seq else 0, "count": len(seq), "at": at}
+    if isinstance(zoom, dict):
+        d["zoom"] = zoom
+    live["deck"] = d
+
+
+def deck_go(page=None, step=None, zoom=False):
+    """Move the slides on screen: to page (0-based), or step slides along the run order; zoom: {x, y, s} into part of
+    the slide (s 1-4), None to show the whole slide. Returns {page, pages, pos, count} (page 1-based)."""
+    with cond:
+        d = (state.get("live") or {}).get("deck")
+        l = deck_layer(state)
+        if not d or not l:
+            raise ValueError("No slides are on screen. Go live with a Frame that has PowerPoint Content.")
+        seq = deck_seq(l, d["pages"])
+        if step is not None:
+            target = slides.step(seq, d["page"], 1 if int(step) > 0 else -1)
+        elif page is not None:
+            target = int(page)
+            if not 0 <= target < d["pages"]:
+                raise ValueError("There is no slide %d." % (target + 1))
+        else:
+            target = d["page"]
+        want = {"page": target}
+        if zoom is not False:
+            if zoom is None:
+                want["zoom"] = None
+            else:
+                s = max(1.0, min(4.0, float(zoom.get("s", 2))))
+                want["zoom"] = {"x": max(0.0, min(1.0, float(zoom.get("x", 0.5)))), "y": max(0.0, min(1.0, float(zoom.get("y", 0.5)))),
+                                "s": round(s, 2)} if s > 1.01 else None
+        _DECK["want"] = want
+        was = d["page"]
+        update_state(lambda st: st)
+        d = state["live"]["deck"]
+        moved = d["page"] != was
+    VCAM["lastSlide"] = {"page": d["page"] + 1, "pages": d["pages"]}
+    if moved and app_settings().get("slideScripture", True):
+        threading.Thread(target=_offer_slide_scripture, args=(d["file"], d["page"]), daemon=True).start()
+    if "MEETING_LOG" in globals():
+        try:
+            MEETING_LOG.count("slide")
+        except Exception as e:
+            _swallowed("deck_go log", e)
+    return {"page": d["page"] + 1, "pages": d["pages"], "pos": d["pos"], "count": d["count"]}
+
+
+def _offer_slide_scripture(name, page):
+    """A slide that names a passage (John 10:11) offers it as the scripture card, the same "Show" as Listen for
+    scripture (never shown by itself). Settings: slideScripture."""
+    try:
+        refs = slides.info(LAYERS_DIR, name)["slides"][page].get("refs") or []
+        if refs:
+            VERSE_LISTEN.ask(refs[0], source="slide")
+    except (ValueError, OSError, IndexError, KeyError) as e:
+        _swallowed("slide scripture", e)
+
+
+_PHONE_SLIDE = {"key": None, "out": None}
+
+
+def phone_slide(st):
+    """26.11.45 the slide on screen for members' phones: its number, title, text and a small picture (a JPEG data URL,
+    left out when it would be larger than 90 KB). Made once per slide."""
+    d = (st.get("live") or {}).get("deck")
+    if not isinstance(d, dict):
+        return None
+    key = (d.get("file"), d.get("page"))
+    if _PHONE_SLIDE["key"] != key:
+        out = {"n": d["page"] + 1, "of": d["pages"]}
+        try:
+            info = slides.info(LAYERS_DIR, d["file"])["slides"][d["page"]]
+            out.update(title=info.get("title", "")[:120], text=info.get("text", "")[:600])
+        except (ValueError, OSError, IndexError) as e:
+            _swallowed("phone_slide info", e)
+        try:
+            import base64
+            jpg = slides.thumb(LAYERS_DIR, d["file"], d["page"] + 1, 480)
+            if len(jpg) <= 90000:
+                out["img"] = "data:image/jpeg;base64," + base64.b64encode(jpg).decode("ascii")
+        except (ValueError, OSError) as e:
+            _swallowed("phone_slide picture", e)
+        _PHONE_SLIDE.update(key=key, out=out)
+    return _PHONE_SLIDE["out"]
+
+
+member_room.SLIDE = phone_slide
+
+
+def slides_notes(name):
+    """26.11.45 a deck's slides as notes members keep on their phones: one section per slide (its title and text)."""
+    info = slides.info(LAYERS_DIR, name)
+    secs = []
+    for s in info["slides"]:
+        if not (s.get("title") or s.get("text")):
+            continue
+        secs.append({"frame": (s.get("title") or "Slide %d" % s["n"])[:120], "script": s.get("text", "")[:1200], "verses": [],
+                     "questions": []})
+    if not secs:
+        raise ValueError("These slides have no text to share.")
+    return {"v": 1, "title": info["file"][:-4][:120] or "Slides", "date": int(time.time() * 1000), "presenter": "", "sections": secs[:120]}
+
+
+def slides_body(name):
+    """GET /api/slides: a deck's slides (title, text, notes, references) and, for the deck on screen, which slide is
+    showing and the run order."""
+    out = slides.info(LAYERS_DIR, name)
+    d = (state.get("live") or {}).get("deck")
+    if isinstance(d, dict) and d.get("file") == out["file"]:
+        l = deck_layer(state)
+        out = dict(out, live=d, order=deck_seq(l, d["pages"]) if l else list(range(out["pages"])))
+    return out
+
+
+def slides_action(data):
+    """POST /api/slides {op: go (n, 1-based) | step (by) | zoom (x, y, s) | unzoom | search (q, file)}."""
+    op = str(data.get("op") or "")
+    if op == "go":
+        return deck_go(page=int(data.get("n", 0)) - 1)
+    if op == "step":
+        return deck_go(step=data.get("by", 1))
+    if op == "zoom":
+        return deck_go(zoom={"x": data.get("x", 0.5), "y": data.get("y", 0.5), "s": data.get("s", 2)})
+    if op == "unzoom":
+        return deck_go(zoom=None)
+    if op == "scripture":                              # a Bible reference on a slide: offered (show: on screen at once)
+        ref = VERSE_LISTEN.ask(str(data.get("ref") or "")[:80], source="slide")
+        if not ref:
+            raise ValueError("That is not a Bible reference FrameDecks knows.")
+        if data.get("show"):
+            VERSE_LISTEN.act("show")
+        return {"ref": ref.get("label") or ref.get("ref")}
+    if op == "search":
+        f = str(data.get("file") or ((state.get("live") or {}).get("deck") or {}).get("file") or "")
+        return {"slides": slides.search(slides.info(LAYERS_DIR, f)["slides"], data.get("q", ""))}
+    if op == "about":                                  # 26.11.45 voice: "the slide about grace" goes to the best match
+        d = (state.get("live") or {}).get("deck") or {}
+        if not d.get("file"):
+            raise ValueError("No slides are on screen. Go live with a Frame that has PowerPoint Content.")
+        hit = slides.best(slides.info(LAYERS_DIR, d["file"])["slides"], data.get("q", ""))
+        if not hit:
+            raise ValueError("No slide is about that.")
+        return deck_go(page=hit["n"] - 1)
+    raise ValueError("Unknown slides action.")
+
+
 def powerpoint_show():
     """The PowerPoint slide show running on this PC (full screen or windowed), or None. Cached ~2 s."""
     try:
@@ -2537,6 +2777,8 @@ def slide_move(step):
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
         raise ValueError("Unknown slide step")
+    if (state.get("live") or {}).get("deck"):          # 26.11.45 a deck in the live Frame: its run order for this meeting
+        return deck_go(step=step)
     comp = VCAM.get("compositor")
     res = None
     if comp:
@@ -2559,9 +2801,13 @@ def remote_studio_info():
     """What the phone/iPad remote may see of the Studio: scene names, the active scene, and the presentation
     (a Studio deck/window, or a PowerPoint slide show running on this PC)."""
     comp = VCAM.get("compositor")
+    d = (state.get("live") or {}).get("deck")
+    deck = None
+    if isinstance(d, dict) and d.get("file"):          # 26.11.45 the deck on screen, in this meeting's run order
+        deck = {"name": d["file"][:-4], "page": d["page"] + 1, "pages": d["pages"], "pos": d.get("pos"), "count": d.get("count"),
+                "file": d["file"], "deck": True}
     if not comp:
-        ppt = powerpoint_show()
-        return {"available": False, "scenes": [], "activeScene": "", "presentation": ppt}
+        return {"available": False, "scenes": [], "activeScene": "", "presentation": deck or powerpoint_show()}
     st = studio_load()
     pres = None
     src = comp.screen_src or {}
@@ -2576,6 +2822,8 @@ def remote_studio_info():
                 comp.layers._source(l)                         # load the deck so the slide number is known
             ls = comp.layers.status().get(l["id"], {})
             pres = {"name": l["name"], "page": ls.get("page"), "pages": ls.get("pages")}
+    if deck:
+        pres = deck
     if pres is None:
         pres = powerpoint_show()
     if pres and not pres.get("page") and VCAM.get("lastSlide", {}).get("page"):
@@ -3205,6 +3453,16 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps(res), TYPES[".json"])
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path in ("/api/slides", "/api/slides/thumb"):   # 26.11.45 a deck's slides (the phone remote too, signed in)
+            try:
+                qs = parse_qs(url.query)
+                f = qs.get("file", [""])[0] or ((state.get("live") or {}).get("deck") or {}).get("file", "")
+                if path == "/api/slides/thumb":
+                    body = slides.thumb(LAYERS_DIR, f, int(qs.get("n", ["1"])[0]), int(qs.get("w", ["320"])[0]))
+                    return self.reply(200, body, "image/jpeg", [("Cache-Control", "private, max-age=86400")])
+                return self.reply(200, json.dumps(slides_body(f)), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+            except (ValueError, OSError) as e:
+                return self.reply(404, json.dumps({"error": str(e)}), TYPES[".json"])
         if path == "/api/join-qr.svg":                  # 26.11.44 the open members' phones link as a QR code (it is on screen)
             room = ROOM.body()
             if not room["open"] or not join_qr.valid(room["url"]):
@@ -3663,6 +3921,11 @@ class Handler(BaseHTTPRequestHandler):
             err = pptx_to_pdf(target.resolve(), pdf.resolve())
             if err or not pdf.is_file():
                 return self.reply(400, json.dumps({"error": err or "PowerPoint did not save the slides."}), TYPES[".json"])
+            try:                                       # 26.11.45 the notes and titles come from the .pptx itself
+                slides.record_source(LAYERS_DIR, pdf.name, target.name)
+                threading.Thread(target=lambda: slides.info(LAYERS_DIR, pdf.name), daemon=True).start()
+            except OSError as e:
+                _swallowed("slides.record_source", e)
             return self.reply(200, json.dumps({"file": pdf.name, "source": target.name}), TYPES[".json"])
         return self.reply(200, json.dumps({"file": target.name}), TYPES[".json"])
 
@@ -4018,6 +4281,12 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/room/response":                # 26.11.33 quick responses and polls (this PC only)
             return room_response_http(self, data if isinstance(data, dict) else {})
+        if path == "/api/slides":                       # 26.11.45 go to a slide, step, search (the phone remote too)
+            try:
+                res = slides_action(data if isinstance(data, dict) else {})
+            except (ValueError, OSError) as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path in ("/api/prayer", "/api/members", "/api/alerts"):   # 26.11.23 prayer; 26.11.24 members; 26.11.25 card
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

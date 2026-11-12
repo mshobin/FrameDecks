@@ -50,6 +50,9 @@ var ACTIONS = [
   A('control', 'prevnext', 'Previous and Next', 'chevron-right', 'The Frames in order', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'hideall', 'Hide all', 'eye-off', 'Everything off screen', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'content', 'The Content one by one', 'list', 'Questions, scriptures, slides', ['cc', 'phone']),
+  // 26.11.45 every slide of the PowerPoint on screen at once (js/slide-sorter.js); in the Command Center and on the phone
+  // the "Slide 3 of 12" between the Content arrows opens the same grid
+  A('control', 'slides', 'Every slide', 'layout-grid', 'Search, jump, run order', ['app']),
   // 26.11.14 say a Bible reference while live and it is offered (or shown, with Auto): Off, Ask or Auto
   A('control', 'listen', 'Listen for scripture', 'book-open', 'Say a verse, it is offered', ['cc', 'app', 'phone'], {toggle: true, feature: 'listen'}),
   A('control', 'hidelayer', 'Hide the selected Content', 'eye-off', 'Just this one', ['app']),

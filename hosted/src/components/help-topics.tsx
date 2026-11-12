@@ -292,6 +292,7 @@ export const TOPICS: Topic[] = [
               </li>
               <li>Pin it above Zoom or Teams and choose how see-through it is.</li>
               <li>The phone remote has the Teleprompter too.</li>
+              <li>With PowerPoint slides on screen, the slide, the next one and its speaker notes sit beside the script.</li>
             </ul>
           </section>
         </div>
@@ -322,6 +323,9 @@ export const TOPICS: Topic[] = [
               </li>
               <li>
                 <b>Polls</b>: yes or no, a choice or a 1–5 rating, answered on the phone.
+              </li>
+              <li>
+                <b>Slides</b>: the PowerPoint slide on screen, and the slides’ text when you share it.
               </li>
               <li>Nothing to install: they scan the QR code or type the code at framedecks.com/follow.</li>
             </ul>

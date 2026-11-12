@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="css/onboarding.css">
 <link rel="stylesheet" href="css/verse-listen.css"><!-- 26.11.14 Listen for scripture -->
 <link rel="stylesheet" href="css/responses.css"><!-- 26.11.33 polls -->
+<link rel="stylesheet" href="css/slides.css"><!-- 26.11.45 every slide at once -->
 <script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
    framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
 (function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
@@ -59,7 +60,7 @@
   </div>
   <div class="lb-grp lb-slides" id="lb-slides" role="group" aria-label="Slides" hidden>
     <button class="cb-btn" type="button" data-cb="slide" data-step="-1" aria-label="Previous slide">◀</button>
-    <span class="lb-step-t" id="lb-slides-t">Slides</span>
+    <button class="lb-step-t lb-slides-open" type="button" id="lb-slides-t" title="Every slide at once: search, jump, run order">Slides</button>
     <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
   </div>
     <!-- 9.13 the five chips (js/chips.js, js/chip-bar.js) in place of the "Live tools" menu: the same as the Command
@@ -460,6 +461,10 @@
       <div id="listening-body"></div>
       <section class="box" data-feature="follow" aria-labelledby="s-follow"><div class="box-head"><h2 id="s-follow">Teleprompter: Follow my voice</h2></div>
         <p class="plain">The script moves as you speak. Its microphone and sensitivity are in the Teleprompter’s top bar, beside Follow my voice, so you can set them while you read.</p></section>
+      <!-- 26.11.45 a slide that names a passage offers it as the scripture card (js/slide-tools.js wires the switch) -->
+      <section class="box" aria-labelledby="s-slide-verse"><div class="box-head"><h2 id="s-slide-verse">Scripture on a slide</h2></div>
+        <label class="check"><input type="checkbox" id="set-slide-verse" checked> Offer the passage a slide names (John 10:11) as the scripture card</label>
+        <p class="hint">Nothing is shown until you press Show, as with a spoken verse.</p></section>
     </section>
     <section class="s-sec" id="sec-overlays" aria-labelledby="sech-overlays" hidden>
       <header class="s-head"><h2 id="sech-overlays">Birthdays</h2><p>Birthday reminders and how dates are read. Placement and style are in the Birthday Content’s settings.</p></header>
@@ -695,5 +700,7 @@
 <script src="js/nametags.js"></script>
 <script src="js/timing.js"></script>
 <script src="js/responses.js"></script><!-- 26.11.33 polls from members' phones -->
+<script src="js/slide-sorter.js"></script><!-- 26.11.45 every slide at once -->
+<script src="js/slide-tools.js"></script>
 </body>
 </html>

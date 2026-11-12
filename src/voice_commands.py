@@ -333,7 +333,32 @@ def grammar_words(names=None):
     for item in (names or {}).get("frames", []) + (names or {}).get("decks", []):
         for form in _forms_of(item):
             out.update(form)
+    out.update({"slide", "about", "called", "with"})          # 26.11.45 "slide twelve", "the slide about grace"
+    out.update(w for w in (names or {}).get("slides", []) if isinstance(w, str))
     return sorted(out)
+
+
+SLIDE_ABOUT = ("about", "called", "with", "on")
+
+
+def _slide(words):
+    """26.11.45 "slide twelve" / "go to slide 12" -> that slide; "the slide about grace" -> the slide it means."""
+    if "slide" not in words:
+        return None
+    i = words.index("slide")
+    before = [w for w in words[:i] if w not in ("go", "to", "the", "show", "please", "open")]
+    if before:
+        return None
+    rest = words[i + 1:]
+    if not rest:
+        return None
+    num = scripture_speech.number(words, i + 1)
+    if num and num[0] <= 999 and len(rest) <= 3:
+        return {"cmd": "slide", "label": "Slide %d" % num[0], "slide": num[0]}
+    if rest[0] in SLIDE_ABOUT and len(rest) > 1:
+        q = " ".join(rest[1:])[:80]
+        return {"cmd": "slide-about", "label": "The slide about " + q, "q": q}
+    return None
 
 
 def _by_name(words, names):
@@ -406,6 +431,9 @@ def match(text, names=None):
     ref = scripture_speech.find(" ".join(words))
     if ref:
         return {"cmd": "verse", "label": "Show " + ref["label"], "ref": ref["ref"], "text": " ".join(words)}
+    sl = _slide(words)
+    if sl:
+        return sl
     if "frame" in words:
         i = words.index("frame")
         num = scripture_speech.number(words, i + 1) if i + 1 < len(words) else None

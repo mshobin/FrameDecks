@@ -98,6 +98,8 @@ var RUN = {
   'prev-verse': function(st){ return contentStep(st, 'verse', -1); },
   'next-slide': function(){ return post('api/remote/studio', {op: 'slide', step: 1}); },
   'prev-slide': function(){ return post('api/remote/studio', {op: 'slide', step: -1}); },
+  slide: function(st, c){ return post('api/slides', {op: 'go', n: c.slide}); },                // 26.11.45 "slide twelve"
+  'slide-about': function(st, c){ return post('api/slides', {op: 'about', q: c.q}); },      // "the slide about grace"
   'show-question': function(st){ return qs(st, 'question'); },
   'show-verse': function(st){ return qs(st, 'verse'); },
   'show-both': function(st){ return qs(st, 'both'); },

@@ -218,7 +218,7 @@ function build(){
     h('div', {cls: 'spr-step', id: 'spr-step', role: 'group', 'aria-labelledby': 'spr-c-title', hidden: 'hidden'}, [
       h('div', {cls: 'spr-kinds', id: 'spr-kinds', role: 'radiogroup', 'aria-label': 'What the arrows move through'}),
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-prev', title: 'Previous (Alt+↑)', 'aria-label': 'Previous', 'aria-keyshortcuts': 'Alt+ArrowUp', html: I('chevron-left', 20), onclick: function(){ contentStep(-1); }}),
-      h('div', {cls: 'spr-step-t'}, [h('b', {id: 'spr-c-title', text: '—'}), h('small', {id: 'spr-c-detail'})]),
+      h('div', {cls: 'spr-step-t', id: 'spr-step-t', onclick: function(){ if (curKind() === 'slides' && window.KCSlides) KCSlides.open({}); }}, [h('b', {id: 'spr-c-title', text: '—'}), h('small', {id: 'spr-c-detail'})]),
       h('button', {cls: 'spr-round', type: 'button', id: 'spr-c-next', title: 'Next (Alt+↓)', 'aria-label': 'Next', 'aria-keyshortcuts': 'Alt+ArrowDown', html: I('chevron-right', 20), onclick: function(){ contentStep(1); }})]),
     // 26.11.10 a Frame with a question and a scripture: show the question, both, or the scripture (as on the phone remote)
     h('div', {cls: 'spr-qsrow', id: 'spr-qsrow', hidden: 'hidden'}, [h('span', {cls: 'spr-tag', id: 'spr-qs-name', text: 'Shows'}),
@@ -309,7 +309,7 @@ function render(){
   }
   if (k){
     var title, detail = '', shown = false;
-    if (k === 'slides'){ var p = studio.presentation; title = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Slides ready'; detail = 'PowerPoint'; }
+    if (k === 'slides'){ var p = studio.presentation; title = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Slides ready'; detail = window.KCSlides ? 'Click for every slide' : 'PowerPoint'; }
     else {
       var items = SC.items(live, k), ci = currentIndex(k); shown = k === 'question' ? live.question.visible : live.verse.visible;
       title = ONE[k] + ' ' + (ci >= 0 ? (ci + 1) + ' of ' + items.length : '– of ' + items.length);
@@ -317,6 +317,7 @@ function render(){
       detail = shown ? 'On screen' : it ? (k === 'verse' ? (it.ref || '') : (it.text || '')).slice(0, 90) : '';
     }
     setText($('spr-c-title'), title); setText($('spr-c-detail'), detail); $('spr-c-detail').classList.toggle('on', shown);
+    var stt = $('spr-step-t'); stt.classList.toggle('sl-opens', k === 'slides'); stt.title = k === 'slides' ? 'Every slide at once' : '';
   }
   var qm = ls ? SC.qsMode(ls) : '';
   setHidden($('spr-qsrow'), !qm);

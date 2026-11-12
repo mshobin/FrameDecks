@@ -1486,7 +1486,9 @@ function renderLiveBar(){
   }
   var ls = SC.liveScene(live), pr = slideInfo && slideInfo.presentation, hasDeck = ls && ls.layers.some(function(x){ return x.kind === 'pdf' || x.kind === 'window'; });
   $('lb-slides').hidden = !(pr || hasDeck);
-  $('lb-slides-t').textContent = pr && pr.page ? 'Slide ' + pr.page + (pr.pages ? ' / ' + pr.pages : '') : 'Slides';
+  // 26.11.45 a PDF deck's slide is the server's (live.deck); a live PowerPoint window still reports its own
+  var dk = live.live.deck;
+  $('lb-slides-t').textContent = dk ? 'Slide ' + (dk.page + 1) + ' / ' + dk.pages : pr && pr.page ? 'Slide ' + pr.page + (pr.pages ? ' / ' + pr.pages : '') : 'Slides';
 }
 
 /* Auto advance: the scene's own timer, while Auto is on (a second screen showing the Studio can never double-step) */

@@ -89,6 +89,14 @@ def clean_layer(d):
             pass
     if out["type"] in ("pdf", "window") and d.get("objectsOnly"):
         out["objectsOnly"] = True                # PowerPoint "Show objects only": hide a plain slide background
+    z = d.get("zoom")
+    if out["type"] == "pdf" and isinstance(z, dict):   # 26.11.45 zoom into part of a slide: centre x, y (0-1), s times
+        try:
+            s = max(1.0, min(4.0, float(z.get("s", 1))))
+            if s > 1.01:
+                out["zoom"] = {"x": max(0.0, min(1.0, float(z.get("x", 0.5)))), "y": max(0.0, min(1.0, float(z.get("y", 0.5)))), "s": s}
+        except (TypeError, ValueError):
+            pass
     return out
 
 
@@ -417,16 +425,18 @@ class LayerManager:
                     if s is None:
                         continue
                     if isinstance(s, PdfSource):
-                        s.want_width(l["w"] * W)
+                        s.want_width(l["w"] * W * (l["zoom"]["s"] if l.get("zoom") else 1))   # sharp when zoomed in
                     img, ver = s.frame()
                 if img is None:
                     continue
                 if l.get("objectsOnly"):
                     img = self._objects_only(l["id"], img, ver)
+                if l.get("zoom"):
+                    img = zoom_crop(img, l["zoom"])
                 if t in LIVE and self._fast_paste(frame, img, l, W, H, ver):
                     continue
                 key = (id(img) if t in ("text", "rect", "ellipse") else ver, W, H, l["x"], l["y"], l["w"], l["h"], l["rotation"],
-                       l["opacity"], l["radius"], str(l.get("props")), bool(l.get("objectsOnly")))
+                       l["opacity"], l["radius"], str(l.get("props")), bool(l.get("objectsOnly")), str(l.get("zoom")))
                 c = self.cache.get(l["id"])
                 if c is None or c[0] != key or t in LIVE:
                     c = (key,) + _transform(img, l, W, H)
@@ -569,6 +579,17 @@ def _round_mask(w, h, r):
             _masks.clear()
         _masks[key] = m
     return m
+
+
+def zoom_crop(img, z):
+    """26.11.45 the part of a slide a zoom shows: 1/s of its width and height around (x, y), kept inside the slide.
+    Same aspect as the slide, so it fills the layer's box exactly as the whole slide did."""
+    h, w = img.shape[:2]
+    s = max(1.0, float(z.get("s", 1)))
+    cw, ch = max(1, int(round(w / s))), max(1, int(round(h / s)))
+    x0 = int(round(min(max(0.0, z.get("x", 0.5) * w - cw / 2), w - cw)))
+    y0 = int(round(min(max(0.0, z.get("y", 0.5) * h - ch / 2), h - ch)))
+    return img[y0:y0 + ch, x0:x0 + cw]
 
 
 def _draw_shape(l, p, W, H):

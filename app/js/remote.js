@@ -177,6 +177,8 @@ function contentStep(d){
 }
 $('c-prev').addEventListener('click', guard('cp', function(){ contentStep(-1); }));
 $('c-next').addEventListener('click', guard('cn', function(){ contentStep(1); }));
+/* 26.11.45 "Slide 3 of 12" opens every slide at once (js/slide-sorter.js): tap one to put it on screen */
+$('c-title').parentNode.addEventListener('click', function(){ if (curKind() === 'slides' && window.KCSlides) KCSlides.open({}); });
 /* Question, both, or scripture: one switch for a Frame with both cards */
 all('[data-qs]').forEach(function(b){
   b.addEventListener('click', guard('qs', function(){
@@ -570,7 +572,7 @@ function render(){
   }
   if (k){
     var title, detail = '', on = false;
-    if (k === 'slides'){ var p = studioInfo.presentation; title = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Slides ready'; detail = 'PowerPoint'; }
+    if (k === 'slides'){ var p = studioInfo.presentation; title = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Slides ready'; detail = window.KCSlides && p.page ? 'Tap for every slide' : 'PowerPoint'; }
     else {
       var items = SC.items(live, k), ci = currentIndex(k); on = k === 'question' ? live.question.visible : live.verse.visible;
       title = ONE[k] + ' ' + (ci >= 0 ? (ci + 1) + ' of ' + items.length : '– of ' + items.length);
@@ -578,6 +580,7 @@ function render(){
       detail = on ? 'On screen' : it ? (k === 'verse' ? (it.ref || '') : (it.text || '')).slice(0, 90) : '';
     }
     setText($('c-title'), title); setText($('c-detail'), detail); $('c-detail').classList.toggle('on', on);
+    $('c-title').parentNode.classList.toggle('sl-opens', k === 'slides');
   }
   var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
   $('qs').hidden = !(q && v);

@@ -129,3 +129,11 @@
 .jc-opts{margin-top:12px;color:var(--text-3);font-size:14px}
 .jc-opts summary{cursor:pointer}
 .jc-opts[open] summary{margin-bottom:8px}
+
+/* 26.11.45 the slide on the meeting screen, on members' phones */
+.fl-slide{margin:0;display:grid;gap:10px}
+.fl-slide img{display:block;width:100%;height:auto;border:1px solid var(--hairline);border-radius:12px;background:var(--fill)}
+.fl-slide figcaption{display:grid;gap:4px}
+.fl-slide-n{color:var(--text-3);font-size:13px}
+.fl-slide b{color:var(--text);font-size:18px}
+.fl-slide-t{color:var(--text-2);font-size:15px;line-height:1.5;white-space:pre-line}

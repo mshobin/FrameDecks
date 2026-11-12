@@ -25,6 +25,10 @@ def _s(v, n):
     return " ".join(str(v or "").split())[:n]
 
 
+# 26.11.45 the slide on screen for phones: a function (state) -> {n, of, title, text, img} or None, set by server.py
+SLIDE = None
+
+
 def screen_of(st, prayer_code=""):
     """What phones show now: built only from what is visible on the meeting screen."""
     live = st.get("live") if isinstance(st.get("live"), dict) else {}
@@ -42,6 +46,13 @@ def screen_of(st, prayer_code=""):
         return out
     sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None) or {}
     out["frame"] = _s(sc.get("name"), 120) or "Frame"
+    if SLIDE and isinstance(live.get("deck"), dict):
+        try:
+            sl = SLIDE(st)
+            if sl:
+                out["slide"] = sl
+        except Exception as e:                       # a slide that cannot be read never stops the phones
+            print("Members' phones (slide):", e)
     q = st.get("question") if isinstance(st.get("question"), dict) else {}
     if q.get("visible") and _s(q.get("text"), TEXT_MAX):
         out["question"] = {"label": _s(q.get("label"), 60) or "Question", "text": _s(q.get("text"), TEXT_MAX)}

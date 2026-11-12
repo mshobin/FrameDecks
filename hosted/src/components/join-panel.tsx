@@ -365,6 +365,7 @@ type Screen = {
   prayer?: string;
   question?: { label: string; text: string };
   verse?: { ref: string; text: string };
+  slide?: { n: number; of: number; title?: string; text?: string; img?: string };
 };
 type Notes = {
   title: string;
@@ -418,6 +419,21 @@ function ScreenView({ s }: Readonly<{ s: Screen }>) {
   return (
     <div className="fl-screen" aria-live="polite">
       <p className="fl-frame">{s.frame}</p>
+      {s.slide && (
+        <figure className="fl-slide">
+          {s.slide.img?.startsWith("data:image/jpeg;base64,") && (
+            // eslint-disable-next-line @next/next/no-img-element -- a small picture of the slide on the meeting screen
+            <img src={s.slide.img} alt={s.slide.title ? `Slide: ${s.slide.title}` : `Slide ${s.slide.n}`} />
+          )}
+          <figcaption>
+            <span className="fl-slide-n">
+              Slide {s.slide.n} of {s.slide.of}
+            </span>
+            {s.slide.title && <b>{s.slide.title}</b>}
+            {s.slide.text && <span className="fl-slide-t">{s.slide.text}</span>}
+          </figcaption>
+        </figure>
+      )}
       {s.verse && (
         <blockquote className="fl-verse">
           {s.verse.text && <p>{s.verse.text}</p>}
