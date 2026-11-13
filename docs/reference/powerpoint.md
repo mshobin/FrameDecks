@@ -61,6 +61,15 @@ The recommendation is to cover the two real needs with tools that are dependable
      - the phone (the round ◀ ▶ arrows on a PowerPoint Frame).
    - Set the slide to **Start at** under Content Settings → Media.
    - No PowerPoint on the PC? Save the deck as PDF in PowerPoint (or Keynote or Google Slides) and add the PDF.
+   - **26.11.46: animations play.** When the .pptx has animations or transitions and PowerPoint is on the PC,
+     FrameDecks runs PowerPoint's own slide show itself, in a window tucked behind every other window (Windows
+     Graphics Capture keeps capturing it), and the camera shows the slide part of that window
+     (`vcam/powerpoint.LiveShow`, `vcam/layers.LiveShowSource`). Next plays the slide's next click (its next
+     animation), then goes to the next slide of the meeting's run order; Previous steps back. The still slides from
+     the PDF are shown until PowerPoint is ready, and whenever it cannot play the file. Content Settings → **Play
+     animations** switches it off for a deck. The file opens read-only with its macros off; the show advances only
+     by Next (rehearsed timings are ignored); FrameDecks ends the show when the Frame leaves the screen or when
+     FrameDecks closes.
 2. **Live PowerPoint window** (*+ Content → Free Content → Window*)
    - Start the slide show, then choose its window.
    - Animations, transitions and embedded videos play exactly as in PowerPoint, and Next / Previous drive the real
@@ -104,7 +113,9 @@ Settings the brief asked for, and where they are:
 
 ## 5. Limitations
 
-- **Animations:** a PPTX turned into slides has no animations. Use the live window for animations.
+- **Animations:** a PPTX with animations plays them (26.11.46) when PowerPoint is installed on the Windows PC. A PDF,
+  or a deck on a PC without PowerPoint, shows still slides. PowerPoint 2010 does not report how many clicks a slide
+  has, so Next lets PowerPoint decide and the click count is not shown. The slide-show window must not be minimised.
 - **Transparency:** no truly transparent animated PowerPoint output. This is impossible from PowerPoint itself; see
   sections 1 and 2.
 - **Platform:** PPTX conversion needs Windows with PowerPoint installed. The PDF route works everywhere.

@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.46': [
+    {title: 'Animations play', text: 'A PowerPoint with animations is played by PowerPoint itself, behind your windows: fly-ins, fades, transitions and videos play on the picture as in PowerPoint.', show: {spot: '#lc-control'}},
+    {title: 'Next plays each click', text: 'Next plays the slide\u2019s next animation, then the next slide. The grid and the Teleprompter show animation 1 of 3.'}
+  ],
   '26.11.45': [
     {title: 'Every slide at once', text: 'Press Slide 3 / 12 in the top bar: every slide of your PowerPoint, search through its words and notes, and click one to put it on screen. It is also in Control → Every slide.', show: {spot: '#lc-control'}},
     {title: 'Run order, zoom and hold', text: 'Hide or move slides for this meeting without changing the file, zoom into part of a slide, put yourself beside it, or hold with a kind message. A passage named on a slide is offered as the scripture card.', show: {settings: 'listening'}},

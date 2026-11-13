@@ -559,6 +559,8 @@ function cleanDeck(d){
   var o = {layer: str(d.layer, 40), file: str(d.file, 200), page: Math.max(0, Math.min(d.pages - 1, Math.round(+d.page || 0))), pages: Math.round(+d.pages),
     pos: Math.round(+d.pos || 0), count: Math.round(+d.count || 0), at: +d.at || 0};
   if (isObj(d.zoom) && d.zoom.s > 1) o.zoom = {x: +d.zoom.x || 0.5, y: +d.zoom.y || 0.5, s: +d.zoom.s};
+  if (d.clicks > 0){ o.clicks = Math.round(+d.clicks); o.click = Math.max(0, Math.min(o.clicks, Math.round(+d.click || 0))); }   // 26.11.46
+  if (d.animated) o.animated = true;                  // 26.11.46 PowerPoint plays this deck (animations)
   return o;
 }
 function cleanMemory(m){

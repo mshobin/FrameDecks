@@ -70,10 +70,10 @@ function go(n){ post('api/slides', {op: 'go', n: n}).then(function(r){ say('Slid
 function load(){
   var f = S.opts.file || '';
   return getJSON('api/slides' + (f ? '?file=' + encodeURIComponent(f) : '')).then(function(d){
-    var was = S.info && JSON.stringify([S.info.live && S.info.live.page, S.info.order, S.info.live && S.info.live.zoom]);
+    var was = S.info && JSON.stringify([S.info.live && S.info.live.page, S.info.order, S.info.live && S.info.live.zoom, S.info.live && S.info.live.click]);
     S.info = d;
     if (!S.dlg) return;
-    if (was !== JSON.stringify([d.live && d.live.page, d.order, d.live && d.live.zoom]) || !S.drawn) draw();
+    if (was !== JSON.stringify([d.live && d.live.page, d.order, d.live && d.live.zoom, d.live && d.live.click]) || !S.drawn) draw();
   }).catch(function(e){ if (S.dlg){ S.body.innerHTML = ''; S.body.appendChild(h('p', {cls: 'sl-empty', text: e.message || 'No slides are on screen.'})); } });
 }
 
@@ -106,7 +106,8 @@ function draw(){
   var live = d.live || null, order = d.order || d.slides.map(function(s){ return s.n - 1; });
   var cur = live ? live.page : -1, pos = order.indexOf(cur), nxt = pos >= 0 && pos < order.length - 1 ? order[pos + 1] : -1;
   S.title.textContent = (d.file || 'Slides').replace(/\.pdf$/i, '');
-  S.sub.textContent = live ? 'Slide ' + (cur + 1) + ' of ' + d.pages + ' on screen' + (order.length < d.pages ? ' · ' + order.length + ' in this meeting' : '') : d.pages + ' slides';
+  S.sub.textContent = live ? 'Slide ' + (cur + 1) + ' of ' + d.pages + ' on screen' + (order.length < d.pages ? ' · ' + order.length + ' in this meeting' : '') +
+    (live.clicks ? ' · animation ' + live.click + ' of ' + live.clicks : '') + (live.animated ? ' · PowerPoint plays the animations' : '') : d.pages + ' slides';
   // the bar: Previous / Next, then the tools
   S.bar.innerHTML = '';
   if (live){
@@ -140,6 +141,7 @@ function draw(){
     li.appendChild(face);
     li.appendChild(h('p', {cls: 'sl-cap', text: s.title || (s.text.split('\n')[0] || 'Slide ' + s.n)}));
     if (s.refs && s.refs.length) li.appendChild(h('p', {cls: 'sl-refs', text: '📖 ' + s.refs.join(' · ')}));
+    if (s.clicks) li.appendChild(h('p', {cls: 'sl-anim', text: '✦ ' + s.clicks + (s.clicks === 1 ? ' animation on click' : ' animations on click')}));   // 26.11.46
     if (S.mode === 'order'){
       li.setAttribute('draggable', 'true');
       li.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain', String(p)); li.classList.add('drag'); });

@@ -29,12 +29,13 @@ var timer = h('b', {cls: 'tps-time', text: '0:00'}), pos = h('span', {cls: 'tps-
 var notes = h('div', {cls: 'tps-notes', tabindex: '0', 'aria-label': 'Speaker notes'});
 var say = h('p', {cls: 'tps-say', role: 'status'});
 var nextFig = h('figure', {cls: 'tps-next'}, [nextImg, nextCap]);
+var nextBtn = h('button', {cls: 'tps-btn gold', type: 'button', title: 'Next: the next animation, then the next slide', text: 'Next slide ▶', onclick: function(){ go(1); }});
 var box = h('aside', {cls: 'tps', 'aria-label': 'Slides', hidden: 'hidden'}, [
   h('div', {cls: 'tps-head'}, [pos, h('span', {cls: 'tps-clock', title: 'How long this slide has been on screen'}, [timer])]),
   h('figure', {cls: 'tps-cur'}, [curImg, curCap]),
   h('div', {cls: 'tps-btns'}, [
     h('button', {cls: 'tps-btn', type: 'button', 'aria-label': 'Previous slide', title: 'Previous slide', text: '◀', onclick: function(){ go(-1); }}),
-    h('button', {cls: 'tps-btn gold', type: 'button', 'aria-label': 'Next slide', title: 'Next slide', text: 'Next slide ▶', onclick: function(){ go(1); }}),
+    nextBtn,
     h('button', {cls: 'tps-btn', type: 'button', title: 'Every slide at once', text: 'All', onclick: function(){ if (window.KCSlides) KCSlides.open({}); }})]),
   nextFig,
   h('p', {cls: 'tps-lbl', text: 'Notes'}), notes, say]);
@@ -54,7 +55,9 @@ function paint(){
   var order = info && info.order ? info.order : null, i = order ? order.indexOf(deck.page) : -1;
   var nx = order ? (i >= 0 && i < order.length - 1 ? order[i + 1] : -1) : (deck.page + 1 < deck.pages ? deck.page + 1 : -1);
   var s = info && info.slides ? info.slides[deck.page] : null, ns = info && info.slides && nx >= 0 ? info.slides[nx] : null;
-  pos.textContent = 'Slide ' + (deck.page + 1) + ' of ' + deck.pages + (deck.count < deck.pages ? ' · ' + deck.pos + ' of ' + deck.count + ' today' : '');
+  pos.textContent = 'Slide ' + (deck.page + 1) + ' of ' + deck.pages + (deck.count < deck.pages ? ' · ' + deck.pos + ' of ' + deck.count + ' today' : '') +
+    (deck.clicks ? ' · animation ' + deck.click + ' of ' + deck.clicks : '');      // 26.11.46 PowerPoint's clicks on this slide
+  nextBtn.textContent = deck.clicks && deck.click < deck.clicks ? 'Next animation ▶' : 'Next slide ▶';
   var cu = thumb(deck.file, deck.page, 480);
   if (curImg.getAttribute('src') !== cu) curImg.src = cu;
   curCap.textContent = s && s.title ? s.title : 'On screen';

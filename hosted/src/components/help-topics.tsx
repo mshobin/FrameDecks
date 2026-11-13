@@ -293,6 +293,7 @@ export const TOPICS: Topic[] = [
               <li>Pin it above Zoom or Teams and choose how see-through it is.</li>
               <li>The phone remote has the Teleprompter too.</li>
               <li>With PowerPoint slides on screen, the slide, the next one and its speaker notes sit beside the script.</li>
+              <li>A PowerPoint’s animations play (PowerPoint on the PC plays them); Next plays each animation, then the next slide.</li>
             </ul>
           </section>
         </div>

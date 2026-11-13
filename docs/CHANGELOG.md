@@ -10,6 +10,26 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.46] - 2026-11-13
+
+Full notes: [docs/releases/v26.11.46.md](releases/v26.11.46.md).
+
+### Added
+- PowerPoint plays animated decks: `vcam/powerpoint.LiveShow` opens the source .pptx read-only (macros off), runs its
+  slide show in a window (manual advance), tucks it behind every window and gives the focus back; Next/Previous step
+  through clicks (`SlideShowView.GetClickIndex/GetClickCount`, `Next`, `Previous`) and the run order (`GotoSlide`);
+  ended when the layer goes and at exit. `vcam/layers.LiveShowSource` shows the slide pane of that window (Windows
+  Graphics Capture, cropped to the slide), with the PDF slide until PowerPoint is ready or if it fails.
+- `slides.animation_of` (clicks, automatic effects, transition per slide), `idx` (slide number in the file),
+  `info()["animated"]`; `read_pptx(hidden=True)`.
+- Server: `deck_live_pptx` (on for animated decks from a .pptx on Windows unless the layer's `c.anim` is false),
+  `scene_media` passes `live`, `deck_go` steps through the show, `live.deck` gains `click`, `clicks`, `animated`.
+- Studio: Content Settings → Play animations; the grid and Teleprompter show the animation count.
+
+### Fixed
+- A slide change through `live.deck` (grid, phone, voice, Studio top bar) now moves the camera picture:
+  `LayerManager.set_layers` passes the new page to the kept PDF source.
+
 ## [26.11.45] - 2026-11-12
 
 Full notes: [docs/releases/v26.11.45.md](releases/v26.11.45.md).

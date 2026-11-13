@@ -87,6 +87,10 @@ def clean_layer(d):
             out["hwnd"] = int(d["hwnd"])
         except (TypeError, ValueError):
             pass
+    if out["type"] == "pdf":                     # 26.11.46 the .pptx PowerPoint plays, for animations (LiveShowSource)
+        live = safe_name(d.get("live"))
+        if live and live.lower().endswith((".pptx", ".ppt", ".pptm", ".ppsx", ".pps")):
+            out["live"] = live
     if out["type"] in ("pdf", "window") and d.get("objectsOnly"):
         out["objectsOnly"] = True                # PowerPoint "Show objects only": hide a plain slide background
     z = d.get("zoom")
@@ -271,6 +275,54 @@ class PdfSource:
         self.doc.close()
 
 
+class LiveShowSource(PdfSource):
+    """26.11.46 a deck with animations: PowerPoint plays the .pptx (vcam/powerpoint.LiveShow) and the camera shows
+    the slide from its slide-show window, so animations, transitions and videos play as in PowerPoint. Until
+    PowerPoint is ready, or if it cannot play the file, the still slide from the PDF is shown instead, so the picture
+    is never empty."""
+    LIVE_VER = 1 << 40                         # the live pictures' version numbers never meet the PDF's
+
+    def __init__(self, path, pptx, page=0):
+        super().__init__(path)
+        from slides import read_pptx
+        idx = [s["idx"] for s in read_pptx(pptx)]
+        if len(idx) != self.pages:                     # a PDF saved with PowerPoint's hidden slides in it
+            idx = [s["idx"] for s in read_pptx(pptx, hidden=True)]
+        if len(idx) != self.pages:
+            raise RuntimeError("The PowerPoint file and its slides do not match. Add the .pptx again.")
+        PdfSource.go(self, page)
+        self.show = LiveShow(pptx, idx, page)
+        self.cap = None
+        self.info = "PowerPoint plays the slides (animations)"
+
+    def go(self, page):
+        page = PdfSource.go(self, page)
+        self.show.goto(page)
+        return page
+
+    def frame(self):
+        sh = self.show
+        if self.cap is None and sh.hwnd and not sh.closed:
+            from .screen import ScreenCapture
+            self.cap = ScreenCapture({"kind": "window", "hwnd": sh.hwnd, "name": "PowerPoint"})
+        if self.cap is not None and sh.hwnd:
+            f, ver = self.cap.latest()
+            if f is not None:
+                y0, y1, x0, x1 = sh.crop(f.shape)
+                return f[y0:y1, x0:x1], self.LIVE_VER + int(ver or 0)
+        return PdfSource.frame(self)
+
+    def status(self):
+        sh = self.show
+        return {"live": bool(sh.hwnd), "error": sh.error, "click": sh.click, "clicks": sh.clicks}
+
+    def close(self):
+        if self.cap is not None:
+            self.cap.stop()
+        self.show.close()
+        PdfSource.close(self)
+
+
 class WindowSource:
     """A captured window (e.g. a PowerPoint slide show) with Next/Previous through PowerPoint's own commands."""
     def __init__(self, hwnd, name):
@@ -290,7 +342,7 @@ class WindowSource:
         self.cap.stop()
 
 
-from .powerpoint import powerpoint_slide, powerpoint_status  # noqa: E402,F401  (used by WindowSource, compositor)
+from .powerpoint import LiveShow, powerpoint_slide, powerpoint_status  # noqa: E402,F401  (WindowSource, compositor)
 
 
 # ---------- the stack ----------
@@ -319,11 +371,13 @@ class LayerManager:
             for lid in list(self.sources):
                 old = next((l for l in self.layers if l["id"] == lid), None)
                 n = keep.get(lid)
-                if n is None or old is None or (n["file"], n.get("hwnd"), n["type"]) != (old["file"], old.get("hwnd"), old["type"]):
+                if n is None or old is None or (n["file"], n.get("hwnd"), n["type"], n.get("live")) != (old["file"], old.get("hwnd"), old["type"], old.get("live")):
                     self.sources.pop(lid).close()
                     self.cache.pop(lid, None)
                 elif n["type"] == "video" and isinstance(self.sources[lid], VideoSource):
                     self.sources[lid].loop = n["loop"]
+                elif isinstance(self.sources[lid], PdfSource) and n.get("page", 0) != self.sources[lid].page:
+                    self.sources[lid].go(n.get("page", 0))      # 26.11.46 fix: the slide on screen moves the picture
             self.layers = new
             for key in list(self.cache):                       # free every cached picture of deleted layers
                 if key.split(":")[0] not in keep:
@@ -343,8 +397,12 @@ class LayerManager:
                 path = self.folder / l["file"]
                 if not path.is_file():
                     raise RuntimeError("The file is missing: " + l["file"])
-                s = {"image": ImageSource, "pdf": PdfSource}.get(l["type"], None)
-                s = s(path) if s else VideoSource(path, l["loop"])
+                live = self.folder / l["live"] if l["type"] == "pdf" and l.get("live") else None
+                if live is not None and live.is_file():
+                    s = LiveShowSource(path, live, l.get("page", 0))
+                else:
+                    s = {"image": ImageSource, "pdf": PdfSource}.get(l["type"], None)
+                    s = s(path) if s else VideoSource(path, l["loop"])
                 if isinstance(s, PdfSource):
                     s.go(l.get("page", 0))
             self.errors.pop(l["id"], None)
@@ -389,6 +447,8 @@ class LayerManager:
                     st.update(state=s.cmd, decodeFps=s.fps, hw=s.hw, ended=s.ended)
                 if isinstance(s, PdfSource):
                     st.update(page=s.page + 1, pages=s.pages)
+                if isinstance(s, LiveShowSource):
+                    st.update(show=s.status())
                 if isinstance(s, WindowSource):
                     st.update(captureFps=s.cap.fps, backend=s.cap.backend, error=s.cap.error or st["error"])
             out[l["id"]] = st

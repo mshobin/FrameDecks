@@ -1,51 +1,42 @@
-## FrameDecks v26.11.45
-PowerPoint, better than PowerPoint: every slide at once, a run order for this meeting, zoom, hold screens, the slides
-in the Teleprompter and on members' phones, and slides that know their scripture and songs.
+## FrameDecks v26.11.46
+Your PowerPoint animations now play: every animation, transition and video, exactly as in PowerPoint, on the camera
+and the Share Window.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Every slide at once.** Press **Slide 3 / 12** in the top bar (or Control → **Every slide**, or *Every slide* in the
-  command palette). Every slide of the deck on screen is there, with the slide on screen and the next one marked. Click
-  any slide to put it on screen. **Search** finds words in the slides' titles, text and speaker notes. In the Command
-  Center and on the phone remote, **Slide 3 of 12** opens the same grid.
-- **A run order for this meeting.** **Run order** lets you hide a slide or move it, by dragging or with ◀ ▶, for this
-  meeting only. The PowerPoint file is not changed, and Next and Previous follow the new order on the PC, the Command
-  Center, the phone and with your voice.
-- **The slides in the Teleprompter.** While slides are on screen, a column beside your script shows the slide on
-  screen, the next one, that slide's speaker notes and how long it has been up, with **Next slide** and **All**.
-- **Zoom into part of a slide.** **Zoom**, then click the part to show larger, from 1.5× to 4×. People see it on the
-  camera and the Share Window at once; the next slide starts whole again.
-- **Hold screens and where you are.** **Hold ▾**: a black screen, "We'll be right back" or "Please stay with us" over the
-  slides, one click away, and back. **You ▾**: the slide fills the picture, you beside the slide, or you in a corner over
-  it.
-- **Scripture on a slide.** A slide that names a passage (John 10:11) shows **Show John 10:11** in the grid, and when
-  that slide comes on screen the passage is offered as the scripture card, the same as a spoken verse. Nothing shows
-  until you press Show. Settings → Listening → **Scripture on a slide** switches it off.
-- **Songs from slides.** In Run order, select the song's slides and choose **Make a Songs Deck**: one verse per slide,
-  and a "Verse 1" or "Chorus" title becomes the verse's label.
-- **Slides on members' phones.** While members' phones is open, members see the slide on screen with its title.
-  **Slides to members' phones** sends the slides' titles and text for them to read along.
-- **Say the slide.** Voice commands now know "slide twelve", "go to slide 3" and "the slide about grace", as well as
-  "next slide" and "previous slide".
+- **Animations play.** When a .pptx has animations or transitions, FrameDecks asks the PowerPoint on this PC to play
+  it, in a slide-show window that sits behind your other windows, and puts that live slide on the picture. Fly-ins,
+  fades, builds, transitions, Morph and videos on the slides play exactly as PowerPoint draws them.
+- **Next plays each click.** Next plays the slide's next animation, and after the last one goes to the next slide of
+  this meeting's run order. Previous takes back the last animation, then goes to the slide before. This works from the
+  top bar, Page Down, the Command Center, the phone remote, the Teleprompter and your voice ("next slide").
+- **You can see where you are.** The slide grid and the Teleprompter show *animation 1 of 3*, the Teleprompter's
+  button says **Next animation** while animations are left on the slide, and each slide in the grid shows how many
+  animations it has.
+- **Play animations** in the PowerPoint Content's settings switches it off for a deck, if you want still slides.
 
 ## Enhancements
-- The slide on screen is kept by the PC itself, so the Studio, the Command Center, the phone, the Teleprompter and
-  voice commands always agree, and a window that has not caught up can never move the slides back.
-- Slide pictures for the grid are made once per slide and kept on this PC.
-- Hidden slides in PowerPoint (Hide Slide) are left out of the titles and notes, as in a slide show.
+- Until PowerPoint is ready, and if it cannot play a file, the still slide is shown, so the picture is never empty.
+- The file is opened read-only with its macros off. The slides move only when you press Next (rehearsed timings never
+  move them), and the show never reaches PowerPoint's black "End of slide show" screen.
+- FrameDecks ends the slide show when the Frame leaves the screen and when FrameDecks closes. If PowerPoint was
+  already open, it stays open with your own presentations.
+- The run order, Zoom, hold screens, the grid, notes, scripture offers and members' phones all work with animated
+  decks.
 
 ## Fixes
-- The top bar's slide number now follows the slides in a Frame even when FrameDecks vCam is not running.
+- **Moving to another slide now always changes the picture.** In 26.11.45, choosing a slide in the grid, or pressing
+  Next on the phone or by voice, moved the slide number but the picture on the camera could stay on the earlier
+  slide.
 
 ## Performance Improvements
-- Nothing new runs while no slides are on screen. The grid asks the PC which slide is showing only while it is open;
-  slide titles, text and notes are read once per file and kept.
+- PowerPoint runs only while an animated deck is on screen. A deck without animations is drawn as before, with no
+  PowerPoint at all.
 
 ## Known Issues
-- Slides from a PowerPoint file are still pictures: animations do not play. For animations, show the slide show live:
-  + Content → Free Content → Window.
-- The grid on the phone works when the phone is connected to this PC directly (the Phone & iPad Remote), not through
-  the website's remote.
+- Animations need Windows with PowerPoint installed. A PDF, or a deck on a PC without PowerPoint, shows still slides.
+- Leave the PowerPoint slide-show window open (it sits behind your other windows); minimising it pauses the picture.
+- PowerPoint 2010 does not report how many animations a slide has, so the count is not shown with it.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

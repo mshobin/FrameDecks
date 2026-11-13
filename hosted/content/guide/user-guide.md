@@ -180,6 +180,10 @@ cards across the width, and scriptures are rows beside **Fetch scripture**. **Po
   - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
     default) the whole window fades, text included; with it off, only the background is see-through.
 - **PowerPoint slides** (26.11.45). With a Frame that has a PowerPoint deck on screen:
+  - **Animations play** (26.11.46). A .pptx with animations or transitions is played by PowerPoint itself, behind
+    your windows, so every animation, transition and video plays as in PowerPoint. **Next** plays the next animation,
+    then the next slide; the grid and the Teleprompter show *animation 1 of 3*. Needs PowerPoint on this PC; leave its
+    slide-show window open (it sits behind your other windows). Content Settings → **Play animations** switches it off.
   - **Every slide at once**: press **Slide 3 / 12** in the top bar (or Control → **Every slide**, the command
     palette's *Every slide*, or **Slide 3 of 12** in the Command Center and on the phone). The slide on screen and the
     next one are marked; click any slide to put it on screen. **Search** finds words in the slides' titles, text and

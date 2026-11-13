@@ -54,7 +54,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.45"
+APP_VERSION = "26.11.46"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -431,6 +431,10 @@ def scene_media(st):
         c.update(id=str(l.get("id") or ""), name=l.get("name") or l["kind"], type=l["kind"],
                  visible=l.get("visible", True) is not False, locked=bool(l.get("locked")), opacity=l.get("opacity", 1))
         deck = live.get("deck") if isinstance(live.get("deck"), dict) else {}
+        if l["kind"] == "pdf":
+            pptx = deck_live_pptx(l, c["file"])
+            if pptx:
+                c["live"] = pptx                       # 26.11.46 PowerPoint plays it: animations, transitions, videos
         if l["kind"] == "pdf" and deck.get("layer") == c["id"] and isinstance(deck.get("page"), int):
             c["page"] = deck["page"]                   # 26.11.45 the slide on screen is the live state's (live.deck)
             z = deck.get("zoom")
@@ -2584,6 +2588,58 @@ def deck_seq(l, pages):
     return slides.sequence(pages, c.get("order"), c.get("skip"))
 
 
+_DECK_INFO = {}
+
+
+def _deck_info(name):
+    """slides.info for a deck, kept in memory per file version (read on every save while a deck is live)."""
+    try:
+        st = (LAYERS_DIR / name).stat()
+        key = (st.st_size, st.st_mtime)
+        hit = _DECK_INFO.get(name)
+        if hit and hit[0] == key:
+            return hit[1]
+        d = slides.info(LAYERS_DIR, name)
+        if len(_DECK_INFO) > 32:
+            _DECK_INFO.clear()
+        _DECK_INFO[name] = (key, d)
+        return d
+    except (ValueError, OSError) as e:
+        _swallowed("deck info", e)
+        return None
+
+
+def deck_clicks(name, page):
+    """26.11.46 how many animations play by clicks on this slide (0 when none, or not known)."""
+    d = _deck_info(name)
+    try:
+        return int(d["slides"][page].get("clicks") or 0) if d else 0
+    except (IndexError, KeyError, TypeError, ValueError):
+        return 0
+
+
+def deck_live_pptx(l, name):
+    """26.11.46 the .pptx PowerPoint plays for this deck layer (so animations, transitions and videos play), or "".
+    On when the deck has animations or transitions, it came from a .pptx that is still in the Content folder, this is
+    Windows, and the Content's "Play animations" is not switched off (c.anim false)."""
+    c = (l or {}).get("c") if isinstance((l or {}).get("c"), dict) else {}
+    if c.get("anim") is False or (os.name != "nt" and not os.environ.get("KC_LIVE_SHOW_ANYWHERE")):
+        return ""
+    d = _deck_info(name)
+    src = safe_name((d or {}).get("source") or "")
+    if not d or not src or not d.get("animated") or not (LAYERS_DIR / src).is_file():
+        return ""
+    return src
+
+
+def deck_show(layer_id):
+    """26.11.46 the camera's live PowerPoint show for this deck layer, once it plays, or None."""
+    comp = VCAM.get("compositor")
+    s = comp.layers.sources.get(layer_id) if comp else None
+    sh = getattr(s, "show", None)
+    return sh if sh is not None and sh.hwnd else None
+
+
 def deck_live(new):
     """Keep live.deck in step with the live Frame (called from save_state, under the state lock): the slide on screen
     is the server's, so a save from a window that has not caught up never moves it back. A new deck starts at its
@@ -2607,21 +2663,43 @@ def deck_live(new):
         start = (l.get("c") or {}).get("page")
         page = start if isinstance(start, int) and start in seq else seq[0]
         at, zoom = now, None
+    click = old.get("click", 0) if old.get("layer") == l.get("id") and old.get("page") == page else 0
     if want:
         if "page" in want and want["page"] != page:
-            page, at, zoom = want["page"], now, None    # a new slide starts unzoomed, its timer from now
+            page, at, zoom, click = want["page"], now, None, 0   # a new slide starts unzoomed, its timer from now
         if "zoom" in want:
             zoom = want["zoom"]
+        if isinstance(want.get("click"), int):
+            click = want["click"]                       # 26.11.46 the animations PowerPoint has played on this slide
     d = {"layer": str(l.get("id") or ""), "file": f, "page": page, "pages": pages,
          "pos": seq.index(page) + 1 if page in seq else 0, "count": len(seq), "at": at}
     if isinstance(zoom, dict):
         d["zoom"] = zoom
+    clicks = deck_clicks(f, page)
+    if clicks:
+        d.update(click=max(0, min(int(click or 0), clicks)), clicks=clicks)
+    if deck_live_pptx(l, f):
+        d["animated"] = True                            # 26.11.46 PowerPoint plays this deck (animations)
     live["deck"] = d
 
 
 def deck_go(page=None, step=None, zoom=False):
     """Move the slides on screen: to page (0-based), or step slides along the run order; zoom: {x, y, s} into part of
     the slide (s 1-4), None to show the whole slide. Returns {page, pages, pos, count} (page 1-based)."""
+    with cond:
+        d = (state.get("live") or {}).get("deck")
+        l = deck_layer(state)
+        if not d or not l:
+            raise ValueError("No slides are on screen. Go live with a Frame that has PowerPoint Content.")
+        seq = deck_seq(l, d["pages"])
+    click = None
+    show = deck_show(d["layer"]) if step is not None and zoom is False else None
+    if show is not None:                               # 26.11.46 PowerPoint plays it: Next plays the next animation
+        r = show.step(int(step), seq)
+        if isinstance(r, dict) and r.get("busy"):
+            return {"page": d["page"] + 1, "pages": d["pages"], "pos": d["pos"], "count": d["count"], "busy": True}
+        if isinstance(r, dict) and isinstance(r.get("page"), int):
+            page, step, click = r["page"], None, int(r.get("click") or 0)
     with cond:
         d = (state.get("live") or {}).get("deck")
         l = deck_layer(state)
@@ -2637,6 +2715,8 @@ def deck_go(page=None, step=None, zoom=False):
         else:
             target = d["page"]
         want = {"page": target}
+        if click is not None:
+            want["click"] = click
         if zoom is not False:
             if zoom is None:
                 want["zoom"] = None
@@ -2657,7 +2737,10 @@ def deck_go(page=None, step=None, zoom=False):
             MEETING_LOG.count("slide")
         except Exception as e:
             _swallowed("deck_go log", e)
-    return {"page": d["page"] + 1, "pages": d["pages"], "pos": d["pos"], "count": d["count"]}
+    out = {"page": d["page"] + 1, "pages": d["pages"], "pos": d["pos"], "count": d["count"]}
+    if d.get("clicks"):
+        out.update(click=d.get("click", 0), clicks=d["clicks"])
+    return out
 
 
 def _offer_slide_scripture(name, page):

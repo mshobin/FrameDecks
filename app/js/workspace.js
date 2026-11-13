@@ -1258,9 +1258,12 @@ function mediaForm(gen, sc, l){
       pg.addEventListener('change', function(){ var v = Math.max(1, Math.round(+pg.value || 1)) - 1; editLayer(sid, lid, function(x){ x.c.page = v; }); });
       gen.appendChild(field('Start at slide', pg, 'Previous / Next slide (top bar, Page Up / Page Down, or the phone) move through the slides.'));
     }
+    // 26.11.46 a .pptx with animations is played by PowerPoint itself (server.deck_live_pptx), unless this is off
+    if (l.kind === 'pdf') gen.appendChild(checkCtl('Play animations', c.anim !== false, function(v){ editLayer(sid, lid, function(x){ x.c.anim = v; }); },
+      'PowerPoint plays the slides behind your windows, so animations, transitions and videos play. Next plays each click.'));
     gen.appendChild(checkCtl('Show objects only', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }, 'Hides a plain slide background.'));
     gen.appendChild(h('p', {cls: 'hint', text: l.kind === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
-      'A PowerPoint file becomes still slides (no animations). For animations, show the slide show live: + Content → Free Content → Window.'}));
+      'A .pptx with animations plays them when PowerPoint is on this PC. A PDF, or a deck without PowerPoint, shows still slides.'}));
   }
   if (l.kind === 'text'){
     var ta = h('textarea', {rows: 3, 'aria-label': 'Text'}); ta.value = (c.props && c.props.text) || ''; ta.addEventListener('keydown', stop);

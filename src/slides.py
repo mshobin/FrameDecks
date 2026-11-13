@@ -89,9 +89,35 @@ def _shape_texts(root, skip_types=()):
     return out
 
 
-def read_pptx(path):
-    """[{title, text, notes}] for the slides PowerPoint shows (hidden slides are left out, as in its PDF)."""
+def animation_of(root):
+    """26.11.46 the animations of one slide: {clicks, auto, transition}. clicks = the presses of Next that play
+    an effect before the next slide (PowerPoint's main sequence: each "On click" effect); auto = effects that play by
+    themselves (With / After previous on entry); transition = the slide has an entry transition. Triggered effects
+    (start when a shape is clicked) are left out: a clicker never plays them."""
+    clicks = auto = 0
+    timing = root.find("p:timing", NS)
+    if timing is not None:
+        for seq in timing.iter("{%s}seq" % NS["p"]):
+            ctn = seq.find("p:cTn", NS)
+            if ctn is None or ctn.get("nodeType") != "mainSeq":
+                continue
+            for node in seq.iter("{%s}cTn" % NS["p"]):
+                kind = node.get("nodeType")
+                if kind == "clickEffect":
+                    clicks += 1
+                elif kind in ("withEffect", "afterEffect"):
+                    auto += 1
+    # p:transition, or one inside mc:AlternateContent (the newer effects such as Morph)
+    transition = any(el.tag.endswith("}transition") for el in root.iter())
+    return {"clicks": min(clicks, 200), "auto": min(auto, 500), "transition": bool(transition)}
+
+
+def read_pptx(path, hidden=False):
+    """[{title, text, notes, idx, clicks, auto, transition}] for the slides PowerPoint shows (hidden slides are left
+    out, as in its PDF). idx is the slide's number in the file (1-based, hidden ones counted), which PowerPoint's
+    slide show goes to; the animation fields come from animation_of."""
     out = []
+    idx = 0
     with zipfile.ZipFile(str(path)) as z:
         pres = "ppt/presentation.xml"
         rels = _rels(z, pres)
@@ -100,7 +126,8 @@ def read_pptx(path):
             if not target or target not in z.namelist():
                 continue
             root = _xml(z, target)
-            if root.get("show") == "0":                  # hidden in PowerPoint: not in the slides
+            idx += 1
+            if root.get("show") == "0" and not hidden:   # hidden in PowerPoint: not in the slides
                 continue
             shapes = _shape_texts(root, skip_types=("sldNum", "dt", "ftr"))
             title = next((t for k, t in shapes if k in ("title", "ctrTitle")), "")
@@ -112,7 +139,7 @@ def read_pptx(path):
                                       if k in ("body", ""))
                     break
             out.append({"title": _clean(title.replace("\n", " "), TITLE_MAX), "text": _clean("\n".join(body), TEXT_MAX),
-                        "notes": _clean(notes, NOTES_MAX)})
+                        "notes": _clean(notes, NOTES_MAX), "idx": idx, **animation_of(root)})
             if len(out) >= MAX_SLIDES:
                 break
     return out
@@ -186,7 +213,7 @@ def info(folder, name):
     if not path or not name.lower().endswith(".pdf") or not path.is_file():
         raise ValueError("That slide deck is not in the Content folder.")
     src = _source(folder, name)
-    key = [path.stat().st_size, int(path.stat().st_mtime)]
+    key = [2, path.stat().st_size, int(path.stat().st_mtime)]          # 2: 26.11.46 animations read too
     if src:
         key += [(folder / src).stat().st_size, int((folder / src).stat().st_mtime)]
     cache = folder / META / (name + ".json")
@@ -208,7 +235,8 @@ def info(folder, name):
         pdf_slides = read_pdf(path)
         notes = [s.get("notes", "") for s in slides] if len(slides) == pages else []
         slides = [dict(s, notes=notes[i] if i < len(notes) else "") for i, s in enumerate(pdf_slides)]
-    out = {"file": name, "pages": pages, "source": src,
+    animated = any(s.get("clicks") or s.get("auto") or s.get("transition") for s in slides[:pages])
+    out = {"file": name, "pages": pages, "source": src, "animated": bool(animated),
            "slides": [dict(s, n=i + 1, refs=_refs(s)) for i, s in enumerate(slides[:pages])]}
     with _LOCK:
         try:
