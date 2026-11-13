@@ -294,17 +294,18 @@ class LiveShow:
     idx[page] is that slide's number in the file, which the slide show goes to."""
     W, H = 1280, 720                     # the size PowerPoint draws the show at (px)
 
-    def __init__(self, pptx, idx, page=0):
+    def __init__(self, pptx, idx, page=0, start=True):
         self.path, self.idx = str(pptx), [int(i) for i in idx]
         self.page, self.click, self.clicks = max(0, int(page)), 0, 0
         self.hwnd, self.error, self.aspect, self.counted = None, "", 16 / 9, True
         self.ready = threading.Event()
         self.closed = False
+        self.started = bool(start) and os.name == "nt"
         self._win = self._pres = None
         self._own_app = False
         self._crop = {"at": 0.0, "key": None, "rect": None}
-        if os.name != "nt":
-            self.error = "PowerPoint plays animations only on Windows."
+        if os.name != "nt" or not start:
+            self.error = "" if start is False else "PowerPoint plays animations only on Windows."
             self.ready.set()
             return
         _SHOWS.add(self)
@@ -463,14 +464,14 @@ class LiveShow:
         if page == self.page and self.ready.is_set():
             return
         self.page, self.click = page, 0
-        if not self.closed and os.name == "nt":
+        if not self.closed and self.started:
             self._post(self._goto, page)
 
     def close(self):
         if self.closed:
             return
         self.closed = True
-        if os.name == "nt":
+        if self.started:
             self._post(self._shut)
 
     def crop(self, shape):

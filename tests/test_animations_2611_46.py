@@ -108,7 +108,7 @@ class ReadingAnimations(unittest.TestCase):
 class PlayingTheShow(unittest.TestCase):
     def show(self, clicks, idx, page=0):
         from vcam.powerpoint import LiveShow
-        sh = LiveShow("deck.pptx", idx, page)                 # not Windows: nothing is opened
+        sh = LiveShow("deck.pptx", idx, page, start=False)    # PowerPoint is never opened in these tests
         sh._win = type("W", (), {})()
         sh._win.View = FakeView(clicks)
         sh.ready.set()
@@ -194,7 +194,9 @@ class TheCameraPicture(unittest.TestCase):
         self.assertIsInstance(s, LiveShowSource)
         self.assertEqual(s.show.idx, [1, 2, 3])
         self.assertGreater(int(f[45, 80, 2]), 80)                                  # maroon: the still slide 2
-        self.assertIn("Windows", s.status()["error"])
+        self.assertTrue(s.show.ready.wait(30))                                     # no PowerPoint here: it says so
+        self.assertRegex(s.status()["error"], "Windows|not installed|could not play")
+        self.assertFalse(s.status()["live"])
         m.set_layers([{"id": "d", "type": "pdf", "file": "D.pdf", "page": 2, "w": 1, "h": 1, "live": "D.pptx"}])
         self.assertEqual((s.page, s.show.page), (2, 2))                           # the show is told to go there too
         m.set_layers([{"id": "d", "type": "pdf", "file": "D.pdf", "page": 2, "w": 1, "h": 1}])
@@ -204,6 +206,7 @@ class TheCameraPicture(unittest.TestCase):
         import numpy as np
         from vcam.layers import LiveShowSource
         s = LiveShowSource(self.dir / "D.pdf", self.dir / "D.pptx", 0)
+        self.assertTrue(s.show.ready.wait(30))                # on Windows without PowerPoint: it has given up first
         win = np.zeros((720, 1280, 3), np.uint8)
         win[:, 100:1180] = 200
         s.show.hwnd = 1
