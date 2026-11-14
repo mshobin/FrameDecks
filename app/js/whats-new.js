@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.47': [
+    {title: 'Sync fixed', text: 'No more extra Frames named after your PC, and a scripture or question you add stays on the Frame. Extra \u201c(from \u2026)\u201d Frames made before can be deleted once you have checked them.'}
+  ],
   '26.11.46': [
     {title: 'Animations play', text: 'A PowerPoint with animations is played by PowerPoint itself, behind your windows: fly-ins, fades, transitions and videos play on the picture as in PowerPoint.', show: {spot: '#lc-control'}},
     {title: 'Next plays each click', text: 'Next plays the slide\u2019s next animation, then the next slide. The grid and the Teleprompter show animation 1 of 3.'}

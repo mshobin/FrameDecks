@@ -10,6 +10,17 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.47] - 2026-11-14
+
+Full notes: [docs/releases/v26.11.47.md](releases/v26.11.47.md).
+
+### Fixed
+- `cloud_sync.Engine.run`: a pulled record whose body is still the one this PC last agreed (this PC's own push coming
+  back, since the pull runs before the push) is no longer treated as an edit in both places. Before, an edit made
+  between two rounds reverted the Frame to the pushed version and kept the edit as "<name> (from <computer name>)";
+  a Frame deleted between two rounds was restored. A real edit in both places still keeps both.
+- `sync_preview` agrees: such a Frame is "sent", not "edited in both places".
+
 ## [26.11.46] - 2026-11-13
 
 Full notes: [docs/releases/v26.11.46.md](releases/v26.11.46.md).

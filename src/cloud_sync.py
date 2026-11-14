@@ -165,6 +165,8 @@ class Engine:
                 continue
             agreed = known.get(k)
             changed_here = mine is not None and mine_hash != (agreed["hash"] if agreed else None)
+            if agreed is not None and remote_hash == agreed["hash"]:
+                continue                                  # 26.11.47 unchanged there (our own push): only ours goes up
             frame = r["kind"] in FRAME_KINDS
             if not frame:
                 out["otherIn"] += 1
@@ -197,7 +199,9 @@ class Engine:
             else:
                 out["otherOut"] += 1
         for k, agreed in known.items():
-            if k not in local and agreed.get("hash") is not None and k not in latest:
+            there = latest.get(k)
+            unchanged_there = there is None or (None if there.get("deleted") else fingerprint(there.get("body"))) == agreed.get("hash")
+            if k not in local and agreed.get("hash") is not None and unchanged_there:
                 kind, rid = k.split("/", 1)
                 if kind in FRAME_KINDS:
                     out["out"].append({"name": "A Frame removed here", "what": "removed"})
@@ -291,6 +295,13 @@ class Engine:
             if adopt:                                   # restoring from the workspace: its version wins, no copies
                 apply[k] = r
                 known[k] = {"rev": r["rev"], "hash": remote_hash}
+                continue
+            if agreed is not None and remote_hash == agreed["hash"]:
+                # 26.11.47 fix: the workspace still has the version this PC last agreed (usually this PC's own push
+                # coming back, because the pull runs before the push). Only this PC changed it since: keep ours and
+                # send it. Before, an edit made between two syncs was taken for an edit in both places: the Frame went
+                # back to the older version and the edit became an extra "Name (from <this PC>)" Frame.
+                known[k] = {"rev": max(int(r.get("rev") or 0), int(agreed.get("rev") or 0)), "hash": agreed["hash"]}
                 continue
             if not changed_here or mine is None:
                 # Unchanged here, or deleted here while changed there (an edit beats a delete): take theirs.
