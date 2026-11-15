@@ -981,7 +981,7 @@ function groupHead(key, name, sub, fold){
   return h('div', {cls: 'cs-group cs-anchor cs-fold', 'data-grp': key, role: 'button', tabindex: '0', 'aria-expanded': 'false'}, [h('span', {text: name}), h('span', {cls: 'cs-chev', 'aria-hidden': 'true', text: '▸'})]);
 }
 function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2], g[3]) : null; }
-var CARD_IC = {layout: 'maximize', style: 'palette', animation: 'sparkles', output: 'monitor'};   // 26.11.50 the icon on each Settings card
+var CARD_IC = {layout: 'maximize', style: 'palette', animation: 'sparkles', output: 'monitor', slides: 'presentation', playback: 'play', file: 'image', sound: 'volume-2', words: 'pencil'};   // 26.11.50 the icon on each Settings card
 /* 8.1 the settings sections open and close on a click; remembered on this PC */
 function applyGroups(){
   var gen = $('ip-gen'); gen.classList.remove('cs-closed', 'cs-sheet');   // 26.11.2 a fold left from another Content never hides the Frame form
@@ -1043,7 +1043,7 @@ var valT = 0;
 function foldValuesSoon(){ clearTimeout(valT); valT = setTimeout(foldValues, 60); }
 $('insp-body').addEventListener('input', foldValuesSoon); $('insp-body').addEventListener('change', foldValuesSoon); $('insp-body').addEventListener('click', foldValuesSoon);
 var genAtEnd = false;
-function renderInspector(){ renderInspectorBody(); applyGroups(); foldValuesSoon(); }
+function renderInspector(){ renderInspectorBody(); applyGroups(); foldValuesSoon(); fitCards(); }
 function renderInspectorBody(){
   var sc = scene(), l = layer(), kind = l ? l.kind : '', g = group(kind);
   if (!genAtEnd){ genAtEnd = true; $('insp-body').appendChild($('ip-gen')); }          // generated groups follow the editors
@@ -1083,10 +1083,30 @@ function renderInspectorBody(){
   if (!l) sceneForm(gen, sc);
   else if (SC.isCard(kind)){ var ob = h('div', {cls: 'cs-sec'}), oc = card('output'); oc.appendChild(headFor(groups, 'output')); oc.appendChild(ob); outputForm(ob, sc, l); }
   else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
-  else if (SC.isSound(kind)){ gen.appendChild(groupHead('content', 'Audio')); audioForm(gen, sc, l); }
-  else if (!mediaLive){ gen.appendChild(groupHead('content', 'Media')); mediaForm(gen, sc, l); }
-  else { gen.appendChild(groupHead('output', 'Behavior')); gen.appendChild(h('p', {cls: 'hint', text: 'Position, size and the rest of this Content: drag it on the picture, or use the settings above.'})); }
+  else if (SC.isSound(kind)) audioForm(mcard, sc, l);
+  else if (!mediaLive) mediaForm(mcard, sc, l);
+  else mcard('output', 'Behavior').appendChild(h('p', {cls: 'hint', text: 'Position, size and the rest of this Content: drag it on the picture, or use the settings above.'}));
+  /* 26.11.53 slides, pictures, video, camera and sound: the same cards as every other Content. main: shown in Simple too */
+  function mcard(key, name, main){ var c = card(key), box = h('div', {cls: 'cs-sec'}); c.classList.add('sc-media'); if (main) c.classList.add('sc-essential');
+    c.appendChild(groupHead(key, name, 0, 1)); c.appendChild(box); return box; }
 }
+/* 26.11.53 the Settings cards fill each row: as many columns as fit (250 px or more each), the rows balanced
+   (4 cards on room for 3 make 2 + 2), and the last card of a short row takes the rest of it, so no row ends in a gap.
+   The cards of one row share its height (css). */
+function fitCards(){
+  var body = $('insp-body'); if (!body.classList.contains('sc-cards')){ body.style.removeProperty('--sc-cols'); return; }
+  var cs = Array.prototype.filter.call(body.querySelectorAll(':scope > .ip:not([data-itab="content"]):not(#ip-gen), #ip-gen > .sc-card:not(.sc-words):not(.sc-hint)'),
+    function(e){ e.style.gridColumn = ''; return !e.hidden && getComputedStyle(e).display !== 'none'; });
+  var n = cs.length; if (!n) return;
+  var st = getComputedStyle(body), w = body.clientWidth - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight), gap = parseFloat(st.columnGap) || 12;
+  var fit = Math.max(1, Math.floor((w + gap) / (250 + gap))), rows = Math.ceil(n / fit), cols = Math.ceil(n / rows), rest = n % cols;
+  body.style.setProperty('--sc-cols', String(cols));
+  if (rest) cs[n - 1].style.gridColumn = 'span ' + (cols - rest + 1);
+}
+var fitT = 0;
+function fitCardsSoon(){ cancelAnimationFrame(fitT); fitT = requestAnimationFrame(fitCards); }
+window.addEventListener('resize', fitCardsSoon);
+if (window.ResizeObserver) new ResizeObserver(fitCardsSoon).observe($('insp-body'));
 /* 26.11.50 the area below the preview is Settings, as cards; the words are typed in the preview. "Show text fields"
    (remembered on this PC, off by default) brings the typing boxes back, for long text or pasting. A question or scripture
    list that is still empty always shows them, so there is a first one to type. */
@@ -1384,53 +1404,60 @@ function outputForm(gen, sc, l){
 }
 /* ---------- Media layers that are not on the canvas right now ---------- */
 /* M-D4: Audio Content plays through this PC's speakers while its Frame is live (js/audio-player.js) */
-function audioForm(gen, sc, l){
-  var sid = sc.id, lid = l.id, c = l.c;
+function audioForm(card, sc, l){
+  var sid = sc.id, lid = l.id, c = l.c, gen = card('sound', 'Sound', 1);
   gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
   gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile('audio').then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
+  gen = card('playback', 'Playback', 1);
   gen.appendChild(checkCtl('Repeat until the Frame leaves the screen', !!c.loop, function(v){ editLayer(sid, lid, function(x){ x.c.loop = v; }); }));
   gen.appendChild(row('Volume', rangeCtl(Math.round((c.volume == null ? 1 : c.volume) * 100), 0, 100, 5, function(v){ return v + '%'; }, function(v){ editLayerSoon(sid, lid, function(x){ x.c.volume = v / 100; }); })));
   gen.appendChild(h('p', {cls: 'hint', text: 'Plays from the start through this PC’s speakers when this Frame goes live, and stops when it leaves the screen. Hide the Content (the eye) to keep it quiet. In Zoom or Teams, share the sound (Share Screen → Share sound) or play it near the microphone.'}));
 }
-function mediaForm(gen, sc, l){
-  var sid = sc.id, lid = l.id, c = l.c;
-  var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FrameDecks vCam picture. Turn FrameDecks vCam on in Settings → FrameDecks vCam to see and arrange them.'}));
-  if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
+function mediaForm(card, sc, l){
+  var sid = sc.id, lid = l.id, c = l.c, k = l.kind, gen;
+  var S = studio(), main = false;
+  var place = h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FrameDecks vCam picture. Turn FrameDecks vCam on in Settings → FrameDecks vCam to see and arrange them.'});
+  if (['image', 'video', 'pdf'].indexOf(k) >= 0){                 // 26.11.53 the file card: a deck's file, start slide and how it will play
+    gen = card(k === 'pdf' ? 'slides' : 'file', k === 'pdf' ? 'Slides' : k === 'video' ? 'Video' : 'Picture', main = true);
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
-    gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind === 'pdf' ? 'powerpoint' : l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
-  }
-  if (l.kind === 'pdf' || l.kind === 'window'){                  // PowerPoint
-    if (l.kind === 'pdf'){
+    gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(k === 'pdf' ? 'powerpoint' : k).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
+    if (k === 'pdf'){
       var pg = h('input', {type: 'number', min: 1, max: 999, step: 1, value: String((c.page || 0) + 1), 'aria-label': 'Start at slide'}); pg.addEventListener('keydown', stop);
       pg.addEventListener('change', function(){ var v = Math.max(1, Math.round(+pg.value || 1)) - 1; editLayer(sid, lid, function(x){ x.c.page = v; }); });
       gen.appendChild(field('Start at slide', pg, 'Previous / Next slide (top bar, Page Up / Page Down, or the phone) move through the slides.'));
+      if (c.file) gen.appendChild(deckReady(sid, lid, c));       // 26.11.49 how the deck will play
     }
+  }
+  if (k === 'pdf' || k === 'window'){                            // PowerPoint
+    gen = card('playback', 'Playback', main = true);
     // 26.11.46 a .pptx with animations is played by PowerPoint itself (server.deck_live_pptx), unless this is off
-    if (l.kind === 'pdf') gen.appendChild(checkCtl('Play animations', c.anim !== false, function(v){ editLayer(sid, lid, function(x){ x.c.anim = v; }); },
+    if (k === 'pdf') gen.appendChild(checkCtl('Play animations', c.anim !== false, function(v){ editLayer(sid, lid, function(x){ x.c.anim = v; }); },
       'PowerPoint plays the slides behind your windows, so animations, transitions and videos play. Next plays each click.'));
-    if (l.kind === 'pdf') gen.appendChild(checkCtl('On members’ phones', c.phones !== false, function(v){ editLayer(sid, lid, function(x){ x.c.phones = v; }); },   // 26.11.48
+    if (k === 'pdf') gen.appendChild(checkCtl('On members’ phones', c.phones !== false, function(v){ editLayer(sid, lid, function(x){ x.c.phones = v; }); },   // 26.11.48
       'While the members’ room is open, phones get each slide of this Deck. Keep single slides off them in Slides › Run order.'));
-    if (l.kind === 'pdf' && c.file) gen.appendChild(deckReady(sid, lid, c));   // 26.11.49 how the deck will play
     gen.appendChild(checkCtl('Show objects only', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }, 'Hides a plain slide background.'));
-    gen.appendChild(h('p', {cls: 'hint', text: l.kind === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
+    gen.appendChild(h('p', {cls: 'hint', text: k === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
       'A .pptx with animations plays them when PowerPoint is on this PC. A PDF, or a deck without PowerPoint, shows still slides.'}));
   }
-  if (l.kind === 'text'){
+  if (k === 'text'){
+    gen = card('words', 'Text', main = true);
     var ta = h('textarea', {rows: 3, 'aria-label': 'Text'}); ta.value = (c.props && c.props.text) || ''; ta.addEventListener('keydown', stop);
     ta.addEventListener('input', function(){ var v = ta.value; editLayerSoon(sid, lid, function(x){ x.c.props = Object.assign({}, x.c.props, {text: v}); }); });
     gen.appendChild(field('Text', ta));
   }
-  if (l.kind !== 'background'){
+  if (k !== 'background'){
+    gen = card('layout', 'Position and size', !main);
     var g = h('div', {cls: 's2-grid'});
     [['x', 'Centre X', 100], ['y', 'Centre Y', 100], ['w', 'Width', 100], ['h', 'Height', 100]].forEach(function(f){
       var inp = h('input', {type: 'number', step: 1, value: String(Math.round((c[f[0]] == null ? 0 : c[f[0]]) * 100)), 'aria-label': f[1] + ' (%)'}); inp.addEventListener('keydown', stop);
       inp.addEventListener('change', function(){ var v = (+inp.value || 0) / 100; editLayer(sid, lid, function(x){ x.c[f[0]] = v; }); });
       g.appendChild(h('label', {cls: 's2-num'}, [h('span', {text: f[1]}), inp, h('em', {text: '%'})]));
     });
-    gen.appendChild(g);
+    gen.appendChild(g); gen.appendChild(place); main = true;
   }
+  gen = card('style', 'Look', !main);
   gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ editLayerSoon(sid, lid, function(x){ x.opacity = v; }); })));
+  if (k === 'background') gen.appendChild(place);
 }
 /* "Recommended layout" for the verse uses the same reset */
 Array.prototype.forEach.call(document.querySelectorAll('[data-layout-reset]'), function(b){ b.addEventListener('click', function(){ var r = $('layout-reset'); if (r) r.click(); }); });

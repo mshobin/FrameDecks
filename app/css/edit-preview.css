@@ -50,7 +50,7 @@
 #program:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* ---------- the area below: Settings as cards ---------- */
-.inspector .insp-body.sc-cards{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-template-rows:none;align-items:start;align-content:start;overflow:auto;gap:12px}
+.inspector .insp-body.sc-cards{grid-template-columns:repeat(var(--sc-cols,auto-fill),minmax(250px,1fr));grid-template-rows:none;align-items:stretch;align-content:start;overflow:auto;gap:12px}
 .inspector .insp-body.sc-cards > *{grid-column:auto;grid-row:auto}
 .inspector .insp-body.sc-cards > .ip[data-itab="content"],.inspector .insp-body.sc-cards > #sc-hint,.inspector .insp-body.sc-cards > #ip-gen.gen-frame,
 .inspector .insp-body.sc-cards .sc-card.sc-words{grid-column:1 / -1}
@@ -68,6 +68,7 @@
 .inspector .insp-body.sc-cards .sc-ic[data-ic="layout"]{background:var(--q-soft);color:var(--q)}
 .inspector .insp-body.sc-cards .sc-ic[data-ic="style"]{background:var(--v-soft);color:var(--v)}
 .inspector .insp-body.sc-cards .sc-ic[data-ic="animation"]{background:var(--gold-soft);color:var(--gold)}
+.inspector .insp-body.sc-cards .sc-ic[data-ic="playback"]{background:var(--gold-soft);color:var(--gold)}
 .inspector .insp-body.sc-cards .sc-ic[data-ic="output"]{background:var(--live-soft);color:var(--live)}
 .inspector .insp-body.sc-cards .sc-card .field:last-child,.inspector .insp-body.sc-cards .ip .ip-sec:last-child{margin-bottom:0}
 /* inside a card the label sits above its control, so the controls get the card's full width */
@@ -96,7 +97,7 @@
 
 /* Simple mode keeps the settings behind the Design button */
 body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards > .ip:not([data-itab="content"]),
-body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards .sc-card:not(.sc-words):not(.sc-hint){display:none}
+body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards .sc-card:not(.sc-words):not(.sc-hint):not(.sc-essential){display:none}
 
 @media (prefers-reduced-motion:reduce){ .pv-bar,.pv-add{animation:none} .sc-tf-k::after{transition:none} }
 /* the Show on card already says so in its title */
@@ -151,3 +152,10 @@ body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards .sc-card:not(.sc
 .fo-strip:not(.editing){padding:2px;border-color:var(--line-soft);background:var(--panel);opacity:.92}
 .fo-strip:not(.editing):hover{opacity:1}
 .fo-strip.editing{z-index:40;box-shadow:var(--el-3)}
+/* 26.11.53 slides, pictures, video, camera and sound as cards: one control under another, the deck's status as a quiet strip */
+.inspector .insp-body.sc-cards .sc-media .cs-sec > * + *{margin-top:10px}
+.inspector .insp-body.sc-cards .sc-media .field{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.inspector .insp-body.sc-cards .sc-media .field input[type="number"]{width:96px}
+.inspector .insp-body.sc-cards .deck-ready{padding:6px 10px;border-radius:var(--r-1);background:var(--sunken);color:var(--ink)}
+body.simple:not(.sm-design-open) #insp-body .sc-essential > .cs-fold{display:flex}
+body.simple:not(.sm-design-open) #insp-body .sc-essential > .cs-fold + .cs-sec{display:block}

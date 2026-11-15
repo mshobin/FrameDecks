@@ -196,7 +196,10 @@ preview; turn on **Show text fields** to see the list and the typing boxes here 
     default) the whole window fades, text included; with it off, only the background is see-through.
 - **PowerPoint slides** (26.11.45). When you add a deck, its Content Settings say at once how it will play, for
   example *Ready: 24 slides, 3 with animations · PowerPoint will play it*, or *still slides (PowerPoint is not on this
-  PC)*.
+  PC)*. Since 26.11.53 a deck's settings are cards like every other Content: **Slides** (the file, Start at slide and
+  the ready line), **Playback** (Play animations, On members' phones, Show objects only), **Position and size** and
+  **Look**. Pictures, video, camera and sound use the same cards, and the cards always fill their rows evenly. In
+  Simple, Slides and Playback stay; the others are behind **Design**.
   - **Present slides** (26.11.49): with a Frame that has slides selected, the big button reads **Present slides**:
     it goes live and shows the slide large, with big **Back** and **Next**, the next slide, its notes and a strip of
     the slides in this meeting's order. While slides are on screen the big button says what it will do: **Next

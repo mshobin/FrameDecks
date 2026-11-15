@@ -10,6 +10,16 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.53] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.53.md](releases/v26.11.53.md).
+
+### Changed
+- `mediaForm` / `audioForm` (workspace.js) build `.sc-card` cards through `mcard(key, name, main)`: Slides, Playback,
+  Picture / Video, Text, Position and size, Look, Sound. Main cards carry `sc-essential` and stay in Simple.
+- `fitCards()`: `--sc-cols` = balanced column count (as many 250 px columns as fit, rows evened out); the last card of
+  a short row spans the rest. Cards in a row stretch to one height (edit-preview.css).
+- Simple / Design toggles dispatch `resize` so the cards rebalance.
 ## [26.11.52] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.52.md](releases/v26.11.52.md).

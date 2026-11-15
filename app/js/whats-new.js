@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.53': [
+    {title: 'Slide Settings as cards', text: 'A PowerPoint\u2019s Settings are now cards like every other Content: Slides, Playback, Position and size, Look. Every kind of Content fills the rows evenly, with no gaps.', show: {spot: '#insp-body'}}
+  ],
   '26.11.52': [
     {title: 'Present slides fixed', text: 'Adding a PowerPoint and pressing Present slides straight away could close FrameDecks. It no longer does.'}
   ],

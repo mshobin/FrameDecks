@@ -54,6 +54,7 @@ if (tbar){
     var open = !body.classList.contains('sm-design-open');
     body.classList.toggle('sm-design-open', open);
     design.setAttribute('aria-expanded', String(open));
+    window.dispatchEvent(new Event('resize'));          // 26.11.53 the Settings cards rebalance their columns
   });
   tbar.appendChild(design);
   if (seg) tbar.appendChild(seg);

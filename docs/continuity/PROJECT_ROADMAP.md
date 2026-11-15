@@ -95,6 +95,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.50: Type in the preview (select, toolbar, add by double-click, drag/resize, keys, live draft badge); Settings as cards with Show text fields | Tagged `v26.11.50` |
 | 26.11.51: Set order for any Content (Next walks the steps everywhere), Copy look / Use this look for… | Tagged `v26.11.51` |
 | 26.11.52: Present slides crash fix (one PDFium lock), crash reporter in the support bundle | On `main`; owner tags `v26.11.52` |
+| 26.11.53: Slide deck (and every media / sound) Settings as cards; cards fill each row evenly for every kind | On `main`; owner tags `v26.11.53` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |
