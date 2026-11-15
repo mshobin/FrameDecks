@@ -26,7 +26,7 @@ def read(rel):
 
 def node(code, *args):
     try:
-        res = subprocess.run(["node", "-e", code, *args], capture_output=True, text=True, timeout=60)
+        res = subprocess.run(["node", "-e", code, *args], capture_output=True, text=True, encoding="utf-8", timeout=60)
     except FileNotFoundError:
         raise unittest.SkipTest("node is not installed")
     if res.returncode:

@@ -49,7 +49,7 @@ console.log(JSON.stringify(out));
 class DeleteAndNewMeeting(unittest.TestCase):
     def test_store_deletes_only_that_meeting_and_a_new_one_has_a_blank_frame(self):
         try:
-            res = subprocess.run(["node", "-e", STORE_RUN, str(ROOT / "app/js/store.js")], capture_output=True, text=True, timeout=60)
+            res = subprocess.run(["node", "-e", STORE_RUN, str(ROOT / "app/js/store.js")], capture_output=True, text=True, encoding="utf-8", timeout=60)
         except FileNotFoundError:
             self.skipTest("node is not installed")
         self.assertEqual(res.returncode, 0, res.stderr[-2000:])
