@@ -213,6 +213,7 @@ export function MeetingBar({
   onSelect,
   onCreate,
   onRename,
+  onDelete,
 }: Readonly<{
   list: { id: string; name: string; date: string }[];
   selected: string;
@@ -223,6 +224,7 @@ export function MeetingBar({
   onSelect: (id: string) => void;
   onCreate: (name: string) => void;
   onRename: (name: string) => void;
+  onDelete?: () => void;
 }>) {
   const [mode, setMode] = useState<"new" | "rename" | null>(null);
   const [name, setName] = useState("");
@@ -251,6 +253,11 @@ export function MeetingBar({
         {canEdit && mode === null && current && (
           <button type="button" className="mb-rename" disabled={busy} onClick={() => (setName(current.name), setMode("rename"))}>
             <Pencil aria-hidden="true" size={15} /> Rename
+          </button>
+        )}
+        {canEdit && mode === null && current && onDelete && (
+          <button type="button" className="mb-rename mb-delete" disabled={busy} onClick={onDelete}>
+            <Trash2 aria-hidden="true" size={15} /> Delete meeting
           </button>
         )}
       </div>

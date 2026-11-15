@@ -615,6 +615,11 @@ class CloudApi:
     def pc_room_publish(self, screen, notes=None, set_notes=False):
         return self._rpc("pc_room_publish", {"screen": screen, "notes": notes, "set_notes": bool(set_notes)})
 
+    def pc_room_slide(self, page, title="", text="", img=None):
+        """26.11.48 a slide shown in the open room, sharp, for phones to zoom into and look back at (0025)."""
+        return self._rpc("pc_room_slide", {"page": int(page), "title": str(title or "")[:120], "body": str(text or "")[:600],
+                                           "img": img})
+
     def pc_room_close(self):
         return self._rpc("pc_room_close", {})
 

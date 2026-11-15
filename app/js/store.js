@@ -631,7 +631,31 @@ var Scenes = {
     n.live.meeting = to.id;
     return to;
   },
-  addMeeting: function(n, name){
+  /* 26.11.48 delete one meeting: its Frames (with their Decks and Content) and the meeting itself; templates and the
+     other meetings stay. The last meeting is replaced by a fresh one with one blank Frame, so there is always one.
+     Returns {name, frames, now: the meeting shown after} or null. */
+  deleteMeeting: function(n, id){
+    var list = meetingsOf(n), m = list.filter(function(x){ return x.id === id; })[0]; if (!m) return null;
+    var gone = {}, count = 0;
+    n.scenes.forEach(function(sc){ if (!sc.tpl && meetingOfScene(sc, list).id === m.id){ gone[sc.id] = 1; count++; } });
+    n.scenes = n.scenes.filter(function(sc){ return !gone[sc.id]; });
+    if (n.live.scene && gone[n.live.scene]){ n.live.scene = null; n.live.on = {}; }          // its Frame was on screen
+    var rest = list.filter(function(x){ return x.id !== m.id; });
+    var cur = Scenes.currentMeeting(n);
+    if (!rest.length){
+      var fresh = {id: rid('mt_'), name: 'Meeting', date: '', notes: ''};
+      n.meeting.meetings = [fresh];
+      n.meeting.title = fresh.name; n.meeting.date = ''; n.meeting.notes = ''; n.live.meeting = fresh.id;
+      Scenes.create(n, 'blank', {group: '', name: 'Frame 1'});
+      return {name: m.name, frames: count, now: fresh.name};
+    }
+    n.meeting.meetings = rest;
+    var show = cur.id !== m.id ? cur : rest[0];
+    Scenes.switchMeeting(n, show.id);
+    return {name: m.name, frames: count, now: show.name};
+  },
+  /* opts.blank: the new meeting starts with one blank Frame (26.11.48, the New button); a copy or an import adds its own */
+  addMeeting: function(n, name, opts){
     var list = meetingsOf(n), used = {}; list.forEach(function(m){ used[m.name.toLowerCase()] = 1; });
     var base = str(name, 60).trim() || 'New meeting', nm = base, k = 2;
     while (used[nm.toLowerCase()]) nm = base.slice(0, 56) + ' ' + (k++);
@@ -642,6 +666,7 @@ var Scenes = {
     list.forEach(function(x){ if (x.id === cur.id){ x.date = n.meeting.date; x.notes = n.meeting.notes; } });
     list.push(m); n.meeting.meetings = list;
     Scenes.switchMeeting(n, m.id);
+    if (opts && opts.blank) Scenes.create(n, 'blank', {group: m.name, name: 'Frame 1'});
     return m;
   },
   /* 26.11.28 next week from this meeting: a new meeting a week after this one's date (today when it has none), with

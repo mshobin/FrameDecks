@@ -58,7 +58,7 @@ function page(s){
 
 /* 26.11.24 the sermon notes: made from what was presented (each Frame's Teleprompter script, the scriptures in full,
  * the questions to reflect on); nothing to fill in. Print / Save as PDF, Copy, Email, or share with members' phones. */
-var view = 'summary', withScript = true, notes = null;
+var view = 'summary', withScript = true, withSlides = true, notes = null;   // 26.11.48 withSlides: the slides shown, on phones
 function notesPage(n){
   var kids = [h('p', {cls: 'kc-dlg-kicker', text: 'Sermon notes'}), h('h2', {id: 'sum-title', text: n.title}),
     h('p', {cls: 'kc-dlg-sub', text: new Date(n.date).toLocaleDateString(undefined, {dateStyle: 'full'}) + (n.presenter ? ' · ' + n.presenter : '')})];
@@ -113,7 +113,7 @@ function share(){
     if (window.KCMembers){ dlg.close(); KCMembers.open(); }
     return;
   }
-  fetch('api/members', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'share-notes', run: cur.id, script: withScript})})
+  fetch('api/members', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'share-notes', run: cur.id, script: withScript, slides: withSlides})})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'That did not work'); return d; }); })
     .then(function(){ toast('Sermon notes are on members’ phones'); if (KCMembers.refresh) KCMembers.refresh(); })
     .catch(function(e){ toast(e.message, true); });
@@ -253,7 +253,10 @@ function draw(){
   if (view === 'notes'){
     var sc = h('input', {type: 'checkbox', id: 'sn-script'}); sc.checked = withScript;
     sc.addEventListener('change', function(){ withScript = sc.checked; loadNotes(); });
-    extra = h('label', {cls: 'check sn-opt', title: 'Each Frame’s Teleprompter script: what you planned to say. Untick to leave it out.'}, [sc, ' Include what I planned to say (Teleprompter script)']);
+    var ss = h('input', {type: 'checkbox', id: 'sn-slides'}); ss.checked = withSlides;
+    ss.addEventListener('change', function(){ withSlides = ss.checked; });
+    extra = h('div', {cls: 'sn-opts'}, [h('label', {cls: 'check sn-opt', title: 'Each Frame’s Teleprompter script: what you planned to say. Untick to leave it out.'}, [sc, ' Include what I planned to say (Teleprompter script)']),
+      h('label', {cls: 'check sn-opt', title: 'On members’ phones, the notes end with each PowerPoint slide shown while their phones were open (never a slide kept off phones).'}, [ss, ' Include the slides shown (on members’ phones)'])]);
   }
   var foot = view === 'moment' ? h('div', {cls: 'kc-dlg-foot sum-foot'}, [pick ? h('label', {cls: 'sum-past'}, ['Past meetings ', pick]) : null,
     h('button', {cls: 'btn ghost', type: 'button', text: 'Copy the picture', onclick: momentCopy}),

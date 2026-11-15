@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.48': [
+    {title: 'Delete a meeting', text: 'The bin beside the meeting\u2019s name deletes that meeting with its Frames, Decks and Content, and nothing else. Undo brings it back. A new meeting starts with a blank Frame.', show: {spot: '#mt-delete'}},
+    {title: 'Members\u2019 phones, full screen', text: 'The meeting fills members\u2019 phones, its name under FrameDecks. They tap a slide to zoom in and swipe back through slides already shown. Keep a slide off phones in Slides \u203a Run order.'}
+  ],
   '26.11.47': [
     {title: 'Sync fixed', text: 'No more extra Frames named after your PC, and a scripture or question you add stays on the Frame. Extra \u201c(from \u2026)\u201d Frames made before can be deleted once you have checked them.'}
   ],

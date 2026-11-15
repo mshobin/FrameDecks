@@ -28,6 +28,7 @@ test("every table has at least one policy and none is open to anon", () => {
     "member_rooms", // 0020: only the members' phones functions touch it
     "room_responses", "room_votes", // 0022: only the quick responses and polls functions touch them
     "device_alerts", // 0023: written by triggers, read by device_alerts_recent and taken by the device-alert function
+    "room_slides", // 0025: only the members' phones slide functions touch it
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -50,6 +51,7 @@ test("clients cannot grant the owner role", () => {
 // A linked PC calls with the anon key: these functions are open to anon and authorise it by its key header
 // (request_computer) or, before it has one, only start and poll a link.
 const ANON_BY_DESIGN = [
+  "pc_room_slide", // 0025: the church PC sends a slide shown, by its key
   "sync_pull",
   "sync_push",
   "computer_revoke",
@@ -98,7 +100,7 @@ const PUBLIC_PRAYER = ["prayer_peek", "prayer_send"];
 // only its code; wrong codes are limited.
 // 0022: they also read the room's open question (counts only when the leader shows them) and answer it once per phone
 // (only a hash of the phone's own id is kept), with only the code; wrong codes are limited.
-const PUBLIC_ROOM = ["room_view", "room_response", "room_respond"];
+const PUBLIC_ROOM = ["room_view", "room_response", "room_respond", "room_slides", "room_slide"]; // 0025: the slides shown, by code
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];

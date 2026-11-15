@@ -250,21 +250,81 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   }
   const meetingBase = meetingRecord ?? { kind: "meeting" as const, id: "meeting", rev: 0, seq: 0, body: {} };
 
+  /** 26.11.48 a new meeting starts with one blank Frame (as on the PC), sent together with the meeting. */
   async function createMeeting(wanted: string) {
     if (!supabase || busy) return;
     const entry: Meeting = { id: newMeetingId(), name: uniqueMeetingName(meetings, wanted), date: "", notes: "" };
     const body = withMeetings(meetingBody, [...meetings, entry]);
+    const blank = frameFromForm({ ...emptyFrame(), name: "Frame 1" }, null, { brandColor: String(brand.color ?? ""), group: entry.name });
+    const serverOrder = serverByKey.get(key("order", "order"));
+    const orderBody = withFrame((serverOrder?.body as Obj) ?? null, String(blank.id));
     setBusy(true);
-    const answer = await pushRecord(supabase, workspace.id, meetingBase, body);
+    const answers = await pushChanges(supabase, workspace.id, [
+      { kind: "meeting", id: "meeting", rev: meetingBase.rev, body },
+      { kind: "frame", id: String(blank.id), rev: 0, body: blank },
+      { kind: "order", id: "order", rev: serverOrder?.rev ?? 0, body: orderBody },
+    ]);
     setBusy(false);
-    if (answer.status === "ok") {
-      upsert({ ...meetingBase, kind: "meeting", body: body as PulledRecord["body"], rev: answer.rev });
+    if (answers.every((a) => a.status === "ok")) {
+      const rev = (i: number) => (answers[i] as { rev: number }).rev;
+      upsert({ ...meetingBase, kind: "meeting", body: body as PulledRecord["body"], rev: rev(0) });
+      upsert({ kind: "frame", id: String(blank.id), rev: rev(1), seq: 0, body: blank as PulledRecord["body"] });
+      upsert({ kind: "order", id: "order", rev: rev(2), seq: 0, body: orderBody as PulledRecord["body"] });
       choose(entry.id);
-      setNotice({ ok: true, text: `“${entry.name}” made. Add its first Frame: Add Frame.` });
-    } else if (answer.status === "conflict") {
-      setNotice({ ok: false, text: "The meetings changed on the PC meanwhile. Here is the latest; try again." });
+      setNotice({ ok: true, text: `“${entry.name}” made, with a blank Frame. Open it to add Content.` });
+    } else {
+      const bad = answers.find((a) => a.status === "error");
+      setNotice({ ok: false, text: bad && bad.status === "error" ? bad.message : "The meetings changed on the PC meanwhile. Here is the latest; try again." });
       await load();
-    } else setNotice({ ok: false, text: answer.message });
+    }
+  }
+
+  /** 26.11.48 delete the chosen meeting: all its Frames (with their Decks and Content) and the meeting, nothing else.
+   * The last meeting is replaced by a fresh one with a blank Frame. A meeting whose Frame is on screen stays. */
+  async function deleteMeeting() {
+    if (!supabase || busy) return;
+    const mine = framesOfMeeting(scenes, meetings, sel.id);
+    if (onAirId && mine.some((f) => String(f.id) === onAirId)) return setNotice({ ok: false, text: `A Frame of “${sel.name}” is on screen now. Take it off air on the PC first.` });
+    if (!(await ask({
+      title: `Delete “${sel.name}”?`,
+      description: `Its ${mine.length} Frame${mine.length === 1 ? "" : "s"}, with every Deck and all their Content, are deleted in your workspace and on the service PC. Other meetings stay as they are. Restore from History within 30 days.`,
+      confirmLabel: "Delete meeting",
+      tone: "danger",
+    }))) return;
+    const ids = new Set(mine.map((f) => String(f.id)));
+    let rest = meetings.filter((m) => m.id !== sel.id);
+    let blank: Obj | null = null;
+    if (!rest.length) {
+      rest = [{ id: newMeetingId(), name: "Meeting", date: "", notes: "" }];
+      blank = frameFromForm({ ...emptyFrame(), name: "Frame 1" }, null, { brandColor: String(brand.color ?? ""), group: "" });
+    }
+    const body = withMeetings(meetingBody, rest, rest[0].id);
+    const serverOrder = serverByKey.get(key("order", "order"));
+    const ob = ((serverOrder?.body as Obj) ?? { scenes: [], questions: [], verses: [], members: [] }) as Obj;
+    let orderBody: Obj = { ...ob, scenes: ((ob.scenes as unknown[]) ?? []).map(String).filter((s) => !ids.has(s)) };
+    if (blank) orderBody = withFrame(orderBody, String(blank.id));
+    const list: Parameters<typeof pushChanges>[2] = [{ kind: "meeting", id: "meeting", rev: meetingBase.rev, body }];
+    for (const id of ids) {
+      const r = serverByKey.get(key("frame", id));
+      if (r) list.push({ kind: "frame", id, rev: r.rev, deleted: true });
+    }
+    if (blank) list.push({ kind: "frame", id: String(blank.id), rev: 0, body: blank });
+    list.push({ kind: "order", id: "order", rev: serverOrder?.rev ?? 0, body: orderBody });
+    setBusy(true);
+    const answers = await pushChanges(supabase, workspace.id, list);
+    setBusy(false);
+    setChanges((c) => {
+      const next = { ...c };
+      for (const id of ids) delete next[keyOf("frame", id)];        // waiting edits of the deleted Frames go too
+      return next;
+    });
+    await load();
+    const failed = answers.filter((a) => a.status !== "ok").length;
+    if (failed) setNotice({ ok: false, text: "Some of it changed on the PC meanwhile. Here is the latest; delete the meeting again if it is still there." });
+    else {
+      choose(rest[0].id);
+      setNotice({ ok: true, text: `“${sel.name}” deleted with ${ids.size} Frame${ids.size === 1 ? "" : "s"}.` });
+    }
   }
 
   /** Name, date and notes of the chosen meeting; a new name also moves its Frames' group (how the PC knows them). */
@@ -432,6 +492,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         busy={busy}
         onSelect={choose}
         onCreate={createMeeting}
+        onDelete={deleteMeeting}
         onRename={(name) => saveMeeting({ title: name, date: sel.date || String(meetingBody.date ?? ""), notes: multi ? sel.notes : String(meetingBody.notes ?? "") }).then((err) => (setRenames((n) => n + 1), setNotice(err ? { ok: false, text: err } : { ok: true, text: `Renamed to “${name}”.` })))}
       />
       <div className={`plan-grid${sideOpen ? "" : " is-closed"}`}>

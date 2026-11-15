@@ -90,6 +90,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.45: PowerPoint slides: every slide at once with search, run order, Teleprompter slides and notes, members' phones, slide scripture and songs, voice, zoom, layouts, hold screens | On `main`, not tagged (superseded by 26.11.46) |
 | 26.11.46: PowerPoint animations play (PowerPoint plays the deck behind your windows; Next plays each click); camera follows every slide change | On `main`; owner tags `v26.11.46` |
 | 26.11.47: Sync fix: no extra "(from <PC>)" Frames, edits made between two syncs stay, deleted Frames stay deleted | On `main`; owner tags `v26.11.47` |
+| 26.11.48: Delete a whole meeting; new meetings start with a blank Frame; members' phones full screen with the meeting name, sharp zoomable slides, look back, keep off phones, slides in the notes (migration 0025) | On `main`; owner applies 0025 and tags `v26.11.48` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

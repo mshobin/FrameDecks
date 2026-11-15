@@ -83,7 +83,8 @@ test("wrong codes are limited", async () => {
 });
 
 test("rollback removes 0020", async () => {
-  // rollbacks run newest first: 0022 (polls in the room) is built on this room
+  // rollbacks run newest first: 0025 (slides) and 0022 (polls in the room) are built on this room
+  await db.exec(readFileSync(new URL("../supabase/rollback/0025_room_slides_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0022_room_polls_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0020_member_room_down.sql", import.meta.url), "utf8"));
   assert.equal((await db.query("select count(*)::int as n from pg_proc where proname like '%room%'")).rows[0].n, 0);

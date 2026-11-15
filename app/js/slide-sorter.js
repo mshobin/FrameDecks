@@ -46,7 +46,8 @@ function editOrder(fn){
     var l = deckLayer(n); if (!l) return;
     var pages = S.info.pages, order = Array.isArray(l.c.order) ? l.c.order.slice() : [], skip = Array.isArray(l.c.skip) ? l.c.skip.slice() : [];
     var seq = []; order.concat(Array.apply(null, {length: pages}).map(function(_, i){ return i; })).forEach(function(p){ if (p >= 0 && p < pages && seq.indexOf(p) < 0) seq.push(p); });
-    var r = fn(seq, skip) || {}; l.c.order = r.order || seq; l.c.skip = r.skip || skip;
+    var r = fn(seq, skip, Array.isArray(l.c.nophone) ? l.c.nophone.slice() : []) || {}; l.c.order = r.order || seq; l.c.skip = r.skip || skip;
+    if (r.nophone) l.c.nophone = r.nophone;                                // 26.11.48: slides kept off members' phones
     if (l.c.skip.length >= pages) l.c.skip = l.c.skip.slice(1);           // never hide every slide
   }).then(load);
 }
@@ -70,10 +71,11 @@ function go(n){ post('api/slides', {op: 'go', n: n}).then(function(r){ say('Slid
 function load(){
   var f = S.opts.file || '';
   return getJSON('api/slides' + (f ? '?file=' + encodeURIComponent(f) : '')).then(function(d){
-    var was = S.info && JSON.stringify([S.info.live && S.info.live.page, S.info.order, S.info.live && S.info.live.zoom, S.info.live && S.info.live.click]);
+    var key = function(x){ return JSON.stringify([x.live && x.live.page, x.order, x.live && x.live.zoom, x.live && x.live.click, x.nophone, x.phones]); };
+    var was = S.info && key(S.info);
     S.info = d;
     if (!S.dlg) return;
-    if (was !== JSON.stringify([d.live && d.live.page, d.order, d.live && d.live.zoom, d.live && d.live.click]) || !S.drawn) draw();
+    if (was !== key(d) || !S.drawn) draw();
   }).catch(function(e){ if (S.dlg){ S.body.innerHTML = ''; S.body.appendChild(h('p', {cls: 'sl-empty', text: e.message || 'No slides are on screen.'})); } });
 }
 
@@ -132,12 +134,13 @@ function draw(){
     var hay = (s.title + ' ' + s.text + ' ' + s.notes).toLowerCase();
     if (words.length && !words.every(function(w){ return hay.indexOf(w) >= 0; })) return;
     shown++;
-    var hidden = live && order.indexOf(p) < 0;
+    var hidden = live && order.indexOf(p) < 0, nophone = live && (d.phones === false || (d.nophone || []).indexOf(p) >= 0);
     var li = h('li', {cls: 'sl-card' + (p === cur ? ' cur' : '') + (p === nxt ? ' next' : '') + (hidden ? ' hidden' : '') + (S.sel[p] ? ' sel' : ''), 'data-p': String(p)});
     var face = h('button', {cls: 'sl-face', type: 'button', 'aria-label': 'Slide ' + s.n + (s.title ? ': ' + s.title : '') + (p === cur ? ' (on screen)' : ''),
       onclick: function(){ if (S.mode === 'order'){ S.sel[p] = !S.sel[p]; li.classList.toggle('sel', !!S.sel[p]); if (window.KCSlideTools) KCSlideTools.more(S.bar, d, btn, S.sel, true); } else if (live) go(s.n); }},
       [h('img', {src: thumbUrl(d.file, s.n, 320), alt: '', loading: 'lazy', decoding: 'async'}),
-       h('span', {cls: 'sl-n', text: String(s.n)}), p === cur ? h('span', {cls: 'sl-tag', text: 'On screen'}) : p === nxt ? h('span', {cls: 'sl-tag nx', text: 'Next'}) : hidden ? h('span', {cls: 'sl-tag off', text: 'Hidden'}) : null]);
+       h('span', {cls: 'sl-n', text: String(s.n)}), p === cur ? h('span', {cls: 'sl-tag', text: 'On screen'}) : p === nxt ? h('span', {cls: 'sl-tag nx', text: 'Next'}) : hidden ? h('span', {cls: 'sl-tag off', text: 'Hidden'}) : null,
+       nophone && !hidden ? h('span', {cls: 'sl-nophone', text: 'Not on phones', title: 'Members’ phones do not get this slide'}) : null]);
     li.appendChild(face);
     li.appendChild(h('p', {cls: 'sl-cap', text: s.title || (s.text.split('\n')[0] || 'Slide ' + s.n)}));
     if (s.refs && s.refs.length) li.appendChild(h('p', {cls: 'sl-refs', text: '📖 ' + s.refs.join(' · ')}));
@@ -153,12 +156,15 @@ function draw(){
         btn('◀', function(){ editOrder(function(seq){ var i = seq.indexOf(p); if (i > 0){ seq.splice(i, 1); seq.splice(i - 1, 0, p); } return {order: seq}; }); }, 'mini', 'Earlier'),
         btn(hidden ? 'Show' : 'Hide', function(){ editOrder(function(seq, skip){ var i = skip.indexOf(p); if (i >= 0) skip.splice(i, 1); else skip.push(p); return {skip: skip}; }); }, 'mini' + (hidden ? ' on' : ''), hidden ? 'Show this slide in this meeting' : 'Leave this slide out of this meeting'),
         btn('▶', function(){ editOrder(function(seq){ var i = seq.indexOf(p); if (i >= 0 && i < seq.length - 1){ seq.splice(i, 1); seq.splice(i + 1, 0, p); } return {order: seq}; }); }, 'mini', 'Later')]));
+      if (d.phones !== false) li.appendChild(btn(nophone ? '📱 Off phones' : '📱 On phones', function(){     // 26.11.48
+        editOrder(function(seq, skip, off){ var i = off.indexOf(p); if (i >= 0) off.splice(i, 1); else off.push(p); return {nophone: off}; }); },
+        'mini sl-ph' + (nophone ? ' on' : ''), nophone ? 'Members’ phones do not get this slide. Press to send it to them.' : 'Members’ phones get this slide. Press to keep it off them.'));
     }
     grid.appendChild(li);
   });
   if (!shown) S.body.appendChild(h('p', {cls: 'sl-empty', text: words.length ? 'No slide has “' + S.query.trim() + '”.' : 'No slides.'}));
   else S.body.appendChild(grid);
-  if (S.mode === 'order') S.body.appendChild(h('p', {cls: 'sl-hint', text: 'Drag a slide, or use ◀ ▶, to change the order. Hide leaves a slide out of this meeting. The PowerPoint file is not changed. Select slides to make a Songs Deck from them.'}));
+  if (S.mode === 'order') S.body.appendChild(h('p', {cls: 'sl-hint', text: 'Drag a slide, or use ◀ ▶, to change the order. Hide leaves a slide out of this meeting. 📱 keeps a slide off members’ phones. The PowerPoint file is not changed. Select slides to make a Songs Deck from them.'}));
   else if (live && !words.length) { var c = grid.querySelector('.sl-card.cur'); if (c && !S.scrolled){ S.scrolled = true; c.scrollIntoView({block: 'nearest'}); } }
 }
 

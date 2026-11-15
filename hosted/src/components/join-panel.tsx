@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { ConnectSteps, settle, type StepState } from "@/components/connect-steps";
+import { SlidePicture, SlideViewer, useShownSlides, type ShownSlide } from "@/components/follow-slides";
 import { Button } from "@/components/ui/button";
 import { codeFromHash, codeProblem, guessDeviceName, isShortCode, tidyCode, type JoinRole } from "@/lib/join-code";
 import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
@@ -365,17 +366,19 @@ type Screen = {
   prayer?: string;
   question?: { label: string; text: string };
   verse?: { ref: string; text: string };
-  slide?: { n: number; of: number; title?: string; text?: string; img?: string };
+  slide?: { n: number; of: number; page?: number; title?: string; text?: string; img?: string; off?: boolean };
 };
 type Notes = {
   title: string;
   date: number;
   presenter?: string;
   sections: { frame: string; script: string; verses: { ref: string; text: string }[]; questions: string[] }[];
+  slides?: boolean; // 26.11.48 the leader shared the slides shown with the notes
 };
+type Pictures = (p: number) => Promise<string | null>;
 type Room = { status: "open" | "closed" | "unknown"; rev?: number; team?: string; screen?: Screen; notes?: Notes | null; same?: boolean };
 
-function NotesView({ notes }: Readonly<{ notes: Notes }>) {
+function NotesView({ notes, slides, picture }: Readonly<{ notes: Notes; slides: ShownSlide[] | null; picture: Pictures }>) {
   return (
     <article className="fl-notes">
       <p className="fd-kicker">Sermon notes</p>
@@ -406,6 +409,22 @@ function NotesView({ notes }: Readonly<{ notes: Notes }>) {
           )}
         </section>
       ))}
+      {notes.slides && slides && slides.length > 0 && (
+        <section className="fl-sec fl-handout">
+          <h3>Slides</h3>
+          {slides.map((x) => (
+            <figure key={x.page}>
+              <SlidePicture page={x.page} label={x.title ? `Slide ${x.page + 1}: ${x.title}` : `Slide ${x.page + 1}`} picture={picture} />
+              <figcaption>
+                <b>
+                  {x.page + 1}. {x.title}
+                </b>
+                {x.body && <span>{x.body}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
       <Button className="auth-primary fl-print" type="button" onClick={() => window.print()}>
         Save as PDF or print
       </Button>
@@ -413,17 +432,28 @@ function NotesView({ notes }: Readonly<{ notes: Notes }>) {
   );
 }
 
-function ScreenView({ s }: Readonly<{ s: Screen }>) {
+function ScreenView({ s, onSlide, earlier }: Readonly<{ s: Screen; onSlide: () => void; earlier: boolean }>) {
   if (!s.live) return <p className="fl-quiet">Nothing on screen yet. This page follows the meeting screen.</p>;
   if (s.black) return <p className="fl-quiet">The meeting screen is dark for a moment.</p>;
   return (
     <div className="fl-screen" aria-live="polite">
       <p className="fl-frame">{s.frame}</p>
-      {s.slide && (
+      {s.slide?.off && <p className="fl-quiet">This slide is not shown on phones.</p>}
+      {s.slide && !s.slide.off && (
         <figure className="fl-slide">
           {s.slide.img?.startsWith("data:image/jpeg;base64,") && (
-            // eslint-disable-next-line @next/next/no-img-element -- a small picture of the slide on the meeting screen
-            <img src={s.slide.img} alt={s.slide.title ? `Slide: ${s.slide.title}` : `Slide ${s.slide.n}`} />
+            <button type="button" className="fl-slide-open" onClick={onSlide} aria-label={`Open slide ${s.slide.n} full screen to zoom in`}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- a small picture of the slide on the meeting screen */}
+              <img src={s.slide.img} alt={s.slide.title ? `Slide: ${s.slide.title}` : `Slide ${s.slide.n}`} />
+              <span className="fl-slide-zoom" aria-hidden="true">
+                Tap to zoom
+              </span>
+            </button>
+          )}
+          {earlier && (
+            <button type="button" className="fl-slide-back" onClick={onSlide}>
+              ◀ Earlier slides
+            </button>
           )}
           <figcaption>
             <span className="fl-slide-n">
@@ -506,6 +536,10 @@ export function FollowPanel() {
   // room's rev), and with each look while one is open (a tiny answer when nothing changed)
   const [resp, setResp] = useState<{ rev: number; r: RoomResponse | null }>({ rev: 0, r: null });
   const [answerProblem, setAnswerProblem] = useState<string | null>(null);
+  // 26.11.48 the slides shown so far (0025), looked at again when the slide on screen changes; the one open full screen
+  const [viewing, setViewing] = useState<number | null>(null);
+  const sl = room?.screen?.slide;
+  const slides = useShownSlides(supabase, room?.status === "open" ? code : null, sl ? `${sl.page}:${sl.img?.length ?? 0}` : "", Number.isInteger(sl?.page) ? (sl?.page as number) : null);
   const lookResponse = useCallback(
     async (c: string, after = 0) => {
       if (!supabase) return;
@@ -562,27 +596,16 @@ export function FollowPanel() {
     void lookResponse(code);
   }
 
-  if (!supabase) return <p className="auth-message">Following the meeting is not available here right now.</p>;
-  if (!room || room.status !== "open" || !code) {
+  if (!supabase || !room || room.status !== "open" || !code) {
     return (
-      <>
-        <h1 className="fd-auth-title">Follow the meeting</h1>
-        {room && <p className="auth-message">{room.status === "closed" ? "This meeting page is closed. Thank you for joining." : "That code isn’t open. Check the code on the meeting screen."}</p>}
-        <CodeBox
-          prompt={room ? "Try another code" : "Type the code on the meeting screen"}
-          button="Follow the meeting"
-          placeholder="K7PM2X"
-          busy={checking}
-          read={(t) => (isPrayerCode(t) ? tidyPrayerCode(t) : null)}
-          onCode={(c) => void look(c)}
-          onBad={() => setProblem("Meeting codes have 6 letters and numbers, shown on the meeting screen.")}
-        />
-        {problem && (
-          <p className="auth-error" role="alert">
-            {problem}
-          </p>
-        )}
-      </>
+      <main className="fd-auth fd-auth-single fl-entry" id="main" tabIndex={-1}>
+        <section className="fd-auth-card">
+          <FollowBrand />
+          <p className="fd-kicker">Members’ phones</p>
+          <h1 className="fd-auth-title">Follow the meeting</h1>
+          {supabase ? <FollowCode room={room} checking={checking} problem={problem} onCode={(c) => void look(c)} onBad={setProblem} /> : <p className="auth-message">Following the meeting is not available here right now.</p>}
+        </section>
+      </main>
     );
   }
   const s = room.screen ?? {};
@@ -590,25 +613,84 @@ export function FollowPanel() {
   if (s.prayer) tabs.push(["pray", "Prayer"]);
   if (room.notes) tabs.push(["notes", "Notes"]);
   const shown = tabs.some(([k]) => k === tab) ? tab : "screen";
+  const cur = s.live && s.slide && !s.slide.off && Number.isInteger(s.slide.page) ? (s.slide.page as number) : null;
+  // the slides to look back at: those shown so far, and always the one on screen (it may not be in the list yet)
+  const history: ShownSlide[] = (slides.list ?? []).slice();
+  if (cur !== null && !history.some((x) => x.page === cur)) history.push({ page: cur, title: s.slide?.title ?? "", body: s.slide?.text ?? "" });
+  history.sort((a, b) => a.page - b.page);
   return (
-    <div className="fl">
-      <p className="fl-team">
-        {s.live && <span className="fl-live">Live</span>}
-        {s.meeting || room.team}
-      </p>
+    <main className="fl-app" id="main" tabIndex={-1}>
+      <header className="fl-head">
+        <FollowBrand />
+        <p className="fl-meeting">
+          {s.live && <span className="fl-live">Live</span>}
+          <span>{s.meeting || room.team}</span>
+        </p>
+      </header>
+      <div className="fl-body">
+        {shown === "screen" && <ScreenView s={s} onSlide={() => cur !== null && setViewing(cur)} earlier={history.length > 1} />}
+        {shown === "screen" && resp.r && <ResponseBox r={resp.r} problem={answerProblem} onAnswer={(i) => void answer(i)} />}
+        {shown === "pray" && s.prayer && <PrayerForm code={s.prayer} />}
+        {shown === "notes" && room.notes && <NotesView notes={room.notes} slides={slides.list} picture={slides.picture} />}
+      </div>
       {tabs.length > 1 && (
-        <div className="fl-tabs" role="tablist">
+        <nav className="fl-tabs" role="tablist" aria-label="Follow the meeting">
           {tabs.map(([k, label]) => (
             <button key={k} type="button" role="tab" aria-selected={shown === k} onClick={() => setTab(k)}>
               {label}
             </button>
           ))}
-        </div>
+        </nav>
       )}
-      {shown === "screen" && <ScreenView s={s} />}
-      {shown === "screen" && resp.r && <ResponseBox r={resp.r} problem={answerProblem} onAnswer={(i) => void answer(i)} />}
-      {shown === "pray" && s.prayer && <PrayerForm code={s.prayer} />}
-      {shown === "notes" && room.notes && <NotesView notes={room.notes} />}
-    </div>
+      {viewing !== null && (
+        <SlideViewer
+          slides={history}
+          start={viewing}
+          current={cur ?? -1}
+          picture={slides.picture}
+          small={s.slide?.img?.startsWith("data:image/jpeg;base64,") ? s.slide.img : null}
+          onClose={() => setViewing(null)}
+        />
+      )}
+    </main>
+  );
+}
+
+/** The FrameDecks emblem and name at the top of the members' page */
+function FollowBrand() {
+  return (
+    <span className="fl-brand">
+      {/* eslint-disable-next-line @next/next/no-img-element -- the small emblem; no image component for one icon */}
+      <img src="/framedecks-emblem.webp" alt="" width={28} height={28} />
+      <span>FrameDecks</span>
+    </span>
+  );
+}
+
+function FollowCode({
+  room,
+  checking,
+  problem,
+  onCode,
+  onBad,
+}: Readonly<{ room: Room | null; checking: boolean; problem: string | null; onCode: (c: string) => void; onBad: (m: string) => void }>) {
+  return (
+      <>
+        {room && <p className="auth-message">{room.status === "closed" ? "This meeting page is closed. Thank you for joining." : "That code isn’t open. Check the code on the meeting screen."}</p>}
+        <CodeBox
+          prompt={room ? "Try another code" : "Type the code on the meeting screen"}
+          button="Follow the meeting"
+          placeholder="K7PM2X"
+          busy={checking}
+          read={(t) => (isPrayerCode(t) ? tidyPrayerCode(t) : null)}
+          onCode={onCode}
+          onBad={() => onBad("Meeting codes have 6 letters and numbers, shown on the meeting screen.")}
+        />
+        {problem && (
+          <p className="auth-error" role="alert">
+            {problem}
+          </p>
+        )}
+      </>
   );
 }

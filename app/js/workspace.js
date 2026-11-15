@@ -289,6 +289,21 @@ function renderMeetingBar(){
   });
   $('mt-bar').classList.toggle('one', list.length < 2);
 }
+/* 26.11.48 a named confirmation for deleting a meeting (red button, Cancel first) */
+function confirmDelete(name, frames, onAir){
+  return new Promise(function(resolve){
+    var back = h('div', {cls: 'app-modal-back'}), card = h('div', {cls: 'app-modal', role: 'alertdialog', 'aria-modal': 'true', 'aria-label': 'Delete this meeting'});
+    function done(v){ back.remove(); resolve(v); }
+    var cancel = h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ done(false); }});
+    card.appendChild(h('h2', {text: 'Delete “' + name + '”?'}));
+    card.appendChild(h('p', {cls: 'plain', text: 'Its ' + plural(frames, 'Frame') + ', with every Deck and all their Content, will be deleted on this PC' +
+      ' and in your workspace. Other meetings stay as they are.' + (onAir ? ' One of its Frames is on screen now: it is taken off.' : '')}));
+    card.appendChild(h('div', {cls: 'app-modal-actions'}, [cancel,
+      h('button', {cls: 'btn primary danger', type: 'button', text: 'Delete meeting', onclick: function(){ done(true); }})]));
+    back.addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape') done(false); });
+    back.appendChild(card); document.body.appendChild(back); cancel.focus();
+  });
+}
 function askName(title, value, ok){
   return new Promise(function(resolve){
     var input = h('input', {type: 'text', maxlength: '60', value: value || '', 'aria-label': title});
@@ -312,7 +327,11 @@ function askName(title, value, ok){
   $('mt-new').addEventListener('click', function(){
     askName('A new meeting', '', 'Make the meeting').then(function(nm){
       if (!nm) return; var made = null;
-      commit(function(n){ made = SC.addMeeting(n, nm); }).then(function(){ selScene = null; if (made) toast('“' + made.name + '” made. Its Frames start here: + Frame or Quick Start.'); });
+      commit(function(n){ made = SC.addMeeting(n, nm, {blank: true}); }).then(function(){   // 26.11.48 starts with a blank Frame
+        selScene = null; if (!made) return;
+        var first = SC.order(live)[0]; if (first) select(first.id, null, true);
+        toast('“' + made.name + '” made, with a blank Frame. Select + Content to fill it.');
+      });
     });
   });
   /* 26.11.28 next week from this meeting (KCScenes.nextWeek), with Undo */
@@ -323,6 +342,21 @@ function askName(title, value, ok){
       selScene = null; if (!made) return;
       var msg = '“' + made.meeting.name + '”: ' + made.frames + ' Frame' + (made.frames === 1 ? '' : 's') + ' from “' + made.from + '”. Add this week’s scripture and questions.';
       if (keep && window.KCActions && KCActions.toastAction) KCActions.toastAction(msg, 'Undo', function(){ Store.restore(keep); }); else toast(msg);
+    });
+  });
+  /* 26.11.48 delete this meeting: all its Frames, Decks and Content, nothing else (KCScenes.deleteMeeting), with Undo */
+  var del = $('mt-delete');
+  if (del) del.addEventListener('click', function(){
+    var cur = SC.currentMeeting(live), n = SC.order(live).length, onAir = live.live.scene && SC.order(live).some(function(sc){ return sc.id === live.live.scene; });
+    confirmDelete(cur.name, n, onAir).then(function(yes){
+      if (!yes) return;
+      var keep = JSON.parse(JSON.stringify({scenes: live.scenes, meeting: live.meeting, scene: live.live.scene, meetingId: live.live.meeting})), done = null;
+      commit(function(st){ done = SC.deleteMeeting(st, cur.id); }).then(function(){
+        selScene = null; if (!done) return;
+        var msg = '“' + done.name + '” deleted with ' + plural(done.frames, 'Frame') + '. Now showing “' + done.now + '”.';
+        var undo = function(){ commit(function(st){ st.scenes = keep.scenes; st.meeting = keep.meeting; st.live.meeting = keep.meetingId; }).then(function(){ toast('“' + done.name + '” is back'); }); };
+        if (window.KCActions && KCActions.toastAction) KCActions.toastAction(msg, 'Undo', undo); else toast(msg);
+      });
     });
   });
   $('mt-rename').addEventListener('click', function(){
@@ -1261,6 +1295,8 @@ function mediaForm(gen, sc, l){
     // 26.11.46 a .pptx with animations is played by PowerPoint itself (server.deck_live_pptx), unless this is off
     if (l.kind === 'pdf') gen.appendChild(checkCtl('Play animations', c.anim !== false, function(v){ editLayer(sid, lid, function(x){ x.c.anim = v; }); },
       'PowerPoint plays the slides behind your windows, so animations, transitions and videos play. Next plays each click.'));
+    if (l.kind === 'pdf') gen.appendChild(checkCtl('On members’ phones', c.phones !== false, function(v){ editLayer(sid, lid, function(x){ x.c.phones = v; }); },   // 26.11.48
+      'While the members’ room is open, phones get each slide of this Deck. Keep single slides off them in Slides › Run order.'));
     gen.appendChild(checkCtl('Show objects only', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }, 'Hides a plain slide background.'));
     gen.appendChild(h('p', {cls: 'hint', text: l.kind === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
       'A .pptx with animations plays them when PowerPoint is on this PC. A PDF, or a deck without PowerPoint, shows still slides.'}));

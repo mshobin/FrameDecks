@@ -10,6 +10,28 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.48] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.48.md](releases/v26.11.48.md).
+
+### Added
+- Delete a whole meeting: Studio `#mt-delete` (`Scenes.deleteMeeting`, confirmation, Undo) and the website's
+  `MeetingBar` "Delete meeting" (pushes the meeting, its Frames' deletes and the order together; refused while one of
+  its Frames is on screen). Deleting the last meeting leaves a fresh one with a blank Frame.
+- A new meeting starts with a blank "Frame 1" (`Scenes.addMeeting(..., {blank: true})`, website `createMeeting`).
+- Migration `0025_room_slides.sql` (+ rollback, PGlite tests): `room_slides`, `pc_room_slide`, `room_slides`,
+  `room_slide`. The PC sends each slide shown once, sharp (`member_room.send_slide`, `server.phone_slide_full`).
+- /follow fills the phone (own layout, `viewportFit: cover`, safe areas, tabs at the bottom), with the FrameDecks name
+  and the meeting's name below it; `follow-slides.tsx`: full-screen slide with pinch/double-tap zoom and swipe back
+  through the slides shown; the sermon notes' "Slides" handout (`notes.slides`, "Include the slides shown").
+- Keep slides off phones: Content Settings "On members' phones" (`c.phones`), Run order "📱 On/Off phones"
+  (`c.nophone`); `slides_body` returns `phones` and `nophone`; phones get `slide.off` without picture or words.
+- Phones follow animations: the slide picture is the live PowerPoint picture once the animation settles.
+
+### Fixed
+- The room's screen could exceed 0020's 16,000-byte limit with a slide picture (since 26.11.45), so publishes failed
+  and phones stopped following. `screen_of` gives the slide what is left of `SCREEN_MAX`; `fit_jpeg` fits the picture.
+
 ## [26.11.47] - 2026-11-14
 
 Full notes: [docs/releases/v26.11.47.md](releases/v26.11.47.md).

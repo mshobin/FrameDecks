@@ -25,8 +25,13 @@ def _s(v, n):
     return " ".join(str(v or "").split())[:n]
 
 
-# 26.11.45 the slide on screen for phones: a function (state) -> {n, of, title, text, img} or None, set by server.py
+# 26.11.45 the slide on screen for phones: a function (state, budget) -> {n, of, page, title, text, img} or None, set by
+# server.py. 26.11.48: it fits in `budget` characters, so the screen stays within the room's 16,000 bytes (0020).
 SLIDE = None
+# 26.11.48 the slide on screen as a sharp picture for phones to zoom into and look back at (0025_room_slides.sql):
+# a function () -> {key, page, title, text, img} or None, set by server.py
+SLIDE_FULL = None
+SCREEN_MAX = 15500       # characters: under the room's 16,000-byte screen (0020), with room for JSON escaping
 
 
 def screen_of(st, prayer_code=""):
@@ -46,19 +51,19 @@ def screen_of(st, prayer_code=""):
         return out
     sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None) or {}
     out["frame"] = _s(sc.get("name"), 120) or "Frame"
-    if SLIDE and isinstance(live.get("deck"), dict):
-        try:
-            sl = SLIDE(st)
-            if sl:
-                out["slide"] = sl
-        except Exception as e:                       # a slide that cannot be read never stops the phones
-            print("Members' phones (slide):", e)
     q = st.get("question") if isinstance(st.get("question"), dict) else {}
     if q.get("visible") and _s(q.get("text"), TEXT_MAX):
         out["question"] = {"label": _s(q.get("label"), 60) or "Question", "text": _s(q.get("text"), TEXT_MAX)}
     v = st.get("verse") if isinstance(st.get("verse"), dict) else {}
     if v.get("visible") and (_s(v.get("text"), TEXT_MAX) or _s(v.get("ref"), 80)):
         out["verse"] = {"ref": _s(v.get("ref"), 80), "text": _s(v.get("text"), TEXT_MAX), "version": _s(v.get("version"), 12)}
+    if SLIDE and isinstance(live.get("deck"), dict):  # last: the slide's picture takes the room the rest leaves
+        try:
+            sl = SLIDE(st, SCREEN_MAX - len(json.dumps(out)) - 40)
+            if sl:
+                out["slide"] = sl
+        except Exception as e:                       # a slide that cannot be read never stops the phones
+            print("Members' phones (slide):", e)
     return out
 
 
@@ -75,6 +80,8 @@ class MemberRoom:
         self.last = None              # what was published last (json text)
         self.error = ""
         self.rev = 0                  # the Studio rides on this with the prayer wall's (server RIDERS "pr")
+        self.slides_ok = None         # 26.11.48 sharp slides (0025): None not asked yet, False not in this workspace
+        self.slide_key = None         # the sharp slide sent last in this room
         self._stop = threading.Event()
         self._thread = None
 
@@ -92,6 +99,7 @@ class MemberRoom:
             self.code, self.url = code, "%s/follow#c=%s" % (site.rstrip("/"), code)
             self.closes_at = self.clock() + int(hours) * 3600
             self.notes, self.notes_dirty, self.last, self.error = None, False, None, ""
+            self.slide_key = None
             self.rev += 1
         self._start()
         self.poke()
@@ -151,7 +159,16 @@ class MemberRoom:
         with self.lock:
             notes_dirty, notes = self.notes_dirty, self.notes
             if text == self.last and not notes_dirty:
-                return False
+                same = True
+            else:
+                same = False
+        if same:
+            if SLIDE_FULL and self.slides_ok is not False:
+                try:
+                    self.send_slide(self.team()[0])    # a sharp slide that could not go before
+                except Exception as e:
+                    print("Members' phones (sharp slide):", e)
+            return False
         api, _ = self.team()
         if notes_dirty:
             api.pc_room_publish(screen, notes, True)
@@ -164,6 +181,29 @@ class MemberRoom:
             if self.error:
                 self.error = ""
                 self.rev += 1
+        self.send_slide(api)
+        return True
+
+    def send_slide(self, api):
+        """26.11.48 the slide on screen, sharp, for phones to zoom into and look back at (0025). Sent once per slide (and
+        again after an animation); a workspace without 0025 yet is asked once, then the small picture is enough."""
+        if not SLIDE_FULL or self.slides_ok is False:
+            return False
+        try:
+            full = SLIDE_FULL()
+        except Exception as e:
+            print("Members' phones (sharp slide):", e)
+            return False
+        if not full or full.get("key") == self.slide_key:
+            return False
+        try:
+            api.pc_room_slide(full["page"], full.get("title", ""), full.get("text", ""), full.get("img"))
+        except Exception as e:
+            if "pc_room_slide" in str(e) or "function" in str(e).lower() or "PGRST202" in str(e):
+                self.slides_ok = False                 # 0025 is not in this workspace yet
+                print("Members' phones: sharp slides need 0025_room_slides.sql in the workspace.")
+            return False
+        self.slides_ok, self.slide_key = True, full.get("key")
         return True
 
     def _loop(self):

@@ -47,6 +47,8 @@
 .sl-refs{margin:0;color:var(--sl-gold);font-size:12px}
 .sl-anim{margin:0;color:var(--sl-muted);font-size:12px}
 .sl-ord{display:flex;gap:4px;justify-content:space-between}
+.sl-ph{justify-self:start}
+.sl-nophone{position:absolute;left:6px;top:6px;padding:2px 8px;border-radius:999px;background:var(--sl-line);color:var(--sl-ink);font-size:12px;font-weight:700}
 .sl-grid.editing .sl-card{cursor:grab}
 .sl-empty,.sl-hint{margin:14px 0 0;color:var(--sl-muted);font-size:14px}
 .sl-zoom{display:grid;gap:12px}

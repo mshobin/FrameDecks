@@ -54,7 +54,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.47"
+APP_VERSION = "26.11.48"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1278,6 +1278,8 @@ def members_action(data):
         notes = meeting_log.sermon_notes(meeting_summary(str(data.get("run") or "latest")), state, data.get("script", True) is not False)
         if not notes or not notes["sections"]:
             raise ValueError("There is nothing to share yet: notes are made from a meeting that was live.")
+        if data.get("slides", True) is not False:          # 26.11.48 phones add the slides shown (0025) as a handout
+            notes = dict(notes, slides=True)
         ROOM.share_notes(notes)
     elif op == "share-moment":                         # 26.11.28 the summary's Moment, as a one-section set of notes
         ROOM.share_notes(moment_notes(data.get("moment")))
@@ -2754,35 +2756,113 @@ def _offer_slide_scripture(name, page):
         _swallowed("slide scripture", e)
 
 
-_PHONE_SLIDE = {"key": None, "out": None}
+_PHONE_SLIDE = {"key": None, "out": None, "full": None, "base": None, "chg": 0.0}
+PHONE_FULL_MAX = 380000          # characters of the sharp picture (0025 keeps at most 400,000)
 
 
-def phone_slide(st):
-    """26.11.45 the slide on screen for members' phones: its number, title, text and a small picture (a JPEG data URL,
-    left out when it would be larger than 90 KB). Made once per slide."""
+def deck_on_phones(st, d=None):
+    """26.11.48 whether the slide on screen may go to members' phones: the deck's "On members' phones" (c.phones, on
+    unless switched off) and the slides kept off them in Run order (c.nophone, 0-based pages)."""
+    d = d or (st.get("live") or {}).get("deck")
+    l = deck_layer(st)
+    c = (l or {}).get("c") if isinstance((l or {}).get("c"), dict) else {}
+    if not isinstance(d, dict) or c.get("phones") is False:
+        return False
+    off = c.get("nophone") if isinstance(c.get("nophone"), list) else []
+    return d.get("page") not in off
+
+
+def _slide_picture(d):
+    """The slide as people see it now (a PIL picture): with an animated deck that PowerPoint plays, the live picture with
+    the animations played so far; otherwise the slide itself (sharp, 960 px wide)."""
+    from PIL import Image
+    import io
+    sh = deck_show(d["layer"]) if d.get("animated") else None
+    if sh is not None:
+        comp = VCAM.get("compositor")
+        src = comp.layers.sources.get(d["layer"]) if comp else None
+        try:
+            img, _ = src.frame()
+            if img is not None and getattr(img, "size", 0):
+                return Image.fromarray(img[:, :, ::-1].copy())          # BGR -> RGB
+        except Exception as e:
+            _swallowed("phone slide live picture", e)
+    return Image.open(io.BytesIO(slides.thumb(LAYERS_DIR, d["file"], d["page"] + 1, 960)))
+
+
+def _jpeg_url(img, width, quality):
+    import base64
+    import io
+    im = img.convert("RGB")
+    if im.width > width:
+        im = im.resize((width, max(1, round(im.height * width / im.width))))
+    buf = io.BytesIO()
+    im.save(buf, "JPEG", quality=quality, optimize=True)
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+def fit_jpeg(img, budget):
+    """The sharpest small JPEG of img (a data URL) whose text fits in budget characters, or "" when none does."""
+    for width in (480, 400, 320, 260, 200):
+        for quality in (72, 58, 45):
+            url = _jpeg_url(img, width, quality)
+            if len(url) <= budget:
+                return url
+    return ""
+
+
+def phone_slide(st, budget=12000):
+    """26.11.45 the slide on screen for members' phones: its number, title, words and a small picture. 26.11.48: the
+    picture fits in budget characters (the room keeps at most 16,000 bytes, 0020: before, a large picture could stop the
+    phones updating); it follows the animations of a deck PowerPoint plays; a deck or slide kept off the phones says so
+    without its content. Made once per slide (and per animation step)."""
     d = (st.get("live") or {}).get("deck")
     if not isinstance(d, dict):
         return None
-    key = (d.get("file"), d.get("page"))
+    ok = deck_on_phones(st, d)
+    base, now = (d.get("file"), d.get("page"), d.get("click", 0)), time.time()
+    if _PHONE_SLIDE.get("base") != base:
+        _PHONE_SLIDE.update(base=base, chg=now)
+    settled = not d.get("animated") or now - _PHONE_SLIDE["chg"] >= 1.4     # an animation has finished moving
+    key = base + (ok, max(0, int(budget)) // 2000, settled)
     if _PHONE_SLIDE["key"] != key:
-        out = {"n": d["page"] + 1, "of": d["pages"]}
-        try:
-            info = slides.info(LAYERS_DIR, d["file"])["slides"][d["page"]]
-            out.update(title=info.get("title", "")[:120], text=info.get("text", "")[:600])
-        except (ValueError, OSError, IndexError) as e:
-            _swallowed("phone_slide info", e)
-        try:
-            import base64
-            jpg = slides.thumb(LAYERS_DIR, d["file"], d["page"] + 1, 480)
-            if len(jpg) <= 90000:
-                out["img"] = "data:image/jpeg;base64," + base64.b64encode(jpg).decode("ascii")
-        except (ValueError, OSError) as e:
-            _swallowed("phone_slide picture", e)
-        _PHONE_SLIDE.update(key=key, out=out)
+        out = {"n": d["page"] + 1, "of": d["pages"], "page": d["page"]}
+        full = None
+        if not ok:
+            out["off"] = True                                  # kept off the phones: no picture, no words
+        else:
+            try:
+                info = slides.info(LAYERS_DIR, d["file"])["slides"][d["page"]]
+                out.update(title=info.get("title", "")[:120], text=info.get("text", "")[:600])
+            except (ValueError, OSError, IndexError) as e:
+                _swallowed("phone_slide info", e)
+            try:
+                pic = _slide_picture(d)
+                room = budget - len(json.dumps(out)) - 30
+                url = fit_jpeg(pic, room) if room > 1500 else ""
+                if url:
+                    out["img"] = url
+                sharp = _jpeg_url(pic, 1280, 82)
+                if len(sharp) > PHONE_FULL_MAX:
+                    sharp = _jpeg_url(pic, 960, 70)
+                full = {"key": key[:3], "page": d["page"], "title": out.get("title", ""), "text": out.get("text", ""),
+                        "img": sharp if len(sharp) <= PHONE_FULL_MAX else None}
+            except (ValueError, OSError) as e:
+                _swallowed("phone_slide picture", e)
+        if not settled and ok:
+            # an animation is still moving in the first moment: look again once it has finished
+            threading.Timer(1.6, lambda: ROOM.poke() if "ROOM" in globals() else None).start()
+        _PHONE_SLIDE.update(key=key, out=out, full=full if (settled or full is None) else dict(full, key=key[:3] + ("moving",)))
     return _PHONE_SLIDE["out"]
 
 
+def phone_slide_full():
+    """26.11.48 the sharp picture of the slide on screen for phones (member_room.SLIDE_FULL), or None."""
+    return _PHONE_SLIDE["full"]
+
+
 member_room.SLIDE = phone_slide
+member_room.SLIDE_FULL = phone_slide_full
 
 
 def slides_notes(name):
@@ -2806,7 +2886,10 @@ def slides_body(name):
     d = (state.get("live") or {}).get("deck")
     if isinstance(d, dict) and d.get("file") == out["file"]:
         l = deck_layer(state)
-        out = dict(out, live=d, order=deck_seq(l, d["pages"]) if l else list(range(out["pages"])))
+        c = (l or {}).get("c") or {}
+        off = [p for p in (c.get("nophone") if isinstance(c.get("nophone"), list) else []) if isinstance(p, int)]
+        out = dict(out, live=d, order=deck_seq(l, d["pages"]) if l else list(range(out["pages"])),
+                   phones=c.get("phones") is not False, nophone=off)      # 26.11.48: what members' phones get
     return out
 
 

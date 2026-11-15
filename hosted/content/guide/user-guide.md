@@ -73,7 +73,9 @@ of them.
 
 ## 2. Frames and Content
 - **Meeting:** with several meetings, the **Meeting** list above the Frames chooses the one this PC shows and
-  runs; **New** makes another. See [Frames](frames.md#name-group-and-order).
+  runs; **New** makes another, starting with one blank Frame. The bin button beside the meeting's name deletes the
+  whole meeting (its Frames, Decks and Content, nothing of any other meeting) after asking; **Undo** brings it back.
+  See [Frames](frames.md#name-group-and-order).
 - **Meeting** (the ✨ button next to + Frame) has:
   - Import / Export / Download the Excel Meeting Workbook;
   - Quick Start;
@@ -190,6 +192,8 @@ cards across the width, and scriptures are rows beside **Fetch scripture**. **Po
     speaker notes.
   - **Run order**: hide a slide or move it for this meeting only (drag it, or ◀ ▶). The PowerPoint file is not
     changed, and Next and Previous follow the new order everywhere.
+    **📱 On phones / Off phones** keeps one slide off members' phones (they read *This slide is not shown on phones*);
+    Content Settings → **On members' phones** keeps the whole Deck off them.
   - **Zoom**: click the part of the slide to show larger (1.5× to 4×); **Whole slide** goes back. The next slide
     starts whole again.
   - **Hold ▾**: Black screen, "We'll be right back" or "Please stay with us" over the slides, and back.
@@ -231,6 +235,11 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
 - **Members' phones** → **Open for members' phones**. Members scan the QR code or type the code at
   framedecks.com/follow. On their phones they **follow along** (the Frame, scripture and question on screen), send
   **prayer requests** (with or without their name) and keep the **sermon notes** you share.
+- On their phones the meeting fills the screen: the FrameDecks name, your meeting's name below it, then what is on
+  screen, with **On screen · Prayer · Notes** at the bottom. A PowerPoint slide is shown as people see it (with the
+  animations played so far); tapping it opens it full screen, sharp, to **pinch or double-tap to zoom**, and to
+  **swipe back** through the slides already shown (never the ones still to come). When you share the sermon notes,
+  **Include the slides shown** adds those slides at the end, so they are kept and printed with the notes.
 - **Show the code on screen** puts the code and a QR code to scan on the camera and the Share Window for people on
   Zoom or Teams. It stays until you press **Take the code off screen** (or close members' phones).
 - For people who arrive late: Settings → Meeting & Branding → **Members' phones QR code** puts a small QR code beside
