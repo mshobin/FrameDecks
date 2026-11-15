@@ -254,8 +254,10 @@ async def capture(base, chromium, guide_only=False):
             const st = document.querySelector('#tab-studio:not([hidden]) .s2-stage');
             let verse = null; if (st) { const b = st.getBoundingClientRect(); verse = [b.x + b.width * .19, b.y + b.height * .25, b.width * .62, b.height * .24].map(x => Math.round(x * 0.75)); }
             if (v) { const b = v.getBoundingClientRect(); verse = [fb.x + b.x * k, fb.y + b.y * k, b.width * k, b.height * k].map(x => Math.round(x * 0.75)); }
+            const qc = f && f.offsetParent && f.contentDocument && f.contentDocument.querySelector('.card-question:not(.out)');
+            let qcard = null; if (qc) { const b = qc.getBoundingClientRect(); qcard = [fb.x + b.x * k, fb.y + b.y * k, b.width * k, b.height * k].map(x => Math.round(x * 0.75)); }
             return {frame: r(document.querySelector('#scene-list li')), decks: [...document.querySelectorAll('#layer-list li')].slice(0, 2).map(r),
-              verse, questions: [...document.querySelectorAll('.fl-list.fl-questions .item')].slice(0, 3).map(r)}; })()""")
+              verse, qcard, questions: [...document.querySelectorAll('.fl-list.fl-questions .item')].slice(0, 3).map(r)}; })()""")   # 26.11.52 qcard: the question on the preview (the list is behind Show text fields)
         print("landing card spots (tour.tsx CARDS[].to):", spots)
         await command_center(b, base)       # 9.9 the Command Center, in the dark theme
         await command_center_web(b, base)   # 26.11.2 and with nothing behind it, for the website

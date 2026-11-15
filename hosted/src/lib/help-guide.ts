@@ -42,7 +42,7 @@ export const GUIDE: Record<GuideTrack, { title: string; lead: string; steps: Gui
         core: 1,
         title: "Open Workspace",
         why: "Your workspace keeps the meetings, the Frames and the people in your team. Nothing to remember: your email brings a code, or a phone that is already in lets this device in.",
-        steps: ["On any computer, open framedecks.com, choose **Open Workspace**, type your email and choose **Email me a code**. Say whose computer it is: **Mine** stays open, **Someone else’s** closes with the tab.", "Type the 6-digit code from the email. Your workspace opens, and you get an email saying where it was opened.", "No email on your phone yet? On a phone that is already in, open **Devices** and choose **Add a device**, or choose **Open with your phone** under Other ways in."],
+        steps: ["On any computer, open framedecks.com and choose **Open Workspace**. Choose **Open with your phone** and scan the code with a phone that is already in your team: this browser opens at once.", "Or type your email and choose **Email me a code**, then type the 6-digit code from the email. Say whose computer it is: **Mine** stays open, **Someone else’s** closes with the tab.", "A phone that is not in yet: on the church PC choose **Add a device** and scan its code, or on a phone that is already in open **Devices** and choose **Add a device**."],
         ui: ["Open Workspace", "Email me a code", "Mine", "Someone else’s", "Devices", "Add a device", "Open with your phone"],
         caption: "Open Workspace",
         shot: "web-sign-in",

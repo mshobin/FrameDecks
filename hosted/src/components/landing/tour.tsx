@@ -59,7 +59,7 @@ const CARDS: readonly Card[] = [
     cls: "tr-frame",
     at: [380, 108, 240, 66],
     tall: [140, 0, 240, 66],
-    to: [9, 174, 207, 78],
+    to: [9, 186, 207, 78],
     kind: "Frame 1",
     text: "Bible Study",
   },
@@ -91,7 +91,7 @@ const CARDS: readonly Card[] = [
     cls: "tr-item",
     at: [470, 330, 160, 92],
     tall: [290, 194, 230, 84],
-    to: [240, 392, 312, 48],
+    to: [403, 249, 413, 55], // 26.11.52 the question on the preview (the list is behind Show text fields)
     kind: "Question 1",
     text: "What does this passage reveal about the character of God?",
   },
@@ -99,7 +99,7 @@ const CARDS: readonly Card[] = [
     cls: "tr-item",
     at: [640, 330, 160, 92],
     tall: [290, 290, 230, 84],
-    to: [558, 392, 313, 48],
+    to: [403, 249, 413, 55], // 26.11.52 the question on the preview (the list is behind Show text fields)
     kind: "Question 2",
     text: "Which phrase in this passage stood out to you most, and why?",
   },
@@ -107,7 +107,7 @@ const CARDS: readonly Card[] = [
     cls: "tr-item",
     at: [810, 330, 160, 92],
     tall: [290, 386, 230, 84],
-    to: [877, 392, 312, 48],
+    to: [403, 249, 413, 55], // 26.11.52 the question on the preview (the list is behind Show text fields)
     kind: "Question 3",
     text: "Think of a situation you are facing right now.",
   },
