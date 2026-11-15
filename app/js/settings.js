@@ -125,7 +125,7 @@ if (Store.served){
     dot('sn-ipad', ok ? 'ok' : 'info');
   });
   Status.on('presence', function(p){ var n = 0; for (var k in p) n += p[k]; dot('sn-display', n ? 'ok' : ''); });
-  setInterval(function(){ if (!document.hidden) dot('sn-diag', Store.online ? 'ok' : 'bad'); }, 3000);
+  KCTick.every(3000, function(){ dot('sn-diag', Store.online ? 'ok' : 'bad'); });
 }
 
 /* ---------- Security ---------- */

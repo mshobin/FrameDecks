@@ -162,6 +162,7 @@ function renderSettings(){
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') renderSettings(); });
 
-window.KCScripture = {parse: parse, books: BOOKS, fetch: fetchRef, chapterOf: chapterOf,
+window.KCScripture = {parse: parse, books: BOOKS, fetch: fetchRef, chapterOf: chapterOf, translation: function(){ return tr0(); },   // 26.11.57 translation: the quick verse box
+ 
   focus: function(ref){ if (refIn){ if (ref) refIn.value = ref; refIn.focus(); } }};
 })();

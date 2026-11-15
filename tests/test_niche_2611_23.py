@@ -148,8 +148,7 @@ class PrayerWall(unittest.TestCase):
         src = read("src/server.py")
         self.assertIn('if path == "/api/prayer":', src)
         self.assertNotIn("/api/prayer", " ".join(server.REMOTE_PUBLIC | server.REMOTE_SIGNED_IN))   # this PC only
-        dash = read("app/dashboard.html")
-        self.assertIn('<script src="js/meeting-summary.js"></script>', dash)
+        self.assertIn("'meeting-summary': {js: 'js/meeting-summary.js'", read("app/js/store.js"))   # 26.11.57 lazy
         # 26.11.24 the prayer wall's dialog became Members' phones (tests/test_members_2611_24.py)
         self.assertIn("KCPrayer = window.KCMembers", read("app/js/members-phones.js"))
 

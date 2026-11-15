@@ -521,6 +521,63 @@ function ResponseBox({ r, problem, onAnswer }: Readonly<{ r: RoomResponse; probl
   );
 }
 
+/** 26.11.57 typed answers (0026_room_answers.sql): when the leader asks people to type a short answer, a box under the
+ * screen. One answer per phone, changeable while the prompt is open; the leader reads them first and chooses what is
+ * shown, never with a name. Looked at again whenever the room changes (opening or closing a prompt moves its rev). */
+function AnswerBox({ code, roomRev }: Readonly<{ code: string; roomRev: number }>) {
+  const supabase = browserSupabase();
+  const [prompt, setPrompt] = useState<{ id: string; text: string; mine: string | null } | null>(null);
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  useEffect(() => {
+    if (!supabase) return;
+    let gone = false;
+    void supabase.rpc("room_prompt", { code, voter: voterId() }).then(({ data }) => {
+      const p = (data as { prompt?: { id?: string; text?: string; mine?: string | null } } | null)?.prompt;
+      if (!gone) setPrompt(p?.id && p.text ? { id: p.id, text: p.text, mine: p.mine ?? null } : null);
+    });
+    return () => {
+      gone = true;
+    };
+  }, [supabase, code, roomRev]);
+  if (!prompt || !supabase) return null;
+  async function send(e: FormEvent) {
+    e.preventDefault();
+    if (!supabase || !prompt || busy) return;
+    setBusy(true);
+    const { data, error } = await supabase.rpc("room_answer", { code, voter: voterId(), body: body.trim(), prompt: prompt.id });
+    setBusy(false);
+    const st = (data as { status?: string } | null)?.status;
+    setProblem(error ? userSafeError(error, "Couldn’t send your answer. Try again.") : st === "in" ? null : "The leader has moved on.");
+    if (st === "in") {
+      setPrompt({ ...prompt, mine: body.trim() });
+      setBody("");
+    }
+  }
+  return (
+    <form className="fl-resp fl-answer" onSubmit={send}>
+      <h2 className="fl-resp-q">{prompt.text}</h2>
+      {prompt.mine && <p className="fl-resp-note">Your answer: “{prompt.mine}”</p>}
+      <label className="jc-field">
+        {prompt.mine ? "Change your answer" : "Your answer"}
+        <textarea value={body} maxLength={280} rows={3} onChange={(e) => setBody(e.target.value)} />
+      </label>
+      <Button className="auth-primary" type="submit" disabled={busy || !body.trim()}>
+        {busy ? "Sending…" : "Send"}
+      </Button>
+      <p className="fl-resp-note" role="status">
+        The leader reads answers first and shows some without names.
+      </p>
+      {problem && (
+        <p className="auth-error" role="alert">
+          {problem}
+        </p>
+      )}
+    </form>
+  );
+}
+
 /** 26.11.24 /follow: everyone in the meeting, on their own phone, with only the code: what is on the meeting screen as
  * it changes, a prayer request when the leader takes them, and the sermon notes once shared. Asks every 3 seconds while
  * the page is in view (a tiny answer when nothing changed); nothing is stored. */
@@ -630,6 +687,7 @@ export function FollowPanel() {
       <div className="fl-body">
         {shown === "screen" && <ScreenView s={s} onSlide={() => cur !== null && setViewing(cur)} earlier={history.length > 1} />}
         {shown === "screen" && resp.r && <ResponseBox r={resp.r} problem={answerProblem} onAnswer={(i) => void answer(i)} />}
+        {shown === "screen" && <AnswerBox code={code} roomRev={rev} />}
         {shown === "pray" && s.prayer && <PrayerForm code={s.prayer} />}
         {shown === "notes" && room.notes && <NotesView notes={room.notes} slides={slides.list} picture={slides.picture} />}
       </div>

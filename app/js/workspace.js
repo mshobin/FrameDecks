@@ -426,7 +426,8 @@ function qsPill(sc){
   QS_OPTS.forEach(function(o){
     g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), title: o[2], text: o[1], onclick: function(e){
       e.stopPropagation(); if (m === o[0]) return;
-      commit(function(n){ SC.setQS(n, sc.id, o[0]); }).then(function(){ toast(sc.name + ': ' + o[2] + (isLiveScene(sc.id) ? ' (on screen now)' : '')); });
+      /* 26.11.57 one order per Frame: with Set order, the choice is the order's first step (a preset of the same order) */
+      commit(function(n){ SC.setQS(n, sc.id, o[0]); var x = SC.find(n, sc.id); if (x && SC.flowOf(x)) SC.flowPreset(x, o[0]); }).then(function(){ toast(sc.name + ': ' + o[2] + (SC.flowOf(SC.find(live, sc.id)) ? ' first, then the rest of its order' : '') + (isLiveScene(sc.id) ? ' (on screen now)' : '')); });
     }}));
   });
   g.addEventListener('dblclick', stop);
@@ -609,11 +610,33 @@ function meetingMenu(anchor){
     '-', {label: 'Ready-made Frames'},
     {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
-  items.push('-', {icon: 'folder-open', text: 'Import a Frame file…', run: importScene},
-    {icon: 'file-spreadsheet', text: 'Import from Excel…', run: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }},
-    Store.served ? {icon: 'book-open', text: 'Import a lesson (PDF or Word)…', run: function(){ if (window.KCLessonImport) window.KCLessonImport.pick(); }} : null);   // 26.11.54
+  items.push('-', {icon: 'folder-open', text: 'Import…', hint: 'lesson, slides, songs, Excel, .frame', run: function(){ openImport(anchor); }});   // 26.11.57 one Import menu
   menu(anchor, items);
 }
+/* 26.11.57 Import: one menu for everything that comes from a file. Every place that imports opens this same menu. */
+var IMPORT_EXTRA = [];        // other scripts add their own entries (js/songs.js: songs)
+function openImport(anchor){
+  var items = [{label: 'Import'},
+    Store.served ? {icon: 'book-open', text: 'A lesson (PDF or Word)…', hint: 'questions and scriptures', run: function(){ KCLazy.use('lesson-import').then(function(g){ g.pick(); }); }} : null,
+    {icon: 'presentation', text: 'PowerPoint slides…', hint: 'a Frame of their own', run: importSlides}]
+    .concat(IMPORT_EXTRA.map(function(x){ return {icon: x.icon, text: x.text, hint: x.hint, run: x.run}; }))
+    .concat([{icon: 'file-spreadsheet', text: 'A meeting from Excel…', hint: 'the Meeting Workbook', run: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }},
+      {icon: 'folder-open', text: 'A Frame file (.frame)…', hint: 'from framedecks.com', run: importScene}]);
+  if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');
+  menu(anchor && anchor.isConnected && anchor.offsetParent ? anchor : ($('quick-start') || document.body), items);
+}
+/* PowerPoint slides as a Frame of their own, after the selected Frame */
+function importSlides(){
+  pickFile('powerpoint').then(function(f){
+    if (!f) return;
+    var made = null, name = f.replace(/\.[^.]+$/, '');
+    commit(function(n){
+      made = SC.create(n, 'blank', {after: selScene || null, creator: creator(), group: scene() && !scene().tpl ? scene().group : '', name: SC.uniqueName(n, name)});
+      if (made) made.layers.unshift(SC.cleanLayer({id: 'L' + Math.random().toString(36).slice(2, 9), kind: 'pdf', name: name, visible: true, opacity: 1, c: Object.assign(defaults('pdf'), {file: f, w: 1, h: 1})}));
+    }).then(function(){ if (made){ select(made.id, null, true); toast(made.name + ' is a Frame of its own. Next walks its slides.'); } });
+  });
+}
+window.KCImport = {open: openImport, add: function(x){ IMPORT_EXTRA.push(x); }};
 /* M-D4: the whole service as an editable PowerPoint file (one slide per Frame, scripts as speaker notes), made on this PC */
 function exportPowerPoint(){
   var frames = live.scenes.filter(function(s){ return !s.tpl; });
@@ -672,14 +695,10 @@ function openQuickStart(){
     grid,
     h('p', {cls: 'qs-result', role: 'status', 'aria-live': 'polite', hidden: 'hidden'}),
     h('div', {cls: 'kc-dlg-foot'}, [
+      /* 26.11.57 one Import menu: a lesson, PowerPoint slides, songs, Excel or a .frame file */
       h('span', {cls: 'qs-imports'}, [
-        h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import a Frame file…', title: 'A .frame file from framedecks.com or another PC, or one exported Frame', onclick: importScene}),
-        /* 9.4 the whole meeting from the Excel Meeting Workbook (also in Settings → Data), right under the Frame file */
-        h('button', {cls: 'btn', type: 'button', id: 'qs-excel', html: I('file-spreadsheet', 15) + ' Import from Excel…', title: 'A whole meeting from the FrameDecks Meeting Workbook (Frame > Deck > Content)',
-          onclick: function(){ dlg.close(); if (window.KCMeetingImport) window.KCMeetingImport.pick(); }}),
-        /* 26.11.54 a study lesson (PDF, Word or text): its days, questions and scriptures become Frames */
-        Store.served ? h('button', {cls: 'btn', type: 'button', id: 'qs-lesson', html: I('book-open', 15) + ' Import a lesson…', title: 'A study lesson (PDF, Word or text): a Frame for each day or part, with its questions and scriptures',
-          onclick: function(){ dlg.close(); if (window.KCLessonImport) window.KCLessonImport.pick(); }}) : null]),
+        h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import…', title: 'A lesson, PowerPoint slides, songs, a meeting from Excel or a .frame file',
+          onclick: function(){ dlg.close(); openImport($('quick-start')); }})]),
       h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
   if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');
@@ -875,9 +894,9 @@ function duplicateLayer(sid, lid){
 }
 function layerMenu(sid, lid, anchor, ev){
   var sc = SC.find(live, sid), l = SC.layer(sc, lid); if (!l) return;
-  var after = l.kind === 'pdf' && window.KCRunOrder && sc.layers.length > 1 && !sc.tpl;   // 26.11.56 a deck becomes its own Frame, right after this one
+  var after = l.kind === 'pdf' && sc.layers.length > 1 && !sc.tpl;   // 26.11.56 a deck becomes its own Frame, right after this one
   menu(anchor, [
-    after ? {icon: 'arrow-down', text: 'Put slides after this Frame', run: function(){ window.KCRunOrder.slidesAfter(sid, lid); }} : null, after ? '-' : null,
+    after ? {icon: 'arrow-down', text: 'Put slides after this Frame', run: function(){ KCLazy.use('run-order').then(function(g){ g.slidesAfter(sid, lid); }); }} : null, after ? '-' : null,
     {icon: 'eye', text: (isLiveScene(sid) ? SC.layerOn(live, sc, l) : l.visible) ? 'Hide' : 'Show', run: function(){ toggleLayer(sid, lid); }},
     {icon: 'type', text: 'Rename', hint: 'F2', run: function(){ renameLayer(sid, lid); }},
     {icon: 'copy', text: 'Duplicate', run: function(){ duplicateLayer(sid, lid); }},
@@ -898,7 +917,7 @@ function toggleLayer(sid, lid){
 }
 /* + Content: the content types, then Free Content */
 var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['song', 'Song', 'music'], ['text', 'Text', 'type'],
-  ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['audio', 'Audio…', 'volume-2'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
+  ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['audio', 'Audio…', 'volume-2'], ['countdown', 'Timer', 'timer'], ['pptx', 'Sermon slides (PowerPoint)…', 'presentation']];
 var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
   ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
   ['logo', 'Logo…', 'image'], ['watermark', 'Watermark…', 'image'], ['freetext', 'Free text on the picture', 'type'], ['rect', 'Shape', 'shapes'], ['background', 'Background', 'paint-bucket']];
@@ -911,8 +930,22 @@ $('layer-add').addEventListener('click', function(e){
     var has = SC.isCard(k[0]) && SC.first(sc, k[0]);
     return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the FrameDecks vCam (Settings → FrameDecks vCam)' : '', run: function(){ addLayer(k[0]); }};
   }
-  menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
+  /* 26.11.57 grouped the way a service is: Worship, Word, Church life, Camera and screen */
+  var all = {}; CONTENT_ADD.concat(FREE_ADD).forEach(function(k){ all[k[0]] = k; });
+  var items = [{label: 'Add to “' + sc.name + '”'}];
+  ADD_GROUPS.forEach(function(g, i){
+    if (i) items.push('-');
+    items.push({label: g[0]});
+    (ADD_EXTRA[g[0]] || []).forEach(function(x){ items.push({icon: x.icon, text: x.text, hint: x.hint || '', run: function(){ x.run(sc); }}); });
+    g[1].forEach(function(id){ if (all[id]) items.push(item(all[id])); });
+  });
+  menu($('layer-add'), items);
 });
+var ADD_GROUPS = [['Worship', ['song', 'video', 'audio', 'background']], ['Word', ['scripture', 'question', 'pptx', 'text']],
+  ['Church life', ['announcement', 'countdown', 'prayer', 'birthday', 'lowerthird', 'image']],
+  ['Camera and screen', ['camera', 'screen', 'window', 'brand', 'logo', 'watermark', 'freetext', 'rect']]];
+var ADD_EXTRA = {};          // other scripts add entries to a group (js/songs.js: a song from the Song Library)
+window.KCAddContent = {extra: function(group, x){ (ADD_EXTRA[group] = ADD_EXTRA[group] || []).push(x); }, add: function(what){ addLayer(what); }, pickFile: function(kind){ return pickFile(kind); }};
 function addLayer(what){
   var sc = scene(); if (!sc) return;
   var plainText = what === 'text';
@@ -1239,7 +1272,8 @@ function notesCtl(sc){
   var ta = h('textarea', {cls: 'tp-script-in', rows: 8, 'aria-label': 'Teleprompter script', placeholder: 'What you want to say on this Frame. Only you see it, in the Teleprompter.'}); ta.value = sc.notes || '';
   ta.addEventListener('keydown', stop);
   ta.addEventListener('input', function(){ var v = ta.value; later('notes', function(){ edit(sc.id, function(x){ x.notes = v.slice(0, 20000); }); }); });
-  var open = h('button', {cls: 'btn small', type: 'button', text: 'Open the Teleprompter', onclick: function(e){ e.preventDefault(); if (window.KCTeleprompter) window.KCTeleprompter.open(); }});
+  /* 26.11.57 one visible Teleprompter button: Engage › Teleprompter (or the R key); here, where to find it */
+  var open = h('small', {cls: 'hint tp-script-where', text: 'Engage › Teleprompter (R) shows it'});
   /* 26.11.2 how long it takes to say, at an easy speaking pace (about 130 words a minute) */
   var len = h('span', {cls: 'tp-len', 'aria-live': 'polite'});
   function measure(){ var w = (ta.value.replace(/\[[^\]\n]{1,40}\]|[#*_>~|-]/g, ' ').match(/\S+/g) || []).length;
@@ -1433,6 +1467,13 @@ function mediaForm(card, sc, l){
       gen.appendChild(field('Start at slide', pg, 'Previous / Next slide (top bar, Page Up / Page Down, or the phone) move through the slides.'));
       if (c.file) gen.appendChild(deckReady(sid, lid, c));       // 26.11.49 how the deck will play
     }
+    if (k === 'video'){                                          // 26.11.57 a video clip: again and again, or once and then Next
+      var endSel = h('select', {'aria-label': 'When the video ends'});
+      [['loop', 'Play again (loop)'], ['next', 'Play once, then Next'], ['once', 'Play once, then stay']].forEach(function(o){ endSel.appendChild(h('option', {value: o[0], text: o[1]})); });
+      endSel.value = c.next ? 'next' : c.loop === false ? 'once' : 'loop';
+      endSel.addEventListener('change', function(){ var v = endSel.value; editLayer(sid, lid, function(x){ x.c.loop = v === 'loop'; if (v === 'next') x.c.next = true; else delete x.c.next; }); });
+      gen.appendChild(field('When it ends', endSel, 'Play once, then Next: the next Frame (or step) goes on screen when the clip ends. The time left shows above Next.'));
+    }
   }
   if (k === 'pdf' || k === 'window'){                            // PowerPoint
     gen = card('playback', 'Playback', main = true);
@@ -1567,7 +1608,7 @@ function stepScene(d){
     Store.update(function(n){ labF = SC.flowStep(n, d); }).then(function(){ offerUndo(keepF, labF + ' is on screen'); });
     return;
   }
-  if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
+  if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext') !== false){      // 26.11.22 Smart Next
     var t = SC.smartNext(live);
     if (!t){ toast('That’s the last of the meeting.'); return; }
     if (t.kind !== 'frame'){
@@ -1689,11 +1730,44 @@ function renderLiveBar(){
   $('lb-slides-t').textContent = dk ? 'Slide ' + (dk.page + 1) + ' / ' + dk.pages : pr && pr.page ? 'Slide ' + pr.page + (pr.pages ? ' / ' + pr.pages : '') : 'Slides';
 }
 
+/* 26.11.57 buttons for panels that load when first opened (KCLazy) */
+document.addEventListener('click', function(e){
+  var b = e.target.closest && e.target.closest('#mt-run, #s-lesson-import, #ro-large'); if (!b) return;
+  if (b.id === 'mt-run') setRunView(!runView);
+  else if (b.id === 'ro-large') KCLazy.use('run-order').then(function(g){ g.open(); });
+  else KCLazy.use('lesson-import').then(function(g){ g.pick(); });
+});
+/* 26.11.57 Run order as a view of the Frames column: Frames · Run order (the choice is kept on this PC) */
+var runView = false;
+function setRunView(on){
+  runView = !!on; lsSet('kc-run-view', runView ? 'on' : 'off');
+  var btn = $('mt-run'), list = $('scene-list'), tools = document.querySelector('.scenes-pane .pane-tools'), box = $('ro-panel');
+  if (!list) return;
+  if (!box){
+    box = h('div', {cls: 'ro-panel', id: 'ro-panel', hidden: 'hidden'});
+    list.parentNode.insertBefore(box, list.nextSibling);
+  }
+  if (btn){ btn.setAttribute('aria-pressed', String(runView)); btn.classList.toggle('on', runView); }
+  list.hidden = runView; if (tools) tools.hidden = runView; box.hidden = !runView;
+  if (runView) KCLazy.use('run-order').then(function(g){
+    g.mount(box);
+    box.appendChild(h('button', {cls: 'btn small quiet ro-large', type: 'button', id: 'ro-large', html: I('maximize-2', 14) + ' Open large'}));
+  });
+  else if (window.KCRunOrder) window.KCRunOrder.unmount(box);
+}
+if (lsGet('kc-run-view', 'off') === 'on') setTimeout(function(){ setRunView(true); }, 0);
+
 /* Auto advance: the scene's own timer, while Auto is on (a second screen showing the Studio can never double-step) */
 setInterval(function(){
   if (!live || !live.live.auto || live.live.blackout || live.live.emergency) return;
   var ls = SC.liveScene(live); if (!ls || !ls.auto.on) return;
-  if (Date.now() - live.live.at < ls.auto.sec * 1000) return;
+  /* 26.11.57 Auto is a timer on each step: a Frame with an order moves to its next step after the time, then to the next Frame */
+  var since = live.live.flow && live.live.flow.scene === ls.id && live.live.flow.t ? Math.max(live.live.flow.t, live.live.at) : live.live.at;
+  if (Date.now() - since < ls.auto.sec * 1000) return;
+  if (SC.flowCan(live, 1)){ var fseq = live.live.seq, fat = SC.flowAt(live); commit(function(n){ if (n.live.seq !== fseq || SC.flowAt(n) !== fat) return; SC.flowStep(n, 1); }); return; }
+  if (ls.auto.loop && SC.flowOf(ls) && SC.countdownDone(live) !== true){   // 26.11.57 the Welcome Loop: round again until its countdown ends
+    var lseq = live.live.seq; commit(function(n){ if (n.live.seq !== lseq) return; SC.flowApply(n, SC.liveScene(n), 0); }); return;
+  }
   var nx = SC.neighbour(live, ls.id, 1), seq = live.live.seq; if (!nx) return;
   commit(function(n){ if (n.live.seq !== seq) return; SC.take(n, nx.id, txSel.value || null); });
 }, 500);
@@ -1724,7 +1798,7 @@ function renderAll(force){
   renderScenes(); renderLayers(); renderInspector(); renderCanvas(); renderLiveBar(); renderUpNext();
 }
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
-setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from FrameDecks
+KCTick.every(3000, function(){ if (live && document.body.dataset.tab === 'studio') renderLayers(); });   // media layer status from FrameDecks
 
 /* Keyboard in the Studio: Ctrl+D duplicates the selected scene (or layer), Delete removes, F2 renames */
 document.addEventListener('keydown', function(e){

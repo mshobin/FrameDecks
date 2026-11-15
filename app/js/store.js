@@ -10,6 +10,28 @@
 /* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FrameDecks names, once.
  * This and src/legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
  * shortcuts, layout, members (file mode) or saved state. */
+/* 26.11.57 Many scripts read the app settings (api/app/info) as the Studio opens. Requests within 2 s share one answer;
+ * any change sent to the program (a POST) starts afresh, so a page never reads settings older than its own save. */
+(function(){
+  if (typeof window === "undefined") return;
+  var real = window.fetch; if (!real || real.kcShared) return;
+  var last = null, at = 0;
+  function isInfo(u){ return /(^|\/)api\/app\/info$/.test(String(u).split('#')[0]); }
+  var shared = function(input, init){
+    var url = typeof input === 'string' ? input : (input && input.url) || '';
+    var method = ((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+    if (method !== 'GET'){ last = null; return real.apply(this, arguments); }
+    if (!isInfo(url)) return real.apply(this, arguments);
+    var now = Date.now();
+    if (!last || now - at > 2000){
+      at = now;
+      last = real.call(window, url, {cache: 'no-store'}).catch(function(e){ last = null; throw e; });
+    }
+    return last.then(function(r){ return r.clone(); });
+  };
+  shared.kcShared = true;
+  window.fetch = shared;
+})();
 (function(){
   try {
     var ls = window.localStorage; if (!ls || ls.getItem('kc-legacy-moved') === '1') return;
@@ -168,7 +190,7 @@ var Present = {
     var qOn = q.visible && String(q.text || '').trim() !== '', vOn = v.visible && String(v.text || '').trim() !== '';
     return m === 'verse' ? vOn : qOn;
   },
-  _on: function(n, kind){ var o = n[kind]; if (!o.visible){ resolveTransition(n, kind, o.itemId); o.visible = true; o.seq = (o.seq || 0) + 1; } },
+  _on: function(n, kind){ var o = n[kind]; if (!o.visible){ resolveTransition(n, kind, o.itemId); o.visible = true; o.seq = (o.seq || 0) + 1; if (kind === 'question') o.at = Date.now(); } },
   _loadVerse: function(n){
     var v = Present.verseFor(n);
     if (v && n.verse.itemId !== v.id){ n.verse.text = v.text; n.verse.ref = v.ref; n.verse.version = v.version; n.verse.itemId = v.id; n.verse.visible = false; }
@@ -349,6 +371,7 @@ function cleanLayer(l){
       c.items = (Array.isArray(c.items) ? c.items : []).filter(isObj).slice(0, 60).map(function(it){
         return {id: str(it.id || rid('v'), 40), label: str(it.label, 40), text: str(it.text, 2000)}; });
       c.at = Math.round(Math.min(c.at, Math.max(0, c.items.length - 1)));
+      if (c.songId) c.songId = str(c.songId, 40); else delete c.songId;     // 26.11.57 the song in the Song Library (usage report)
     }
   }
   if (CARD_KINDS.indexOf(kind) >= 0){
@@ -477,7 +500,7 @@ function cleanScene0(sc){
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
     notes: str(sc.notes, 20000),                                  /* the Teleprompter script (6.7; v6.2 leader notes), never on screen */
     tx: {type: tx.type === 'profile' ? 'profile' : txId(tx.type) || 'profile', ms: num(tx.ms, 0, 5000, 500)},
-    auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
+    auto: auto.loop ? {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30), loop: true} : {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},   /* 26.11.57 loop: the steps take turns */
     plan: num(sc.plan, 0, 600, 0),                               /* 26.11.14 planned minutes on screen (0: none), for the run sheet */
     out: {vcam: true, obs: true},
     layers: foldOut((Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60), out)};
@@ -528,13 +551,22 @@ var TEMPLATES = [
   {id: 'blank', name: 'Blank', layers: []}];
 /* v6.1 Content Library: reusable ready-made scenes. Each layer: [kind, {name, c}] (text is editable afterwards) */
 var BENEDICTION = 'The Lord bless you and keep you; the Lord make his face to shine upon you and be gracious to you; the Lord lift up his countenance upon you and give you peace.';
-var LIBRARY_CATS = [['welcome', 'Welcome Slides'], ['prayer', 'Prayer Slides'], ['discussion', 'Questions'], ['scripture', 'Scripture Layouts'], ['closing', 'Closing Slides']];
+var LIBRARY_CATS = [['welcome', 'Welcome Slides'], ['worship', 'Worship'], ['prayer', 'Prayer Slides'], ['discussion', 'Questions'], ['scripture', 'Scripture Layouts'], ['closing', 'Closing Slides']];
 var LIBRARY = [
   {id: 'lib-welcome', cat: 'welcome', name: 'Welcome', layers: [['announcement', {name: 'Welcome', c: {title: 'Welcome', text: 'We’re glad you’re here. We’ll begin in just a moment.'}}]]},
   {id: 'lib-welcome-countdown', cat: 'welcome', name: 'Starting Soon', layers: [['countdown', {name: 'Countdown', c: {title: 'We begin in', text: 'Welcome!', minutes: 5}}]]},
+  /* 26.11.57 the pre-service loop: a countdown with three announcements that take turns (Auto, every 10 s), and when
+     the countdown ends Next goes on to the first Frame of the service */
+  {id: 'lib-welcome-loop', cat: 'welcome', name: 'Welcome Loop', rotate: 10, layers: [['countdown', {name: 'Countdown', c: {title: 'We begin in', text: 'Welcome!', minutes: 10, pos: 'bottom', scale: 1.2}}],
+    ['announcement', {name: 'Welcome', c: {title: 'Welcome', text: 'We’re glad you’re here. Find a seat; we begin soon.'}}],
+    ['announcement', {name: 'This Week', c: {title: 'This Week', text: 'Add this week’s news here.'}}],
+    ['announcement', {name: 'Connect', c: {title: 'Stay Connected', text: 'Add how people can join a group or get in touch.'}}]]},
   {id: 'lib-meeting-title', cat: 'welcome', name: 'Meeting Title', layers: [['brand', {name: 'Meeting Title', c: {pos: 'center', scale: 2, logo: true, name: true, org: true}}]]},
   {id: 'lib-meeting-lower', cat: 'welcome', name: 'Meeting Lower Third', layers: [['lowerthird', {name: 'Meeting', c: {title: '{meeting}', text: '{org}', logo: true}}]]},
   {id: 'lib-welcome-host', cat: 'welcome', name: 'Welcome · Host', layers: [['lowerthird', {name: 'Host', c: {title: 'Welcome', text: 'Your host for today'}}]]},
+  {id: 'lib-song', cat: 'worship', name: 'Song', layers: [['song', {name: 'Song', c: {song: '', items: []}}]]},   // 26.11.57 filled from the Song Library
+  {id: 'lib-sermon', cat: 'worship', name: 'Sermon Slides', layers: [['pdf', {name: 'Sermon slides'}]]},
+  {id: 'lib-offering', cat: 'worship', name: 'Offering', layers: [['announcement', {name: 'Offering', c: {title: 'Offering', text: 'Thank you for your generosity.'}}]]},
   {id: 'lib-prayer-open', cat: 'prayer', name: 'Opening Prayer', layers: [['prayer', {name: 'Opening Prayer', c: {title: 'Opening Prayer', text: 'Let’s begin by bringing our time together before the Lord.'}}]]},
   {id: 'lib-prayer-requests', cat: 'prayer', name: 'Prayer Requests', layers: [['prayer', {name: 'Prayer Requests', c: {title: 'Prayer Requests', text: 'Share your prayer requests in the chat or unmute to pray together.'}}]]},
   {id: 'lib-prayer-points', cat: 'prayer', name: 'Prayer Points', layers: [['prayer', {name: 'Prayer Points', c: {title: 'Let Us Pray', text: 'For our church and its leaders\nFor families and those who are sick\nFor the nations to know Christ'}}]]},
@@ -559,6 +591,11 @@ var QUICK_START = [
    scenes: [['lib-welcome-countdown'], ['lib-welcome'], ['lib-focus-verse', 'Scripture'], ['lib-question', 'Discussion'], ['lib-prayer-close', 'Prayer'], ['lib-next']]},
   {id: 'fellowship', name: 'Fellowship Meeting', icon: 'users', text: 'Welcome, birthdays, announcements, a verse, prayer and goodbye.',
    scenes: [['lib-welcome'], ['@birthday', 'Celebrations'], ['@announcement', 'Announcements'], ['lib-focus-verse', 'Scripture'], ['lib-prayer-close'], ['lib-thanks']]},
+  /* 26.11.57 a whole Sunday service: the welcome loop, three songs (filled from the Song Library), the reading, the
+     sermon slides, a response song, the offering and the blessing */
+  {id: 'sunday', name: 'Sunday Service', icon: 'church', text: 'Welcome loop, worship songs, announcements, the reading, sermon slides, a response song, the offering and a blessing.',
+   scenes: [['lib-welcome-loop'], ['lib-welcome'], ['lib-song', 'Worship · Song 1'], ['lib-song', 'Worship · Song 2'], ['lib-song', 'Worship · Song 3'], ['@announcement', 'Announcements'],
+     ['lib-reading'], ['lib-sermon', 'Sermon'], ['lib-song', 'Response Song'], ['lib-offering'], ['lib-benediction']]},
   {id: 'service', name: 'Church Service', icon: 'church', text: 'A countdown, welcome, announcements, the reading, the message and a blessing.',   /* 9.5 */
    scenes: [['lib-welcome-countdown'], ['lib-welcome'], ['@announcement', 'Announcements'], ['lib-reading'], ['@announcement', 'Message'], ['lib-benediction'], ['lib-thanks']]}
 ];
@@ -623,7 +660,8 @@ var Scenes = {
     var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)
     var jn = cleanJoin(l.join); if (jn) st.live.join = jn;           // 26.11.44 the members' phones QR on the Branding badge
     var dk = cleanDeck(l.deck); if (dk) st.live.deck = dk;           // 26.11.45 the slide on screen
-    if (isObj(l.flow) && typeof l.flow.scene === 'string' && isFinite(l.flow.at)) st.live.flow = {scene: str(l.flow.scene, 40), at: Math.max(0, Math.min(29, Number(l.flow.at) | 0))};   // 26.11.51 the step on screen
+    if (typeof l.stageMsg === 'string' && l.stageMsg.trim()) st.live.stageMsg = str(l.stageMsg, 140);   // 26.11.57 a message to the stage screen
+    if (isObj(l.flow) && typeof l.flow.scene === 'string' && isFinite(l.flow.at)){ st.live.flow = {scene: str(l.flow.scene, 40), at: Math.max(0, Math.min(29, Number(l.flow.at) | 0))}; if (isFinite(l.flow.t) && l.flow.t > 0) st.live.flow.t = Number(l.flow.t); }   // 26.11.51 the step on screen (26.11.57 t: when it came on, for the step timer)
     if (isObj(l.smart) && typeof l.smart.scene === 'string' && isFinite(l.smart.at)) st.live.smart = {scene: str(l.smart.scene, 40), at: Math.max(-1, Math.min(999, Number(l.smart.at) | 0))};   // 26.11.22 Smart Next's place
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
@@ -766,6 +804,11 @@ var Scenes = {
     var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, e.name), group: opts.group != null ? opts.group : Scenes.newGroup(st), created: now, modified: now,
       creator: opts.creator || '', template: e.name, from: 'Content Library', tx: {type: 'profile', ms: 500}});
     sc.layers = e.layers.map(function(d){ var x = d[1] || {}, extra = {c: x.c || {}}; if (x.name) extra.name = x.name; return newLayer(d[0], extra); });
+    if (e.rotate){                                    // 26.11.57 the Welcome Loop: the countdown stays, the announcements take turns
+      var cd = sc.layers[0], rest = sc.layers.slice(1);
+      sc.flow = rest.map(function(l){ return [cd.id, l.id]; });
+      sc.auto = {on: true, sec: e.rotate, loop: true};
+    }
     Scenes.autoBrand(st, sc);
     Scenes.insert(st, sc, opts.after);
     return sc;
@@ -992,6 +1035,7 @@ var Scenes = {
     var o = n[kind];
     if (kind !== 'birthday') resolveTransition(n, kind, o.itemId);
     o.visible = true; o.seq = (o.seq || 0) + 1;
+    if (kind === 'question') o.at = Date.now();
     if (cut) o.play = 'none';
   },
   /* Take a scene live: its layers decide what the cards show; its transition plays (override = the live bar's choice). */
@@ -1046,8 +1090,59 @@ var Scenes = {
       if (Scenes.layerOn(n, sc, l) !== on) Scenes.setOn(n, sc.id, id, on);
     });
     if (n.question.visible) n.question.mode = n.verse.visible ? 'both' : 'question';
-    n.live.flow = {scene: sc.id, at: at};
+    n.live.flow = {scene: sc.id, at: at, t: Date.now()};
     return true;
+  },
+  /* 26.11.57 a long passage split into parts that fit on screen (about `max` characters each), at verse numbers when
+     the text has them ("28 And we know…" or "[28]"), else at sentence ends; never inside a word. */
+  /* 26.11.57 a question's discussion minutes (its timer: "8", "8 min", "1:30"), or 0 */
+  timerMinutes: function(it){
+    var t = String((it && it.timer) || '').trim(), m = t.match(/^(\d{1,3}):(\d{2})$/);
+    if (m) return Number(m[1]) + Number(m[2]) / 60;
+    var n = parseFloat(t); return isFinite(n) && n > 0 ? Math.min(180, n) : 0;
+  },
+  /* 26.11.57 the discussion countdown of the question on screen: {left: seconds (below 0 when over), minutes, key}, or
+     null when no question with discussion minutes is showing */
+  discussion: function(st, now){
+    var q = st && st.question; if (!q || !q.visible || !q.at || !st.live || !st.live.scene) return null;
+    var m = Scenes.timerMinutes(Scenes.itemById(st, 'question', q.itemId)); if (!m) return null;
+    return {left: Math.round(m * 60 - ((now || Date.now()) - q.at) / 1000), minutes: m, key: q.itemId + ':' + q.seq};
+  },
+  clockText: function(s){ var a = Math.abs(Math.round(s)); return (s < 0 ? '+' : '') + Math.floor(a / 60) + ':' + ('0' + (a % 60)).slice(-2); },
+  splitPassage: function(text, max){
+    max = max || 420; text = String(text || '').replace(/\s+/g, ' ').trim();
+    if (text.length <= max * 1.15) return text ? [text] : [];
+    var bits = text.split(/(?=\[\d{1,3}\]\s?)|(?=(?:^|\s)\d{1,3}\s+[A-Z\u201c"'(])/).map(function(b){ return b.trim(); }).filter(Boolean);
+    if (bits.length < 2) bits = text.split(/(?<=[.!?;:\u201d"])\s+/).filter(Boolean);
+    var out = [], cur = '';
+    bits.forEach(function(b){
+      while (b.length > max){ var cut = b.lastIndexOf(' ', max); if (cut < max / 2) cut = max; if (cur){ out.push(cur); cur = ''; } out.push(b.slice(0, cut).trim()); b = b.slice(cut).trim(); }
+      if (cur && (cur + ' ' + b).length > max){ out.push(cur); cur = b; } else cur = cur ? cur + ' ' + b : b;
+    });
+    if (cur) out.push(cur);
+    return out;
+  },
+  /* 26.11.57 Question · Scripture · Both on a Frame with Set order: that becomes its first step (the other steps follow) */
+  flowPreset: function(sc, m){
+    var q = sc.layers.filter(function(l){ return l.kind === 'question'; })[0], v = sc.layers.filter(function(l){ return l.kind === 'scripture'; })[0];
+    var first = m === 'both' ? [q, v] : m === 'verse' ? [v] : [q]; first = first.filter(Boolean).map(function(l){ return l.id; });
+    if (!first.length) return;
+    var rest = (sc.flow || []).map(function(st){ return st.filter(function(id){ return first.indexOf(id) < 0; }); }).filter(function(st){ return st.length; });
+    if (m !== 'both'){ var other = m === 'verse' ? q : v; if (other && !rest.some(function(st){ return st.indexOf(other.id) >= 0; })) rest.unshift([other.id]); }
+    sc.flow = [first].concat(rest).slice(0, 30);
+  },
+  /* 26.11.57 whether a countdown on the live Frame has reached its end (the Welcome Loop then moves on); null: none */
+  countdownDone: function(st){
+    var sc = Scenes.liveScene(st); if (!sc) return null;
+    var found = null, now = Date.now();
+    sc.layers.forEach(function(l){
+      if (l.kind !== 'countdown' || !st.live.on[l.id]) return;
+      var end;
+      if (l.c.mode === 'until'){ var m = String(l.c.until || '').match(/^(\d{1,2}):(\d{2})/); if (!m) return; var d = new Date(); d.setHours(+m[1], +m[2], 0, 0); end = d.getTime(); }
+      else end = (st.live.cd[l.id] || st.live.at || now) + (Number(l.c.minutes) || 0) * 60000;
+      found = found === null ? now >= end : found && now >= end;
+    });
+    return found;
   },
   flowCan: function(st, d){ var f = Scenes.flowOf(Scenes.liveScene(st)); if (!f) return false; var to = Scenes.flowAt(st) + d; return to >= 0 && to < f.length; },
   /* 26.11.56 a PowerPoint that is a step of the order: Next walks its slides (and animations) first, then the next step;
@@ -1101,6 +1196,7 @@ var Scenes = {
     var f = Scenes.itemById(n, k, id, true); if (!f) return false;
     if (k === 'question') Scenes._loadQuestion(n, id); else { f.layer.c.itemId = id; Scenes._loadVerse(n, f.layer); }
     var o = n[k]; o.visible = true; o.seq = (o.seq || 0) + 1;
+    if (k === 'question') o.at = Date.now();
     if (window.KCTransitions) window.KCTransitions.resolve(n, k, id);
     if (k === 'question' && window.KCPresent) window.KCPresent.afterShow(n);
     return true;
@@ -1344,6 +1440,8 @@ function normalize(s){
     if (o.ref !== undefined) { o.ref = String(o.ref); o.version = String(o.version); }
     o.visible = !!o.visible; o.showLabel = !!o.showLabel;
     o.seq = Number(o.seq) || 0; o.cut = Number(o.cut) || 0;
+    /* 26.11.57 question.at: when it was shown (its discussion minutes count from it); kept only once set */
+    if (k === 'question'){ var at = s && isObj(s.question) ? Number(s.question.at) || 0 : 0; if (at) o.at = at; else delete o.at; }
     if (TRANSITIONS.indexOf(o.transition) < 0) o.transition = 'fade';
     if (SPEEDS.indexOf(o.speed) < 0) o.speed = 'normal';
     o.random = !!o.random;
@@ -1597,6 +1695,8 @@ var Store = {
     function attempt(){
       var next = Store.get(), base = next.rev, before = state;
       fn(next);
+      /* 26.11.57 a question shown again (whatever showed it: Studio, phone, voice, keys) starts its discussion minutes */
+      if (next.question && next.question.visible && (next.question.seq !== before.question.seq || !before.question.visible)) next.question.at = Date.now();
       /* 26.11.22 instant: the change shows at once on this page (the same rev, so the program's answer replaces it);
          if the program refuses for another reason than a conflict, the page goes back to how it was */
       if (served && Store.optimistic !== false && tries === 0){ state = normalize(JSON.parse(JSON.stringify(next))); emit(); }
@@ -1656,6 +1756,43 @@ var Store = {
   }
 };
 window.KCStore = Store;
+/* 26.11.57 Panels most meetings never open load the first time they are needed: KCLazy.use('run-order').then(g => g.open()) */
+var LAZY = {'run-order': {js: 'js/run-order.js', css: 'css/run-order.css', g: 'KCRunOrder'},
+  'lesson-import': {js: 'js/lesson-import.js', css: 'css/lesson-import.css', g: 'KCLessonImport'},
+  'meeting-summary': {js: 'js/meeting-summary.js', g: 'KCSummary'}};
+window.KCLazy = {loading: {},
+  use: function(name){
+    var d = LAZY[name]; if (!d) return Promise.reject(new Error('unknown panel ' + name));
+    if (window[d.g]) return Promise.resolve(window[d.g]);
+    if (this.loading[name]) return this.loading[name];
+    var p = new Promise(function(ok, bad){
+      if (d.css){ var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = d.css; document.head.appendChild(l); }
+      var s = document.createElement('script'); s.src = d.js;
+      s.onload = function(){ window[d.g] ? ok(window[d.g]) : bad(new Error(name + ' did not load')); };
+      s.onerror = function(){ bad(new Error(name + ' did not load')); };
+      document.head.appendChild(s);
+    });
+    this.loading[name] = p.catch(function(e){ delete window.KCLazy.loading[name]; throw e; });
+    return this.loading[name];
+  }};
+/* 26.11.57 One shared clock for the Studio's repeating jobs: Tick.every(ms, fn) runs fn about every ms, all from a
+ * single timer, and skips while the window is hidden (pass always=true for jobs that must keep running, such as Auto). */
+var Tick = window.KCTick = {jobs: [], timer: null,
+  every: function(ms, fn, always){ var j = {ms: ms, fn: fn, always: !!always, at: Date.now()}; this.jobs.push(j); this.run(); return j; },
+  stop: function(j){ var i = this.jobs.indexOf(j); if (i >= 0) this.jobs.splice(i, 1); },
+  run: function(){
+    var self = this;
+    if (self.timer) return;
+    self.timer = setInterval(function(){
+      var now = Date.now(), hidden = document.hidden;
+      self.jobs.slice().forEach(function(j){
+        if (hidden && !j.always) return;
+        if (now - j.at < j.ms - 30) return;
+        j.at = now;
+        try { j.fn(); } catch(e){ if (window.console) console.error(e); }
+      });
+    }, 250);
+  }};
 /* Transition helpers shared by the dashboard, Meeting Mode and the phone remote */
 window.KCTransitions = {list: TRANSITIONS, names: TRANSITION_NAMES, defaultPool: DEFAULT_POOL,
   resolve: resolveTransition, describe: describeTransition, preference: preference};

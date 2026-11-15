@@ -121,7 +121,7 @@ function paint(force){
   bar.style.top = top + 'px';
 }
 function place(el, r){ el.style.left = (r.left - 4) + 'px'; el.style.top = (r.top - 4) + 'px'; el.style.width = (r.width + 8) + 'px'; el.style.height = (r.height + 8) + 'px'; }
-setInterval(function(){ if (sel) paint(false); badgePaint(); }, 250);
+KCTick.every(250, function(){ if (sel) paint(false); badgePaint(); });
 Store.subscribe(function(){ barSig = ''; setTimeout(function(){ paint(true); }, 60); });
 window.addEventListener('resize', function(){ paint(true); });
 wrap.addEventListener('scroll', function(){ paint(true); });

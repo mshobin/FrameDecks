@@ -2112,3 +2112,25 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
 .lc-side{grid-column:1/-1;display:flex;align-items:center;gap:6px;margin:6px 2px 0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .lc-side::after{content:"";flex:1;height:1px;background:var(--line)}
 .lc-side svg{flex:none}
+/* 26.11.57 one button for each job: in the Studio the rail's big button is Go Live and Next, so the top bar keeps
+   neither its Go Live nor (in Simple) its Previous / Next; Advanced keeps small arrows for keyboard users. On the
+   Members and Settings tabs the rail is not on screen and the top bar's controls show as before. */
+body[data-tab="studio"] .cmdbar #cb-take{display:none}
+body.simple[data-tab="studio"] .cmdbar #lb-prev,body.simple[data-tab="studio"] .cmdbar #lb-next{display:none}
+body.advanced[data-tab="studio"] .cmdbar .lb-step-big .lb-t{display:none}
+body.advanced[data-tab="studio"] .cmdbar .cb-btn.lb-step-big{padding:0 8px}
+/* 26.11.57 one status pill: the live pill (Ready · Live · LIVE) opens every output's state; the outputs no longer sit
+   as a row of chips, and their own button shows only while something needs attention */
+.cmdbar .live-ind.opens{cursor:pointer;border-radius:999px}
+.cmdbar .live-ind.opens:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.cmdbar .sysstat:not(.has-problem) .sys-sum{display:none}
+.cmdbar .sysstat.has-problem .sys-sum{display:inline-flex}
+.sys-menu{display:none;position:absolute;right:0;top:40px;z-index:80;flex-direction:column;align-items:stretch;gap:6px;padding:8px;min-width:260px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}
+.sysstat.open .sys-menu{display:flex}
+.sys-menu .hchip{justify-content:flex-start;border-radius:var(--r-1);height:38px}
+.sys-menu .hchip .hl{flex:1}
+.cmdbar .sysstat .sys-menu .hchip b{display:inline}
+/* 26.11.57 the chips keep their names: from 1440 px wide in Advanced too, and always while pointed at or focused */
+@media (min-width:1440px){ body.advanced .cmdbar[data-fit="3"] .lc:not(.alert):not(.held) .lc-l{display:inline} }
+body .cmdbar[data-fit] .lc.lc:not(.alert):not(.held):hover .lc-l,body .cmdbar[data-fit] .lc.lc:not(.alert):not(.held):focus-within .lc-l{display:inline}

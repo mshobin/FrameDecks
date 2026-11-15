@@ -137,6 +137,7 @@ var MAKE = {
   studio: function(){ return T('studio', function(){ run('cmd:studio', false); }); },
   quick: function(){ return T('quick', function(){ run('cmd:quick', false); }); },
   library: function(){ return T('library', function(){ run('cmd:library', false); }); },
+  songs: function(){ return T('songs', function(){ run('cmd:songs', false); }); },
   import: function(){ return T('import', function(){ run('cmd:frameimport', false); }); },
   camera: function(){ return T('camera', function(){ setting('vcam'); }, null, camSub()); },
   cards: function(){ return T('cards', function(){ scope('memory'); }, null, !mem ? 'Chat on screen' : (mem.items || []).length + ((mem.items || []).length === 1 ? ' card' : ' cards')); },

@@ -215,7 +215,7 @@ var WHY = {none: 'Still slides (no animations)', off: 'Still slides (Play animat
   noppt: 'Still slides (PowerPoint is not on this PC)'};
 function statusWords(d, cur){
   var out = [], st = d.status;
-  if (st) out.push(st.plays === 'powerpoint' ? 'PowerPoint is playing this deck' : WHY[st.why] || 'Still slides');
+  if (st) out.push(st.plays === 'powerpoint' ? 'PowerPoint is playing these slides' : WHY[st.why] || 'Still slides');
   if (d.phones === false) out.push('Not on members’ phones');
   else if (cur >= 0 && (d.nophone || []).indexOf(cur) >= 0) out.push('Slide ' + (cur + 1) + ' is not on members’ phones');
   return out.join(' · ');

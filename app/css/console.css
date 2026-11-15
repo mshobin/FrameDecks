@@ -752,3 +752,5 @@ body.studio-focus .studio.s2{height:100vh !important}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
 
 .deck-ready.bad{color:var(--red)}
+/* 26.11.57 Run order shown in the Frames column */
+#mt-run[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft);color:var(--gold)}

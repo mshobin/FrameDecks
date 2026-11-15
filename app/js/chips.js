@@ -24,11 +24,12 @@ function A(chip, id, label, icon, sub, on, extra){
 var ACTIONS = [
   // Prepare
   A('prepare', 'meetings', 'Meetings', 'calendar-days', 'Switch and plan', ['cc', 'app', 'phone']),
-  A('prepare', 'share', 'Share Window', 'monitor', 'The window you share', ['cc', 'app']),
+  A('prepare', 'share', 'Share Window', 'monitor', 'The window you share', ['cc']),   // 26.11.57 the Studio has its own button above the stage
   A('prepare', 'studio', 'Studio', 'presentation', 'Frames, Decks, Content', ['cc']),
   A('prepare', 'quick', 'Quick Start', 'rocket', 'Ready-made Frames', ['cc', 'app']),
   A('prepare', 'library', 'Content Library', 'library', 'Add ready-made Content', ['cc', 'app']),
-  A('prepare', 'import', 'Import .frame', 'folder-open', 'A plan from the website', ['cc', 'app']),
+  A('prepare', 'songs', 'Song Library', 'music', 'Songs for every service', ['cc', 'app']),   // 26.11.57
+  A('prepare', 'import', 'Import…', 'folder-open', 'Lesson, slides, songs, Excel, .frame', ['cc', 'app']),   // 26.11.57 one Import menu
   A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app'], {feature: 'vcam'}),
   // Engage
   A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
@@ -70,7 +71,7 @@ var ACTIONS = [
   A('more', 'keys', 'Shortcuts', 'keyboard', 'Keys for every action', ['cc', 'app']),
   // 26.11.31 switch features on or off (js/features.js): set up before the meeting, so it lives in More
   A('more', 'features', 'Features', 'list-checks', 'Switch features on or off', ['cc', 'app']),
-  A('more', 'all', 'All settings', 'settings', 'Search every setting', ['cc', 'app']),
+  A('more', 'all', 'All settings', 'settings', 'Search every setting', ['cc']),   // 26.11.57 the app has its Settings tab
   A('more', 'help', 'Help & tour', 'info', 'The welcome tour', ['cc', 'app']),
   A('more', 'pcstatus', 'On the PC', 'monitor', 'What the PC is doing', ['phone']),
   A('more', 'disconnect', 'Disconnect this device', 'x', 'Needs the PIN again', ['phone'])];

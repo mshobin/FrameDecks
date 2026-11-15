@@ -205,7 +205,7 @@ function open(fromUser){
 }
 var readySig = '';
 function readyChanged(){ var c = C(), sig = c && G.steps[shown()].id === 'ready' ? JSON.stringify(c.list().map(function(x){ return [x[0], x[1]]; })) : ''; if (sig === readySig) return false; readySig = sig; return !!sig; }
-setInterval(function(){ if (!panel || document.hidden) return; checkLink(); if (detect() | readyChanged()) render(); }, 2000);
+KCTick.every(2000, function(){ if (!panel) return; checkLink(); if (detect() | readyChanged()) render(); });
 
 /* Settings → About: where the guide comes back (and "Setup complete" once it is) */
 function renderAbout(){

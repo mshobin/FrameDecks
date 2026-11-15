@@ -175,7 +175,7 @@ function marks(sc){
   svg.style.display = ''; svg.setAttribute('width', wrap.scrollWidth); svg.setAttribute('height', wrap.scrollHeight);
   svg.innerHTML = '<polyline points="' + line.map(function(q){ return q[0] + ',' + q[1]; }).join(' ') + '"/>';
 }
-setInterval(function(){ if (live) paint(); }, 400);
+KCTick.every(400, function(){ if (live) paint(); });
 window.addEventListener('resize', function(){ paint(); });
 
 /* ===================================================================== the look ====================================== */

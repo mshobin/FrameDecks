@@ -29,6 +29,16 @@ function paintGo(){
   go.classList.remove('is-take');
   go.classList.remove('is-off');
   var up = $('upnext'), name = ($('un-name') || {}).textContent || '', meta = ($('un-meta') || {}).textContent || '';
+  /* 26.11.57 Next always says what comes next: the song's next part, the next step, question or scripture, the next Frame */
+  if (st && SC.songCan && SC.songCan(st, 1)){
+    var sl = SC.liveSong(st), sn = sl.c.items[(sl.c.at || 0) + 1] || {}, sLab = sn.label || 'Verse ' + ((sl.c.at || 0) + 2);
+    if (!go.classList.contains('holding')) goT.textContent = 'Next \u25B8 ' + sLab;
+    go.disabled = false; delete go.dataset.mode;
+    go.removeAttribute('aria-label'); if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
+    goSub.textContent = (sl.c.song || sl.name || 'Song') + ' · ' + ((sl.c.at || 0) + 2) + ' of ' + sl.c.items.length;
+    go.title = 'Next: ' + sLab + ' of ' + (sl.c.song || sl.name || 'the song');
+    return;
+  }
   if (st && SC.flowDeckHolds && SC.flowDeckHolds(st, 1) && window.KCSlides && KCSlides.nextWhat){   // 26.11.56 slides that are a step: slide by slide, then the next step
     var sdk = st.live.deck, snw = KCSlides.nextWhat(sdk, ''), sfs = SC.liveScene(st), sfl = SC.flowOf(sfs), sat = SC.flowAt(st);
     if (!go.classList.contains('holding')) goT.textContent = snw.label;
@@ -40,12 +50,25 @@ function paintGo(){
   }
   if (st && SC.flowCan && SC.flowCan(st, 1)){                 // 26.11.51 the Frame's own order: Next shows its next step first
     var fsc = SC.liveScene(st), fat = SC.flowAt(st) + 1, fl = SC.flowOf(fsc);
-    if (!go.classList.contains('holding')) goT.textContent = 'Next step';
+    if (!go.classList.contains('holding')) goT.textContent = 'Next \u25B8 ' + (SC.flowLabel(fsc, fat) || 'step ' + (fat + 1));
     go.classList.remove('is-off'); go.disabled = false; delete go.dataset.mode;
     go.removeAttribute('aria-label'); if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
     goSub.textContent = SC.flowLabel(fsc, fat) + ' · step ' + (fat + 1) + ' of ' + fl.length;
     go.title = 'Next: step ' + (fat + 1) + ' of this Frame (' + SC.flowLabel(fsc, fat) + ')';
     return;
+  }
+  if (st && Store.setting && Store.setting('smartNext') !== false && SC.smartNext){   // Smart Next: the next question or scripture first
+    var t = SC.smartNext(st);
+    if (t && t.kind !== 'frame'){
+      var items = SC.items(st, t.kind), it = items.filter(function(x){ return x.id === t.id; })[0] || {}, k = items.indexOf(it);
+      var tLab = t.kind === 'verse' ? (it.ref || 'Scripture ' + (k + 1)) : 'Question ' + (k + 1);
+      if (!go.classList.contains('holding')) goT.textContent = 'Next \u25B8 ' + tLab;
+      go.disabled = false; delete go.dataset.mode;
+      go.removeAttribute('aria-label'); if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
+      goSub.textContent = (t.kind === 'verse' ? 'Scripture ' : 'Question ') + (k + 1) + ' of ' + items.length + (it.text && t.kind === 'question' ? ' · ' + it.text : '');
+      go.title = 'Next: ' + tLab + ' (then the next Frame)';
+      return;
+    }
   }
   var warn = up && !up.hidden && $('un-warn') && $('un-warn').firstChild ? ' · ⚠︎ ' + $('un-warn').firstChild.textContent : '';
   if (!up || up.hidden || !name){
@@ -68,7 +91,7 @@ function paintGo(){
     go.title = nw.text + ' (then Next goes to “' + name + '”)';
     return;
   }
-  goT.textContent = 'Next'; go.disabled = !next || next.disabled;
+  goT.textContent = 'Next \u25B8 ' + name; go.disabled = !next || next.disabled;
   if (dk) name = 'Last slide · ' + name;
   goSub.textContent = name + (meta ? ' · ' + meta.split(' · ').pop() : '') + warn;
   go.title = 'Next: ' + name + ' (goes live)';

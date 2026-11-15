@@ -304,7 +304,11 @@ function refreshStatus(){
   if (live.live && live.live.freeze && on.length && on[0] !== 'Black screen' && on[0] !== 'Emergency screen') on = ['Frozen'].concat(on);
   var what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');
   /* 26.11.42 (owner, 11 November): a Frame on air reads Live even before its question or verse shows, never Off air */
-  var word = on.length ? 'LIVE' : ls ? 'Live' : 'Off air';
+  /* 26.11.57 slides, pictures, video and the camera count as on screen; off air with every output well reads Ready */
+  var media = ls && ((ls.layers || []).some(function(l){ return l.visible && SC.isMedia(l.kind); }) || !!(live.live && live.live.deck && live.live.deck.layer));
+  if (media && !on.length) on.push(live.live && live.live.deck && live.live.deck.layer ? 'Slides' : 'Picture');
+  var sysOk = document.body.dataset.sys !== 'bad' && document.body.dataset.sys !== 'warn';
+  var word = on.length ? 'LIVE' : ls ? 'Live' : sysOk ? 'Ready' : 'Off air';
   if (ls && !on.length) what = ls.name + ' · nothing shown yet';
   el.classList.toggle('framed', !!ls && !on.length);
   el.classList.toggle('on', on.length > 0); el.classList.toggle('alert', state === ' alert'); el.classList.toggle('held', state === ' held');
@@ -315,8 +319,9 @@ function refreshStatus(){
   }
   if (b.textContent !== word) b.textContent = word;
   if (w.textContent !== what) w.textContent = what;
-  el.title = on.length ? 'On screen now: ' + what : ls ? ls.name + ' is live. Show a question or verse to put it on screen.' : 'Nothing is on screen';
+  el.title = (on.length ? 'On screen now: ' + what : ls ? ls.name + ' is live. Show a question or verse to put it on screen.' : sysOk ? 'Ready: every output is working. Nothing is on screen yet.' : 'Nothing is on screen') + ' · Click for the details of every output';
 }
+document.addEventListener('kc-sys', function(){ refreshStatus(); });   // 26.11.57 Ready / Off air follows the outputs
 function refreshMode(){
   var m = $('mode');
   if (!Store.served){ m.textContent = 'No-install mode · same browser only'; m.className = 'mode'; return; }
@@ -486,7 +491,7 @@ function setup(){
     if (window.KCStatus) window.KCStatus.on('presence', showPresence);
     else { pollPresence(); setInterval(function(){ if (!document.hidden) pollPresence(); }, 4000); }
   }, 0);
-  refreshMode(); setInterval(function(){ if (!document.hidden) refreshMode(); }, 2000);
+  refreshMode(); KCTick.every(2000, refreshMode);
 }
 
 Store.subscribe(function(st){

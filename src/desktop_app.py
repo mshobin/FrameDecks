@@ -1062,6 +1062,29 @@ def main():
         except Exception as _e:
             _swallowed("desktop_app.share_annotate", _e)
 
+    def present_on(rect):
+        """26.11.57 the Share Window full screen on the room screen (a projector or TV) chosen by name in Settings."""
+        present(True)
+        hwnd = None
+        for _ in range(100):                                    # the native window is made on its own thread
+            w = state.get("present")
+            try:
+                hwnd = getattr(w, "hwnd", None) if isinstance(w, NativePresentation) else (window_handle(w) if w else None)
+            except Exception:
+                hwnd = None
+            if hwnd:
+                break
+            time.sleep(0.05)
+        if not hwnd or not dw.IS_WIN:
+            return False
+        x, y, ww, hh = rect
+        present_fullscreen(False)
+        try:
+            dw.user32.SetWindowPos(hwnd, None, int(x) + 40, int(y) + 40, max(480, min(1280, int(ww) - 80)), max(270, min(720, int(hh) - 80)), 0x0040)
+        except Exception as _e:
+            _swallowed("desktop_app.present_on", _e)
+        return bool(present_fullscreen(True))
+
     def present_open():
         w = state.get("present")
         return bool(w) and (w.is_open() if isinstance(w, NativePresentation) else True)
@@ -1101,7 +1124,7 @@ def main():
         return {"open": out, "front": in_front}
 
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder, window_theme=set_theme,
-                          on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
+                          on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen, present_on=present_on,
                           present_fs_state=present_fs_state, present_open=present_open, teleprompter=teleprompter,
                           teleprompter_open=lambda: bool(state.get("teleprompter")), spotlight=spotlight,
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,

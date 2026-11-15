@@ -78,7 +78,7 @@ function renderProgram(){
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
   var bt = org + ' · ' + t, be = $('brand'); if (be && be.title !== bt) be.title = bt;     // v6.4: logo only; the name is in its tooltip
 }
-setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderProgram();
+KCTick.every(1000, renderProgram); renderProgram();
 
 Status.on('presence', function(p){
   var n = 0; for (var k in p) n += p[k];
@@ -174,9 +174,9 @@ if (Store.served){
   Status.part('slides', function(){ return document.body.dataset.tab === 'studio' && !document.hidden; });
   Status.on('slides', function(d){ slideInfo = d; renderRunning(); if (window.KCWorkspace) window.KCWorkspace.slides(d); });
 }
-setInterval(function(){ if (!document.hidden) renderRunning(); }, 1000);
+KCTick.every(1000, renderRunning);
 
 Store.subscribe(function(st){ live = st; render(); });
-setInterval(function(){ if (!document.hidden) render(); }, 10000);  // birthday candidate and day changes
+KCTick.every(10000, render);  // birthday candidate and day changes
 window.KCRenderBirthday = render;
 })();

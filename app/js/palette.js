@@ -49,7 +49,7 @@ var SECTIONS = [   // 26.11.32 in the order of Settings' six groups
   ['scripture', 'Scripture', 'bible esv api key translation'], ['overlays', 'Birthdays', 'birthday reminders'], ['memory', 'Memory Cards', 'memory cards chat bubbles capture beside below seconds'],
   ['output', 'How people see it', 'zoom teams share window projector tv obs camera'], ['vcam', 'FrameDecks vCam and Recording', 'framedecks vcam framerelay camera zoom teams blur background look resolution record recording mp4'],
   ['display', 'Projector, TV and OBS', 'zoom display overlay obs browser source links'], ['listening', 'Listening', 'listen microphone spoken voice commands right ctrl key follow my voice'],
-  ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['account', 'Sync', 'sync workspace website cloud link connect framedecks.com add a device invite someone allow team devices qr'], ['security', 'Security', 'pin privacy'],
+  ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet hand over handover co-leader second leader take over next'], ['account', 'Sync', 'sync workspace website cloud link connect framedecks.com add a device invite someone allow team devices qr'], ['security', 'Security', 'pin privacy'],
   ['pc', 'Window & performance', 'window tray minimize command center size graphics performance ribbon'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
@@ -76,12 +76,18 @@ function commands(){
     ['nametags', 'Name tags (a speaker’s name and role)', 'name tag lower third speaker reader host role caption', function(){ if (window.KCNameTags) KCNameTags.open(); }],
     ['slides', 'Every slide of the PowerPoint on screen', 'slides powerpoint ppt overview grid all slides jump search run order hide zoom sorter', function(){ if (window.KCSlides) KCSlides.open({studio: !!window.KCSlideTools}); }],
     ['responses', 'Polls and responses (members’ phones)', 'poll vote yes no rating question response survey phones', function(){ if (window.KCResponses) KCResponses.open(); }],
+    ['answers', 'Typed answers (members’ phones)', 'answer type typed discussion share responses comments phones bible study', function(){ if (window.KCAnswers) KCAnswers.open(); }],
     ['capture', 'Capture copies on / off (Memory Cards)', 'memory card chat overlay copy clipboard capture zoom teams chatgpt claude copilot slack discord', function(){ if (window.KCMemory) window.KCMemory.toggleCapture(); }],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
-    ['frameimport', 'Import Frame File (.frame)', 'import frame file offline service pc website plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); }],
+    ['stagemsg', 'Message to the stage screen', 'stage screen confidence monitor message musicians speaker band repeat chorus time', function(){ if (window.KCServiceScreens){ var t = window.prompt('Message to the stage screen (empty clears it):', ''); if (t !== null) KCServiceScreens.stageMessage(t); } }],   // 26.11.57
+    ['roomscreen', 'Open the Share Window on the room screen', 'projector tv room screen second display full screen share window audience', function(){ if (window.KCServiceScreens) KCServiceScreens.openRoom(''); }],   // 26.11.57
+    ['themes', 'Themes (one background for songs, scripture or announcements)', 'theme background song scripture announcement video loop picture motion look', function(){ if (window.KCThemes) KCThemes.open(); }],   // 26.11.57
+    ['showverse', 'Show a verse now (type a reference)', 'verse scripture bible reference show now quick live', function(){ if (window.KCQuickVerse){ var r = window.prompt('Bible reference, e.g. Romans 8:28', ''); if (r) KCQuickVerse.show(r); } }],   // 26.11.57
+    ['songs', 'Song Library (songs, lyrics, CCLI usage report)', 'songs song lyrics hymn worship library chorus verse ccli chordpro openlyrics', function(){ if (window.KCSongs) KCSongs.open(); }],   // 26.11.57
+    ['frameimport', 'Import… (a lesson, PowerPoint slides, songs, Excel or a .frame file)', 'import frame file offline service pc website plan lesson pdf word powerpoint slides songs lyrics excel', function(){ if (window.KCImport) window.KCImport.open(); else { settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); } }],   // 26.11.57 one Import menu
     ['members', 'Members’ phones (follow along, prayer requests, sermon notes)', 'members phones follow along prayer requests wall pray qr sermon notes', function(){ if (window.KCMembers) KCMembers.open(); }],
-    ['sermonnotes', 'Sermon notes (the last meeting, for members)', 'sermon notes minutes members print pdf share', function(){ if (window.KCSummary) KCSummary.notes(); }],
-    ['summary', 'Meeting summary (the last meeting, to print or email)', 'summary minutes report attendance meeting past print email', function(){ if (window.KCSummary) KCSummary.open('latest'); }],
+    ['sermonnotes', 'Sermon notes (the last meeting, for members)', 'sermon notes minutes members print pdf share', function(){ if (/dashboard/.test(location.pathname) || location.pathname === '/') KCLazy.use('meeting-summary').then(function(g){ g.notes(); }); }],
+    ['summary', 'Meeting summary (the last meeting, to print or email)', 'summary minutes report attendance meeting past print email', function(){ if (/dashboard/.test(location.pathname) || location.pathname === '/') KCLazy.use('meeting-summary').then(function(g){ g.open('latest'); }); }],
     ['helpguide', 'Step-by-step guide (framedecks.com/help)', 'help guide how to start learn tutorial', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); }],
     ['resync', 'Sync now', 'sync now resync linked pcs workspace cloud latest changes', function(){ if (window.KCResync) window.KCResync(); else settings('account'); }],
     ['frameexport', 'Export Frame File (.frame)', 'export frame file offline save plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.exportFile) window.KCFrameFile.exportFile(); }],
@@ -109,7 +115,7 @@ function commands(){
   c = c.filter(function(x){ return !F || F.allOn(CMD_FEATURE[x[0]]); });
   return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
-var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary', nametags: 'nametags', responses: 'responses',
+var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary', nametags: 'nametags', responses: 'responses', answers: 'responses',
   camera: 'vcam', sharedraw: '', sharespot: ''};
 /* 26.11.31 the features themselves: "Memory Cards is off · Turn on?" finds it from anywhere, and teaches where they live */
 function featureItems(){

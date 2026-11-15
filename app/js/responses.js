@@ -151,7 +151,8 @@ function draw(force){
       h('label', {cls: 'field', 'for': 'rs-q'}, [h('span', {text: 'Your question'}), q]),
       h('p', {cls: 'rs-label', id: 'rs-kind-label', text: 'How people answer'}), kindSeg(),
       draft.kind === 'choice' ? optionRows() : h('p', {cls: 'hint', text: draft.kind === 'rating' ? 'Phones show 1 to 5 stars. 1 is low, 5 is high.' : 'Phones show two big buttons: Yes and No.'}),
-      h('label', {cls: 'check rs-switch'}, [show, ' Show results on phones']));
+      h('label', {cls: 'check rs-switch'}, [show, ' Show results on phones']),
+      window.KCAnswers ? h('button', {cls: 'btn ghost small rs-typed', type: 'button', text: 'Ask for typed answers instead', onclick: function(){ var t = draft.question; dlg.close(); KCAnswers.open(t); }}) : null);
     if (r && r.question) kids.push(h('div', {cls: 'rs-last'}, [
       h('p', {cls: 'rs-label', text: 'Last question: ' + r.question}), bars(r, cur.counts || [], cur.total || 0),
       h('button', {cls: 'btn ghost small', type: 'button', text: 'Show on screen', onclick: function(){ act({op: 'show'}, 'On screen'); }})]));

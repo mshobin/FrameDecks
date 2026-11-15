@@ -140,12 +140,12 @@ class TheDashboard(unittest.TestCase):
     def test_wired_in_three_places_and_read_on_this_pc(self):
         js = read("app/js/lesson-import.js")
         dash = read("app/dashboard.html")
-        self.assertIn('src="js/lesson-import.js"', dash)
-        self.assertIn('href="css/lesson-import.css"', dash)
+        lazy = read("app/js/store.js")          # 26.11.57 loaded the first time it is opened (KCLazy)
+        self.assertIn("'lesson-import': {js: 'js/lesson-import.js', css: 'css/lesson-import.css'", lazy)
         self.assertIn('id="s-lesson-import"', dash)
         ws = read("app/js/workspace.js")
-        self.assertIn("'Import a lesson (PDF or Word)…'", ws)
-        self.assertIn("id: 'qs-lesson'", ws)
+        self.assertIn("'A lesson (PDF or Word)…'", ws)      # 26.11.57 in the one Import menu
+        self.assertIn("openImport($('quick-start'))", ws)
         self.assertIn("api/lesson/read?name=", js)
         srv = read("src/server.py")
         self.assertIn('"/api/lesson/read"', srv)

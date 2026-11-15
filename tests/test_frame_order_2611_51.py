@@ -74,7 +74,7 @@ class TheOrder(unittest.TestCase):
             src = read(f)
             self.assertIn("SC.flowCan(", src, f)
             self.assertIn("SC.flowStep(", src, f)
-        self.assertIn("'Next step'", read("app/js/live-stage.js"))
+        self.assertIn("goT.textContent = 'Next \\u25B8 ' + (SC.flowLabel(fsc, fat)", read("app/js/live-stage.js"))   # 26.11.57 says which step
         self.assertIn("SC.previewState(raw, sceneQ, /[?&]all=1/.test(location.search))", read("app/js/overlay.js"))
 
     def test_set_order_in_the_preview(self):

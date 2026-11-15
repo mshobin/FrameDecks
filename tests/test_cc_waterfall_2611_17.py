@@ -37,7 +37,7 @@ class Shape(unittest.TestCase):
 
     def test_never_left_short(self):
         self.assertIn("function exact(){ if (open && !document.hidden && !chain && !finalT){ burst = null; send(boxes()); } }", self.js)
-        self.assertIn("setInterval(exact, 2000);", self.js)
+        self.assertIn("KCTick.every(2000, exact);", self.js)   # 26.11.57 the shared clock
         self.assertIn("[120, 500, 1200].forEach(function(ms){ setTimeout(exact, ms); });", self.js)
 
 

@@ -10,6 +10,36 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.57] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.57.md](releases/v26.11.57.md).
+
+### Added
+- `src/songbook.py` + `GET/POST /api/songs` (`/api/songs/report`): Song Library in `<data>/kc-songs.json` (save, delete,
+  import, used once per day, monthly usage report). `app/js/songs-lib.js` (text / ChordPro / OpenLyrics / slides
+  readers, arrangement, jump keys, credit line), `app/js/songs.js`, `app/css/songs.css`. App setting `ccliLicence`.
+- Room screen by name: `vcam/screen.displays()` (EnumDisplayDevicesW names), `GET /api/displays`,
+  `POST /api/present/screen` → `DESKTOP.present_on(rect)`; settings `audienceDisplay`, `audienceAuto`.
+- Stage screen `app/stage-display.html` (+ js/css) reading `live.stageMsg`; allowed for phone-remote devices.
+- `app/js/service-tools.js`: Themes (setting `themes`), video play-once + time left (`/api/media/duration`), Show a
+  verse (`KCQuickVerse`, `SC.splitPassage`), discussion countdown + Breakout (`SC.discussion`, `question.at`).
+- `app/js/service-screens.js`; library entries Welcome Loop / Song / Sermon / Offering; Quick Start `sunday`.
+- Typed answers: migration `0026_room_answers.sql` (+ rollback, PGlite test): `pc_room_answers_open/close/list`,
+  `room_prompt`, `room_answer`. `src/room_answers.py`, `GET/POST /api/room/answers`, `app/js/answers.js`, the /follow
+  answer box. Answers shown join shared notes (“What we shared”).
+- Lesson import: optional Reading Frame with every passage.
+
+### Changed
+- `smartNext` defaults to on; `flowPreset` (Q / S / Both) sets a Frame's first step; Auto steps the order
+  (`live.flow.t`, `auto.loop`). Next names its target. Run order panel view (`#ro-large`).
+- One Import menu (`KCImport`), grouped Add menu (`KCAddContent`), one status pill (`body.dataset.sys`, `kc-sys`),
+  top-bar Go Live / Prev / Next hidden in the Studio where the rail has them, Frames panel header split.
+- Static files: ETag/304 and gzip (`StaticCache`), WOFF2 fonts, `api/app/info` fetch de-duplicated, one shared ticker
+  (`KCTick`), lazy run-order / lesson-import / meeting-summary (`KCLazy`).
+
+### Fixed
+- Design in Simple switches to Advanced; slides and pictures count as on screen in the pill.
+
 ## [26.11.56] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.56.md](releases/v26.11.56.md).

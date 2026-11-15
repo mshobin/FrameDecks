@@ -29,6 +29,7 @@ test("every table has at least one policy and none is open to anon", () => {
     "room_responses", "room_votes", // 0022: only the quick responses and polls functions touch them
     "device_alerts", // 0023: written by triggers, read by device_alerts_recent and taken by the device-alert function
     "room_slides", // 0025: only the members' phones slide functions touch it
+    "room_answer_prompts", "room_answers", // 0026: only the typed answers functions touch them
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -80,6 +81,10 @@ const ANON_BY_DESIGN = [
   "pc_room_response_open",
   "pc_room_response_close",
   "pc_room_response_results",
+  // 0026: the church PC asks for typed answers in its members' room, closes it and reads them, by its key
+  "pc_room_answers_open",
+  "pc_room_answers_close",
+  "pc_room_answers_list",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
@@ -100,7 +105,8 @@ const PUBLIC_PRAYER = ["prayer_peek", "prayer_send"];
 // only its code; wrong codes are limited.
 // 0022: they also read the room's open question (counts only when the leader shows them) and answer it once per phone
 // (only a hash of the phone's own id is kept), with only the code; wrong codes are limited.
-const PUBLIC_ROOM = ["room_view", "room_response", "room_respond", "room_slides", "room_slide"]; // 0025: the slides shown, by code
+const PUBLIC_ROOM = ["room_view", "room_response", "room_respond", "room_slides", "room_slide", // 0025: the slides shown, by code
+  "room_prompt", "room_answer"]; // 0026: the prompt for typed answers and one answer per phone, by code
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];

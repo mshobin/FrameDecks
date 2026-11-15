@@ -1,0 +1,16 @@
+/* FrameDecks 26.11.57 - the stage screen (stage-display.html): large, calm, readable from the back of a stage */
+body.sd{margin:0;min-height:100vh;background:var(--app-bg);color:var(--ink);font-family:var(--sans,inherit)}
+.sd-main{display:flex;flex-direction:column;gap:20px;min-height:100vh;padding:24px 32px;box-sizing:border-box}
+.sd-top{display:flex;align-items:center;gap:20px;font-size:24px;color:var(--muted)}
+.sd-where{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sd-left{padding:4px 16px;border-radius:999px;background:var(--panel-2);color:var(--ink);font-variant-numeric:tabular-nums}
+.sd-left.over{background:var(--red-soft);color:var(--red)}
+.sd-clock{font-size:30px;color:var(--ink);font-variant-numeric:tabular-nums}
+.sd-msg{margin:0;padding:16px 20px;border-radius:var(--r-3);background:var(--gold-soft);color:var(--gold);font-size:30px;font-weight:700;text-align:center}
+.sd-now{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+.sd-k{font-size:16px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sd-text{font-size:clamp(30px,5.4vw,72px);font-weight:700;line-height:1.25;white-space:pre-line}
+.sd-next{padding:16px 20px;border:1px solid var(--line);border-radius:var(--r-3);background:var(--panel)}
+.sd-ntext{font-size:clamp(20px,2.6vw,36px);line-height:1.3;color:var(--muted);white-space:pre-line}
+.sd-ntext b{color:var(--ink)}
+.sd-auth{margin:0;font-size:20px;color:var(--warn)}

@@ -1,0 +1,46 @@
+/* FrameDecks 26.11.57 - the Song Library (js/songs.js): the songs on the left, the song being edited on the right */
+.sg-dlg{width:min(1120px,96vw)}
+.sg-cols{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:16px;min-height:0}
+.sg-side,.sg-ed{display:flex;flex-direction:column;gap:10px;min-width:0}
+.sg-search{width:100%}
+.sg-acts{display:flex;flex-wrap:wrap;gap:6px}
+.sg-list{display:flex;flex-direction:column;gap:6px;max-height:52vh;margin:0;padding:0 4px 0 0;overflow:auto;list-style:none}
+.sg-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:8px 10px;border:1px solid var(--line-soft);border-radius:var(--r-2);background:var(--panel-2);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.sg-item:hover{border-color:var(--line-hover)}
+.sg-item.on{border-color:var(--gold);background:var(--gold-soft)}
+.sg-item b{font-size:14px}
+.sg-item span{max-width:100%;overflow:hidden;color:var(--muted);font-size:13px;text-overflow:ellipsis;white-space:nowrap}
+.sg-item small{color:var(--faint);font-size:12px}
+.sg-empty{display:flex;flex-direction:column;gap:4px;padding:12px;border:1px dashed var(--line);border-radius:var(--r-2);color:var(--muted);font-size:13px}
+.sg-empty b{color:var(--ink)}
+.sg-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:auto}
+.sg-licf{flex:1}
+.sg-row{display:flex;flex-wrap:wrap;gap:10px}
+.sg-row > .sg-f{flex:1 1 160px}
+.sg-row > .sg-wide{flex:3 1 260px}
+.sg-row > .sg-key{flex:0 0 80px}
+.sg-f{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:12px;color:var(--muted)}
+.sg-f input,.sg-f textarea{width:100%;font-size:14px}
+.sg-words{min-height:220px;font-family:inherit;line-height:1.45;resize:vertical}
+.sg-parts{display:flex;flex-wrap:wrap;gap:6px;min-height:24px}
+.sg-part{padding:2px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:12px}
+.sg-miss{color:var(--warn);font-size:12px}
+.sg-edacts{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sg-table{width:100%;border-collapse:collapse;font-size:13px}
+.sg-table th,.sg-table td{padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:left}
+.sg-rep{width:min(640px,94vw)}
+@media (max-width:820px){ .sg-cols{grid-template-columns:1fr} .sg-list{max-height:28vh} }
+/* 26.11.57 Themes (js/service-tools.js), the video's time left and the Show a verse box above Next */
+.th-dlg{width:min(760px,96vw)}
+.th-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.th-ic{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-2);background:var(--gold-soft);color:var(--gold)}
+.th-t{display:flex;flex:1 1 200px;flex-direction:column;min-width:0}
+.th-t small{overflow:hidden;color:var(--muted);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.th-dim{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+.vid-left{margin:0;padding:6px 10px;border-radius:var(--r-1);background:var(--panel-2);color:var(--ink);font-size:13px;font-variant-numeric:tabular-nums}
+.qv-form{display:flex}
+.qv-form input{width:100%;font-size:13px}
+.stage-link{padding:2px 8px;border-radius:var(--r-1);background:var(--panel-2);font-size:12px}
+/* 26.11.57 the discussion countdown above Next, with Breakout */
+.disc-left{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.disc-left.over{color:var(--gold)}

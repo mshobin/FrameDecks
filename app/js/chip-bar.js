@@ -26,8 +26,8 @@ var EXISTING = {prompter: 'lb-prompter', capture: 'lb-capture', black: 'lb-black
 /* what the others do in the app */
 var DO = {
   meetings: function(){ if (window.KCPalette) window.KCPalette.open('#'); },
-  share: function(){ runKey('cmd:share'); }, quick: function(){ runKey('cmd:quick'); }, library: function(){ runKey('cmd:library'); },
-  import: function(){ runKey('cmd:frameimport'); }, camera: function(){ runKey('set:vcam'); },
+  share: function(){ runKey('cmd:share'); }, quick: function(){ runKey('cmd:quick'); }, library: function(){ runKey('cmd:library'); }, songs: function(){ runKey('cmd:songs'); },
+  import: function(){ if (window.KCImport) window.KCImport.open(document.querySelector('#lb-chips [aria-expanded="true"]')); }, camera: function(){ runKey('set:vcam'); },
   cards: function(){
     if (window.KCSetTab) window.KCSetTab('studio');
     var dlg = $('mem-dlg');                             // 26.11.49 Capture Chats opens as a window (no longer below Decks)

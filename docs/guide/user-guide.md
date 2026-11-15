@@ -26,11 +26,11 @@ The **command bar** across the top holds everything you need live:
 | Part | What it does |
 | --- | --- |
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
-| ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
+| ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame. In the Studio these live in the big button of the right rail, which says where Next goes (*Next ▸ Chorus*); the top bar shows them on the Members and Settings tabs (26.11.57) |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
 | Prepare · Engage · Control · Notes · More | The five chips (in place of Live tools), the same as in the Command Center and on the phone remote. Each opens a panel under it; **Esc** closes it. **Prepare**: meetings, **Teleprompter** (R), share, Quick Start, library, import, camera. **Engage**: Memory Cards, Capture copies, **Draw** and **Spotlight** (on the desktop app they open the Command Center on Engage with that tool ready, or the Share Window when people see a shared window), clear drawings, hide cards. **Control**: Hide the selected Content, **Black screen** (K), **Freeze the picture** (F), Emergency screen. **Notes**: your private notes for this meeting. **More**: settings and help |
 | Hide all **Esc** | Hide everything. The **Esc** key is shown inside the button |
-| ● Off air / LIVE | What is on screen now |
+| ● Ready / Live / LIVE | What is on screen now. Press it to see every output (camera, Share Window, overlays); a separate warning shows only when something needs you (26.11.57) |
 | Window buttons | Minimize, Maximize / Restore and Close, at the top right |
 
 **Search and commands.** The command bar has no search box. Press **Ctrl+K** or **Ctrl+Space** for the **command
@@ -70,6 +70,36 @@ Birthdays), **Screens & camera** (How people see it, FrameDecks vCam, Projector 
 (General, Phone & iPad Remote, Keyboard shortcuts), **Workspace & privacy** (Sync, Security) and **Data &
 help** (Data / Backup, Diagnostics, About). A group's pages are tabs under its title; **Find a setting** searches all
 of them.
+
+### A whole service (26.11.57)
+- **Song Library** (Prepare → Song Library, or the command palette): keep every song once. **Paste the words** and
+  FrameDecks splits them into verses and choruses (*[Verse 1]*, *Chorus:* or a blank line), or use **Import…**
+  (text, ChordPro or OpenLyrics files) or **From PowerPoint** (the selected Frame's slides). Each song has its author,
+  copyright and CCLI number; type your church's **CCLI licence** once, at the bottom of the list, and the credit line
+  shows on screen. **Arrangement** repeats parts without copying words (*V1 C V2 C B C*).
+  **Add to this Frame** or **Add as a new Frame** puts it in the meeting. While it is live, press **1–9** for a verse, **C** chorus, **B**
+  bridge, **P** pre-chorus, **E** ending. **Usage report** lists the songs used in a month (each once per service) for
+  your CCLI report.
+- **The room screen:** Settings → How people see it → Projector, TV and OBS → **Room screen (projector or TV)**: choose
+  the screen by its name. **Open on it now** opens the Share Window full screen there; with **Go Live opens the Share
+  Window full screen on this screen** ticked, Go Live does it for you.
+- **Stage screen for musicians and speakers** (the box below it): **Open on this PC**, or open its link on a tablet
+  signed in to the phone remote. It shows what is on screen now, what comes next, the clock and the time left. Type a
+  **Message** and press **Show** (or *Message to the stage screen* in the command palette).
+- **Themes** (Settings → Meeting & Branding → Themes, or the palette): one picture or looping video behind every song,
+  scripture or announcement. **Apply to this meeting** puts it behind each such Frame; songs added later get it too.
+- **Videos:** in a video's settings, **When it ends** → **Play once, then Next**: the time left shows above Next and the
+  next step follows by itself.
+- **Show a verse:** while live, type a reference in the box above Next (*Rom 8 28*) and press **Enter**. A long passage
+  is split into parts that fit; Next shows the rest.
+- **Sunday Service** in Quick Start: a **Welcome Loop** (a countdown with announcements taking turns; when it reaches
+  zero the service starts), songs, the reading, the message, the offering and the blessing.
+- **One order per Frame:** **Question · Scripture · Both** chooses what comes first, **Set order** sets every step, and
+  **Smart Next** (on by default) walks a Frame's scripture and questions before the next Frame. **Auto** steps through
+  the order on a timer and can loop it. **Run order** opens beside the Frames list; **Open large** gives the big view.
+- **Import** (one menu) takes a PowerPoint, a lesson, an Excel file or a .frame file. **Add** groups Content by
+  **Worship**, **Word**, **Church life** and **Camera and screen**.
+- While live in Simple, the editor folds away to give the stage room; open it again any time.
 
 ## 2. Frames and Content
 - **Meeting:** with several meetings, the meetings are tabs above the Frames, each with its date and number of
@@ -291,6 +321,16 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
   or below your logo on the Branding badge while members' phones is open.
 - **Polls**: ask yes or no, a choice or a 1–5 rating; members answer on their phones and **Show** puts the answers
   on screen.
+- **Typed answers** (26.11.57; command palette → *Typed answers*, or **Ask for typed answers instead** in Polls): ask
+  everyone to type a short answer (*What stood out to you?*). Phones get a box under the screen, one answer each, no
+  names. Answers arrive in the Studio, newest first; **Show** puts the one you choose on screen as a Memory Card, with
+  the question as its title. When you share the notes, the answers you showed are added as **What we shared**.
+- **Discussion minutes** (26.11.57): in a question's editor, **Discussion minutes** gives it a time. When the question
+  is shown, the time left counts down above Next and on the stage screen, and FrameDecks tells you when it is up.
+  **Breakout** puts the countdown on screen (at the top) with the question kept visible, for breakout rooms or table
+  groups; phones following the meeting see the question too.
+- **A co-leader can take over:** give them the phone remote (Settings → Phone & iPad Remote, or search *hand over* in
+  the command palette). Their Next, Previous and Go Live work alongside yours.
 - Prayer requests wait in the list for you. Nothing is shown unless you choose it, and a name only if you choose.
 - It needs this PC connected to your workspace (Settings → Sync). In Settings → Features these switches are together
   under **On members' phones**.
@@ -307,6 +347,8 @@ PDF, a Word file (.docx) or a text file.
   (*Genesis 13*) is offered but not ticked, because it is long on screen.
 - **Make Frames** creates one Frame per part with a Scripture and a Question Content, and sets the order:
   the scripture first, then the questions (turn this off in the dialog). **Undo this import** puts the meeting back.
+- A lesson with several days can start with a **Reading Frame** (26.11.57): one Frame with every passage of the
+  week, in order, before the Frame for each day.
 - Headers, footers and page numbers are left out. A scanned lesson (pictures of pages) has no text to read: use the
   lesson's PDF from its website, or type the questions in.
 

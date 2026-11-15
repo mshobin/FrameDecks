@@ -2,7 +2,7 @@
  * field first, then what is on screen, Previous / Next and the meeting's own controls in large, clear buttons.
  * Frosted glass comes from Windows behind the window (desktop_win.glass) when it is there, so the program draws no
  * blur itself; otherwise the panel is solid. Theme tokens only (dark and light). Motion: a short press, nothing loops. */
-@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:400 900;font-display:swap}
+@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.woff2') format('woff2'),url('../fonts/SourceSans3.ttf') format('truetype');font-weight:400 900;font-display:swap}
 body.spotlight{font-family:var(--sans,'KC Sans','Segoe UI',system-ui,sans-serif);-webkit-font-smoothing:antialiased}
 body.spotlight .pal{border-radius:0}
 html.kc-glass body.spotlight{background:transparent}

@@ -15,6 +15,7 @@ from errlog import swallowed as _swallowed  # noqa: E402
 import atexit
 import base64
 import hashlib
+import gzip
 import json
 import os
 import platform
@@ -42,6 +43,7 @@ import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
+import songbook       # 26.11.57 the Song Library (one per church, on this PC)
 import meeting_log  # 26.11.23 what was shown, for the meeting summary
 import features as FEAT   # 26.11.31 features you switch on or off (Settings > Start here > Features)
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
@@ -54,7 +56,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.56"
+APP_VERSION = "26.11.57"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -111,7 +113,9 @@ REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay
                     "/api/slides", "/api/slides/thumb",
                     "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
                     "/api/remote/meeting-key", "/api/remote/voice-commands",
-                    "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
+                    "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html",
+                    # 26.11.57 the stage screen for musicians and speakers, on a tablet signed in to the phone remote
+                    "/stage-display.html", "/js/stage-display.js", "/css/stage-display.css", "/css/dashboard.css", "/css/theme.css"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
 login_lock = threading.Lock()   # 9.1.2 one PIN check at a time: parallel guesses cannot slip past the lockout
@@ -482,6 +486,7 @@ def update_state(change):
 # ---------- 9.0 Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
 MEMORY = memory.Memory(DATA / "kc-memory.json")
 NOTES = meeting_notes.Notes(str(DATA / "notes"))   # 9.12 one file per meeting, this PC only
+SONGS = songbook.Songbook(str(DATA / "kc-songs.json"))   # 26.11.57 the Song Library
 MEETING_LOG = meeting_log.MeetingLog(str(DATA / "meetings-log"))   # 26.11.23 one file per meeting run, this PC only
 atexit.register(MEETING_LOG.flush)
 
@@ -1203,6 +1208,32 @@ def room_response_http(handler, data=None):
     return handler.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
 # ---------- end of 26.11.33 quick responses and polls ----------
 
+# ---------- 26.11.57 typed answers from members' phones (src/room_answers.py; 0026_room_answers.sql) ----------
+import room_answers  # noqa: E402
+
+ANSWERS = room_answers.RoomAnswers(lambda: SYNC._team(), room_open=lambda: ROOM.is_open())
+
+
+def room_answers_http(handler, data=None):
+    """GET /api/room/answers (the prompt and its answers, polled by the dialog) and POST {op: open|close|show}
+    (this PC only). Show puts one answer on screen as a Memory Card, without a name."""
+    if not handler.is_local():
+        return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+    try:
+        if data is None:
+            ANSWERS.refresh()
+            res = ANSWERS.body()
+        else:
+            if isinstance(data, dict) and data.get("op") == "open" and not feature_on("responses"):
+                return handler.reply(409, json.dumps({"error": "Polls and responses are switched off in Settings > Features."}), TYPES[".json"])
+            res = _linked(lambda: ANSWERS.action(data if isinstance(data, dict) else {}, _prayer_card, MEETING_LOG.count))
+    except cloud_sync.Offline as e:
+        return handler.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
+    except (ValueError, OSError) as e:
+        return handler.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+    return handler.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+# ---------- end of 26.11.57 typed answers ----------
+
 
 def _alert_show(on):
     hook = DESKTOP.get("alert_card")
@@ -1280,6 +1311,9 @@ def members_action(data):
             raise ValueError("There is nothing to share yet: notes are made from a meeting that was live.")
         if data.get("slides", True) is not False:          # 26.11.48 phones add the slides shown (0025) as a handout
             notes = dict(notes, slides=True)
+        shared = ANSWERS.notes_section()                  # 26.11.57 the typed answers shown on screen
+        if shared:
+            notes = dict(notes, sections=list(notes["sections"]) + [shared])
         ROOM.share_notes(notes)
     elif op == "share-moment":                         # 26.11.28 the summary's Moment, as a one-section set of notes
         ROOM.share_notes(moment_notes(data.get("moment")))
@@ -1691,9 +1725,19 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          # key) or a hold button, say "next frame"
                          "voiceCommands": False,
                          # 26.11.22 Smart Next: Next shows the live Frame's questions, then its scriptures, then the next
-                         # Frame (off: Next always goes to the next Frame); and soft sounds on Go Live and Next (off)
-                         "smartNext": False,
+                         # Frame (off: Next always goes to the next Frame); and soft sounds on Go Live and Next (off).
+                         # 26.11.57 Smart is the default order of a Frame without Set order (one order per Frame)
+                         "smartNext": True,
                          "uiSounds": False,
+                         # 26.11.57 the church's CCLI licence number (shown with each song's credit; the usage report),
+                         # the room screen chosen by name (Settings > How people see it) and whether Go Live opens
+                         # the Share Window full screen on it; the stage screen for musicians (stage-display.html)
+                         "ccliLicence": "",
+                         "audienceDisplay": "",
+                         "audienceAuto": False,
+                         # 26.11.57 one background per kind of Content (song, scripture, announcement): a picture or
+                         # video from the media folder and how much it is dimmed, put behind every such Frame
+                         "themes": {},
                          # 26.11.24 Listen for scripture also hears the meeting's own sound (members on Zoom or Teams);
                          # what they say is always offered first, never shown by Auto
                          "scriptureMeeting": False,
@@ -1760,6 +1804,15 @@ def _valid_setting(k, v):
         return isinstance(v, str) and len(v) <= 24 and voice_commands.valid_key(v)
     if k == "voiceSensitivity":
         return isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 5
+    if k == "themes":                    # 26.11.57 {song|scripture|announcement: {file, kind: image|video, dim 0-0.8}}
+        return isinstance(v, dict) and len(v) <= 3 and all(
+            t in ("song", "scripture", "announcement") and isinstance(x, dict) and isinstance(x.get("file"), str) and len(x["file"]) <= 200
+            and x.get("kind") in ("image", "video") and isinstance(x.get("dim", 0), (int, float)) and 0 <= x.get("dim", 0) <= 0.8
+            for t, x in v.items())
+    if k == "ccliLicence":               # 26.11.57 digits (and a dash or space) only
+        return isinstance(v, str) and len(v) <= 20 and re.fullmatch(r"[0-9 -]*", v) is not None
+    if k == "audienceDisplay":           # 26.11.57 a display's name as Windows gives it
+        return isinstance(v, str) and len(v) <= 120 and "\x00" not in v
     return False
 
 
@@ -2926,6 +2979,47 @@ member_room.SLIDE = phone_slide
 member_room.SLIDE_FULL = phone_slide_full
 
 
+def video_seconds(path):
+    """26.11.57 how long a video plays, in seconds (0 when it cannot be read)."""
+    try:
+        import cv2
+        cap = cv2.VideoCapture(str(path))
+        try:
+            frames, fps = cap.get(cv2.CAP_PROP_FRAME_COUNT), cap.get(cv2.CAP_PROP_FPS)
+        finally:
+            cap.release()
+        return round(frames / fps, 1) if fps and frames and fps > 0 else 0
+    except Exception as e:
+        _swallowed("server.video_seconds", e)
+        return 0
+
+
+def displays_now():
+    """26.11.57 the screens connected now (Windows), for choosing the room screen by name; [] elsewhere."""
+    try:
+        from vcam.screen import displays
+        return displays()
+    except Exception as e:
+        _swallowed("server.displays_now", e)
+        return []
+
+
+def present_on_screen(key=None):
+    """26.11.57 open the Share Window full screen on the room screen: the one chosen in Settings (or `key`). The
+    window itself does the work (desktop_app.present_on); here only which screen and a plain answer."""
+    key = str(key or app_settings().get("audienceDisplay") or "")
+    if not key:
+        return False, "Choose the room screen first (Settings > How people see it > Projector, TV and OBS)."
+    found = next((d for d in displays_now() if d["key"] == key), None)
+    if not found:
+        return False, "That screen is not connected now. Check its cable, then try again."
+    fn = DESKTOP.get("present_on")
+    if not fn:
+        return False, "The Share Window opens from the FrameDecks program on Windows."
+    threading.Thread(target=fn, args=(found["rect"],), daemon=True, name="present-on").start()
+    return True, "The Share Window is opening full screen on " + found["name"] + "."
+
+
 def slides_notes(name):
     """26.11.45 a deck's slides as notes members keep on their phones: one section per slide (its title and text)."""
     info = slides.info(LAYERS_DIR, name)
@@ -3507,6 +3601,37 @@ TYPES = {
 }
 
 
+class StaticCache:
+    """26.11.57 The program's own files with their ETag and a gzip copy for text, kept until the file changes."""
+    PACK = (".js", ".css", ".json", ".svg", ".txt")
+
+    def __init__(self, most=400):
+        self.lock = threading.Lock()
+        self.items = {}
+        self.most = most
+
+    def get(self, target):
+        st = target.stat()
+        key = str(target)
+        stamp = (st.st_mtime_ns, st.st_size)
+        with self.lock:
+            hit = self.items.get(key)
+            if hit and hit[0] == stamp:
+                return hit[1]
+        body = target.read_bytes()
+        etag = '"%x-%x"' % (st.st_mtime_ns, st.st_size)
+        packed = gzip.compress(body, 6, mtime=0) if target.suffix.lower() in self.PACK and len(body) > 1024 else None
+        entry = (body, etag, packed)
+        with self.lock:
+            if len(self.items) >= self.most:
+                self.items.clear()
+            self.items[key] = (stamp, entry)
+        return entry
+
+
+static_cache = StaticCache()
+
+
 class Handler(BaseHTTPRequestHandler):
     timeout = 90             # 9.1.2 an idle or trickling connection is closed (long-polls answer within 25 s)
 
@@ -3541,7 +3666,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        if not any(k == "Cache-Control" for k, _v in (headers or [])):
+            self.send_header("Cache-Control", "no-store")
         self.end_headers()
         try:
             self.wfile.write(body)
@@ -3818,6 +3944,13 @@ class Handler(BaseHTTPRequestHandler):
             if not f.name or not f.is_file():
                 return self.reply(404, "Not found", "text/plain; charset=utf-8")
             return self.reply(200, f.read_bytes(), "application/octet-stream", [("Cache-Control", "no-store")])
+        if path == "/api/media/duration":                # 26.11.57 a video's length, for "Play once, then Next" (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            f = LAYERS_DIR / Path(parse_qs(url.query).get("name", [""])[0]).name
+            if not f.name or not f.is_file():
+                return self.reply(404, json.dumps({"error": "That file is not on this PC."}), TYPES[".json"])
+            return self.reply(200, json.dumps({"seconds": video_seconds(f)}), TYPES[".json"])
         if path == "/api/media/audio":                   # M-D4: an Audio Content's file, for the program window (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3958,6 +4091,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps(members_body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/room/response":                # 26.11.33 quick responses and polls (this PC only)
             return room_response_http(self)
+        if path == "/api/room/answers":                 # 26.11.57 typed answers from phones (this PC only)
+            return room_answers_http(self)
         if path == "/api/alerts":                       # 26.11.25 the corner card (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3982,6 +4117,23 @@ class Handler(BaseHTTPRequestHandler):
             if q.get("format", [""])[0] == "text":
                 return self.reply(200, meeting_log.as_text(s), "text/plain; charset=utf-8")
             return self.reply(200, json.dumps({"summary": s}), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/displays":                     # 26.11.57 the screens connected now (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            cfg = app_settings()
+            return self.reply(200, json.dumps({"displays": displays_now(), "chosen": cfg.get("audienceDisplay", ""),
+                                               "auto": bool(cfg.get("audienceAuto"))}), TYPES[".json"])
+        if path in ("/api/songs", "/api/songs/report"):   # 26.11.57 the Song Library (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            if path == "/api/songs/report":
+                return self.reply(200, json.dumps(SONGS.report(q.get("month", [""])[0])), TYPES[".json"])
+            one = q.get("id", [""])[0]
+            if one:
+                song = SONGS.get(one)
+                return self.reply(200 if song else 404, json.dumps(song or {"error": "That song is not in the library."}), TYPES[".json"])
+            return self.reply(200, json.dumps({"songs": SONGS.list(q.get("q", [""])[0]), "licence": app_settings().get("ccliLicence", "")}), TYPES[".json"])
         if path == "/api/notes":                        # 9.12 the leader's notes (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -4015,10 +4167,29 @@ class Handler(BaseHTTPRequestHandler):
             path = "/dashboard.html"
         target = (APP / path.lstrip("/")).resolve()
         if APP.resolve() in target.parents and target.is_file():
-            data = target.read_bytes()
-            extra = [(CSP_HEADER, page_csp(data)), PAGE_FRAME_HEADER] if target.suffix.lower() == ".html" else None
-            return self.reply(200, data, TYPES.get(target.suffix.lower(), "application/octet-stream"), extra)
+            if target.suffix.lower() == ".html":
+                data = target.read_bytes()
+                extra = [(CSP_HEADER, page_csp(data)), PAGE_FRAME_HEADER]
+                return self.reply(200, data, TYPES[".html"], extra)
+            return self.static_file(target)
         self.reply(404, "Not found", "text/plain; charset=utf-8")
+
+    def static_file(self, target):
+        """26.11.57 Scripts, styles, fonts and pictures: the browser keeps a copy and asks "still the same?" (ETag), so
+        a page and its preview frames do not download the same file again; text files travel gzip-compressed."""
+        body, etag, packed = static_cache.get(target)
+        cache = "public, max-age=604800" if target.suffix.lower() in (".woff2", ".ttf") else "no-cache"
+        headers = [("ETag", etag), ("Cache-Control", cache), ("Vary", "Accept-Encoding")]
+        if self.headers.get("If-None-Match", "") == etag:
+            self.send_response(304)
+            for k, v in headers:
+                self.send_header(k, v)
+            self.end_headers()
+            return None
+        if packed is not None and "gzip" in self.headers.get("Accept-Encoding", ""):
+            body = packed
+            headers.append(("Content-Encoding", "gzip"))
+        return self.reply(200, body, TYPES.get(target.suffix.lower(), "application/octet-stream"), headers)
 
     def origin_ok(self):
         # Extra protection: requests made by other websites are refused
@@ -4534,6 +4705,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/room/response":                # 26.11.33 quick responses and polls (this PC only)
             return room_response_http(self, data if isinstance(data, dict) else {})
+        if path == "/api/room/answers":                 # 26.11.57 typed answers from phones (this PC only)
+            return room_answers_http(self, data if isinstance(data, dict) else {})
         if path == "/api/slides":                       # 26.11.45 go to a slide, step, search (the phone remote too)
             try:
                 res = slides_action(data if isinstance(data, dict) else {})
@@ -4549,6 +4722,19 @@ class Handler(BaseHTTPRequestHandler):
             except cloud_sync.Offline as e:
                 return self.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
             except (ValueError, OSError) as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"])
+        if path == "/api/present/screen":               # 26.11.57 the Share Window full screen on the room screen
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            ok, msg = present_on_screen((data or {}).get("key") if isinstance(data, dict) else None)
+            return self.reply(200 if ok else 400, json.dumps({"ok": ok, "message": msg} if ok else {"error": msg}), TYPES[".json"])
+        if path == "/api/songs":                        # 26.11.57 the Song Library (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                res = songbook.action(SONGS, data if isinstance(data, dict) else {})
+            except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"])
         if path == "/api/notes":

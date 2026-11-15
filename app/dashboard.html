@@ -20,8 +20,6 @@
 <link rel="stylesheet" href="css/responses.css"><!-- 26.11.33 polls -->
 <link rel="stylesheet" href="css/slides.css"><!-- 26.11.45 every slide at once -->
 <link rel="stylesheet" href="css/edit-preview.css"><!-- 26.11.50 type in the preview, Settings as cards -->
-<link rel="stylesheet" href="css/lesson-import.css"><!-- 26.11.54 Import a lesson -->
-<link rel="stylesheet" href="css/run-order.css"><!-- 26.11.56 Run order -->
 <script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
    framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
 (function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
@@ -31,6 +29,7 @@
   d.dataset.themePref = p; d.dataset.lookPref = lk; d.dataset.look = lk === 'workspace' ? wl : lk;
   d.dataset.theme = lk === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
 })();</script>
+<link rel="stylesheet" href="css/songs.css"><!-- 26.11.57 the Song Library -->
 </head>
 <body>
 
@@ -122,11 +121,7 @@
 <div class="ws" id="studio-ws">
   <aside class="ws-left" aria-label="Frames and Content">
     <section class="pane scenes-pane" aria-labelledby="scenes-title">
-      <header class="pane-head"><h2 id="scenes-title">Frames</h2>
-        <!-- 26.11.41 Sync, as on framedecks.com: a preview of what changes first (js/frames-sync.js) -->
-        <button class="btn small fs-btn" type="button" id="frames-sync" title="Sync with framedecks.com: see what changes first, then Sync now. Nothing is added twice."><i data-icon="refresh-cw" data-size="15"></i> Sync</button>
-        <button class="btn small qs-btn" type="button" id="quick-start" title="Quick Start: a ready-made set of Frames for a Bible study, prayer meeting, youth gathering or fellowship"><i data-icon="sparkles" data-size="15"></i> Quick Start</button>
-        <button class="btn primary small" type="button" id="scene-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Frame</button></header>
+      <!-- 26.11.57 the meeting first (switch, rename, New, Next week, Sync), then the Frames of it (+ Frame, Run order) -->
       <div class="mt-bar" id="mt-bar">
         <!-- 26.11.49 the meetings as tabs (date and Frames on each); the list stays for keyboards and older code -->
         <div class="mt-tabs" id="mt-tabs" role="tablist" aria-label="Meetings"></div>
@@ -134,11 +129,16 @@
         <p class="mt-up" id="mt-up" aria-live="polite"></p>
         <button class="btn small quiet" type="button" id="mt-rename" title="Rename this meeting" aria-label="Rename this meeting"><i data-icon="pencil" data-size="14"></i></button>
         <button class="btn small quiet mt-del" type="button" id="mt-delete" title="Delete this meeting with all its Frames, Decks and Content" aria-label="Delete this meeting"><i data-icon="trash-2" data-size="14"></i></button>
+        <!-- 26.11.41 Sync, as on framedecks.com: a preview of what changes first (js/frames-sync.js) -->
+        <button class="btn small fs-btn" type="button" id="frames-sync" title="Sync with framedecks.com: see what changes first, then Sync now. Nothing is added twice."><i data-icon="refresh-cw" data-size="15"></i> Sync</button>
         <button class="btn small" type="button" id="mt-new" title="A new meeting with its own Frames" aria-label="New meeting"><i data-icon="plus" data-size="14"></i> New</button>
         <button class="btn small quiet" type="button" id="mt-next" title="Next week from this meeting: the same Frames, a week later, with the scripture and questions left empty to fill in" aria-label="Next week from this meeting"><i data-icon="calendar-days" data-size="14"></i> Next week</button>
-        <!-- 26.11.56 the whole meeting as one list: each Frame's steps and slides, drag to reorder (js/run-order.js) -->
-        <button class="btn small quiet" type="button" id="mt-run" title="Run order: every Frame of this meeting in the order Next walks them, with its steps and slides. Drag to reorder."><i data-icon="list" data-size="14"></i> Run order</button>
       </div>
+      <header class="pane-head"><h2 id="scenes-title">Frames</h2>
+        <button class="btn small qs-btn" type="button" id="quick-start" title="Quick Start: a ready-made set of Frames for a Bible study, prayer meeting, youth gathering or fellowship"><i data-icon="sparkles" data-size="15"></i> Quick Start</button>
+        <!-- 26.11.56 the whole meeting as one list: each Frame's steps and slides, drag to reorder (js/run-order.js) -->
+        <button class="btn small quiet" type="button" id="mt-run" aria-pressed="false" title="Run order: show the Frames as the order Next walks them, with each one’s steps and slides. Drag to reorder. Click again for the Frames list."><i data-icon="list" data-size="14"></i> Run order</button>
+        <button class="btn primary small" type="button" id="scene-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Frame</button></header>
       <div class="pane-tools">
         <input type="search" id="scene-search" placeholder="Search Frames" aria-label="Search Frames">
         <div class="chips sfilter" id="scene-filter" role="tablist" aria-label="Show">
@@ -700,12 +700,9 @@
 <script src="js/meeting-sheet.js"></script>
 <script src="js/meeting-book.js"></script>
 <script src="js/meeting-import.js"></script>
-<script src="js/lesson-import.js"></script>
-<script src="js/run-order.js"></script>
 <script src="js/meeting-brand.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/studio-feel.js"></script>
-<script src="js/meeting-summary.js"></script>
 <script src="js/ready-check.js"></script>
 <script src="js/members-phones.js"></script>
 <script src="js/service.js"></script>
@@ -722,6 +719,10 @@
 <script src="js/nametags.js"></script>
 <script src="js/timing.js"></script>
 <script src="js/responses.js"></script><!-- 26.11.33 polls from members' phones -->
+<script src="js/answers.js"></script><!-- 26.11.57 typed answers from members' phones -->
+<script src="js/songs-lib.js"></script><script src="js/songs.js"></script><!-- 26.11.57 the Song Library -->
+<script src="js/service-screens.js"></script><!-- 26.11.57 the room screen and the stage screen -->
+<script src="js/service-tools.js"></script><!-- 26.11.57 themes, videos that end, show a verse -->
 <script src="js/slide-sorter.js"></script><!-- 26.11.45 every slide at once -->
 <script src="js/slide-tools.js"></script>
 </body>

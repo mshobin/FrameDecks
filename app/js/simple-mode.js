@@ -7,7 +7,8 @@
  *     Advanced);
  *   - technical lines (camera numbers, Snap to guides, the overlay note) in Advanced;
  *   - the status panel says it in one sentence (js/stage-status.js); its details open on a click;
- *   - the editor shows the words first; Position and size, Look, Animation and Show on sit behind one Design button;
+ *   - the editor shows the words first; Position and size, Look, Animation and Show on are in Advanced (26.11.57: the
+ *     Design button switches to Advanced, so there are two modes, not three);
  *   - the five chips keep their words wherever they fit.
  * The choice is kept for this PC (kc-app-settings.json "studioMode"), and in localStorage so the first paint is right. */
 (function(){
@@ -49,12 +50,11 @@ if (tbar){
   design.type = 'button'; design.className = 'btn small quiet sm-design'; design.id = 'sm-design';
   design.setAttribute('aria-expanded', 'false');
   design.innerHTML = (window.KCIcon ? window.KCIcon('palette', 14) + ' ' : '') + 'Design';
-  design.title = 'Position and size, look, animation and where it shows';
+  design.title = 'Position and size, look, animation and where it shows: opens Advanced';
+  /* 26.11.57 two modes, not three: the design settings are part of Advanced, so Design switches to it */
   design.addEventListener('click', function(){
-    var open = !body.classList.contains('sm-design-open');
-    body.classList.toggle('sm-design-open', open);
-    design.setAttribute('aria-expanded', String(open));
-    window.dispatchEvent(new Event('resize'));          // 26.11.53 the Settings cards rebalance their columns
+    set('advanced', true);
+    if (window.KCActions) window.KCActions.toast('Advanced: every setting of the selected Content is below. Simple brings back the essentials.');
   });
   tbar.appendChild(design);
   if (seg) tbar.appendChild(seg);

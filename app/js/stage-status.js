@@ -68,7 +68,9 @@ function sentence(r, w){
   var frames = SC.order(st).length;
   if (!frames) return ['idle', 'No Frames yet. Add your first Frame to begin.'];
   if (!live) return ['idle', 'Ready. Press Go Live when the meeting starts.'];
-  var shown = st.question.visible || st.verse.visible || st.birthday.visible || SC.liveText(st).length;
+  /* 26.11.57 slides, pictures, video and the camera on screen count too (it said "nothing is showing" over slides) */
+  var media = (live.layers || []).some(function(l){ return l.visible && SC.isMedia(l.kind); }) || !!(st.live && st.live.deck && st.live.deck.layer);
+  var shown = st.question.visible || st.verse.visible || st.birthday.visible || SC.liveText(st).length || media;
   if (!shown) return ['warn', 'Live, but nothing is showing yet. Press Show on a question or verse below.'];
   if (w.length) return ['warn', w[0][1] + '.'];
   return ['live', 'All good. People see \u201c' + live.name + '\u201d.'];
@@ -102,7 +104,7 @@ if (sumBtn) sumBtn.addEventListener('click', function(){
   sumBtn.title = open ? 'Hide the details' : 'Show the details';
 });
 Store.subscribe(function(st){ cur = st; paint(); });
-setInterval(paint, 1000);
+KCTick.every(1000, paint);
 document.addEventListener('visibilitychange', paint);
 window.KCStageStatus = {paint: paint, rows: rows, warnings: warnings, sentence: sentence};
 })();

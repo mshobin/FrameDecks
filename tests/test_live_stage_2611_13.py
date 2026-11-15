@@ -28,7 +28,7 @@ class LiveStage(unittest.TestCase):
         for b in ("$('lb-next')", "$('cb-take')", "b.click()"):
             self.assertIn(b, self.js)
         self.assertIn("'Go Live'", self.js)
-        self.assertIn("'Next'", self.js)
+        self.assertIn("goT.textContent = 'Next \\u25B8 ' + name;", self.js)   # 26.11.57 Next says where it goes
         self.assertIn("KCActions.showItem", self.js)   # In this Frame uses the same Show
         self.assertNotIn("fetch(", self.js)
 

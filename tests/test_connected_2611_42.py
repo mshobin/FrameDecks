@@ -104,7 +104,7 @@ class GoLive(unittest.TestCase):
         self.assertNotIn("goT.textContent = 'Off air'", ls)
         self.assertIn(".ls-go.is-off{background:var(--live-soft)", read("app/css/theme.css"))
         dash = read("app/js/dashboard.js")
-        self.assertIn("var word = on.length ? 'LIVE' : ls ? 'Live' : 'Off air';", dash)
+        self.assertIn("var word = on.length ? 'LIVE' : ls ? 'Live' : sysOk ? 'Ready' : 'Off air';", dash)   # 26.11.57 Ready
         self.assertIn(".live-ind.framed{border-color:var(--live)", read("app/css/theme.css"))
 
 

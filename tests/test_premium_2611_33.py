@@ -29,7 +29,7 @@ class Songs(unittest.TestCase):
         ws = read("app/js/workspace.js")
         self.assertIn("['song', 'Song', 'music']", ws)
         self.assertIn("function songForm(gen, sc, l, tab, set)", ws)
-        self.assertIn("P['music']", read("app/js/icons.js"))
+        self.assertIn('"music":', read("app/js/icons.js"))   # 26.11.57 in the icon table (the chips need it there)
 
 
 class Timing(unittest.TestCase):

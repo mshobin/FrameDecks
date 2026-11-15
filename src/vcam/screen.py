@@ -35,14 +35,47 @@ def list_monitors():
         user32.GetMonitorInfoW(hmon, ctypes.byref(mi))
         r = mi.rcMonitor
         found.append({"primary": bool(mi.dwFlags & 1), "w": r.right - r.left, "h": r.bottom - r.top,
-                      "left": r.left, "top": r.top})
+                      "left": r.left, "top": r.top, "device": mi.szDevice, "label": monitor_label(mi.szDevice)})
         return 1
     user32.EnumDisplayMonitors(None, None, PROC(cb), 0)
     out = []
     for i, m in enumerate(found):
         out.append({"id": f"display:{i + 1}", "kind": "display", "index": i + 1, "primary": m["primary"],
                     "name": f"Display {i + 1}{' (main)' if m['primary'] else ''} — {m['w']}×{m['h']}",
-                    "rect": (m["left"], m["top"], m["w"], m["h"])})
+                    "rect": (m["left"], m["top"], m["w"], m["h"]), "device": m.get("device", ""), "label": m.get("label", "")})
+    return out
+
+
+def monitor_label(device):
+    """26.11.57 the name the screen gives itself (e.g. "EPSON PJ" or "LG TV"), for choosing the room screen by name.
+    "" when Windows has none (then the display's number is used)."""
+    if os.name != "nt" or not device:
+        return ""
+    from ctypes import wintypes
+
+    class DISPLAY_DEVICEW(ctypes.Structure):
+        _fields_ = [("cb", wintypes.DWORD), ("DeviceName", wintypes.WCHAR * 32), ("DeviceString", wintypes.WCHAR * 128),
+                    ("StateFlags", wintypes.DWORD), ("DeviceID", wintypes.WCHAR * 128), ("DeviceKey", wintypes.WCHAR * 128)]
+    dd = DISPLAY_DEVICEW()
+    dd.cb = ctypes.sizeof(DISPLAY_DEVICEW)
+    try:
+        if ctypes.windll.user32.EnumDisplayDevicesW(device, 0, ctypes.byref(dd), 0):
+            name = dd.DeviceString.strip()
+            return "" if name.lower() in ("generic pnp monitor", "generic non-pnp monitor") else name
+    except Exception:
+        return ""
+    return ""
+
+
+def displays():
+    """26.11.57 the screens connected now, as the Settings list shows them: a name people recognise, the size, which is
+    the main one. The key is the name plus its size, so the same projector is found again next week."""
+    out = []
+    for m in list_monitors():
+        w, h = m["rect"][2], m["rect"][3]
+        base = m.get("label") or "Display %d" % m["index"]
+        out.append({"key": "%s %dx%d" % (base, w, h), "name": "%s — %d×%d%s" % (base, w, h, " (main screen)" if m["primary"] else ""),
+                    "primary": m["primary"], "rect": list(m["rect"]), "index": m["index"]})
     return out
 
 

@@ -341,6 +341,11 @@ function renderEditor(host, kind, sid, l, it){
       var op = h('option', {value: o[0], text: o[1]}); if ((it.mode || '') === o[0]) op.selected = true; mode.appendChild(op); });
     mode.addEventListener('change', function(){ editItemSoon(kind, sid, it.id, {mode: mode.value}); });
     sec.appendChild(fieldEl('Show', mode));
+    /* 26.11.57 discussion time: the leader (and the stage screen) see it count down while the question is on screen */
+    var mins = h('input', {type: 'number', min: '0', max: '120', step: '1', id: 'fl-ed-min', value: window.KCScenes ? String(KCScenes.timerMinutes(it) || '') : '', placeholder: 'none', 'aria-label': 'Discussion minutes'});
+    mins.addEventListener('keydown', stop);
+    mins.addEventListener('change', function(){ var v = Math.max(0, Math.min(120, Math.round(+mins.value || 0))); editItemSoon(kind, sid, it.id, {timer: v ? String(v) : ''}); });
+    sec.appendChild(fieldEl('Discussion minutes', mins, 'While this question is on screen, the time left counts down above Next and on the stage screen.'));
   }
   host.appendChild(h('div', {cls: 'ip-acts fl-ed-acts'}, [
     h('button', {cls: 'btn primary small', type: 'button', html: I('play', 13) + ' Show on screen', onclick: function(){ showItem(kind, sid, it); }}),
@@ -403,7 +408,13 @@ function onVerse(d){
   if (editing && editing.kind === 'verse'){
     var id = editing.id;
     editList('verse', sid, function(x){ var it = x.c.items.filter(function(y){ return y.id === id; })[0]; if (it) Object.assign(it, data); }).then(function(){ sigs.verse = ''; render(); });
-  } else addItem('verse', sid, data);
+  } else {
+    /* 26.11.57 a long passage becomes a few parts that fit on screen (Next walks them), each with its reference */
+    var parts = window.KCScenes && KCScenes.splitPassage ? KCScenes.splitPassage(d.text) : [d.text];
+    if (parts.length < 2) addItem('verse', sid, data);
+    else parts.reduce(function(p, t, i){ return p.then(function(){ return addItem('verse', sid, {ref: d.ref + ' (' + (i + 1) + '/' + parts.length + ')', version: data.version, text: t}); }); }, Promise.resolve())
+      .then(function(){ if (window.KCActions) KCActions.toast(d.ref + ' is long: it is in ' + parts.length + ' parts, so each fits on screen. Next shows them in turn.'); });
+  }
   return true;
 }
 

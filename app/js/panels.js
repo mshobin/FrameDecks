@@ -18,6 +18,9 @@ var left = ws.querySelector('.ws-left'), center = ws.querySelector('.ws-center')
 var scenes = ws.querySelector('.scenes-pane'), layers = ws.querySelector('.layers-pane');
 var KEY = 'kc-layout', DEF = {left: 300, canvas: 66, scenes: 58, c: {left: false, scenes: false, layers: false, insp: false}, autohide: false, wrap: false, wrapW: 380};
 var L = load();
+/* 26.11.57 while live in Simple the editor folds to its header strip so the stage gets the room (not saved: it opens again
+   off air, or with a click on its header, and then stays open for the rest of the meeting) */
+var liveFold = false, liveKept = false, wasLive = false;
 function load(){ try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v && typeof v === 'object') return merge(v); } catch(e){} return merge({}); }
 function merge(v){ return {left: num(v.left, 220, 560, DEF.left), canvas: num(v.canvas, 20, 85, DEF.canvas), scenes: num(v.scenes, 20, 85, DEF.scenes), wrap: !!v.wrap, wrapW: num(v.wrapW, 320, 470, DEF.wrapW),
   c: Object.assign({}, DEF.c, v.c || {}), autohide: !!v.autohide}; }
@@ -41,7 +44,8 @@ function apply(){
   ws.style.setProperty('--kc-left', L.left + 'px');
   ws.style.setProperty('--kc-canvas', L.canvas + '%');
   ws.style.setProperty('--kc-scenes', L.scenes + '%');
-  ['left', 'scenes', 'layers', 'insp'].forEach(function(k){ ws.classList.toggle('c-' + k, !!L.c[k]); });
+  ['left', 'scenes', 'layers', 'insp'].forEach(function(k){ ws.classList.toggle('c-' + k, !!L.c[k] || (k === 'insp' && liveFold)); });
+  ws.classList.toggle('kc-live-fold', liveFold);
   ws.classList.toggle('autohide', L.autohide);
   /* 26.11.13 dragged small, the picture sits top-left with the column under it and the editor beside them */
   ws.classList.toggle('wrap', L.wrap);
@@ -109,6 +113,7 @@ keys(lsplit, 'scenes', 2, 20, 85, null);
 
 /* ---------- collapse buttons in each panel's header ---------- */
 function set(k, v){
+  if (k === 'insp' && !v && liveFold){ liveFold = false; liveKept = true; apply(); refit(); return; }   // 26.11.57 unfolded while live: stays open
   L.c[k] = v;
   if (k === 'scenes' && v) L.c.layers = false;          // never both folded: one of them fills the column
   if (k === 'layers' && v) L.c.scenes = false;
@@ -117,7 +122,7 @@ function set(k, v){
 }
 function foldBtn(k, label){
   var b = el('button', 'ib kc-fold', {type: 'button', 'data-fold': k, 'aria-label': label});
-  b.addEventListener('click', function(e){ e.stopPropagation(); set(k, !L.c[k]); });
+  b.addEventListener('click', function(e){ e.stopPropagation(); set(k, k === 'insp' && liveFold ? false : !L.c[k]); });
   return b;
 }
 var foldScenes = foldBtn('scenes', 'Fold Frames'), foldLayers = foldBtn('layers', 'Fold Content'), foldInsp = foldBtn('insp', 'Fold the Inspector');
@@ -128,11 +133,12 @@ layers.querySelector('.pane-head').appendChild(foldLayers);
 var ih = right.querySelector('.insp-head'); ih.appendChild(foldInsp);
 // a folded pane opens again from its header
 [[scenes, 'scenes'], [layers, 'layers']].forEach(function(p){ p[0].querySelector('.pane-head').addEventListener('click', function(e){ if (L.c[p[1]] && !e.target.closest('button,input,select')) set(p[1], false); }); });
-ih.addEventListener('click', function(e){ if (L.c.insp && !L.autohide && !e.target.closest('button,input,select')) set('insp', false); });
+ih.addEventListener('click', function(e){ if ((L.c.insp || liveFold) && !L.autohide && !e.target.closest('button,input,select')) set('insp', false); });
 function syncButtons(){
   foldScenes.innerHTML = I(L.c.scenes ? 'chevron-down' : 'minimize-2', 14); foldScenes.title = L.c.scenes ? 'Show Frames' : 'Fold Frames';
   foldLayers.innerHTML = I(L.c.layers ? 'chevron-down' : 'minimize-2', 14); foldLayers.title = L.c.layers ? 'Show Content' : 'Fold Content';
-  foldInsp.innerHTML = I(L.c.insp ? 'arrow-up' : 'arrow-down', 14); foldInsp.title = L.c.insp ? 'Show the Inspector' : 'Fold the Inspector';
+  var fi = L.c.insp || liveFold;
+  foldInsp.innerHTML = I(fi ? 'arrow-up' : 'arrow-down', 14); foldInsp.title = liveFold ? 'Edit: show the editor (folded while live)' : fi ? 'Show the Inspector' : 'Fold the Inspector';
   foldLeft.innerHTML = I('chevron-left', 14); foldLeft.title = 'Hide the Frames and Content column';
   foldScenes.setAttribute('aria-expanded', String(!L.c.scenes)); foldLayers.setAttribute('aria-expanded', String(!L.c.layers)); foldInsp.setAttribute('aria-expanded', String(!L.c.insp));
   if (menuItems) menuItems.forEach(function(m){ if (m.sync) m.sync(); });
@@ -199,6 +205,14 @@ right.addEventListener('focusout', function(){ if (L.autohide) peek(false); });
 
 /* 9.13 the command bar's old "Live tools" menu is now the five chips of the top bar (js/chip-bar.js) */
 
+if (window.KCStore) window.KCStore.subscribe(function(st){
+  var on = !!(st && st.live && st.live.scene);
+  if (on === wasLive) return;
+  wasLive = on;
+  var want = on && document.body.classList.contains('simple') && !L.c.insp && !liveKept;
+  if (!on) liveKept = false;
+  if (want !== liveFold){ liveFold = want; apply(); refit(); }
+});
 apply();
 window.KCLayout = {get: function(){ return JSON.parse(JSON.stringify(L)); }, set: function(v){ L = merge(Object.assign({}, L, v)); apply(); save(); refit(); }, reset: function(){ L = merge({}); apply(); save(); refit(); }, focus: focusMode};
 })();

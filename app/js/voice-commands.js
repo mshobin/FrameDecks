@@ -79,7 +79,7 @@ function qs(st, m){
 var RUN = {
   next: function(st, c){                                   // 26.11.22 Smart Next when it is on
     if (SC.songCan(st, 1) || SC.flowCan(st, 1) || (SC.flowDeckHolds && SC.flowDeckHolds(st, 1))) return step(st, 1);   // 26.11.33 a song verse by verse first; 26.11.51 then the Frame's steps
-    if (st.live.scene && Store.setting && Store.setting('smartNext')){
+    if (st.live.scene && Store.setting && Store.setting('smartNext') !== false){
       var t = SC.smartNext(st);
       if (!t) throw new Error('That is the last of the meeting.');
       return update(function(n){ c.label = SC.smartApply(n, t) + ' is on screen'; });

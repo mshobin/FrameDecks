@@ -102,6 +102,8 @@ function preview(){
   });
   tr.value = hasKey ? 'ESV' : 'WEB';
   var order = h('input', {type: 'checkbox', id: 'li-order', checked: 'checked'});
+  /* 26.11.57 a lesson in days: a first Frame with the whole week's reading (every passage, in order) */
+  var reading = h('input', {type: 'checkbox', id: 'li-reading'}); reading.checked = parts.length > 1;
   var list = h('div', {cls: 'li-parts'});
   parts.forEach(function(p, pi){
     var on = h('input', {type: 'checkbox', checked: 'checked', 'aria-label': 'Make a Frame for ' + p.name});
@@ -129,13 +131,14 @@ function preview(){
     h('div', {cls: 'li-opts'}, [
       several ? h('span', {cls: 'li-opt'}, [h('span', {text: 'Goes into this meeting'}), h('b', {text: SC.currentMeeting(live).name})]) : h('label', {cls: 'li-opt'}, [h('span', {text: 'Group'}), group]),
       h('label', {cls: 'li-opt'}, [h('span', {text: 'Verses'}), tr]),
-      h('label', {cls: 'check li-opt'}, [order, ' Show the scripture first, then the questions'])]),
+      h('label', {cls: 'check li-opt'}, [order, ' Show the scripture first, then the questions']),
+      parts.length > 1 ? h('label', {cls: 'check li-opt'}, [reading, ' Start with a Reading Frame (every passage of the lesson)']) : null]),
     list, warns,
     h('div', {cls: 'kc-dlg-foot'}, [
       h('button', {cls: 'btn quiet', type: 'button', text: 'Choose another file', onclick: function(){ fileIn.click(); }}),
       h('span', {cls: 'mi-spacer'}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); toast('Nothing was imported.'); }}), go])]);
-  plan.opts = function(){ return {group: several ? '' : group.value.trim(), tr: tr.value, order: order.checked}; };
+  plan.opts = function(){ return {group: several ? '' : group.value.trim(), tr: tr.value, order: order.checked, reading: parts.length > 1 && reading.checked}; };
   count();
   go.focus();
 }
@@ -187,6 +190,15 @@ function run(){
    with the order scripture -> questions when both are there and the option is on */
 function build(n, parts, verses, o){
   var group = SC.newGroup(n) || o.group || 'Lesson', now = Date.now(), made = [];
+  if (o.reading){                               // 26.11.57 the whole reading first, each passage once, in the lesson's order
+    var seen = {}, all = [];
+    parts.forEach(function(p){ p.refs.forEach(function(r){ if (r.on && !seen[r.ref]){ seen[r.ref] = 1; var v = verses[r.ref] || {}; all.push({id: SC.newItemId('verse'), label: '', ref: v.ref || r.ref, version: v.version || o.tr || '', text: v.text || ''}); } }); });
+    if (all.length > 1){
+      var rd = SC.cleanScene({id: rid('sc_'), name: freeName(n, 'Reading'), group: group, created: now, modified: now, from: 'Lesson import', template: fileName.slice(0, 80),
+        layers: [SC.cleanLayer({id: rid(), kind: 'scripture', name: 'Scripture', visible: true, c: {items: all, itemId: all[0].id, look: SC.snapshotLook(n, 'scripture')}})]});
+      n.scenes.push(rd); made.push(rd);
+    }
+  }
   parts.forEach(function(p){
     var sc = SC.cleanScene({id: rid('sc_'), name: freeName(n, (p.label || p.name).trim() || p.name), group: group, created: now, modified: now,
       from: 'Lesson import', template: fileName.slice(0, 80)});
@@ -226,6 +238,5 @@ function undoImport(){
   });
 }
 
-var sbtn = document.getElementById('s-lesson-import'); if (sbtn) sbtn.addEventListener('click', pick);
 window.KCLessonImport = {pick: pick, read: read, build: build, undo: undoImport, canUndo: function(){ return !!undo; }};
 })();

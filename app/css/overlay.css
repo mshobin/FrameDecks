@@ -1,6 +1,6 @@
 /* FrameDecks - overlay styles (Focus Verse + Discussion Question) */
-@font-face{font-family:'KC Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:block}
-@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:block}
+@font-face{font-family:'KC Serif';src:url('../fonts/EBGaramond.woff2') format('woff2'),url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:block}
+@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.woff2') format('woff2'),url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:block}
 
 :root{
   /* One unit that scales with the output size and never overflows odd aspect ratios */

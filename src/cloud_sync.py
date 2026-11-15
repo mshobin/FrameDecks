@@ -634,6 +634,16 @@ class CloudApi:
     def pc_room_response_results(self):
         return self._rpc("pc_room_response_results", {})
 
+    # 26.11.57 typed answers from members' phones (0026_room_answers.sql), with this PC's own key
+    def pc_room_answers_open(self, prompt):
+        return self._rpc("pc_room_answers_open", {"prompt": str(prompt or "")[:200]})
+
+    def pc_room_answers_close(self):
+        return self._rpc("pc_room_answers_close", {})
+
+    def pc_room_answers_list(self):
+        return self._rpc("pc_room_answers_list", {})
+
     def pc_devices(self):
         return self._rpc("pc_devices", {})
 

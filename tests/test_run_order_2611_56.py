@@ -56,8 +56,7 @@ class RunOrderAndSlidesAfter(unittest.TestCase):
     def test_run_order_dialog(self):
         dash = read("app/dashboard.html")
         self.assertIn('id="mt-run"', dash)
-        self.assertIn('src="js/run-order.js"', dash)
-        self.assertIn('href="css/run-order.css"', dash)
+        self.assertIn("'run-order': {js: 'js/run-order.js', css: 'css/run-order.css'", read("app/js/store.js"))   # 26.11.57 lazy
         self.assertIn('"run-order.css"', read("tools/css_tokens.py"))
         for need in ("'What Next does, start to finish'", "draggable: 'true'", "function reorder(id, to)", "'Move “' + sc.name + '” up'",
                      "plural(n, 'slide')", "' (Set order)'", "SC.order(live)"):
@@ -66,7 +65,7 @@ class RunOrderAndSlidesAfter(unittest.TestCase):
     def test_slides_after_this_frame(self):
         ws = read("app/js/workspace.js")
         self.assertIn("'Put slides after this Frame'", ws)
-        self.assertIn("window.KCRunOrder.slidesAfter(sid, lid)", ws)
+        self.assertIn("KCLazy.use('run-order').then(function(g){ g.slidesAfter(sid, lid); })", ws)
         for need in ("function slidesAfter(sid, lid)", "n.scenes.splice(n.scenes.indexOf(s) + 1, 0, ns);", "'Undo'", "copy.visible = true;",
                      "These slides are already a Frame of their own."):
             self.assertIn(need, self.js)

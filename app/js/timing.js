@@ -40,6 +40,6 @@ function paint(){
   p.title = 'Against your planned minutes (Frame settings). Only you see this.';
 }
 Store.subscribe(function(){ paint(); });
-setInterval(function(){ if (!document.hidden) paint(); }, 1000);
+KCTick.every(1000, paint);
 paint();
 })();

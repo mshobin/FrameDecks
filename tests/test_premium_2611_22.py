@@ -20,7 +20,7 @@ def read(rel):
 class Settings(unittest.TestCase):
     def test_off_by_default(self):
         import server
-        self.assertFalse(server.APP_SETTINGS_DEFAULTS["smartNext"])
+        self.assertTrue(server.APP_SETTINGS_DEFAULTS["smartNext"])   # 26.11.57 Smart is the default order of a Frame
         self.assertFalse(server.APP_SETTINGS_DEFAULTS["uiSounds"])
         self.assertTrue(server._valid_setting("smartNext", True))
         self.assertFalse(server._valid_setting("uiSounds", "loud"))

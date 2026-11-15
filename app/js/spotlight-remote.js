@@ -60,7 +60,7 @@ function step(d){
     Store.undoable(function(n){ labF = SC.flowStep(n, d); }).then(function(r){ tell('✓ ' + labF, false, r.undo); }).catch(function(){ tell('FrameDecks did not answer.', true); });
     return;
   }
-  if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
+  if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext') !== false){      // 26.11.22 Smart Next
     var t = SC.smartNext(live);
     if (!t){ tell('That is the last of the meeting.'); return; }
     var label = '';

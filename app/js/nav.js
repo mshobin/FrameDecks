@@ -154,6 +154,8 @@ window.KCLooks = LOOKS;
     if (dot.className !== 'sys-dot ' + worst) dot.className = 'sys-dot ' + worst;
     if (txt.textContent !== label) txt.textContent = label;
     box.classList.toggle('has-problem', worst !== 'ok');
+    /* 26.11.57 one status pill: the live pill says Ready, Live or what is wrong; this button shows only for a problem */
+    if (document.body.dataset.sys !== worst){ document.body.dataset.sys = worst; document.dispatchEvent(new Event('kc-sys')); }
     btn.title = chips.filter(function(c){ return !c.hidden; }).map(function(c){ return c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent; }).join(' · ');
   }
   var mo = new MutationObserver(sum);
@@ -161,6 +163,14 @@ window.KCLooks = LOOKS;
   sum();
   function setOpen(on){ box.classList.toggle('open', on); btn.setAttribute('aria-expanded', String(on)); }
   btn.addEventListener('click', function(e){ e.stopPropagation(); setOpen(!box.classList.contains('open')); });
+  /* 26.11.57 the live pill opens the same details (every output and its state) */
+  var pill = $('live-ind');
+  if (pill){
+    pill.tabIndex = 0; pill.classList.add('opens');
+    var openFromPill = function(e){ e.stopPropagation(); setOpen(!box.classList.contains('open')); };
+    pill.addEventListener('click', openFromPill);
+    pill.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openFromPill(e); } });
+  }
   chips.forEach(function(c){ c.addEventListener('click', function(){ setOpen(false); }); });
   document.addEventListener('click', function(e){ if (box.classList.contains('open') && !box.contains(e.target)) setOpen(false); });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.classList.contains('open')) setOpen(false); }, true);   // Esc still hides all as well

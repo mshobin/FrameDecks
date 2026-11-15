@@ -16,3 +16,14 @@
 .ro-chip{padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-size:12px;white-space:nowrap}
 .ro-mvs{flex:none;display:flex;gap:2px}
 .ro-total{margin:12px 0 0;color:var(--muted);font-size:13px}
+/* 26.11.57 the same list in the Frames column (Frames · Run order) */
+.ro-panel{display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto}
+.ro-panel[hidden]{display:none}
+.ro-list.ro-in-panel{max-height:none;gap:6px;padding:0}
+.ro-in-panel .ro-row{flex-wrap:wrap;gap:8px;padding:8px 10px}
+.ro-in-panel .ro-grip{display:none}
+.ro-in-panel .ro-name{flex:1 1 0}
+.ro-in-panel .ro-chips{flex:1 1 100%;order:5;padding-left:36px}
+.ro-in-panel .ro-chip{white-space:normal}
+.ro-panel .ro-total{margin:0;font-size:12px}
+.ro-panel .ro-large{align-self:flex-start}

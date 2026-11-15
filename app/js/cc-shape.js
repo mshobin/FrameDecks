@@ -143,7 +143,7 @@ function wake(){ open = true; last = ''; schedule(); requestAnimationFrame(funct
 /* 26.11.18 an exact look on a timer alone: right after opening and every 2 s while open, unless something is moving
    (then the looks above are already coming). The same shape is never sent twice, so it costs one measurement. */
 function exact(){ if (open && !document.hidden && !chain && !finalT){ burst = null; send(boxes()); } }
-setInterval(exact, 2000);
+KCTick.every(2000, exact);
 window.addEventListener('focus', wake);
 schedule();
 window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; }};

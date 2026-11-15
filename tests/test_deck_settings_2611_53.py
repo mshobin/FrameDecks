@@ -46,7 +46,7 @@ class DeckSettingsAsCards(unittest.TestCase):
     def test_simple_keeps_the_main_cards(self):
         self.assertIn(":not(.sc-essential){display:none}", self.css)
         self.assertIn(".sc-essential > .cs-fold + .cs-sec{display:block}", self.css)
-        self.assertIn("window.dispatchEvent(new Event('resize'));          // 26.11.53", read("app/js/simple-mode.js"))
+        self.assertIn("window.dispatchEvent(new Event('resize'));", read("app/js/simple-mode.js"))   # 26.11.57 Design opens Advanced; apply() refits
 
     def test_tokens_only(self):
         self.assertIsNone(re.search(r"#[0-9a-fA-F]{3,8}\b", self.css))

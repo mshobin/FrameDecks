@@ -6,7 +6,9 @@
  *   Content - and which one is on air. Drag a row (or use its arrows) to move the Frame; the Frames list follows.
  * - Put slides after this Frame (a PowerPoint's menu): the deck leaves its Frame and becomes a Frame of its own, right
  *   after it, so Next goes: this Frame, then the slides, then the Frame that followed. One Undo puts it back.
- * Uses the same commit as the Frames list; nothing new is stored. */
+ * Uses the same commit as the Frames list; nothing new is stored.
+ * 26.11.57 the same list can sit in the Frames column (Frames · Run order switch: mount / unmount), and a Frame without
+ * Set order shows its Smart order (its questions, then its scriptures, one by one). */
 (function(){
 'use strict';
 var Store = window.KCStore, SC = window.KCScenes, I = window.KCIcon || function(){ return ''; };
@@ -22,6 +24,7 @@ function commit(fn){ return window.KCCommit(fn); }
 function plural(n, w){ return n + ' ' + w + (n === 1 ? '' : 's'); }
 function rid(p){ return (p || 'L') + Math.random().toString(36).slice(2, 9); }
 var live = null, dlg = null, list = null, total = null, sig = '', drag = null;
+var targets = [];             // 26.11.57 where the list is drawn: the dialog and/or the Frames column ({list, total, panel})
 var NUM = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
 
 /* ---------- how many slides a deck has (asked once per file) ---------- */
@@ -48,12 +51,23 @@ function summary(sc){
     });
     sub = 'Frame · ' + plural(f.length, 'step') + ' (Set order)';
   } else {
-    (sc.layers || []).filter(function(l){ return l.visible !== false && ['background', 'brand', 'camera'].indexOf(l.kind) < 0; }).slice(0, 4)
-      .forEach(function(l){ chips.push(nameOf(l) + (l.kind === 'pdf' && n ? ' · ' + plural(n, 'slide') : '')); });
-    sub = deck ? 'PowerPoint' + (n ? ' · ' + plural(n, 'slide') : '') : 'Frame · ' + plural((sc.layers || []).length, 'piece') + ' of Content';
+    var qn = smartCount(sc, 'question'), vn = smartCount(sc, 'scripture'), smart = Store.setting && Store.setting('smartNext') !== false && qn + vn > 1;
+    if (smart){
+      if (qn) chips.push('Questions 1–' + qn);
+      if (vn) chips.push('Scriptures 1–' + vn);
+      (sc.layers || []).filter(function(l){ return l.visible !== false && ['question', 'scripture', 'background', 'brand', 'camera'].indexOf(l.kind) < 0; }).slice(0, 2)
+        .forEach(function(l){ chips.push(nameOf(l)); });
+      sub = 'Frame · Smart order: questions, then scriptures';
+    } else {
+      (sc.layers || []).filter(function(l){ return l.visible !== false && ['background', 'brand', 'camera'].indexOf(l.kind) < 0; }).slice(0, 4)
+        .forEach(function(l){ chips.push(nameOf(l) + (l.kind === 'pdf' && n ? ' · ' + plural(n, 'slide') : '')); });
+      sub = deck ? 'PowerPoint' + (n ? ' · ' + plural(n, 'slide') : '') : 'Frame · ' + plural((sc.layers || []).length, 'piece') + ' of Content';
+    }
   }
   return {sub: sub, chips: chips, steps: f ? f.length : 1, slides: n, deck: deck};
 }
+
+function smartCount(sc, kind){ var l = (sc.layers || []).filter(function(x){ return x.kind === kind; })[0]; return l && l.c && Array.isArray(l.c.items) ? l.c.items.length : 0; }
 
 /* ---------- the dialog ---------- */
 function open(){
@@ -69,15 +83,31 @@ function open(){
       list, total,
       h('div', {cls: 'kc-dlg-foot'}, [h('span', {cls: 'mi-spacer'}), h('button', {cls: 'btn primary', type: 'button', text: 'Done', onclick: function(){ dlg.close(); }})])]));
     document.body.appendChild(dlg);
+    targets.push({list: list, total: total, panel: false});
   }
   sig = ''; render();
   if (!dlg.open) dlg.showModal();
 }
+/* 26.11.57 the list in the Frames column */
+function mount(box){
+  unmount(box);
+  var l = h('ol', {cls: 'ro-list ro-in-panel', 'aria-label': 'Frames in the order Next walks them'}), t = h('p', {cls: 'ro-total', role: 'status'});
+  box.innerHTML = ''; box.appendChild(l); box.appendChild(t);
+  targets.push({list: l, total: t, panel: true, box: box});
+  sig = ''; render();
+}
+function unmount(box){ targets = targets.filter(function(x){ return x.box !== box; }); }
 function render(){
-  if (!dlg || !live) return;
+  if (!live) return;
+  var shown = targets.filter(function(t){ return t.panel ? t.box.isConnected : dlg && dlg.open; });
+  if (!shown.length) return;
   var frames = SC.order(live), onAir = live.live.scene;
   var s = JSON.stringify([frames.map(function(sc){ return [sc.id, sc.name, sc.flow, sc.layers.map(function(l){ return [l.id, l.name, l.kind, l.visible, l.c && l.c.file]; })]; }), onAir, pages]);
   if (s === sig) return; sig = s;
+  shown.forEach(function(t){ draw(t, frames, onAir); });
+}
+function draw(t, frames, onAir){
+  var list = t.list, total = t.total;
   list.innerHTML = '';
   var steps = 0, slides = 0, mins = 0;
   frames.forEach(function(sc, i){
@@ -87,7 +117,7 @@ function render(){
     var li = h('li', {cls: 'ro-row' + (sc.id === onAir ? ' on' : '') + (sm.deck ? ' deck' : ''), draggable: 'true', 'data-id': sc.id}, [
       h('span', {cls: 'ro-grip', 'aria-hidden': 'true', html: I('grip-vertical', 16)}),
       h('span', {cls: 'ro-n', text: String(i + 1)}),
-      h('button', {cls: 'ro-name', type: 'button', title: 'Select this Frame in the Studio', onclick: function(){ if (window.KCWorkspace) window.KCWorkspace.select(sc.id); dlg.close(); }}, [
+      h('button', {cls: 'ro-name', type: 'button', title: 'Select this Frame in the Studio', onclick: function(){ if (window.KCWorkspace) window.KCWorkspace.select(sc.id); if (!t.panel && dlg) dlg.close(); }}, [
         h('b', {text: sc.name}), h('span', {text: sm.sub + (sc.id === onAir ? ' · on air' : '')})]),
       h('span', {cls: 'ro-chips'}, sm.chips.map(function(c, k){ return h('span', {cls: 'ro-chip', text: c}); })),
       h('span', {cls: 'ro-mvs'}, [up, down])]);
@@ -164,7 +194,6 @@ function slidesAfter(sid, lid){
   });
 }
 
-Store.subscribe(function(st){ live = st; if (dlg && dlg.open) render(); });
-var btn = document.getElementById('mt-run'); if (btn) btn.addEventListener('click', open);
-window.KCRunOrder = {open: open, slidesAfter: slidesAfter, summary: summary};
+Store.subscribe(function(st){ live = st; render(); });
+window.KCRunOrder = {open: open, slidesAfter: slidesAfter, summary: summary, mount: mount, unmount: unmount};
 })();

@@ -20,3 +20,10 @@
 .rs-last{margin-top:18px;padding:14px 16px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2)}
 .rs-last .rs-label{margin-top:0;color:var(--ink);font-weight:600}
 .rs-last .btn{margin-top:10px}
+/* 26.11.57 typed answers (app/js/answers.js): the answers as a calm list, each with Show */
+.ta-dlg .field textarea{font-size:16px;width:100%}
+.ta-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px;max-height:46vh;overflow:auto}
+.ta-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2)}
+.ta-item p{flex:1;margin:0;font-size:15px;color:var(--ink);overflow-wrap:anywhere}
+.rs-last .ta-item .btn{margin-top:0}
+.rs-typed{margin-top:10px}
