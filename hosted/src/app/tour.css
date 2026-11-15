@@ -558,13 +558,13 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.6));
 }
 
-/* Next Frame, pressed by the voice */
+/* Next Frame, pressed by the voice (26.11.52: measured on cc-control.webp again; the Go Live progress bar moved it down) */
 .tr-cc-hit {
   position: absolute;
-  top: 58.6%;
+  top: 62.2%;
   left: 20.6%;
   width: 21.3%;
-  height: 10.4%;
+  height: 10.2%;
   border-radius: 12px;
   box-shadow:
     0 0 0 3px var(--tr-gold),

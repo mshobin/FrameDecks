@@ -164,8 +164,8 @@ const SCENES: readonly Scene[] = [
       { at: 0, x: 72, y: 96 },
       { at: 0.16, x: 86.8, y: 44.9, tap: true },
       { at: 0.26, x: 86.8, y: 44.9 },
-      { at: 0.38, x: 31.2, y: 63.6, tap: true },
-      { at: 0.5, x: 31.2, y: 63.6 },
+      { at: 0.38, x: 31.2, y: 67, tap: true }, // 26.11.52 Next Frame sits lower since the Go Live progress bar
+      { at: 0.5, x: 31.2, y: 67 },
       { at: 0.64, x: 70, y: 98 },
     ],
   },
