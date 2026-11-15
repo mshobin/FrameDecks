@@ -610,7 +610,8 @@ function meetingMenu(anchor){
     {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
   items.push('-', {icon: 'folder-open', text: 'Import a Frame file…', run: importScene},
-    {icon: 'file-spreadsheet', text: 'Import from Excel…', run: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }});
+    {icon: 'file-spreadsheet', text: 'Import from Excel…', run: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }},
+    Store.served ? {icon: 'book-open', text: 'Import a lesson (PDF or Word)…', run: function(){ if (window.KCLessonImport) window.KCLessonImport.pick(); }} : null);   // 26.11.54
   menu(anchor, items);
 }
 /* M-D4: the whole service as an editable PowerPoint file (one slide per Frame, scripts as speaker notes), made on this PC */
@@ -675,7 +676,10 @@ function openQuickStart(){
         h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import a Frame file…', title: 'A .frame file from framedecks.com or another PC, or one exported Frame', onclick: importScene}),
         /* 9.4 the whole meeting from the Excel Meeting Workbook (also in Settings → Data), right under the Frame file */
         h('button', {cls: 'btn', type: 'button', id: 'qs-excel', html: I('file-spreadsheet', 15) + ' Import from Excel…', title: 'A whole meeting from the FrameDecks Meeting Workbook (Frame > Deck > Content)',
-          onclick: function(){ dlg.close(); if (window.KCMeetingImport) window.KCMeetingImport.pick(); }})]),
+          onclick: function(){ dlg.close(); if (window.KCMeetingImport) window.KCMeetingImport.pick(); }}),
+        /* 26.11.54 a study lesson (PDF, Word or text): its days, questions and scriptures become Frames */
+        Store.served ? h('button', {cls: 'btn', type: 'button', id: 'qs-lesson', html: I('book-open', 15) + ' Import a lesson…', title: 'A study lesson (PDF, Word or text): a Frame for each day or part, with its questions and scriptures',
+          onclick: function(){ dlg.close(); if (window.KCLessonImport) window.KCLessonImport.pick(); }}) : null]),
       h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
   if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');

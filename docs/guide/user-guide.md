@@ -279,7 +279,22 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
 - It needs this PC connected to your workspace (Settings → Sync). In Settings → Features these switches are together
   under **On members' phones**.
 
-## 7. Excel (optional)
+## 7. Import a lesson
+A study lesson becomes Frames in one go (26.11.54). Choose **Meeting ▾ → Import a lesson (PDF or Word)…**, or
+**Import a lesson…** in Quick Start or **Settings → Data / Backup → Meeting from a lesson**, then pick the lesson: a
+PDF, a Word file (.docx) or a text file.
+- FrameDecks reads it on this PC and finds its **days or parts** (*Day 1*, *First Day*, *Lesson 3*, *Week 2*,
+  *Part One*…), its **numbered questions** (*3*, *3a*, *3b*) and every **Bible reference** (*John 3:16*,
+  *Gen. 12:1-3; 15:6*, *1 Cor 13:4-7*, *Ps 23*).
+- You see one card per part with its scriptures and questions, each ticked. Untick what you don't want, type a new
+  name for a Frame, and choose the translation (ESV with your key, or KJV or WEB, which need none). A whole chapter
+  (*Genesis 13*) is offered but not ticked, because it is long on screen.
+- **Make Frames** creates one Frame per part with a Scripture and a Question Content, and sets the order:
+  the scripture first, then the questions (turn this off in the dialog). **Undo this import** puts the meeting back.
+- Headers, footers and page numbers are left out. A scanned lesson (pictures of pages) has no text to read: use the
+  lesson's PDF from its website, or type the questions in.
+
+## 8. Excel (optional)
 FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review and bulk editing. To move a
 plan to another PC, use a .frame file instead (see [Service planning](service-planning.md#move-a-plan-to-a-service-pc)).
 
@@ -301,12 +316,12 @@ After an import the app is the source of truth. Workbooks made with earlier vers
 import; their answers and notes go into the Frame's Teleprompter script. The Excel library
 loads only when you first need it, so the app starts faster.
 
-## 8. Your branding
+## 9. Your branding
 **Settings → Meeting & Branding**: your Meeting Name, organisation, logo and accent colour. They appear only where you
 put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my logo on this card**.
 **Remove background** makes a plain logo background transparent, on this PC, with **Undo**.
 
-## 9. Saving and backups
+## 10. Saving and backups
 Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or
 restore one. Each Frame keeps its version and history (Content Settings → Advanced). **Import Frame File…** and
 **Export Frame File** (same place) move a whole plan to or from another PC as one .frame file. When you import, choose
@@ -320,7 +335,7 @@ now, choose **Sync now** in Settings → Sync or in the **Sync** chip's panel. M
 in the cloud. Without a
 link, your meeting stays on your PC unless you export it.
 
-## 10. Help
+## 11. Help
 - **framedecks.com/help** starts with a **Step-by-step guide**. It has two tabs, **Website** and **Service PC**, with
   eight steps each: sync your workspace, create a meeting, add Frames, write or upload scripts, transitions and drawing, preview,
   sync, export or import, and run the meeting. Each step has a screenshot zoomed on the place to click (tap it for the

@@ -54,7 +54,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.53"
+APP_VERSION = "26.11.54"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -4111,6 +4111,27 @@ class Handler(BaseHTTPRequestHandler):
         os.replace(tmp, BRAND_LOGO)
         return self.reply(200, json.dumps({"logo": hashlib.sha1(data).hexdigest()[:12], "w": info[0], "h": info[1]}), TYPES[".json"])
 
+    def read_lesson(self):
+        """26.11.54 Import a lesson: the file's text read on this PC into days, questions and Bible references
+        (lesson_import.read). Nothing is kept: the dashboard shows the plan and makes the Frames itself."""
+        if not self.is_local():
+            return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        name = Path(parse_qs(urlparse(self.path).query).get("name", ["lesson"])[0]).name
+        if os.path.splitext(name)[1].lower() not in (".pdf", ".docx", ".txt"):
+            return self.reply(400, json.dumps({"error": "Choose the lesson as a PDF, a Word file (.docx) or a text file."}), TYPES[".json"])
+        length = int(self.headers.get("Content-Length", 0))
+        import lesson_import
+        if length <= 0 or length > lesson_import.MAX_BYTES:
+            return self.reply(400, json.dumps({"error": "The file must be smaller than 40 MB."}), TYPES[".json"])
+        data = self.rfile.read(length)
+        try:
+            plan = lesson_import.read(data, name)
+        except ImportError:
+            return self.reply(501, json.dumps({"error": "Reading PDF files needs the pypdfium2 package (it comes with the installer)."}), TYPES[".json"])
+        except ValueError as e:
+            return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
+        return self.reply(200, json.dumps(plan), TYPES[".json"])
+
     def upload_layer_file(self):
         """A picture, video or PDF for a layer, copied into the data folder's layers folder (this PC only)."""
         if not self.is_local():
@@ -4325,6 +4346,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.upload_layer_file()
         if urlparse(self.path).path == "/api/brand/logo":
             return self.upload_brand_logo()
+        if urlparse(self.path).path == "/api/lesson/read":
+            return self.read_lesson()
         path = urlparse(self.path).path
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

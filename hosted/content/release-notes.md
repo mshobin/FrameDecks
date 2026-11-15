@@ -1,25 +1,26 @@
-## FrameDecks v26.11.53
-A slide deck's Settings now look like every other Content's: tidy cards that fill the space evenly.
+## FrameDecks v26.11.54
+Import a lesson: choose a study lesson and FrameDecks makes the Frames, with their questions and scriptures.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- None in this release.
+- **Import a lesson.** Under **Meeting ▾ → Import a lesson (PDF or Word)…** (also in Quick Start and in Settings →
+  Data / Backup), choose a study lesson as a PDF, a Word file or a text file. FrameDecks finds its days or parts, its
+  numbered questions (3, 3a, 3b) and every Bible reference, written the usual ways (*John 3:16*, *Gen. 12:1-3; 15:6*,
+  *1 Cor 13:4-7*, *Ps 23*).
+- **You choose what to keep.** Each part is a card with its scriptures and questions ticked. Untick anything, rename a
+  Frame, and pick the translation (ESV with your key, or KJV or WEB with none). A whole chapter is offered but not
+  ticked.
+- **Ready to lead.** One Frame per part, each with a Scripture and a Question Content, and the order set: the
+  scripture first, then the questions. **Undo this import** puts the meeting back.
 
 ## Enhancements
-- **PowerPoint Settings as cards.** When you select a slide deck, the area under the preview shows the same cards as
-  questions, scriptures and announcements: **Slides** (the file, Start at slide and how the deck will play),
-  **Playback** (Play animations, On members' phones, Show objects only), **Position and size** and **Look**.
-- **Pictures, video, camera, shapes and sound** use the same cards too (Picture or Video, Sound, Playback, Position
-  and size, Look).
-- **No gaps, for every kind of Content.** The cards fill each row: the columns are balanced (four cards on room for
-  three become two and two), the last card of a short row takes the rest of it, and the cards of a row are the same
-  height.
-- In **Simple**, a deck keeps its Slides and Playback cards (and a picture its Picture card, sound its Sound card);
-  the rest is behind **Design**.
+- Headers, footers and page numbers that repeat on every page are left out, and a question that runs over two lines
+  stays one question.
+- The lesson is read on this PC only; its words are never sent anywhere.
 
 ## Fixes
-- A slide deck's settings were spread across the area as loose lines instead of sitting in cards.
+- None in this release.
 
 ## Performance Improvements
 - None in this release.

@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.54] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.54.md](releases/v26.11.54.md).
+
+### Added
+- Import a lesson: `src/lesson_import.py` reads a PDF (pypdfium2 under `slides.PDFIUM_LOCK`), .docx or text into
+  parts (Day / Lesson / Week / Part / Session …, ordinal forms too), numbered questions (3, 3a, lettered parts) and
+  written Bible references (`find_refs`: abbreviations, `;` continuation, comma verse lists, chapter ranges, one-chapter
+  books, everyday-word guard). Repeated header/footer lines and page numbers are dropped; a "Lesson N: title" line
+  above the parts becomes the title. `POST /api/lesson/read?name=` (this PC only, 40 MB).
+- `app/js/lesson-import.js` + `app/css/lesson-import.css`: preview with ticks per part / scripture / question, Frame
+  names, translation; builds one Frame per part (Scripture + Question Content, `flow` scripture → questions), verses
+  fetched first, one Undo. Entry points: Meeting menu, Quick Start, Settings → Data / Backup.
 ## [26.11.53] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.53.md](releases/v26.11.53.md).

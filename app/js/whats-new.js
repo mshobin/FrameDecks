@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.54': [
+    {title: 'Import a lesson', text: 'Meeting \u25be \u2192 Import a lesson: choose a study lesson (PDF, Word or text) and FrameDecks makes a Frame for each day or part, with its questions and scriptures, scripture first. You tick what to keep first.', show: {spot: '#quick-start'}}
+  ],
   '26.11.53': [
     {title: 'Slide Settings as cards', text: 'A PowerPoint\u2019s Settings are now cards like every other Content: Slides, Playback, Position and size, Look. Every kind of Content fills the rows evenly, with no gaps.', show: {spot: '#insp-body'}}
   ],
