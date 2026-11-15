@@ -54,17 +54,18 @@ function editOrder(fn){
 
 function close(){
   clearInterval(S.timer); S.timer = 0; clearInterval(S.tick); S.tick = 0;
-  if (S.dlg){ if (S.dlg.open) S.dlg.close(); S.dlg.remove(); S.dlg = null; }
+  if (S.dlg){ if (S.dlg.open && S.dlg.close) S.dlg.close(); if (S.dlg.parentNode) S.dlg.parentNode.classList.remove('sl-has-dock'); S.dlg.remove(); S.dlg = null; }
   document.removeEventListener('keydown', keys, true);
   if (S.opts.onClose) S.opts.onClose();
 }
 function keys(e){
   if (!S.dlg) return;
+  if (S.opts.dock && document.querySelector('dialog[open]')) return;          // another window is on top of the Studio
   if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); if (S.mode !== 'grid'){ S.mode = 'grid'; draw(); } else close(); return; }
   if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
   var fwd = e.key === 'ArrowRight' || e.key === 'PageDown' || (S.mode === 'present' && e.key === ' '), back = e.key === 'ArrowLeft' || e.key === 'PageUp';
   if (!fwd && !back) return;
-  e.preventDefault();
+  e.preventDefault(); e.stopPropagation();                 // the Studio's own keys must not step a second time
   if (S.mode === 'present' && fwd) return presentNext();
   step(fwd ? 1 : -1);
 }
@@ -85,21 +86,29 @@ function load(){
 function open(opts){
   if (S.dlg) close();
   S.opts = opts || {}; S.query = ''; S.mode = S.opts.present ? 'present' : 'grid'; S.sel = {}; S.drawn = false;
-  var dlg = S.dlg = h('dialog', {cls: 'sl-dlg' + (S.opts.present ? ' sl-presenting' : ''), 'aria-labelledby': 'sl-title'});
+  /* 26.11.54 opts.dock: Present slides opens inside the Studio's stage (the right rail with Go Live, Next and Up next
+     stays beside it), so it can never be taken for the Share Window. Pop out gives the full-window version. */
+  var dock = S.opts.dock || null;
+  var dlg = S.dlg = h(dock ? 'section' : 'dialog', {cls: 'sl-dlg' + (S.opts.present ? ' sl-presenting' : '') + (dock ? ' sl-docked' : ''), 'aria-labelledby': 'sl-title'});
   S.title = h('h2', {id: 'sl-title', text: 'Slides'}); S.sub = h('p', {cls: 'sl-sub'});
   S.search = h('input', {type: 'search', cls: 'sl-search', placeholder: 'Search the slides…', 'aria-label': 'Search the slides'});
   S.search.addEventListener('input', function(){ S.query = S.search.value; draw(); });
   S.status = h('p', {cls: 'sl-status', role: 'status'});
   S.bar = h('div', {cls: 'sl-bar'}); S.body = h('div', {cls: 'sl-body'});
-  dlg.appendChild(h('div', {cls: 'sl-head'}, [h('div', {cls: 'sl-ttl'}, [S.title, S.sub]), S.search,
-    h('button', {cls: 'sl-x', type: 'button', 'aria-label': 'Close', text: '×', onclick: close})]));
+  /* 26.11.54 the presenter view says what it is: only the leader sees it; the slide marked ON SCREEN is what people see */
+  var who = S.opts.studio ? h('span', {cls: 'sl-who', title: 'This is your presenter view. People see only the slide marked ON SCREEN, on the camera or the Share Window.'}, [h('b', {text: 'Presenter view'}), ' · only you see this']) : null;
+  var pop = dock ? h('button', {cls: 'sl-btn sl-pop', type: 'button', text: 'Pop out', title: 'The presenter view in its own large window (for a second screen)',
+    onclick: function(){ var o = Object.assign({}, S.opts); delete o.dock; o.present = S.mode === 'present'; close(); open(o); }}) : null;
+  var x = S.opts.studio ? h('button', {cls: 'sl-btn sl-back', type: 'button', text: '← Back to Studio', title: 'Close the presenter view (Esc). The slide stays on screen.', onclick: close})
+    : h('button', {cls: 'sl-x', type: 'button', 'aria-label': 'Close', text: '×', onclick: close});
+  dlg.appendChild(h('div', {cls: 'sl-head'}, [h('div', {cls: 'sl-ttl'}, [who, S.title, S.sub]), S.search, pop, x]));
   dlg.appendChild(S.bar); dlg.appendChild(S.status); dlg.appendChild(S.body);
   dlg.addEventListener('cancel', function(e){ e.preventDefault(); close(); });
-  document.body.appendChild(dlg);
-  if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  if (dock){ dlg.setAttribute('open', ''); dock.classList.add('sl-has-dock'); dock.appendChild(dlg); }
+  else { document.body.appendChild(dlg); if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
   document.addEventListener('keydown', keys, true);
   load().then(function(){ var fine = !window.matchMedia || matchMedia('(pointer: fine)').matches;      // a phone: no keyboard popping up
-    setTimeout(function(){ if (S.search && fine) S.search.focus({preventScroll: true}); }, 30); });
+    setTimeout(function(){ if (S.search && fine && !S.opts.dock) S.search.focus({preventScroll: true}); }, 30); });   // 26.11.54 in the Studio the arrow keys step at once
   S.timer = setInterval(load, 1500);
 }
 
@@ -232,7 +241,9 @@ function drawPresent(d, cur, nw){
     h('p', {cls: 'sl-pres-n'}, ['Slide ' + (cur + 1) + ' of ' + d.pages + ' · ', time]),
     h('p', {cls: 'sl-pres-next', text: nw.text}), next,
     s.notes ? h('p', {cls: 'sl-pres-notes', text: s.notes}) : null]);
-  var main = h('div', {cls: 'sl-pres-main'}, [h('img', {cls: 'sl-pres-cur', src: thumbUrl(d.file, cur + 1, 960), alt: 'Slide ' + (cur + 1) + (s.title ? ': ' + s.title : '') + ' (on screen)'}), side]);
+  var curPic = h('div', {cls: 'sl-pres-curwrap'}, [h('img', {cls: 'sl-pres-cur', src: thumbUrl(d.file, cur + 1, 960), alt: 'Slide ' + (cur + 1) + (s.title ? ': ' + s.title : '') + ' (on screen)'}),
+    h('span', {cls: 'sl-onscreen', text: 'ON SCREEN'})]);                    // 26.11.54 what people see
+  var main = h('div', {cls: 'sl-pres-main'}, [curPic, side]);
   var btns = h('div', {cls: 'sl-pres-btns'}, [
     h('button', {cls: 'sl-big', type: 'button', text: '◀ Back', 'aria-label': 'Back', onclick: function(){ step(-1); }}),
     h('button', {cls: 'sl-big gold', type: 'button', text: nw.kind === 'end' && !(S.opts.studio && nextFrameName()) ? 'Last slide' : nw.label + ' ▶', onclick: presentNext,

@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.55': [
+    {title: 'Present slides in the Studio', text: 'Present slides now opens inside the Studio, marked \u201cPresenter view \u00b7 only you see this\u201d, with the slide people see marked ON SCREEN. Pop out gives the large window; \u2190 Back to Studio closes it. The Share Window says \u201cwhat people see\u201d.'}
+  ],
   '26.11.54': [
     {title: 'Import a lesson', text: 'Meeting \u25be \u2192 Import a lesson: choose a study lesson (PDF, Word or text) and FrameDecks makes a Frame for each day or part, with its questions and scriptures, scripture first. You tick what to keep first.', show: {spot: '#quick-start'}}
   ],

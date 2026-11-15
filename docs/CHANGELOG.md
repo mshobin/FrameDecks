@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.55] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.55.md](releases/v26.11.55.md).
+
+### Changed
+- `KCSlides.open({dock})` (slide-sorter.js): Present slides (live-stage.js) docks into `#canvas-wrap` as a
+  `section.sl-docked` instead of a modal dialog; Pop out reopens it as the dialog. Header chip `sl-who` ("Presenter
+  view · only you see this"), `sl-onscreen` badge on the current slide, "← Back to Studio" replaces × when
+  `opts.studio`. Docked keys stop propagation (no double step) and skip while another dialog is open; search is not
+  focused when docked. Desktop presenter layout fits its box (`@media (min-width:721px)`).
+- Share Window title `FrameDecks Share Window – what people see` (native `present_window.TITLE`, WebView2 window,
+  present.html); hover label `WHO` / `who_rect` (native) and `.who` (web) with a green edge; `.s2-present.on` has the
+  live green edge.
 ## [26.11.54] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.54.md](releases/v26.11.54.md).

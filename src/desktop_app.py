@@ -545,7 +545,7 @@ def main():
                 print("Presentation window: native window unavailable, using WebView2 instead:", e)
         # Frameless: no title bar, no minimise/maximise/close buttons, no window frame. Drag anywhere to move it.
         # The title stays internal (never shown) so Zoom can list it under "Share specific window".
-        w = webview.create_window("FrameDecks Share Window", url + "present.html", width=1280, height=720,
+        w = webview.create_window("FrameDecks Share Window – what people see", url + "present.html", width=1280, height=720,
                                   min_size=(480, 270), background_color="#000000", text_select=False,
                                   frameless=True, easy_drag=True)
         state["present_fs"] = False

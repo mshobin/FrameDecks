@@ -125,3 +125,32 @@
 /* 26.11.49 the phone remote's Clicker button, under "Slide 3 of 12" */
 .sl-clicker-open{display:block;width:100%;min-height:48px;margin-top:10px;padding:10px 14px;border:1px solid var(--gold);border-radius:12px;background:var(--gold-soft);color:inherit;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
 .sl-clicker-open[hidden]{display:none}
+/* ---------- 26.11.54 Present slides inside the Studio's stage, and what the presenter view says about itself ---------- */
+.sl-dlg.sl-docked{position:absolute;inset:0;z-index:6;display:flex;width:auto;max-width:none;max-height:none;border-radius:16px;box-shadow:none}
+.sl-docked .sl-head{padding:10px 14px 6px;gap:10px}
+.sl-docked .sl-ttl h2{font-size:16px}
+.sl-docked .sl-search{width:min(220px,26%)}
+.sl-docked .sl-body{padding:0 14px 12px}
+.sl-docked .sl-bar,.sl-docked .sl-status{padding-left:14px;padding-right:14px}
+.sl-docked .sl-pres{gap:10px}
+.sl-docked .sl-pres-main{grid-template-columns:minmax(0,3fr) minmax(160px,1fr);gap:12px}
+.sl-docked .sl-big{min-height:48px;font-size:16px}
+.sl-docked .sl-strip img{width:96px}
+.sl-has-dock > :not(.sl-docked){visibility:hidden}
+.sl-who{display:inline-flex;align-items:center;gap:4px;margin:0 0 4px;padding:2px 10px;border-radius:999px;background:var(--sl-gold-soft);color:var(--sl-muted);font-size:12px}
+.sl-who b{color:var(--sl-gold);font-weight:700}
+.sl-back,.sl-pop{flex:none}
+.sl-pres-curwrap{position:relative}
+.sl-onscreen{position:absolute;left:10px;top:10px;padding:3px 10px;border-radius:999px;background:var(--sl-live);color:var(--sl-dark);font-size:12px;font-weight:800;letter-spacing:.06em}
+.sl-docked .sl-body{flex:1;min-height:0;overflow:auto}
+.sl-docked.sl-presenting .sl-search{display:none}
+/* the slide, the buttons and the strip always fit (the Studio's stage, or the popped-out window on a computer) */
+@media (min-width:721px){
+  .sl-dlg.sl-presenting:not(.sl-docked){height:96vh}
+  .sl-presenting .sl-body{overflow:hidden}
+  .sl-presenting .sl-pres{height:100%;grid-template-rows:minmax(0,1fr) auto auto}
+  .sl-presenting .sl-pres-main{min-height:0;height:100%}
+  .sl-presenting .sl-pres-curwrap{height:100%;min-height:0;display:flex;justify-content:flex-start}
+  .sl-presenting .sl-pres-cur{width:auto;max-width:100%;height:100%;max-height:100%}
+  .sl-presenting .sl-pres-side{min-height:0;overflow:auto}
+}

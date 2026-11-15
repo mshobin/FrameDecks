@@ -23,7 +23,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-TITLE = "FRAMEDECKS Share Window"
+TITLE = "FrameDecks Share Window – what people see"   # 26.11.54 starts with the name Zoom lists; says what it is
 BORDER = 8                       # px from an edge that resizes the window
 UI_SECONDS = 2.0
 
@@ -117,7 +117,8 @@ def _button_img(label, w, h, kind, scale, fonts_dir):
     img = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     bg = (160, 30, 30, 230) if kind == "exit" else (40, 140, 84, 235) if kind == "done" else (10, 18, 34, 220)
-    d.rounded_rectangle([0, 0, w * k - 1, h * k - 1], radius=10 * k * scale, fill=bg, outline=(255, 255, 255, 70), width=max(1, int(k * scale)))
+    edge = (63, 191, 127, 200) if kind == "who" else (255, 255, 255, 70)            # 26.11.54 the live green edge
+    d.rounded_rectangle([0, 0, w * k - 1, h * k - 1], radius=10 * k * scale, fill=bg, outline=edge, width=max(1, int(k * scale)))
     try:
         font = ImageFont.truetype(str(Path(fonts_dir) / "SourceSans3.ttf"), int(14 * k * scale))
         try:
@@ -157,6 +158,13 @@ def _over(canvas, img, x, y):
 
 
 LABELS = {"exit": "Exit", "undo": "Undo", "clear": "Clear", "done": "Done"}
+WHO = "Share Window · what people see"          # 26.11.54 at the top left while the buttons show
+
+
+def who_rect(scale=1.0):
+    """Where the "what people see" label goes: the top left, the same height as the buttons."""
+    m, h = int(14 * scale), int(36 * scale)
+    return (m, m, m + int(250 * scale), m + h)
 
 
 def button_patches(frame, pic_rect, cw, ui_fullscreen, scale=1.0, fonts_dir=None, mode=""):
@@ -492,7 +500,14 @@ class NativePresentation:
                     g32.StretchDIBits(hdc, x, y, w, h, 0, 0, fw, fh, bgra.ctypes.data, ctypes.byref(bmi), 0, 0x00CC0020)   # SRCCOPY
                 cache["pic"] = (x, y, w, h)
                 if time.time() < self.ui_until:                                        # buttons: small patches
-                    for bx, by, patch in button_patches(frame, (x, y, w, h), cw, self.fullscreen, dpi_scale(), self.fonts_dir, self.ann_mode):
+                    patches = button_patches(frame, (x, y, w, h), cw, self.fullscreen, dpi_scale(), self.fonts_dir, self.ann_mode)
+                    if not self.ann_mode and self.fonts_dir:                           # 26.11.54 "what people see"
+                        wx0, wy0, wx1, wy1 = who_rect(dpi_scale())
+                        if wx1 < cw - int(260 * dpi_scale()):
+                            lab = np.zeros((wy1 - wy0, wx1 - wx0, 4), np.uint8); lab[..., 3] = 255
+                            _over(lab, _button_img(WHO, wx1 - wx0, wy1 - wy0, "who", dpi_scale(), self.fonts_dir), 0, 0)
+                            patches.append((wx0, wy0, np.ascontiguousarray(lab)))
+                    for bx, by, patch in patches:
                         ph_, pw_ = patch.shape[:2]
                         bmi.biWidth, bmi.biHeight = pw_, -ph_
                         g32.SetDIBitsToDevice(hdc, bx, by, pw_, ph_, 0, 0, 0, ph_, patch.ctypes.data, ctypes.byref(bmi), 0)

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>FrameDecks Share Window</title>
+<title>FrameDecks Share Window – what people see</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
   /* Presentation window: only the active scene. No app chrome; controls appear only when the mouse moves. */
@@ -24,6 +24,12 @@
   .hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);color:#cfd8ea;font-size:13px;
         background:rgba(10,18,34,.8);padding:6px 12px;border-radius:8px;opacity:0;transition:opacity .2s}
   body.ui .hint{opacity:1}
+  /* 26.11.54 while the mouse moves: this is the window people see (the presenter view in the Studio is only yours) */
+  .who{position:fixed;top:14px;left:14px;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;color:#fff;font:600 14px/1 inherit;
+       background:rgba(10,18,34,.86);border:1px solid rgba(63,191,127,.7);opacity:0;transition:opacity .2s;pointer-events:none;z-index:5}
+  .who i{width:8px;height:8px;border-radius:50%;background:#3fbf7f}
+  body.ui .who{opacity:1}
+  body.ann .who{display:none}
   .msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#8a97b3;font-size:15px;pointer-events:none}
   /* 9.7 Draw / Spotlight (chosen in Spotlight): the picture takes the mouse; Undo, Clear and Done near the top */
   #ink{position:fixed;display:none;touch-action:none;z-index:3}
@@ -42,6 +48,7 @@
 <iframe id="fallback" title="Overlays" tabindex="-1"></iframe>
 <canvas id="ink" aria-label="Draw on the picture"></canvas>
 <div class="msg" id="msg">Starting the presentation…</div>
+<div class="who" aria-hidden="true"><i></i>Share Window · what people see</div>
 <div class="bar" role="toolbar" aria-label="Presentation controls">
   <button type="button" id="a-undo" class="ann-b draw-only" title="Undo (Ctrl+Z)">Undo</button>
   <button type="button" id="a-clear" class="ann-b draw-only" title="Clear (Delete)">Clear</button>

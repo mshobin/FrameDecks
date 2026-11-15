@@ -73,7 +73,7 @@ go.addEventListener('click', function(){
   var present = go.dataset.mode === 'present';
   var st = Store.get(), b = st && st.live && st.live.scene ? $('lb-next') : $('cb-take');
   if (b && !b.disabled) b.click();
-  if (present && window.KCSlides) setTimeout(function(){ if (Store.get().live.deck) KCSlides.open({studio: true, present: true}); }, 900);
+  if (present && window.KCSlides) setTimeout(function(){ if (Store.get().live.deck) KCSlides.open({studio: true, present: true, dock: $('canvas-wrap')}); }, 900);   // 26.11.54 inside the Studio's stage
 });
 
 /* ---------- In this Frame (Advanced) ---------- */

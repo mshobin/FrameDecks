@@ -1,32 +1,29 @@
-## FrameDecks v26.11.54
-Import a lesson: choose a study lesson and FrameDecks makes the Frames, with their questions and scriptures.
+## FrameDecks v26.11.55
+Present slides is now clearly yours: it opens inside the Studio and says that only you see it.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Import a lesson.** Under **Meeting ▾ → Import a lesson (PDF or Word)…** (also in Quick Start and in Settings →
-  Data / Backup), choose a study lesson as a PDF, a Word file or a text file. FrameDecks finds its days or parts, its
-  numbered questions (3, 3a, 3b) and every Bible reference, written the usual ways (*John 3:16*, *Gen. 12:1-3; 15:6*,
-  *1 Cor 13:4-7*, *Ps 23*).
-- **You choose what to keep.** Each part is a card with its scriptures and questions ticked. Untick anything, rename a
-  Frame, and pick the translation (ESV with your key, or KJV or WEB with none). A whole chapter is offered but not
-  ticked.
-- **Ready to lead.** One Frame per part, each with a Scripture and a Question Content, and the order set: the
-  scripture first, then the questions. **Undo this import** puts the meeting back.
+- None in this release.
 
 ## Enhancements
-- Headers, footers and page numbers that repeat on every page are left out, and a question that runs over two lines
-  stays one question.
-- The lesson is read on this PC only; its words are never sent anywhere.
+- **Present slides opens inside the Studio.** The presenter view takes the place of the preview, with Go Live, Next
+  and Up next still beside it, so it can't be mistaken for the window people see. **Pop out** gives the large window
+  for a second screen.
+- **It says what it is.** *Presenter view · only you see this* at the top, the slide people see marked **ON SCREEN**,
+  and **← Back to Studio** to close it (the slide stays on screen).
+- **The Share Window says it too.** It is called *FrameDecks Share Window – what people see* (it is still listed in
+  Zoom under the name you know). Moving the mouse over it shows *Share Window · what people see*, and the Studio's
+  **Share Window** button has a green edge while it is open.
 
 ## Fixes
-- None in this release.
+- In the presenter view the arrow keys step through the slides straight away, and only once.
+- The slide, the buttons and the strip of slides always fit the presenter view on a computer; the top of the slide is
+  never cut off.
 
 ## Performance Improvements
 - None in this release.
 
 ## Known Issues
-- A scanned lesson (pictures of pages) has no text to read. Use the lesson's PDF from its website, or type the
-  questions in.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.

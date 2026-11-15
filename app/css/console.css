@@ -639,7 +639,7 @@ body.studio-focus .studio.s2{height:100vh !important}
 .op-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-650)}
 .op-text{font-size:14px;font-weight:600}
 .s2-present{display:inline-flex;align-items:center;gap:8px;font-weight:800}
-.s2-present.on{background:var(--raised);color:var(--ink);border-color:var(--gold)}
+.s2-present.on{background:var(--raised);color:var(--ink);border-color:var(--live);box-shadow:inset 0 0 0 1px var(--live)}   /* 26.11.54 the Share Window is open: the live green edge */
 
 /* Import questions & verses from Excel */
 .imp-table-wrap{max-height:300px;overflow:auto;border:1px solid var(--edge);border-radius:12px}

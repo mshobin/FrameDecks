@@ -104,7 +104,7 @@ console.log(JSON.stringify({
     def test_the_studio_button_present_and_next_slide(self):
         js = read("app/js/live-stage.js")
         self.assertIn("'Present slides'", js)
-        self.assertIn("KCSlides.open({studio: true, present: true})", js)
+        self.assertIn("KCSlides.open({studio: true, present: true, dock: $('canvas-wrap')})", js)
         self.assertIn("go.dataset.mode = 'deck'", js)
         self.assertIn("'Last slide · '", js)
 

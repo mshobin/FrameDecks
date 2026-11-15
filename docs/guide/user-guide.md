@@ -204,6 +204,13 @@ preview; turn on **Show text fields** to see the list and the typing boxes here 
     it goes live and shows the slide large, with big **Back** and **Next**, the next slide, its notes and a strip of
     the slides in this meeting's order. While slides are on screen the big button says what it will do: **Next
     animation**, **Next slide**, then, after the last slide, **Next** to the next Frame.
+  - **Presenter view** (26.11.55): Present slides opens inside the Studio, in place of the preview, with Go Live,
+    Next and Up next still beside it. It is marked *Presenter view · only you see this*, and the slide people see is
+    marked **ON SCREEN**. **Pop out** gives the large window (for a second screen); **← Back to Studio** (or Esc)
+    closes it and the slide stays on screen. The arrow keys and Page Up / Page Down step through the slides.
+  - The window people see is the **Share Window**, called *FrameDecks Share Window – what people see* in Zoom's list.
+    When you move the mouse over it, it shows *Share Window · what people see*; while it is open, the Studio's
+    **Share Window** button has a green edge.
   - On the phone remote, **Clicker** under *Slide 3 of 12* turns the phone into a clicker: the slide, two big buttons
     and what Next will do.
   With a Frame that has a PowerPoint deck on screen:
