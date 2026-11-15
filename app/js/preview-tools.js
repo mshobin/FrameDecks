@@ -93,6 +93,7 @@ function buildBar(s, l){
     bar.appendChild(btn('plus', NAME[s.kind], 'Add a ' + NAME[s.kind].toLowerCase() + ' after this one', function(){ addItem(); }, 'add'));
   }
   bar.appendChild(h('span', {cls: 'pv-sep'}));
+  if (window.KCFrameOrder){ var lk = btn('palette', 'Look', 'Copy this look, paste one, or use it for other Content', function(){ window.KCFrameOrder.lookMenu(lk, s.sid, s.lid); }); bar.appendChild(lk); }   // 26.11.51
   bar.appendChild(btn(vis ? 'eye-off' : 'eye', vis ? 'Hide' : 'Show', vis ? 'Hide it' : 'Show it', function(){ if (window.KCWorkspace && window.KCWorkspace.toggleLayer) window.KCWorkspace.toggleLayer(s.sid, s.lid); }));
   bar.appendChild(btn('trash-2', '', list ? 'Delete this ' + NAME[s.kind].toLowerCase() : 'Delete this Content', function(){ del(); }, 'danger'));
 }

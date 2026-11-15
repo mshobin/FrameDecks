@@ -10,6 +10,23 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.51] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.51.md](releases/v26.11.51.md).
+
+### Added
+- A Frame's order (`sc.flow`: steps of Content ids, kept only when set, `cleanFlow` drops unknown ids and empty steps;
+  `live.flow` the step on screen). `Scenes.flowOf/flowAt/flowApply/flowCan/flowStep/flowLabel`; `take` starts at
+  step 1; `freshIds` maps the order onto a copy's new ids; `previewState(st, id, all)` shows every card.
+- Next / Previous walk the steps first in the Studio, the phone remote, the Command Center and voice commands; the Live
+  Stage button reads Next step; the top bar's ◀ ▶ stay enabled while there are steps.
+- `app/js/frame-order.js` (`KCFrameOrder`): Set order under the preview (click cards or names, Shift-click joins the
+  step before, drag to reorder, Done / Clear / Cancel, gold numbers and a dotted path), and Look ▾ in the preview's
+  toolbar (Copy look, Paste look, Use this look for… this meeting / all meetings / chosen Frames, settings only, Undo).
+
+### Fixed
+- The words panel scrolls within the Settings cards (visual check at 1366 × 768).
+
 ## [26.11.50] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.50.md](releases/v26.11.50.md).

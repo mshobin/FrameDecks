@@ -1441,10 +1441,10 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-layout-reset]'), f
 var frame = $('program-frame'), frameSrc = '', host = $('tab-studio');
 function renderCanvas(){
   var sc = scene(), isLive = sc && isLiveScene(sc.id), S = studio(), L = live.live;
-  var useStudio = !!(isLive && S);
+  var useStudio = !!(isLive && S && !window.KCOrderAll);   // 26.11.51 setting the order shows the Frame's own preview
   if (host.hidden === useStudio){ host.hidden = !useStudio; if (useStudio && window.KCStudio) setTimeout(window.KCStudio.fit, 0); }
   $('program').hidden = useStudio;
-  var src = 'stage.html?bg=preview&preview=1' + (sc && !isLive ? '&scene=' + encodeURIComponent(sc.id) : '');
+  var src = 'stage.html?bg=preview&preview=1' + (sc && (!isLive || window.KCOrderAll) ? '&scene=' + encodeURIComponent(sc.id) + (window.KCOrderAll ? '&all=1' : '') : '');   // 26.11.51 all=1: every card at once while setting the order
   if (!useStudio && src !== frameSrc){ frameSrc = src; frame.src = src; }
   $('canvas-scene').textContent = sc ? sc.name : '';
   var badge = $('canvas-badge'), bt, bc;
@@ -1521,6 +1521,12 @@ function stepScene(d){
     var keepS = Store.snapshot(), lab = '';
     if (window.KCSound) KCSound.play('next');
     Store.update(function(n){ lab = SC.songStep(n, d); }).then(function(){ offerUndo(keepS, lab + ' is on screen'); });
+    return;
+  }
+  if (SC.flowCan(live, d)){                                                            // 26.11.51 the Frame's own order: its next step
+    var keepF = Store.snapshot(), labF = '';
+    if (window.KCSound) KCSound.play('next');
+    Store.update(function(n){ labF = SC.flowStep(n, d); }).then(function(){ offerUndo(keepF, labF + ' is on screen'); });
     return;
   }
   if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
@@ -1626,7 +1632,7 @@ function renderLiveBar(){
   $('cb-take').disabled = !sc || sc.tpl;
   $('cb-take').classList.toggle('is-live', !!(sc && isLiveScene(sc.id)));
   var order = SC.order(live), li = order.findIndex(function(s){ return s.id === (L.scene || selScene); });
-  $('lb-prev').disabled = li <= 0 && !!L.scene; $('lb-next').disabled = li >= order.length - 1 && li >= 0;
+  $('lb-prev').disabled = li <= 0 && !!L.scene && !SC.flowCan(live, -1); $('lb-next').disabled = li >= order.length - 1 && li >= 0 && !SC.flowCan(live, 1);   // 26.11.51 a Frame's steps count too
   $('lb-auto').setAttribute('aria-pressed', String(L.auto));
   $('lb-blackout').setAttribute('aria-pressed', String(L.blackout)); $('lb-blackout').classList.toggle('on', L.blackout);
   $('lb-emergency').setAttribute('aria-pressed', String(L.emergency)); $('lb-emergency').classList.toggle('on', L.emergency);

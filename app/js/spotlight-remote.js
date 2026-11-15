@@ -54,6 +54,11 @@ function step(d){
     Store.undoable(function(n){ lab = SC.songStep(n, d); }).then(function(r){ tell('✓ ' + lab, false, r.undo); }).catch(function(){ tell('FrameDecks did not answer.', true); });
     return;
   }
+  if (SC.flowCan(live, d)){                                                            // 26.11.51 the Frame's own order: its next step
+    var labF = '';
+    Store.undoable(function(n){ labF = SC.flowStep(n, d); }).then(function(r){ tell('✓ ' + labF, false, r.undo); }).catch(function(){ tell('FrameDecks did not answer.', true); });
+    return;
+  }
   if (d > 0 && live.live.scene && Store.setting && Store.setting('smartNext')){      // 26.11.22 Smart Next
     var t = SC.smartNext(live);
     if (!t){ tell('That is the last of the meeting.'); return; }

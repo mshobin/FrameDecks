@@ -123,6 +123,11 @@ A Question (or Scripture) Content holds **its own list**, in the area under the 
 cards across the width, and scriptures are rows beside **Fetch scripture**. Since 26.11.50 the area under the
 preview shows the settings as cards (**Position and size**, **Look**, **Animation**, **Show on**) and you type in the
 preview; turn on **Show text fields** to see the list and the typing boxes here as well.
+- **Set order:** under the preview, **Set order** lets you click the Content in the order it should appear (any kind
+  of Content; Shift-click puts it together with the step before). Gold numbers and a dotted path show the order;
+  drag a step to move it, **×** removes it, **Done** saves. When the Frame is live, **Next step** shows each step,
+  then Next goes to the next Frame. **Look** in the preview's toolbar copies a look, pastes it, or uses it for every
+  one of that kind in this meeting, all meetings or chosen Frames (never the words; one Undo).
 - **Type in the preview:** click a card on the preview to select it (a gold outline with its name), then
   double-click it or press **Enter** to type. The toolbar above it has **Edit**, **A−** / **A+**, **◀ 2 of 5 ▶**,
   **+ Question** / **+ Scripture**, **Show** / **Hide** and **Delete** (with Undo). Drag the card to move it, drag a

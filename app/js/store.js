@@ -453,7 +453,22 @@ function cleanScene(sc){
   if (!isObj(sc)) return null;
   var o = cleanScene0(sc);
   if (sc.aka && String(sc.aka).trim()) o.aka = str(String(sc.aka).trim(), 200);   /* 26.11.41 Also called (only when set, so older Frames do not change) */
+  var fl = cleanFlow(sc.flow, o.layers); if (fl) o.flow = fl;    /* 26.11.51 the order the Frame shows its Content (only when set) */
   return o;
+}
+/* 26.11.51 a Frame's steps: [[layer id, ...], ...] - each step lists the Content on screen at that step; Content in no
+   step is not part of the order and stays as it is. Unknown ids and empty steps are dropped. null: no order set. */
+function cleanFlow(f, layers){
+  if (!Array.isArray(f)) return null;
+  var ids = {}; (layers || []).forEach(function(l){ ids[l.id] = true; });
+  var out = [];
+  f.slice(0, 30).forEach(function(step){
+    if (!Array.isArray(step)) return;
+    var s = [];
+    step.forEach(function(id){ id = String(id || ''); if (ids[id] && s.indexOf(id) < 0) s.push(id); });
+    if (s.length) out.push(s.slice(0, 20));
+  });
+  return out.length ? out : null;
 }
 function cleanScene0(sc){
   var tx = isObj(sc.tx) ? sc.tx : {}, auto = isObj(sc.auto) ? sc.auto : {}, out = isObj(sc.out) ? sc.out : {};
@@ -608,6 +623,7 @@ var Scenes = {
     var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)
     var jn = cleanJoin(l.join); if (jn) st.live.join = jn;           // 26.11.44 the members' phones QR on the Branding badge
     var dk = cleanDeck(l.deck); if (dk) st.live.deck = dk;           // 26.11.45 the slide on screen
+    if (isObj(l.flow) && typeof l.flow.scene === 'string' && isFinite(l.flow.at)) st.live.flow = {scene: str(l.flow.scene, 40), at: Math.max(0, Math.min(29, Number(l.flow.at) | 0))};   // 26.11.51 the step on screen
     if (isObj(l.smart) && typeof l.smart.scene === 'string' && isFinite(l.smart.at)) st.live.smart = {scene: str(l.smart.scene, 40), at: Math.max(-1, Math.min(999, Number(l.smart.at) | 0))};   // 26.11.22 Smart Next's place
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
@@ -913,15 +929,16 @@ var Scenes = {
   },
   /* A copy is fully independent: new ids for every Content and every item in its lists (links follow) */
   freshIds: function(sc){
-    var map = {};
+    var map = {}, lmap = {};
     sc.layers.forEach(function(l){
-      l.id = rid();
+      var was = l.id; l.id = rid(); lmap[was] = l.id;
       if (Array.isArray(l.c.items)) l.c.items.forEach(function(it){ var nid = Scenes.newItemId(l.kind === 'question' ? 'question' : 'verse'); map[it.id] = nid; it.id = nid; });
     });
     sc.layers.forEach(function(l){
       if (l.c.itemId) l.c.itemId = map[l.c.itemId] || '';
       if (Array.isArray(l.c.items)) l.c.items.forEach(function(it){ if (it.pair) it.pair = map[it.pair] || ''; });
     });
+    if (Array.isArray(sc.flow)) sc.flow = sc.flow.map(function(st){ return st.map(function(id){ return lmap[id] || ''; }).filter(Boolean); }).filter(function(st){ return st.length; });   // 26.11.51 the order follows
     return sc;
   },
   /* Explode a list into scenes: one scene per question (or verse), each pinned to its item, from this scene */
@@ -1010,7 +1027,39 @@ var Scenes = {
     if (!n.live.scene || !n.live.since || now - (n.live.at || 0) > 6 * 3600e3) n.live.since = now;
     n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = now; n.live.tx = tx.type; n.live.txMs = tx.ms;
     delete n.live.smart;                                     // 26.11.23 a Frame taken again starts Smart Next from what it shows
+    delete n.live.flow;
+    if (Scenes.flowOf(sc)) Scenes.flowApply(n, sc, 0);       // 26.11.51 a Frame with an order starts at its first step
     return true;
+  },
+  /* 26.11.51 the order a Frame shows its Content in (sc.flow). Next walks through the steps, then goes to the next Frame. */
+  flowOf: function(sc){ return sc && Array.isArray(sc.flow) && sc.flow.length ? sc.flow : null; },
+  flowAt: function(st){ var sc = Scenes.liveScene(st), f = Scenes.flowOf(sc); if (!f) return -1; var m = st.live.flow; return m && m.scene === sc.id ? Math.min(m.at, f.length - 1) : 0; },
+  flowApply: function(n, sc, at){
+    var f = Scenes.flowOf(sc); if (!f || n.live.scene !== sc.id) return false;
+    at = Math.max(0, Math.min(f.length - 1, at));
+    var want = f[at], all = [];
+    f.forEach(function(step){ step.forEach(function(id){ if (all.indexOf(id) < 0) all.push(id); }); });
+    var order = all.slice().sort(function(a, b){ var la = Scenes.layer(sc, a), lb = Scenes.layer(sc, b); return (la && la.kind === 'scripture' ? 1 : 0) - (lb && lb.kind === 'scripture' ? 1 : 0); });   // the question before its scripture (Both)
+    order.forEach(function(id){
+      var l = Scenes.layer(sc, id); if (!l) return;
+      var on = want.indexOf(id) >= 0;
+      if (Scenes.layerOn(n, sc, l) !== on) Scenes.setOn(n, sc.id, id, on);
+    });
+    if (n.question.visible) n.question.mode = n.verse.visible ? 'both' : 'question';
+    n.live.flow = {scene: sc.id, at: at};
+    return true;
+  },
+  flowCan: function(st, d){ var f = Scenes.flowOf(Scenes.liveScene(st)); if (!f) return false; var to = Scenes.flowAt(st) + d; return to >= 0 && to < f.length; },
+  flowStep: function(n, d){
+    var sc = Scenes.liveScene(n), f = Scenes.flowOf(sc); if (!f) return '';
+    var to = Scenes.flowAt(n) + d; if (to < 0 || to >= f.length) return '';
+    Scenes.flowApply(n, sc, to);
+    return 'Step ' + (to + 1) + ' of ' + f.length + ': ' + Scenes.flowLabel(sc, to);
+  },
+  /* the Content of one step in words: "Scripture · Question" */
+  flowLabel: function(sc, at){
+    var f = Scenes.flowOf(sc); if (!f || !f[at]) return '';
+    return f[at].map(function(id){ var l = Scenes.layer(sc, id); return l ? (l.name || (KIND_INFO[l.kind] || {}).name || l.kind) : ''; }).filter(Boolean).join(' · ');
   },
   /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */
   /* 26.11.22 Smart Next: the live Frame's questions, then its scriptures, one by one, and then the next Frame.
@@ -1071,8 +1120,9 @@ var Scenes = {
     if (n.live.scene === sceneId) Scenes.setOn(n, sceneId, layerId, on);
   },
   /* What the program would show if this scene were taken live now (canvas preview of another scene) */
-  previewState: function(st, id){
+  previewState: function(st, id, all){
     var n = JSON.parse(JSON.stringify(st));
+    if (all){ var fs = Scenes.find(n, id); if (fs) delete fs.flow; }   // 26.11.51 setting the order: every card at once
     if (!Scenes.take(n, id, 'cut')) return n;
     ['question', 'verse'].forEach(function(k){ n[k].play = 'none'; });
     n.live.blackout = false; n.live.emergency = false; n.live.freeze = false;            // drawings stay: they sit above any Frame

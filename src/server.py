@@ -54,7 +54,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.50"
+APP_VERSION = "26.11.51"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)

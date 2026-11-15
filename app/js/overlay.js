@@ -715,7 +715,7 @@ function mount(opts){
     Store.subscribe(function(raw){
       // pending=1: a preview of what SHOW will put on screen (Question · Both · Verse), not what is on screen now
       // scene=ID: a preview of another scene, as if it were taken live (the Studio Canvas)
-      var src = sceneQ && SC ? SC.previewState(raw, sceneQ) : pending ? window.KCPresent.preview(raw) : raw;
+      var src = sceneQ && SC ? SC.previewState(raw, sceneQ, /[?&]all=1/.test(location.search)) : pending ? window.KCPresent.preview(raw) : raw;
       var st = effective(src);
       last = st;
       document.body.classList.toggle('mode-both', !!(window.KCPresent && window.KCPresent.combined(st)));

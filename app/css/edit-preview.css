@@ -103,3 +103,51 @@ body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards .sc-card:not(.sc
 .inspector .insp-body.sc-cards [data-grp="output"] > .cs-sec > .ip-sec > b:first-child,.inspector .insp-body.sc-cards [data-grp="output"] > .ip-sec > b:first-child{display:none}
 /* the words panel (a birthday, or with Show text fields on) scrolls within itself rather than pushing the area taller */
 .inspector .insp-body.sc-cards > .ip[data-itab="content"]:not([hidden]){max-height:100%;min-height:0;overflow:auto}
+
+/* ---------- 26.11.51 the order a Frame shows its Content (js/frame-order.js) ---------- */
+.fo-strip{position:absolute;z-index:36;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:6px;border:1px solid var(--line);border-radius:var(--r-2);
+  background:var(--panel);box-shadow:var(--el-2);font-size:13px}
+.fo-strip[hidden]{display:none}
+.fo-set{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:0;border-radius:var(--r-1);background:none;color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.fo-set:hover,.fo-set:focus-visible{background:var(--raised)}
+.fo-set:focus-visible,.fo-c:focus-visible,.fo-x:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.fo-steps{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.fo-step{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 4px 0 4px;border:1px solid var(--gold-soft);border-radius:999px;background:var(--gold-soft);color:var(--ink);white-space:nowrap}
+.fo-step[draggable="true"]{cursor:grab}
+.fo-n{display:grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:var(--gold);color:var(--gold-ink);font-size:12px;font-weight:800}
+.fo-t{max-width:220px;overflow:hidden;text-overflow:ellipsis;font-weight:600;padding-right:6px}
+.fo-x{display:grid;place-items:center;width:20px;height:20px;border:0;border-radius:999px;background:none;color:var(--muted);font:inherit;font-size:15px;line-height:1;cursor:pointer}
+.fo-x:hover{background:var(--red-soft);color:var(--red)}
+.fo-arrow{color:var(--faint);font-weight:700}
+.fo-help{flex-basis:100%;padding:2px 4px;color:var(--muted);font-size:12px;font-weight:600}
+.fo-pick{display:flex;flex-wrap:wrap;align-items:center;gap:4px;flex-basis:100%;padding-top:4px;border-top:1px solid var(--line-soft)}
+.fo-pick-t{padding:0 4px;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.fo-c{height:26px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.fo-c:hover{border-color:var(--gold);color:var(--gold)}
+.fo-c.used{border-color:var(--gold);background:var(--gold-soft)}
+.fo-acts{display:flex;gap:6px;margin-left:auto}
+.fo-badges{position:absolute;left:0;top:0;width:0;height:0;z-index:34;pointer-events:none}
+.fo-badge{position:absolute;display:grid;place-items:center;white-space:nowrap;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:var(--gold);color:var(--gold-ink);
+  font-size:13px;font-weight:800;box-shadow:0 0 0 2px var(--video-bg),var(--el-1)}
+.fo-path{position:absolute;left:0;top:0;z-index:33;pointer-events:none;overflow:visible}
+.fo-path polyline{fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:5 6;stroke-linecap:round;opacity:.9}
+.fo-on #program{cursor:crosshair;box-shadow:0 0 0 2px var(--gold)}
+.fo-on .pv-sel,.fo-on .pv-bar,.fo-on .pv-editing,.fo-on .pv-hint{display:none}
+/* Look ▾ and Use this look for... */
+.fo-menu button[disabled]{opacity:.45;cursor:default}
+.fo-menu button[disabled]:hover{background:none;color:var(--ink)}
+.fo-dlg{width:min(460px,calc(100vw - 32px));padding:20px;border:1px solid var(--line);border-radius:var(--r-3);background:var(--panel);color:var(--ink);box-shadow:var(--el-4)}
+.fo-dlg::backdrop{background:var(--scrim)}
+.fo-dlg h3{margin:0 0 4px;font-size:18px}
+.fo-sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.4}
+.fo-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:var(--r-2);margin-bottom:6px;cursor:pointer;font-size:14px;font-weight:600}
+.fo-opt:has(input:checked){border-color:var(--gold);background:var(--gold-soft)}
+.fo-opt small,.fo-li small{margin-left:auto;color:var(--muted);font-size:12px;font-weight:600}
+.fo-list{max-height:220px;overflow:auto;margin:4px 0 6px;padding:4px;border:1px solid var(--line-soft);border-radius:var(--r-2)}
+.fo-list[hidden]{display:none}
+.fo-li{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--r-1);font-size:14px;cursor:pointer}
+.fo-li:hover{background:var(--hover)}
+.fo-dlg-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.fo-strip:not(.editing){padding:2px;border-color:var(--line-soft);background:var(--panel);opacity:.92}
+.fo-strip:not(.editing):hover{opacity:1}
+.fo-strip.editing{z-index:40;box-shadow:var(--el-3)}

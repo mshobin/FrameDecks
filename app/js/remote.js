@@ -65,6 +65,7 @@ function guard(key, fn){ return function(e){ var now = Date.now(); if (now - (ta
 function take(id){ var sc = SC.find(live, id); if (sc) update(function(n){ SC.take(n, id, null); }, sc.name + ' is on screen'); }
 function stepScene(d){
   if (SC.songCan(live, d)){ var lab = ''; update(function(n){ lab = SC.songStep(n, d); }, '').then(function(){ if (lab) toast('✓ ' + lab); }); return; }   // 26.11.33 a song: its next verse
+  if (SC.flowCan(live, d)){ var labF = ''; update(function(n){ labF = SC.flowStep(n, d); }, '').then(function(){ if (labF) toast('✓ ' + labF); }); return; }   // 26.11.51 the Frame's own order: its next step
   if (d > 0 && live.live.scene && studioInfo && studioInfo.smartNext){      // 26.11.22 Smart Next (Settings on the PC)
     var t = SC.smartNext(live), label = '';
     if (!t){ toast('That’s the last of the meeting.'); return; }

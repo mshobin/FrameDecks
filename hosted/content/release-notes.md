@@ -1,32 +1,27 @@
-## FrameDecks v26.11.50
-Edit straight in the preview: click a card to select it, type in it, move it and resize it. The area under the
-preview now holds only the settings, as cards.
+## FrameDecks v26.11.51
+Choose the order a Frame shows its Content, step by step, and copy a look from one Content to others in one go.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Type in the preview.** Every kind of Content can be edited on the picture itself: questions, scriptures,
-  announcements, prayers, name titles and timers. Click a card to select it (a gold outline with its name), then
-  double-click it, or press **Enter**, to type.
-- **A toolbar above what you select.** **Edit**, **A−** / **A+** for the text size, **◀ 2 of 5 ▶** to go through
-  the questions or scriptures, **+ Question** / **+ Scripture** to add one after it, **Show** / **Hide** and
-  **Delete** (with Undo).
-- **Add where you double-click.** Double-click empty space on the preview to add a Question, Scripture, Text, Name
-  title or a picture or video there. The typing box opens at once.
-- **Drag to move, a corner to resize.** Drag a card to move it; drag a corner to make it wider or narrower. Text
-  snaps to the nearest place (top, centre, bottom or a corner).
-- **Settings as cards.** Under the preview: **Position and size**, **Look**, **Animation** and **Show on**, side by
-  side as cards. Turn on **Show text fields** for the typing boxes as well, for long text or pasting.
-- **Keys in the preview.** **Tab** / **Shift+Tab** go from card to card, **Enter** edits, **Esc** finishes, the
-  arrow keys nudge (with **Shift** further), and **Delete** deletes.
+- **Set order.** Under the preview, **Set order** lets you click the Content in the order it should appear: a
+  scripture, then the scripture with its question, then the question with an announcement, then a video. It works
+  for every kind of Content, not only questions and scriptures. Click the cards on the preview or the names in the
+  row; **Shift-click** puts Content together with the step before. Gold numbers on the cards and a dotted path show
+  the order; drag a step to move it, **×** removes it, **Done** saves.
+- **Next follows the order.** When the Frame is live, the big button reads **Next step** and shows what comes next.
+  After the last step, Next goes to the next Frame; Previous goes back a step. The phone remote, the Command Center
+  and voice commands do the same.
+- **Copy a look.** The preview's toolbar has **Look**: **Copy look**, **Paste look** and **Use this look for…**.
+  Use it for every one of that kind in this meeting, in all meetings, or on chosen Frames. Only the settings travel
+  (position, size, text size, look, animation, Show on), never the words. One **Undo** puts everything back.
 
 ## Enhancements
-- On a Frame that is on screen, an edit stays a draft until **Update screen**, and an **Editing** badge on the
-  preview says so: people keep seeing the old words until then.
-- In Simple mode the settings cards stay behind the **Design** button, as before.
+- A copy of a Frame (Duplicate, or a new meeting copied from this one) keeps its order.
+- While you set the order, the preview shows every card of the Frame at once, even when the Frame is live.
 
 ## Fixes
-- None in this release.
+- The words panel scrolls within the Settings cards instead of making the area under the preview taller.
 
 ## Performance Improvements
 - None in this release.

@@ -29,6 +29,15 @@ function paintGo(){
   go.classList.remove('is-take');
   go.classList.remove('is-off');
   var up = $('upnext'), name = ($('un-name') || {}).textContent || '', meta = ($('un-meta') || {}).textContent || '';
+  if (st && SC.flowCan && SC.flowCan(st, 1)){                 // 26.11.51 the Frame's own order: Next shows its next step first
+    var fsc = SC.liveScene(st), fat = SC.flowAt(st) + 1, fl = SC.flowOf(fsc);
+    if (!go.classList.contains('holding')) goT.textContent = 'Next step';
+    go.classList.remove('is-off'); go.disabled = false; delete go.dataset.mode;
+    go.removeAttribute('aria-label'); if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
+    goSub.textContent = SC.flowLabel(fsc, fat) + ' · step ' + (fat + 1) + ' of ' + fl.length;
+    go.title = 'Next: step ' + (fat + 1) + ' of this Frame (' + SC.flowLabel(fsc, fat) + ')';
+    return;
+  }
   var warn = up && !up.hidden && $('un-warn') && $('un-warn').firstChild ? ' · ⚠︎ ' + $('un-warn').firstChild.textContent : '';
   if (!up || up.hidden || !name){
     // 26.11.29 after the last Frame the button goes off air by press and hold (js/off-air.js); 26.11.42 it reads On air
