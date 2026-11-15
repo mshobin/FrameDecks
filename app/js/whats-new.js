@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.50': [
+    {title: 'Type in the preview', text: 'Click a card on the preview to select it, then double-click it (or press Enter) to type. A toolbar above it sizes the text, steps through the questions or scriptures, adds one, shows, hides or deletes.', show: {spot: '#program'}},
+    {title: 'Add, move and resize', text: 'Double-click empty space on the preview to add Content there. Drag a card to move it, a corner to resize it. Tab goes from card to card.', show: {spot: '#program'}},
+    {title: 'Settings as cards', text: 'The area under the preview holds the settings as cards: Position and size, Look, Animation, Show on. Show text fields brings the typing boxes back.', show: {spot: '#insp-body'}}
+  ],
   '26.11.49': [
     {title: 'Meeting tabs', text: 'Your meetings are tabs above the Frames, with their dates; the next one says Next. New can copy the meeting shown, with the scripture and questions left empty.', show: {spot: '#mt-tabs'}},
     {title: 'Present slides', text: 'Select a Frame with slides: the big button reads Present slides and shows them large with big Back and Next. Next says what it will do: the next animation, slide or Frame.', show: {spot: '#ls-go'}},

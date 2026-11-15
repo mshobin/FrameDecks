@@ -123,7 +123,12 @@ $('program').addEventListener('dblclick', function(e){
   var doc; try { doc = frame.contentDocument; } catch(err){ return; }
   if (!doc) return;
   var f = frame.getBoundingClientRect(), s = f.width / 1920, x = (e.clientX - f.left) / s, y = (e.clientY - f.top) / s;
-  var card = cardAt(doc, x, y); if (!card) return;
+  var card = cardAt(doc, x, y);
+  if (!card){                                   // 26.11.50 empty space: add Content here (js/preview-tools.js)
+    e.preventDefault(); try { window.getSelection().removeAllRanges(); } catch(err){}
+    document.dispatchEvent(new CustomEvent('kc-pv-empty', {detail: {x: x, y: y, cx: e.clientX, cy: e.clientY}}));
+    return;
+  }
   e.preventDefault(); e.stopPropagation();
   var wr = wrap.getBoundingClientRect();
   edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
@@ -175,6 +180,14 @@ document.addEventListener('dblclick', function(e){
   });
 }, true);
 
-window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline};
+/* 26.11.50 type in a card from the toolbar or the keyboard (js/preview-tools.js): as a double-click on its words */
+function editCard(card){
+  var f = frame.getBoundingClientRect(), s = f.width / 1920, wr = wrap.getBoundingClientRect(), r = card.getBoundingClientRect();
+  var txt = card.querySelector('.card-text, .q-text, .verse-text, p') || card, tr = txt.getBoundingClientRect();
+  var x = tr.width ? tr.left + tr.width / 2 : r.left + r.width / 2, y = tr.height ? tr.top + tr.height / 2 : r.top + r.height * 0.65;
+  edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
+}
+window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline, editCard: editCard, cardAt: cardAt, previewDoc: previewDoc, toWrap: toWrap,
+  shownItem: shownItem, frameId: frameId};
 hint();
 })();

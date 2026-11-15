@@ -981,10 +981,22 @@ function groupHead(key, name, sub, fold){
   return h('div', {cls: 'cs-group cs-anchor cs-fold', 'data-grp': key, role: 'button', tabindex: '0', 'aria-expanded': 'false'}, [h('span', {text: name}), h('span', {cls: 'cs-chev', 'aria-hidden': 'true', text: '▸'})]);
 }
 function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2], g[3]) : null; }
+var CARD_IC = {layout: 'maximize', style: 'palette', animation: 'sparkles', output: 'monitor'};   // 26.11.50 the icon on each Settings card
 /* 8.1 the settings sections open and close on a click; remembered on this PC */
 function applyGroups(){
   var gen = $('ip-gen'); gen.classList.remove('cs-closed', 'cs-sheet');   // 26.11.2 a fold left from another Content never hides the Frame form
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-sheet'), function(x){ x.classList.remove('cs-sheet'); });
+  if ($('insp-body').classList.contains('sc-cards')){        // 26.11.50 Settings as cards: every section open, side by side
+    Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){
+      hd.setAttribute('aria-expanded', 'true'); hd.removeAttribute('role'); hd.removeAttribute('tabindex');
+      var g = hd.dataset.grp || hd.parentNode.dataset.itab;
+      if (!hd.querySelector('.sc-ic')) hd.insertBefore(h('span', {cls: 'sc-ic', 'data-ic': g, 'aria-hidden': 'true', html: I(CARD_IC[g] || 'settings', 16)}), hd.firstChild);
+      var p = hd.parentNode; if (p.classList.contains('ip')) p.classList.remove('cs-closed');
+      var nx = hd.nextElementSibling; if (nx && nx.classList.contains('cs-sec') && nx.hidden) nx.hidden = false;
+    });
+    return;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){ if (!hd.hasAttribute('role')){ hd.setAttribute('role', 'button'); hd.setAttribute('tabindex', '0'); } });
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){
     var open = !!openGrp[hd.dataset.grp], p = hd.parentNode;
     /* 26.11.2 an open section is a sheet over the area (css), so nothing is pushed down */
@@ -995,7 +1007,7 @@ function applyGroups(){
   });
 }
 function foldClick(e){
-  var hd = e.target.closest && e.target.closest('.cs-fold'); if (!hd) return;
+  var hd = e.target.closest && e.target.closest('.cs-fold'); if (!hd || $('insp-body').classList.contains('sc-cards')) return;
   if (e.type === 'keydown'){ if (e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); }
   var open = !openGrp[hd.dataset.grp];
   if (open) Object.keys(openGrp).forEach(function(k){ openGrp[k] = false; });     // 26.11.2 one sheet at a time
@@ -1054,6 +1066,7 @@ function renderInspectorBody(){
   });
   var gen = $('ip-gen'); gen.hidden = false;
   gen.classList.toggle('gen-frame', !!sc && !l);                 // 26.11.2 the Frame form fills the area (css)
+  cardsMode(sc, l, kind);
   orderPanels(panelKind, groups, gen);
   if (!SC.isCard(kind) && window.KCFrameLists) window.KCFrameLists.render();       // 26.11.2 the title row lets go of a deck's label and buttons
   if (SC.isCard(kind)){ if (window.KCRenderLists) window.KCRenderLists(); if (window.KCRefreshControls) window.KCRefreshControls(); if (kind === 'birthday' && window.KCRenderBirthday) window.KCRenderBirthday(); }
@@ -1064,13 +1077,50 @@ function renderInspectorBody(){
   inspSig = (sc && sc.id) + ':' + (l && l.id) + '|' + sig;
   gen.innerHTML = '';
   if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select a Frame on the left, or add one with + Frame.'})); return; }
-  function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec' + (t[2] ? ' cs-sec-sub' : '')}), hd = groupHead(t[0], t[1], t[2], t[3]); if (hd) gen.appendChild(hd); gen.appendChild(box); fn(box, t[0]); }); }
+  /* 26.11.50 each settings section is a card (its heading and its controls together); words are marked sc-words */
+  function card(key){ var c = h('div', {cls: 'sc-card' + (key === 'label' || key === 'content' ? ' sc-words' : ''), 'data-grp': key}); gen.appendChild(c); return c; }
+  function each(fn){ groups.forEach(function(t){ var into = card(t[0]), box = h('div', {cls: 'cs-sec' + (t[2] ? ' cs-sec-sub' : '')}), hd = groupHead(t[0], t[1], t[2], t[3]); if (hd) into.appendChild(hd); into.appendChild(box); fn(box, t[0]); }); }
   if (!l) sceneForm(gen, sc);
-  else if (SC.isCard(kind)){ var ob = h('div', {cls: 'cs-sec'}); gen.appendChild(headFor(groups, 'output')); gen.appendChild(ob); outputForm(ob, sc, l); }
+  else if (SC.isCard(kind)){ var ob = h('div', {cls: 'cs-sec'}), oc = card('output'); oc.appendChild(headFor(groups, 'output')); oc.appendChild(ob); outputForm(ob, sc, l); }
   else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
   else if (SC.isSound(kind)){ gen.appendChild(groupHead('content', 'Audio')); audioForm(gen, sc, l); }
   else if (!mediaLive){ gen.appendChild(groupHead('content', 'Media')); mediaForm(gen, sc, l); }
   else { gen.appendChild(groupHead('output', 'Behavior')); gen.appendChild(h('p', {cls: 'hint', text: 'Position, size and the rest of this Content: drag it on the picture, or use the settings above.'})); }
+}
+/* 26.11.50 the area below the preview is Settings, as cards; the words are typed in the preview. "Show text fields"
+   (remembered on this PC, off by default) brings the typing boxes back, for long text or pasting. A question or scripture
+   list that is still empty always shows them, so there is a first one to type. */
+var textFields = lsGet('kc-text-fields', '0') === '1';
+function cardsMode(sc, l, kind){
+  var body = $('insp-body'), on = !!(sc && l);
+  body.classList.toggle('sc-cards', on);
+  var list = kind === 'question' || kind === 'scripture', items = list && Array.isArray(l.c.items) ? l.c.items : [];
+  var hasWords = on && (list || SC.isText(kind)) && kind !== 'brand';
+  var words = !hasWords || textFields || (list && !items.length);
+  body.classList.toggle('no-words', on && !words);
+  var tf = $('sc-tf');
+  if (!tf){
+    var cb = h('input', {type: 'checkbox', id: 'sc-tf-in', role: 'switch'});
+    tf = h('label', {cls: 'sc-tf', id: 'sc-tf', title: 'Show the typing boxes below as well, for long text or pasting. You can always type in the preview.'}, [cb, h('span', {cls: 'sc-tf-k', 'aria-hidden': 'true'}), ' Show text fields']);
+    cb.addEventListener('change', function(){ textFields = cb.checked; lsSet('kc-text-fields', textFields ? '1' : '0'); inspSig = ''; renderInspector(); });
+    var head = document.querySelector('.insp-head'); head.insertBefore(tf, $('insp-live'));
+  }
+  tf.hidden = !hasWords; $('sc-tf-in').checked = textFields;
+  var hint = $('sc-hint');
+  if (!hint){ hint = h('div', {cls: 'sc-card sc-hint', id: 'sc-hint', role: 'note'}); body.insertBefore(hint, body.firstChild); }
+  hint.hidden = !(on && !words);
+  if (!hint.hidden){
+    var nm = list ? (kind === 'scripture' ? ['scripture', 'scriptures', 'Scripture'] : ['question', 'questions', 'Question']) : null;
+    var cur = list ? items.filter(function(x){ return x.id === l.c.itemId; })[0] : null;
+    var sig = JSON.stringify([l.id, kind, items.length, cur && cur.id]);
+    if (hint.dataset.sig !== sig){
+      hint.dataset.sig = sig; hint.innerHTML = '';
+      hint.appendChild(h('span', {cls: 'sc-hint-ic', html: I('pencil', 18)}));
+      hint.appendChild(h('div', {cls: 'sc-hint-t'}, [h('b', {text: 'Type in the preview'}),
+        h('span', {text: 'Double-click the ' + (list ? nm[0] : 'card') + ' on the picture to change its words. Click it once for the toolbar' +
+          (list ? ': ◀ ▶ to go through the ' + plural(items.length, nm[0]) + ', + ' + nm[2] + ' to add one.' : ': size, Show or Hide, Delete.')})]));
+    }
+  }
 }
 function field(label, input, hint){ return h('label', {cls: 'field'}, [h('span', {text: label}), input, hint ? h('small', {cls: 'hint', text: hint}) : null]); }
 function row(label, ctl){ return h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: label}), ctl]); }
@@ -1700,7 +1750,8 @@ window.KCWorkspace = {
     setTimeout(function(){ if (window.KCScripture){ window.KCScripture.focus(ref); window.KCScripture.fetch(ref); } }, 30);
   },
   /* 6.7 command palette */
-  newFrame: function(){ newScene('blank'); }, addContent: function(what){ addLayer(what); },
+  newFrame: function(){ newScene('blank'); }, addContent: function(what){ return addLayer(what); },
+  deleteLayer: function(sid, lid){ deleteLayer(sid, lid); }, toggleLayer: function(sid, lid){ toggleLayer(sid, lid); },   /* 26.11.50 the preview's toolbar */
   duplicate: function(){ var ids = framesSel(); if (ids.length) duplicateFrames(ids); else toast('Select a Frame first.', true); },
   quickStart: function(){ openQuickStart(); },
   quickStartKind: function(id){ var q = SC.quickStarts.filter(function(x){ return x.id === id; })[0]; return q ? runQuickStart(q) : Promise.resolve(); },   /* 6.14 Setup guide */

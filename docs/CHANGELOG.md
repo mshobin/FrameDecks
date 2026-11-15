@@ -10,6 +10,25 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.50] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.50.md](releases/v26.11.50.md).
+
+### Added
+- `app/js/preview-tools.js` (`KCPreviewTools`): selection on the Studio preview (gold `.pv-sel` outline, corner
+  handles, name tag), the floating toolbar `.pv-bar` (Edit, A−/A+, ◀ n of m ▶, + Question/Scripture, Show/Hide,
+  Delete with Undo), drag to move (text snaps by `nearestPos`; question `qBottom`, scripture `verseY`), corner resize
+  (`w`, `qWidth`, `verseWidth`), the add menu on a double-click on empty space (`kc-pv-empty` from preview-edit.js),
+  the Editing badge, and keys (Tab/Shift+Tab, Enter, Esc, arrows, Delete).
+- `KCPreviewEdit.editCard`, `cardAt`, `previewDoc`, `toWrap`, `shownItem`, `frameId`; `KCWorkspace.deleteLayer`,
+  `toggleLayer`; `KCWorkspace.addContent` returns its promise.
+- Settings as cards (`#insp-body.sc-cards`, `.sc-card`, icon chip per group), the Show text fields switch
+  (`#sc-tf`, saved as `kc-text-fields`), the hint card `#sc-hint`; styles in `app/css/edit-preview.css`.
+
+### Changed
+- In cards mode every settings section is open and the folds do nothing; the words cards (`.sc-words`) and the
+  list hide unless Show text fields is on. Simple mode still keeps the settings behind Design.
+
 ## [26.11.49] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.49.md](releases/v26.11.49.md).

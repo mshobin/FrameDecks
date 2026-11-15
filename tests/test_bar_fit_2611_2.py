@@ -148,7 +148,7 @@ class ContentArea(unittest.TestCase):
     def test_the_preview_and_the_list_point_at_each_other(self):
         pe = read("app/js/preview-edit.js")
         for need in ("$('program').addEventListener('click', function(e){", "window.KCFrameLists.ping(kind, t.it.id)",
-                     "window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline};",
+                     "window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline,",
                      "function onAirItem(kind, t){", "saveText: 'Update screen'"):
             self.assertIn(need, pe)
         fl = read("app/js/frame-lists.js")

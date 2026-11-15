@@ -120,8 +120,14 @@ on the camera and the OBS pages, at any resolution.
 ### Questions and Scriptures
 A Question (or Scripture) Content holds **its own list**, in the area under the preview. Its **Label** and the
 **+ Question** / **+ Scripture**, **Add several** and **Remove all** buttons sit in the title row; questions are
-cards across the width, and scriptures are rows beside **Fetch scripture**. **Position and size**, **Look**,
-**Animation** and **Show on** are buttons along the bottom; each opens its settings below.
+cards across the width, and scriptures are rows beside **Fetch scripture**. Since 26.11.50 the area under the
+preview shows the settings as cards (**Position and size**, **Look**, **Animation**, **Show on**) and you type in the
+preview; turn on **Show text fields** to see the list and the typing boxes here as well.
+- **Type in the preview:** click a card on the preview to select it (a gold outline with its name), then
+  double-click it or press **Enter** to type. The toolbar above it has **Edit**, **A−** / **A+**, **◀ 2 of 5 ▶**,
+  **+ Question** / **+ Scripture**, **Show** / **Hide** and **Delete** (with Undo). Drag the card to move it, drag a
+  corner to resize it. **Double-click empty space** to add Content there. With the preview focused, **Tab** /
+  **Shift+Tab** go from card to card, the arrow keys nudge (**Shift**: further) and **Delete** deletes.
 - **Click** an item to make it the Frame's current one.
 - **Show** puts it on screen.
 - **Double-click** its **label** or its **text** to edit it right there in the list. **Enter** saves,

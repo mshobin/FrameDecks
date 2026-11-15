@@ -1,0 +1,103 @@
+/* FrameDecks 26.11.50 - type in the preview (js/preview-tools.js) and the Settings as cards (js/workspace.js).
+ * Tokens only; the selection is gold like the existing preview outline, the toolbar sits on the dark preview in both themes. */
+
+/* ---------- the selected card: gold outline, corner handles, name tag ---------- */
+.pv-sel{position:absolute;z-index:31;border-radius:var(--r-2);box-shadow:0 0 0 2px var(--gold),0 0 0 6px var(--gold-soft);cursor:move;touch-action:none}
+.pv-sel[hidden],.pv-bar[hidden],.pv-editing[hidden]{display:none}
+.pv-sel.dragging{box-shadow:0 0 0 2px var(--gold),0 0 0 10px var(--gold-soft)}
+.pv-sel.locked{cursor:default;box-shadow:0 0 0 2px var(--hid),0 0 0 6px var(--hover-2)}
+.pv-sel.locked .pv-h{display:none}
+.pv-h{position:absolute;width:10px;height:10px;border-radius:4px;background:var(--gold);box-shadow:0 0 0 2px var(--video-bg)}
+.pv-h-nw{left:-5px;top:-5px;cursor:nwse-resize}
+.pv-h-se{right:-5px;bottom:-5px;cursor:nwse-resize}
+.pv-h-ne{right:-5px;top:-5px;cursor:nesw-resize}
+.pv-h-sw{left:-5px;bottom:-5px;cursor:nesw-resize}
+.pv-sel-tag{position:absolute;left:0;top:calc(100% + 6px);padding:2px 10px;border-radius:999px;background:var(--gold);color:var(--gold-ink);
+  font-size:12px;font-weight:700;white-space:nowrap;pointer-events:none}
+.pv-sel.bar-below .pv-sel-tag{top:auto;bottom:calc(100% + 6px)}
+.pv-sel.locked .pv-sel-tag{background:var(--hid);color:var(--accent-ink)}
+
+/* ---------- the floating toolbar above it ---------- */
+.pv-bar{position:absolute;z-index:32;display:flex;align-items:center;gap:4px;padding:4px;border:1px solid var(--gold);border-radius:var(--r-2);
+  background:var(--panel);box-shadow:var(--el-3);white-space:nowrap;animation:kc-fade .14s ease-out}
+.pv-b{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:0;border-radius:var(--r-1);background:none;color:var(--ink);
+  font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
+.pv-b:hover,.pv-b:focus-visible{background:var(--raised)}
+.pv-b:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.pv-b.gold{background:var(--gold);color:var(--gold-ink);font-weight:700}
+.pv-b.gold:hover,.pv-b.gold:focus-visible{background:var(--gold-strong);color:var(--accent-ink)}
+.pv-b.add{color:var(--gold)}
+.pv-b.danger{color:var(--muted)}
+.pv-b.danger:hover,.pv-b.danger:focus-visible{background:var(--red-soft);color:var(--red)}
+.pv-sep{width:1px;height:20px;margin:0 2px;background:var(--line)}
+.pv-n{padding:0 4px;color:var(--muted);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ---------- Editing badge: on a live Frame people still see the old words until Update screen ---------- */
+.pv-editing{position:absolute;left:10px;top:10px;z-index:33;padding:4px 12px;border-radius:999px;background:var(--gold);color:var(--gold-ink);
+  font-size:12px;font-weight:700;pointer-events:none;white-space:nowrap}
+.pv-editing.air{box-shadow:0 0 0 2px var(--live)}
+
+/* ---------- double-click empty space: what to add there ---------- */
+.pv-add{position:absolute;z-index:34;display:flex;flex-direction:column;gap:2px;width:230px;padding:6px;border:1px solid var(--line);border-radius:var(--r-2);
+  background:var(--panel);box-shadow:var(--el-3);animation:kc-fade .14s ease-out}
+.pv-add-t{padding:4px 10px 6px;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.pv-add button{display:flex;align-items:center;gap:10px;min-height:36px;padding:0 10px;border:0;border-radius:var(--r-1);background:none;color:var(--ink);
+  font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer}
+.pv-add button:hover,.pv-add button:focus-visible{background:var(--gold-soft);color:var(--gold);outline:none}
+.pv-add button svg{flex:none;color:var(--muted)}
+.pv-add button:hover svg,.pv-add button:focus-visible svg{color:var(--gold)}
+#program{-webkit-user-select:none;user-select:none}   /* a double-click on empty space adds Content; it never selects the picture */
+#program:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- the area below: Settings as cards ---------- */
+.inspector .insp-body.sc-cards{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-template-rows:none;align-items:start;align-content:start;overflow:auto;gap:12px}
+.inspector .insp-body.sc-cards > *{grid-column:auto;grid-row:auto}
+.inspector .insp-body.sc-cards > .ip[data-itab="content"],.inspector .insp-body.sc-cards > #sc-hint,.inspector .insp-body.sc-cards > #ip-gen.gen-frame,
+.inspector .insp-body.sc-cards .sc-card.sc-words{grid-column:1 / -1}
+.inspector .insp-body.sc-cards > #ip-gen:not(.gen-frame){display:contents}
+.inspector .insp-body.sc-cards > #ip-gen:not(.gen-frame) > .cs-fold{display:none}
+/* one card: its title (the old fold heading) over its controls */
+.inspector .insp-body.sc-cards > .ip:not([data-itab="content"]),.inspector .insp-body.sc-cards .sc-card{position:static;columns:auto;max-height:none;margin:0;padding:14px;
+  border:1px solid var(--line-soft);border-radius:var(--r-3);background:linear-gradient(180deg,var(--panel-2),var(--surface));box-shadow:var(--el-1);min-width:0}
+.inspector .insp-body.sc-cards > .ip > .cs-fold,.inspector .insp-body.sc-cards .sc-card > .cs-fold{position:static;display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:0;justify-content:flex-start;
+  border:0;background:none;color:var(--ink);font-size:14px;font-weight:700;letter-spacing:0;text-transform:none;cursor:default;pointer-events:none}
+.inspector .insp-body.sc-cards .cs-fold .cs-chev,.inspector .insp-body.sc-cards .cs-fold .cs-val{display:none}
+.inspector .insp-body.sc-cards .cs-sec{display:block}
+.sc-ic{display:none}
+.inspector .insp-body.sc-cards .sc-ic{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:var(--r-1);background:var(--accent-soft);color:var(--accent)}
+.inspector .insp-body.sc-cards .sc-ic[data-ic="layout"]{background:var(--q-soft);color:var(--q)}
+.inspector .insp-body.sc-cards .sc-ic[data-ic="style"]{background:var(--v-soft);color:var(--v)}
+.inspector .insp-body.sc-cards .sc-ic[data-ic="animation"]{background:var(--gold-soft);color:var(--gold)}
+.inspector .insp-body.sc-cards .sc-ic[data-ic="output"]{background:var(--live-soft);color:var(--live)}
+.inspector .insp-body.sc-cards .sc-card .field:last-child,.inspector .insp-body.sc-cards .ip .ip-sec:last-child{margin-bottom:0}
+/* inside a card the label sits above its control, so the controls get the card's full width */
+.inspector .insp-body.sc-cards .ip .row,.inspector .insp-body.sc-cards .sc-card .row{grid-template-columns:minmax(0,1fr);gap:6px;padding:4px 0}
+.inspector .insp-body.sc-cards .ip-sec{display:flex;flex-direction:column;gap:8px;margin:0}
+/* the words: only with Show text fields on (you type them in the preview) */
+.inspector .insp-body.sc-cards.no-words > .ip[data-itab="content"],.inspector .insp-body.sc-cards.no-words .sc-words{display:none}
+
+/* the hint at the top */
+.inspector .insp-body .sc-hint{display:flex;align-items:center;gap:12px;padding:10px 14px;border-color:var(--gold-soft);background:linear-gradient(90deg,var(--gold-soft),var(--surface) 70%)}
+.inspector .insp-body .sc-hint[hidden]{display:none}
+.sc-hint-ic{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-1);background:var(--gold);color:var(--gold-ink)}
+.sc-hint-t{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.4}
+.sc-hint-t b{font-size:14px;color:var(--ink)}
+.sc-hint-t span{color:var(--muted)}
+
+/* the Show text fields switch, in the area's top row */
+.sc-tf{display:inline-flex;align-items:center;gap:8px;margin-left:auto;color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}
+.sc-tf[hidden]{display:none}
+.sc-tf input{position:absolute;opacity:0;width:1px;height:1px}
+.sc-tf-k{position:relative;flex:none;width:36px;height:20px;border-radius:999px;background:var(--neutral-btn);transition:background var(--t-fast)}
+.sc-tf-k::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:999px;background:var(--ink);transition:transform var(--t) var(--ease)}
+.sc-tf input:checked + .sc-tf-k{background:var(--gold)}
+.sc-tf input:checked + .sc-tf-k::after{transform:translateX(16px);background:var(--gold-ink)}
+.sc-tf input:focus-visible + .sc-tf-k{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Simple mode keeps the settings behind the Design button */
+body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards > .ip:not([data-itab="content"]),
+body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards .sc-card:not(.sc-words):not(.sc-hint){display:none}
+
+@media (prefers-reduced-motion:reduce){ .pv-bar,.pv-add{animation:none} .sc-tf-k::after{transition:none} }
+/* the Show on card already says so in its title */
+.inspector .insp-body.sc-cards [data-grp="output"] > .cs-sec > .ip-sec > b:first-child,.inspector .insp-body.sc-cards [data-grp="output"] > .ip-sec > b:first-child{display:none}
