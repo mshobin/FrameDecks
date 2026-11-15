@@ -109,7 +109,7 @@ Select **Engage → Teleprompter**. The script opens full screen; select **Done*
 Scroll with your finger, or use the play button to scroll by itself. See
 [Presentations](presentations.md#teleprompter) for how to write the script.
 
-## Capture Memory on the phone
+## Capture Chats on the phone
 
 Show a message from your phone on the live screen as a chat bubble:
 

@@ -5,6 +5,12 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.49': [
+    {title: 'Meeting tabs', text: 'Your meetings are tabs above the Frames, with their dates; the next one says Next. New can copy the meeting shown, with the scripture and questions left empty.', show: {spot: '#mt-tabs'}},
+    {title: 'Present slides', text: 'Select a Frame with slides: the big button reads Present slides and shows them large with big Back and Next. Next says what it will do: the next animation, slide or Frame.', show: {spot: '#ls-go'}},
+    {title: 'Capture Chats', text: 'Capture Memory is now called Capture Chats. It no longer sits below Decks: open it from Engage › Memory Cards.'},
+    {title: 'Your phone as a clicker', text: 'On the phone remote, Clicker under Slide 3 of 12 turns your phone into a clicker: the slide, two big buttons and what Next will do.'}
+  ],
   '26.11.48': [
     {title: 'Delete a meeting', text: 'The bin beside the meeting\u2019s name deletes that meeting with its Frames, Decks and Content, and nothing else. Undo brings it back. A new meeting starts with a blank Frame.', show: {spot: '#mt-delete'}},
     {title: 'Members\u2019 phones, full screen', text: 'The meeting fills members\u2019 phones, its name under FrameDecks. They tap a slide to zoom in and swipe back through slides already shown. Keep a slide off phones in Slides \u203a Run order.'}

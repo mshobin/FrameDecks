@@ -282,6 +282,21 @@ function meetingsOf(st){
   if (!list.length) list.push({id: 'main', name: str(m.title, 60).trim() || 'Meeting', date: str(m.date, 40), notes: str(m.notes, 2000)});
   return list;
 }
+/* 26.11.28 / 26.11.49 the Frames src copied into the meeting named group: the same Decks, looks and timings, with their
+   scripture and questions left empty to fill in. Returns how many were made. */
+function copyFrames(n, src, group){
+  var made = 0;
+  src.slice().forEach(function(sc){
+    var c = Scenes.duplicate(n, sc.id, {name: sc.name, group: group}); if (!c) return;
+    c.from = ''; made++;
+    c.layers.forEach(function(l){
+      if (l.kind !== 'scripture' && l.kind !== 'question') return;
+      l.c.itemId = ''; if (Array.isArray(l.c.items)) l.c.items = [];
+      if (l.kind === 'scripture'){ l.c.ref = ''; l.c.text = ''; l.c.version = ''; }
+    });
+  });
+  return made;
+}
 function meetingOfScene(sc, list){
   var g = String(sc.group || '').trim().toLowerCase();
   for (var i = 0; i < list.length; i++) if (list[i].name.toLowerCase() === g) return list[i];
@@ -561,6 +576,7 @@ function cleanDeck(d){
   if (isObj(d.zoom) && d.zoom.s > 1) o.zoom = {x: +d.zoom.x || 0.5, y: +d.zoom.y || 0.5, s: +d.zoom.s};
   if (d.clicks > 0){ o.clicks = Math.round(+d.clicks); o.click = Math.max(0, Math.min(o.clicks, Math.round(+d.click || 0))); }   // 26.11.46
   if (d.animated) o.animated = true;                  // 26.11.46 PowerPoint plays this deck (animations)
+  o.nxt = typeof d.nxt === 'number' && d.nxt >= 0 && d.nxt < o.pages ? Math.round(d.nxt) : null;   // 26.11.49 the slide Next goes to
   return o;
 }
 function cleanMemory(m){
@@ -666,7 +682,12 @@ var Scenes = {
     list.forEach(function(x){ if (x.id === cur.id){ x.date = n.meeting.date; x.notes = n.meeting.notes; } });
     list.push(m); n.meeting.meetings = list;
     Scenes.switchMeeting(n, m.id);
-    if (opts && opts.blank) Scenes.create(n, 'blank', {group: m.name, name: 'Frame 1'});
+    if (opts && opts.copy){                                  // 26.11.49 New meeting from: a copy of another meeting
+      var from = list.filter(function(x){ return x.id === opts.copy; })[0];
+      var src = from ? n.scenes.filter(function(sc){ return !sc.tpl && meetingOfScene(sc, list).id === from.id; }) : [];
+      m.frames = copyFrames(n, src, m.name);
+      if (!m.frames) Scenes.create(n, 'blank', {group: m.name, name: 'Frame 1'});
+    } else if (opts && opts.blank) Scenes.create(n, 'blank', {group: m.name, name: 'Frame 1'});
     return m;
   },
   /* 26.11.28 next week from this meeting: a new meeting a week after this one's date (today when it has none), with
@@ -680,17 +701,7 @@ var Scenes = {
     var base = cur.name.replace(/\s+·\s+\d{1,2} [A-Z][a-z]{2}$/, '').slice(0, 50);
     var m = Scenes.addMeeting(n, base + ' · ' + label);
     m.date = iso; n.meeting.date = iso;
-    var made = 0;
-    src.forEach(function(sc){
-      var c = Scenes.duplicate(n, sc.id, {name: sc.name, group: m.name}); if (!c) return;
-      c.from = ''; made++;
-      c.layers.forEach(function(l){
-        if (l.kind !== 'scripture' && l.kind !== 'question') return;
-        l.c.itemId = ''; if (Array.isArray(l.c.items)) l.c.items = [];
-        if (l.kind === 'scripture'){ l.c.ref = ''; l.c.text = ''; l.c.version = ''; }
-      });
-    });
-    return {meeting: m, frames: made, from: cur.name};
+    return {meeting: m, frames: copyFrames(n, src, m.name), from: cur.name};
   },
   renameMeeting: function(n, id, name){
     var list = meetingsOf(n), m = list.filter(function(x){ return x.id === id; })[0]; if (!m) return null;

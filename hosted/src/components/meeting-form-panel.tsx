@@ -7,7 +7,7 @@ import { ArrowDown, ArrowUp, Check, CloudUpload, Eye, FileText, PanelRightClose,
 import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
 import { FlowChart, FlowSteps, MeetingBar, PreviewDialog, TransitionPicker, useFlip, type SyncShown } from "@/components/frame-flow";
-import { currentMeetingId, framesOfMeeting, meetingsOf, newMeetingId, uniqueMeetingName, withMeetings, type Meeting } from "@/lib/meetings";
+import { copyFramesTo, currentMeetingId, framesOfMeeting, meetingsOf, newMeetingId, uniqueMeetingName, withMeetings, type Meeting } from "@/lib/meetings";
 import { PROFILE_TX, flowState, frameFilled, mediaNamesOf, moveFrameTo, type StepId } from "@/lib/frame-flow";
 import { keepMedia, keptNames, mediaForExport } from "@/lib/local-media";
 import {
@@ -251,27 +251,30 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const meetingBase = meetingRecord ?? { kind: "meeting" as const, id: "meeting", rev: 0, seq: 0, body: {} };
 
   /** 26.11.48 a new meeting starts with one blank Frame (as on the PC), sent together with the meeting. */
-  async function createMeeting(wanted: string) {
+  async function createMeeting(wanted: string, copy = false) {
     if (!supabase || busy) return;
     const entry: Meeting = { id: newMeetingId(), name: uniqueMeetingName(meetings, wanted), date: "", notes: "" };
     const body = withMeetings(meetingBody, [...meetings, entry]);
-    const blank = frameFromForm({ ...emptyFrame(), name: "Frame 1" }, null, { brandColor: String(brand.color ?? ""), group: entry.name });
+    // 26.11.48 a blank Frame; 26.11.49 or a copy of the meeting shown, with its scripture and questions left empty
+    const copied = copy ? copyFramesTo(framesOfMeeting(scenes, meetings, sel.id), entry.name) : [];
+    const made = copied.length ? copied : [frameFromForm({ ...emptyFrame(), name: "Frame 1" }, null, { brandColor: String(brand.color ?? ""), group: entry.name })];
     const serverOrder = serverByKey.get(key("order", "order"));
-    const orderBody = withFrame((serverOrder?.body as Obj) ?? null, String(blank.id));
+    let orderBody = withFrame((serverOrder?.body as Obj) ?? null, String(made[0].id));
+    for (const f of made.slice(1)) orderBody = withFrame(orderBody, String(f.id));
     setBusy(true);
     const answers = await pushChanges(supabase, workspace.id, [
       { kind: "meeting", id: "meeting", rev: meetingBase.rev, body },
-      { kind: "frame", id: String(blank.id), rev: 0, body: blank },
+      ...made.map((f) => ({ kind: "frame", id: String(f.id), rev: 0, body: f })),
       { kind: "order", id: "order", rev: serverOrder?.rev ?? 0, body: orderBody },
     ]);
     setBusy(false);
     if (answers.every((a) => a.status === "ok")) {
       const rev = (i: number) => (answers[i] as { rev: number }).rev;
       upsert({ ...meetingBase, kind: "meeting", body: body as PulledRecord["body"], rev: rev(0) });
-      upsert({ kind: "frame", id: String(blank.id), rev: rev(1), seq: 0, body: blank as PulledRecord["body"] });
-      upsert({ kind: "order", id: "order", rev: rev(2), seq: 0, body: orderBody as PulledRecord["body"] });
+      made.forEach((f, i) => upsert({ kind: "frame", id: String(f.id), rev: rev(i + 1), seq: 0, body: f as PulledRecord["body"] }));
+      upsert({ kind: "order", id: "order", rev: rev(made.length + 1), seq: 0, body: orderBody as PulledRecord["body"] });
       choose(entry.id);
-      setNotice({ ok: true, text: `“${entry.name}” made, with a blank Frame. Open it to add Content.` });
+      setNotice({ ok: true, text: copied.length ? `“${entry.name}” made with ${copied.length} Frame${copied.length === 1 ? "" : "s"} from “${sel.name}”. Add this meeting’s scripture and questions.` : `“${entry.name}” made, with a blank Frame. Open it to add Content.` });
     } else {
       const bad = answers.find((a) => a.status === "error");
       setNotice({ ok: false, text: bad && bad.status === "error" ? bad.message : "The meetings changed on the PC meanwhile. Here is the latest; try again." });

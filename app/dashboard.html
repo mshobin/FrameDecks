@@ -125,7 +125,10 @@
         <button class="btn small qs-btn" type="button" id="quick-start" title="Quick Start: a ready-made set of Frames for a Bible study, prayer meeting, youth gathering or fellowship"><i data-icon="sparkles" data-size="15"></i> Quick Start</button>
         <button class="btn primary small" type="button" id="scene-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Frame</button></header>
       <div class="mt-bar" id="mt-bar">
+        <!-- 26.11.49 the meetings as tabs (date and Frames on each); the list stays for keyboards and older code -->
+        <div class="mt-tabs" id="mt-tabs" role="tablist" aria-label="Meetings"></div>
         <label class="mt-pick"><span>Meeting</span><select id="mt-pick" aria-label="The meeting this PC shows"></select></label>
+        <p class="mt-up" id="mt-up" aria-live="polite"></p>
         <button class="btn small quiet" type="button" id="mt-rename" title="Rename this meeting" aria-label="Rename this meeting"><i data-icon="pencil" data-size="14"></i></button>
         <button class="btn small quiet mt-del" type="button" id="mt-delete" title="Delete this meeting with all its Frames, Decks and Content" aria-label="Delete this meeting"><i data-icon="trash-2" data-size="14"></i></button>
         <button class="btn small" type="button" id="mt-new" title="A new meeting with its own Frames" aria-label="New meeting"><i data-icon="plus" data-size="14"></i> New</button>
@@ -144,13 +147,17 @@
       <ol class="layer-list" id="layer-list" aria-label="Content (top = in front)"></ol>
       <p class="pane-note" id="layers-note"></p>
     </section>
-    <!-- 9.0 Capture Memory: what you copy from a chat (Capture on) becomes a Memory Card, shown on FrameDecks vCam as a
-         chat bubble (9.1); select several and Show them together (js/memory.js) -->
-    <section class="pane mem-pane closed" id="mem-pane" data-feature="memory" aria-labelledby="mem-title">
-      <header class="pane-head"><h2 id="mem-title"><button class="mem-fold" type="button" id="mem-fold" aria-expanded="false" aria-controls="mem-body">Capture Memory</button></h2><span class="pane-sub" id="mem-n"></span>
+  </aside>
+    <!-- 9.0 Capture Chats (renamed in 26.11.49, and out of the Frames column, opened from Engage › Memory Cards):
+         what you copy from a chat (Capture on) becomes a Memory Card, shown on FrameDecks vCam as a chat bubble (9.1);
+         select several and Show them together (js/memory.js) -->
+    <dialog class="mem-dlg" id="mem-dlg" aria-labelledby="mem-title">
+    <section class="pane mem-pane" id="mem-pane" data-feature="memory" aria-labelledby="mem-title">
+      <header class="pane-head"><h2 id="mem-title">Capture Chats<button class="mem-fold" type="button" id="mem-fold" aria-expanded="true" aria-controls="mem-body" hidden>Capture Chats</button></h2><span class="pane-sub" id="mem-n"></span>
         <label class="mem-switch" title="Capture: text you copy (Ctrl+C) becomes a Memory Card"><input type="checkbox" id="mem-capture" role="switch"><span class="mem-knob" aria-hidden="true"></span><span>Capture</span></label>
-        <button class="help-q" type="button" data-help="memory" title="Help: Capture Memory" aria-label="Help: Capture Memory">?</button>
-        <button class="btn small quiet mem-gear" type="button" id="mem-gear" aria-expanded="false" aria-controls="mem-settings" aria-label="Memory Card settings" title="Memory Card settings"><i data-icon="settings" data-size="15"></i></button></header>
+        <button class="help-q" type="button" data-help="memory" title="Help: Capture Chats" aria-label="Help: Capture Chats">?</button>
+        <button class="btn small quiet mem-gear" type="button" id="mem-gear" aria-expanded="false" aria-controls="mem-settings" aria-label="Memory Card settings" title="Memory Card settings"><i data-icon="settings" data-size="15"></i></button>
+        <button class="btn small quiet mem-close" type="button" id="mem-close" aria-label="Close" title="Close (Esc)">×</button></header>
       <div class="mem-body" id="mem-body">
       <div class="mem-settings" id="mem-settings" hidden>
         <label class="mem-row">On FrameDecks vCam <select id="mem-layout"><option value="beside">Beside the video</option><option value="below">Below the video</option><option value="over">Over the picture</option></select></label>
@@ -167,7 +174,7 @@
       <p class="pane-note" id="mem-empty">Turn on Capture, then copy text in Teams, Zoom, ChatGPT, Claude, Slack or a browser.</p>
       </div>
     </section>
-  </aside>
+    </dialog>
 
   <section class="ws-center" aria-labelledby="canvas-title">
     <!-- 26.11.13 the Live Stage (Mockup B): the picture takes the room, one column beside it says if all is well, what

@@ -1,4 +1,4 @@
-/* FrameDecks 9.0 - Capture Memory: the Studio pane (dashboard.html) and the small popup in the screen corner
+/* FrameDecks 9.0 - Capture Chats (was Capture Memory): the Studio pane (dashboard.html) and the small popup in the screen corner
  * (memory-popup.html). The cards live in the program (src/memory.py); this page long-polls GET api/memory and sends
  * actions as POST api/memory {action, ...}: capture, add, show, showmany, pin, hide, hideall, delete, clear, settings.
  * On screen each card is a chat bubble (9.1: no window around them), in the order the cards were copied.
@@ -162,6 +162,11 @@ function setFold(open){
   try { localStorage.setItem('kc-mem-pane', open ? 'open' : 'closed'); } catch(e){}
 }
 function initPane(){
+  var dlg = $('mem-dlg');                       // 26.11.49 Capture Chats is a window (Engage › Memory Cards), always open inside
+  if (dlg){
+    fold = true;
+    var x = $('mem-close'); if (x) x.addEventListener('click', function(){ dlg.close(); });
+  }
   setFold(fold);
   $('mem-fold').addEventListener('click', function(){ setFold(!fold); });
   $('mem-capture').addEventListener('change', function(){ act({action: 'capture', on: this.checked}); });

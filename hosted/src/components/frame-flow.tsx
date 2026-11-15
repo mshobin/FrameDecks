@@ -7,6 +7,7 @@ import { AlertTriangle, CalendarDays, Pencil, Check, ChevronLeft, ChevronRight, 
 
 import { FLOW_STEPS, previewOf, type FramePreview, type StepId, type StepState } from "@/lib/frame-flow";
 import { TRANSITIONS } from "@/lib/meeting-form";
+import { meetingDates } from "@/lib/meetings";
 
 type Obj = { [key: string]: unknown };
 export type SyncShown = "synced" | "syncing" | "offline" | "failed" | "waiting";
@@ -222,16 +223,19 @@ export function MeetingBar({
   supported: boolean;
   busy: boolean;
   onSelect: (id: string) => void;
-  onCreate: (name: string) => void;
+  onCreate: (name: string, copy: boolean) => void;
   onRename: (name: string) => void;
   onDelete?: () => void;
 }>) {
   const [mode, setMode] = useState<"new" | "rename" | null>(null);
   const [name, setName] = useState("");
+  const [copy, setCopy] = useState(false);
   const current = list.find((m) => m.id === selected);
+  const dates = meetingDates(list); // 26.11.49 "Thu 19 Nov", the next one marked, past ones quieter
   function done() {
     const n = name.trim();
-    if (n) (mode === "new" ? onCreate : onRename)(n);
+    if (n && mode === "new") onCreate(n, copy);
+    else if (n) onRename(n);
     setMode(null);
   }
   return (
@@ -239,14 +243,17 @@ export function MeetingBar({
       <div className="mb-chips">
         <div className="mb-tabs" role="tablist" aria-label="Choose a meeting">
         {list.map((m) => (
-          <button key={m.id} type="button" role="tab" aria-selected={m.id === selected} className={m.id === selected ? "is-on" : undefined} onClick={() => onSelect(m.id)}>
-            <b>{m.name}</b>
-            <small>{m.date ? `${m.date} · ` : ""}{counts[m.id] ?? 0} Frame{counts[m.id] === 1 ? "" : "s"}</small>
+          <button key={m.id} type="button" role="tab" aria-selected={m.id === selected} className={[m.id === selected ? "is-on" : "", dates[m.id]?.when === "past" ? "is-past" : ""].filter(Boolean).join(" ") || undefined} onClick={() => onSelect(m.id)}>
+            <b>
+              {m.name}
+              {dates[m.id]?.when === "next" && <span className="mb-next">Up next</span>}
+            </b>
+            <small>{dates[m.id]?.label ? `${dates[m.id].label} · ` : ""}{counts[m.id] ?? 0} Frame{counts[m.id] === 1 ? "" : "s"}</small>
           </button>
         ))}
         </div>
         {canEdit && supported && mode === null && (
-          <button type="button" className="mb-new" disabled={busy} onClick={() => (setName(""), setMode("new"))}>
+          <button type="button" className="mb-new" disabled={busy} onClick={() => (setName(""), setCopy(false), setMode("new"))}>
             <Plus aria-hidden="true" size={16} /> New meeting
           </button>
         )}
@@ -267,6 +274,17 @@ export function MeetingBar({
             {mode === "new" ? "Name of the new meeting" : "New name for this meeting"}
             <input autoFocus maxLength={60} value={name} placeholder={mode === "new" ? "Sunday Service" : ""} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setMode(null)} />
           </label>
+          {mode === "new" && current && (
+            <fieldset className="mb-from">
+              <legend>Start with</legend>
+              <label>
+                <input type="radio" name="mb-from" checked={!copy} onChange={() => setCopy(false)} /> A blank Frame
+              </label>
+              <label>
+                <input type="radio" name="mb-from" checked={copy} onChange={() => setCopy(true)} /> A copy of “{current.name}” (scripture and questions left empty)
+              </label>
+            </fieldset>
+          )}
           <button type="submit" className="fd-btn fd-btn-primary" disabled={!name.trim()}>{mode === "new" ? "Make the meeting" : "Rename"}</button>
           <button type="button" className="fd-btn fd-btn-glass" onClick={() => setMode(null)}>Cancel</button>
         </form>

@@ -64,7 +64,7 @@ var LINKS = {
   'remote': ['Phone & iPad Remote', 'docs/remote-control#set-up-the-remote'],
   'remote-fix': ['If the phone can’t connect', 'docs/remote-control#if-the-phone-cant-connect'],
   'vcam': ['FrameDecks vCam in Zoom, Teams and Meet', 'docs/faq#online-and-hybrid-services'],
-  'memory': ['Capture Memory', 'docs/presentations#capture-memory-copied-chats-as-bubbles-on-the-camera'],
+  'memory': ['Capture Chats', 'docs/presentations#capture-chats-copied-chats-as-bubbles-on-the-camera'],
   'voice': ['Teleprompter and Follow my voice', 'docs/presentations#teleprompter'],
   'sync': ['Sync', 'help#account'],
   'keys': ['Keyboard shortcuts', 'docs/presentations#keyboard-shortcuts']

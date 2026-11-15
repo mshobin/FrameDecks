@@ -12,8 +12,8 @@
 .layers-pane{overflow:hidden}
 /* open: the three panes share the column (Frames keeps the most); folded: one header row */
 @media (min-width:1081px){
-  .ws:has(.mem-pane:not(.closed)) .scenes-pane{flex:1 1 40%}
-  .ws:has(.mem-pane:not(.closed)) .layers-pane{flex:1 1 25%;min-height:96px}
+  .ws-left:has(.mem-pane:not(.closed)) .scenes-pane{flex:1 1 40%}
+  .ws-left:has(.mem-pane:not(.closed)) .layers-pane{flex:1 1 25%;min-height:96px}
   .mem-pane:not(.closed){flex:1 1 35%}
 }
 .mem-pane .pane-head .mem-switch{margin-left:auto}
@@ -74,3 +74,9 @@ body.mem-popup{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 var(
 .mem-card.kc-new{animation:kc-card .42s cubic-bezier(.3,1.4,.5,1) both}
 @keyframes kc-card{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ .mem-card.kc-new{animation:none} }
+/* 26.11.49 Capture Chats as a window (Engage › Memory Cards), no longer in the Frames column */
+.mem-dlg{width:min(560px,94vw);max-height:86vh;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow-modal)}
+.mem-dlg:not([open]){display:none}
+.mem-dlg::backdrop{background:var(--scrim,rgba(var(--rgb-gray-50,8,12,22),.6))}
+.mem-dlg .mem-pane{max-height:86vh;border-top:0;overflow:auto}
+.mem-dlg .mem-close{font-size:18px;line-height:1}

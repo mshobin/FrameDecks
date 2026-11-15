@@ -15,11 +15,15 @@ if (!go || !Store || !SC) return;
 function paintGo(){
   var take = $('cb-take'), next = $('lb-next'), st = Store.get();
   var onAir = !!(st && st.live && st.live.scene);
+  go.dataset.mode = '';
   if (!onAir){
     var what = ($('cb-take-what') || {}).textContent || '';
-    goT.textContent = 'Go Live'; goSub.textContent = what.replace(/^●\s*On air:\s*/, '');
+    // 26.11.49 a Frame with slides: Go Live reads Present slides, and opens the slides large once it is live
+    var sel = window.KCSelFrame ? SC.find(st, window.KCSelFrame()) : null, deck = sel && sel.layers.some(function(l){ return l.kind === 'pdf' && l.visible !== false && l.c && l.c.file; });
+    goT.textContent = deck && window.KCSlides ? 'Present slides' : 'Go Live'; goSub.textContent = what.replace(/^●\s*On air:\s*/, '');
     go.disabled = !take || take.disabled; go.classList.add('is-take'); go.classList.remove('is-off');
-    go.title = 'Go Live: put the selected Frame on screen (T)';
+    go.title = deck ? 'Go Live with this Frame and show its slides large, with big Back and Next (T goes live only)' : 'Go Live: put the selected Frame on screen (T)';
+    if (deck && window.KCSlides) go.dataset.mode = 'present';
     return;
   }
   go.classList.remove('is-take');
@@ -38,14 +42,29 @@ function paintGo(){
   }
   go.removeAttribute('aria-label');
   if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
+  // 26.11.49 slides on screen: Next plays the next animation or slide first, and says which
+  var dk = st.live.deck, nw = dk && window.KCSlides && KCSlides.nextWhat ? KCSlides.nextWhat(dk, name) : null;
+  if (nw && nw.kind !== 'end' && nw.kind !== 'none'){
+    goT.textContent = nw.label; go.disabled = false; go.dataset.mode = 'deck';
+    goSub.textContent = nw.text.replace(/^Next: /, '') + ' · slide ' + (dk.page + 1) + ' of ' + dk.pages;
+    go.title = nw.text + ' (then Next goes to “' + name + '”)';
+    return;
+  }
   goT.textContent = 'Next'; go.disabled = !next || next.disabled;
+  if (dk) name = 'Last slide · ' + name;
   goSub.textContent = name + (meta ? ' · ' + meta.split(' · ').pop() : '') + warn;
   go.title = 'Next: ' + name + ' (goes live)';
 }
 go.addEventListener('click', function(){
   if (go.classList.contains('is-off')) return;                 // 26.11.29 Off air is a hold, never a click
+  if (go.dataset.mode === 'deck'){                             // 26.11.49 the next animation or slide: the top bar's ▶
+    var sn = document.querySelector('#lb-slides [data-cb="slide"][data-step="1"]'); if (sn) sn.click();
+    return;
+  }
+  var present = go.dataset.mode === 'present';
   var st = Store.get(), b = st && st.live && st.live.scene ? $('lb-next') : $('cb-take');
   if (b && !b.disabled) b.click();
+  if (present && window.KCSlides) setTimeout(function(){ if (Store.get().live.deck) KCSlides.open({studio: true, present: true}); }, 900);
 });
 
 /* ---------- In this Frame (Advanced) ---------- */

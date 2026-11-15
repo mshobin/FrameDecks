@@ -179,6 +179,7 @@ $('c-prev').addEventListener('click', guard('cp', function(){ contentStep(-1); }
 $('c-next').addEventListener('click', guard('cn', function(){ contentStep(1); }));
 /* 26.11.45 "Slide 3 of 12" opens every slide at once (js/slide-sorter.js): tap one to put it on screen */
 $('c-title').parentNode.addEventListener('click', function(){ if (curKind() === 'slides' && window.KCSlides) KCSlides.open({}); });
+$('c-clicker').addEventListener('click', function(){ if (window.KCSlides) KCSlides.open({present: true}); });   // 26.11.49
 /* Question, both, or scripture: one switch for a Frame with both cards */
 all('[data-qs]').forEach(function(b){
   b.addEventListener('click', guard('qs', function(){
@@ -581,6 +582,7 @@ function render(){
     }
     setText($('c-title'), title); setText($('c-detail'), detail); $('c-detail').classList.toggle('on', on);
     $('c-title').parentNode.classList.toggle('sl-opens', k === 'slides');
+    $('c-clicker').hidden = !(k === 'slides' && window.KCSlides && studioInfo.presentation && studioInfo.presentation.page);
   }
   var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
   $('qs').hidden = !(q && v);

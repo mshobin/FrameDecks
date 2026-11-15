@@ -54,7 +54,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.48"
+APP_VERSION = "26.11.49"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -748,7 +748,7 @@ def annotate_op(d):
 
 
 def remote_memory_body():
-    """What the phone remote sees of Capture Memory: the cards and which are on screen (no PC settings)."""
+    """What the phone remote sees of Capture Chats: the cards and which are on screen (no PC settings)."""
     snap = MEMORY.snapshot()
     on = {c["id"]: c for c in (((state.get("live") or {}).get("memory") or {}).get("cards") or [])}
     items = [{k: i[k] for k in ("id", "title", "text", "src", "private", "at", "pinned")} for i in snap["items"][:60]]
@@ -2634,6 +2634,64 @@ def deck_live_pptx(l, name):
     return src
 
 
+_PPT_INSTALLED = {}
+
+
+def powerpoint_installed():
+    """26.11.49 whether PowerPoint is on this PC (its automation class is registered), asked once."""
+    if "v" not in _PPT_INSTALLED:
+        ok = False
+        if os.name == "nt":
+            try:
+                import winreg
+                winreg.CloseKey(winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"PowerPoint.Application\CLSID"))
+                ok = True
+            except OSError:
+                ok = False
+        _PPT_INSTALLED["v"] = ok or bool(os.environ.get("KC_LIVE_SHOW_ANYWHERE"))
+    return _PPT_INSTALLED["v"]
+
+
+def deck_status(name, c=None):
+    """26.11.49 a deck in plain words: how many slides, how many have animations, and how it plays (PowerPoint plays
+    it, or still slides) with the reason: none (no animations), off (Play animations is off), pdf (no .pptx beside
+    it), noppt (PowerPoint is not on this PC)."""
+    c = c if isinstance(c, dict) else {}
+    d = _deck_info(name) or {}
+    sl = d.get("slides") or []
+    pages = d.get("pages") or deck_pages(name)
+    anim = sum(1 for x in sl[:pages] if x.get("clicks") or x.get("auto") or x.get("transition"))
+    src = safe_name(d.get("source") or "")
+    why = ""
+    if not d.get("animated"):
+        why = "none"
+    elif c.get("anim") is False:
+        why = "off"
+    elif not src or not (LAYERS_DIR / src).is_file():
+        why = "pdf"
+    elif not powerpoint_installed():
+        why = "noppt"
+    return {"file": name, "pages": pages, "animated": anim, "plays": "still" if why else "powerpoint", "why": why}
+
+
+def deck_ready(name, c=None):
+    """26.11.49 when a deck is added: read it, make its small pictures in the background (so the grid and the phones
+    are quick when it goes live) and say how it will play."""
+    st = deck_status(name, c)
+    if not st["pages"]:
+        raise ValueError("FrameDecks could not read that deck. Add it again, or save it as a PDF.")
+
+    def thumbs():
+        for n in range(1, min(st["pages"], 300) + 1):
+            try:
+                slides.thumb(LAYERS_DIR, name, n, 320)
+            except (ValueError, OSError) as e:
+                _swallowed("deck_ready thumb", e)
+                return
+    threading.Thread(target=thumbs, name="deck-ready", daemon=True).start()
+    return st
+
+
 def deck_show(layer_id):
     """26.11.46 the camera's live PowerPoint show for this deck layer, once it plays, or None."""
     comp = VCAM.get("compositor")
@@ -2675,6 +2733,8 @@ def deck_live(new):
             click = want["click"]                       # 26.11.46 the animations PowerPoint has played on this slide
     d = {"layer": str(l.get("id") or ""), "file": f, "page": page, "pages": pages,
          "pos": seq.index(page) + 1 if page in seq else 0, "count": len(seq), "at": at}
+    nx = slides.step(seq, page, 1)
+    d["nxt"] = nx if nx != page else None               # 26.11.49 the slide Next goes to (None: the last one)
     if isinstance(zoom, dict):
         d["zoom"] = zoom
     clicks = deck_clicks(f, page)
@@ -2890,6 +2950,7 @@ def slides_body(name):
         off = [p for p in (c.get("nophone") if isinstance(c.get("nophone"), list) else []) if isinstance(p, int)]
         out = dict(out, live=d, order=deck_seq(l, d["pages"]) if l else list(range(out["pages"])),
                    phones=c.get("phones") is not False, nophone=off)      # 26.11.48: what members' phones get
+        out["status"] = deck_status(out["file"], c)                       # 26.11.49 how it plays, in plain words
     return out
 
 
@@ -2904,6 +2965,8 @@ def slides_action(data):
         return deck_go(zoom={"x": data.get("x", 0.5), "y": data.get("y", 0.5), "s": data.get("s", 2)})
     if op == "unzoom":
         return deck_go(zoom=None)
+    if op == "ready":                                  # 26.11.49 a deck just added: read it, make its pictures
+        return deck_ready(safe_name(str(data.get("file") or "")), {"anim": False} if data.get("anim") is False else {})
     if op == "scripture":                              # a Bible reference on a slide: offered (show: on screen at once)
         ref = VERSE_LISTEN.ask(str(data.get("ref") or "")[:80], source="slide")
         if not ref:
@@ -3832,7 +3895,7 @@ class Handler(BaseHTTPRequestHandler):
                 with pointer_cond:
                     pointer_cond.wait_for(lambda: str(POINTER["seq"]) != since, timeout=wait)
             return self.reply(200, json.dumps(pointer_now()), TYPES[".json"])
-        if path == "/api/remote/memory":                # 9.1 Capture Memory on the phone remote (signed in; long-poll)
+        if path == "/api/remote/memory":                # 9.1 Capture Chats on the phone remote (signed in; long-poll)
             q = parse_qs(url.query)
             since = q.get("since", [None])[0]
             if since is not None:

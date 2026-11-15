@@ -676,6 +676,24 @@ body.studio-focus .studio.s2{height:100vh !important}
 .mt-pick span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .mt-pick select{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--field,var(--surface));color:var(--ink);font-size:14px;font-weight:600;letter-spacing:0;text-transform:none}
 .mt-bar.one .mt-pick select{border-style:dashed}
+.mt-bar.one .mt-pick{display:none}   /* 26.11.49 one meeting: the line under the buttons names it */
+/* 26.11.49 meeting tabs (date and Frames on each, the one shown underlined in gold) and the Next up line */
+.mt-bar{flex-wrap:wrap}
+.mt-tabs{display:flex;flex:1 1 100%;gap:4px;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--line)}
+.mt-tabs:empty{display:none}
+.mt-tabs:not(:empty)~.mt-pick{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.mt-tab{display:grid;gap:1px;flex:none;max-width:180px;padding:6px 10px 7px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);font:inherit;text-align:left;cursor:pointer}
+.mt-tab b{overflow:hidden;color:var(--ink);font-size:13px;font-weight:600;white-space:nowrap;text-overflow:ellipsis}
+.mt-tab small{font-size:12px;white-space:nowrap}
+.mt-tab:hover{border-bottom-color:var(--line)}
+.mt-tab.mt-past b{color:var(--muted)}
+.mt-tab[aria-selected="true"]{border-bottom-color:var(--gold)}
+.mt-tab[aria-selected="true"] b{color:var(--gold-strong,var(--gold))}
+.mt-tab:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.mt-up{flex:1 1 100%;order:9;min-width:0;margin:0;overflow:hidden;color:var(--muted);font-size:12px;white-space:nowrap;text-overflow:ellipsis}
+.mt-from{display:grid;gap:8px;margin:12px 0 0;padding:0;border:0}
+.mt-from label{display:flex;align-items:flex-start;gap:8px;font-size:14px;line-height:1.4}
+.mt-from small{display:block;color:var(--muted);font-size:12px}
 .mt-ask{display:grid;gap:6px;margin:12px 0}
 .mt-ask input{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field,var(--surface));color:var(--ink);font-size:16px}
 /* 26.11.1 a Setup guide step just finished: its segment fills with a small spark (js/guide.js) */
@@ -733,3 +751,4 @@ body.studio-focus .studio.s2{height:100vh !important}
 .sync-undo{margin-top:10px}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
 
+.deck-ready.bad{color:var(--red)}

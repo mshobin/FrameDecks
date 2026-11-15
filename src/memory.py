@@ -1,4 +1,4 @@
-"""FrameDecks 9.0 - Memory Cards (Capture Memory): what the presenter copies from a chat becomes a chat bubble on the
+"""FrameDecks 9.0 - Memory Cards (Capture Chats): what the presenter copies from a chat becomes a chat bubble on the
 FrameDecks vCam picture.
 
 The presenter turns Capture on, selects something in Teams, Zoom, Meet, Webex, Slack, Discord, ChatGPT, Claude, Copilot

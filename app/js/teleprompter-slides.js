@@ -48,7 +48,8 @@ function go(by){
     .then(function(){ setTimeout(function(){ busy = false; }, 150); });
 }
 function mmss(ms){ var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60); }
-setInterval(function(){ if (deck) timer.textContent = mmss(Date.now() - (deck.at || Date.now())); }, 1000);
+function tick(){ if (deck) timer.textContent = mmss(Date.now() - (deck.at || Date.now())); }
+setInterval(tick, 1000);
 
 function paint(){
   if (!deck) return;
@@ -82,6 +83,6 @@ Store.subscribe(function(st){
   deck = d;
   box.hidden = false; document.body.classList.add('sp-has-slides');
   paint(); load();
-  timer.textContent = mmss(Date.now() - (deck.at || Date.now()));
+  tick();
 });
 })();

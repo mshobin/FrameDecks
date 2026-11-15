@@ -1,4 +1,4 @@
-/* FrameDecks 9.1 - Capture Memory on the phone remote (remote.html #cm).
+/* FrameDecks 9.1 - Capture Chats on the phone remote (remote.html #cm).
  * Paste a message copied on the phone (WhatsApp, Teams, Zoom, Messages, any app) and it is on the live screen as a
  * chat bubble at once; a pasted conversation becomes one bubble per message (src/memory.py split). The Memory Cards
  * from the PC are listed too, newest first, with Show, Hide and Remove, and several can be selected and shown together

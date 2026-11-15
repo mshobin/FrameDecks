@@ -68,6 +68,11 @@
 .mb-chips small{color:var(--text-3);font-size:12px}
 .mb-chips .mb-new,.mb-chips .mb-rename{display:inline-flex;align-items:center;gap:6px;border-style:dashed;color:var(--gold-2);font-weight:600}
 .mb-chips .mb-rename{border-style:solid;color:var(--text-2)}
+.mb-chips button.is-past:not(.is-on) b{color:var(--text-2);font-weight:600}
+.mb-next{margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--gold-soft);color:var(--gold-2);font-size:12px;font-weight:700;vertical-align:1px}
+.mb-from{display:grid;flex:1 1 100%;gap:6px;margin:0;padding:0;border:0}
+.mb-from legend{margin-bottom:4px;font-weight:600}
+.mb-from label{display:flex;align-items:center;gap:8px;color:var(--text-2)}
 .mb-chips .mb-delete:hover,.mb-chips .mb-delete:focus-visible{color:var(--red);border-color:var(--red)}
 .mb-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:12px}
 .mb-form label{display:grid;flex:1 1 240px;gap:6px;font-weight:600}

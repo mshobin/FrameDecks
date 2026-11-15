@@ -72,3 +72,56 @@ export function currentMeetingId(meeting: unknown, list: Meeting[]): string {
   const title = isObj(meeting) ? String(meeting.title ?? "").trim().toLowerCase() : "";
   return (list.find((m) => m.name.toLowerCase() === title) ?? list[0]).id;
 }
+
+const newId = (prefix: string) => prefix + Math.random().toString(36).slice(2, 9);
+
+/** 26.11.49 "Copy of …": the Frames of one meeting copied into the meeting named `group`, as the PC's
+ * Scenes.addMeeting(…, {copy}) does: new ids for each Frame and its Content, the same Decks, looks and timings, and the
+ * scripture and questions left empty to fill in. */
+export function copyFramesTo(frames: Obj[], group: string, now = Date.now()): Obj[] {
+  return frames.map((f) => {
+    const c = JSON.parse(JSON.stringify(f)) as Obj;
+    c.id = newId("sc_");
+    c.group = group;
+    c.created = now;
+    c.modified = now;
+    c.from = "";
+    c.fav = false;
+    c.layers = (Array.isArray(c.layers) ? c.layers : []).filter(isObj).map((l) => {
+      const k = { ...l, id: newId("L") } as Obj;
+      const cc = isObj(k.c) ? { ...k.c } : {};
+      if (k.kind === "scripture" || k.kind === "question") {
+        cc.itemId = "";
+        if (Array.isArray(cc.items)) cc.items = [];
+        if (k.kind === "scripture") Object.assign(cc, { ref: "", text: "", version: "" });
+      }
+      k.c = cc;
+      return k;
+    });
+    return c;
+  });
+}
+
+/** 26.11.49 how a meeting's date reads on its tab: an ISO date ("2026-11-19") reads "Thu 19 Nov"; other text as written.
+ * `when` says whether it is past, the next one (the nearest date from today) or neither. */
+export function meetingDates(list: Pick<Meeting, "id" | "date">[], today = new Date()): Record<string, { label: string; when: "past" | "next" | "" }> {
+  const iso = (v: string) => /^\d{4}-\d{2}-\d{2}/.exec(v.trim())?.[0] ?? "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const t = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  let next = "";
+  for (const m of list) {
+    const d = iso(m.date);
+    if (d && d >= t && (!next || d < iso(list.find((x) => x.id === next)!.date))) next = m.id;
+  }
+  const out: Record<string, { label: string; when: "past" | "next" | "" }> = {};
+  for (const m of list) {
+    const d = iso(m.date);
+    let label = m.date.slice(0, 24);
+    if (d) {
+      const day = new Date(`${d}T12:00:00`);
+      label = `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][day.getDay()]} ${day.getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][day.getMonth()]}`;
+    }
+    out[m.id] = { label, when: m.id === next ? "next" : d && d < t ? "past" : "" };
+  }
+  return out;
+}

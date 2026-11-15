@@ -114,6 +114,21 @@ window.KCSlideTools = {
       {text: 'You in a corner over the slide', run: function(){ layout('corner'); }}]); }, '', 'Where you are on the picture beside the slides');
     bar.appendChild(lb);
   },
+  /* 26.11.49 the same tools as one list for the More ▾ menu (fewer buttons on the bar) */
+  items: function(d, sel){
+    var s = St().get().live, n = Object.keys(sel || {}).filter(function(k){ return sel[k]; }).length, out = [
+      {text: 'Hold: black screen', on: s.blackout, run: function(){ hold('black'); }},
+      {text: 'Hold: “We’ll be right back”', run: function(){ hold('back'); }},
+      {text: 'Hold: “Please stay with us”', run: function(){ hold('stay'); }},
+      {text: 'Back to the slides', run: function(){ hold('off'); }},
+      {text: 'You: the slide fills the picture', run: function(){ layout('full'); }},
+      {text: 'You: beside the slide', run: function(){ layout('beside'); }},
+      {text: 'You: in a corner over the slide', run: function(){ layout('corner'); }},
+      {text: 'Slides’ text to members’ phones', title: 'The slides’ titles and text, to read on members’ phones', run: function(){ share(d); }}];
+    if (n) out.push({text: 'Make a Songs Deck (' + n + ')', title: 'The selected slides as the verses of a song', run: function(){ makeSong(d, sel); }});
+    return out;
+  },
+  menu: menu,
   more: function(bar, d, btn, sel, refresh){
     var old = bar.querySelector('.sl-more'); if (old) old.remove();
     var box = h('span', {cls: 'sl-more'});

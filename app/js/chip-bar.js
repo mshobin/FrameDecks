@@ -30,9 +30,8 @@ var DO = {
   import: function(){ runKey('cmd:frameimport'); }, camera: function(){ runKey('set:vcam'); },
   cards: function(){
     if (window.KCSetTab) window.KCSetTab('studio');
-    var pane = $('mem-pane'), fold = $('mem-fold');
-    if (pane && pane.classList.contains('closed') && fold) fold.click();
-    if (pane) pane.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+    var dlg = $('mem-dlg');                             // 26.11.49 Capture Chats opens as a window (no longer below Decks)
+    if (dlg && !dlg.open){ if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
   },
   draw: function(){ engageTool('draw'); },
   spot: function(){ engageTool('spot'); },

@@ -72,8 +72,10 @@ help** (Data / Backup, Diagnostics, About). A group's pages are tabs under its t
 of them.
 
 ## 2. Frames and Content
-- **Meeting:** with several meetings, the **Meeting** list above the Frames chooses the one this PC shows and
-  runs; **New** makes another, starting with one blank Frame. The bin button beside the meeting's name deletes the
+- **Meeting:** with several meetings, the meetings are tabs above the Frames, each with its date and number of
+  Frames (the next one by date reads *Next*); click one to show and run it. The line under them says which meeting
+  this PC runs. **New** makes another: **Blank** (one empty Frame) or **Copy of** the meeting shown (the same Frames,
+  Decks and looks, with the scripture and questions left empty). The bin button beside the meeting's name deletes the
   whole meeting (its Frames, Decks and Content, nothing of any other meeting) after asking; **Undo** brings it back.
   See [Frames](frames.md#name-group-and-order).
 - **Meeting** (the ✨ button next to + Frame) has:
@@ -181,7 +183,16 @@ cards across the width, and scriptures are rows beside **Fetch scripture**. **Po
     **✎ Write Script**, **⇪ Upload** and **Each Frame** / **Whole meeting**.
   - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
     default) the whole window fades, text included; with it off, only the background is see-through.
-- **PowerPoint slides** (26.11.45). With a Frame that has a PowerPoint deck on screen:
+- **PowerPoint slides** (26.11.45). When you add a deck, its Content Settings say at once how it will play, for
+  example *Ready: 24 slides, 3 with animations · PowerPoint will play it*, or *still slides (PowerPoint is not on this
+  PC)*.
+  - **Present slides** (26.11.49): with a Frame that has slides selected, the big button reads **Present slides**:
+    it goes live and shows the slide large, with big **Back** and **Next**, the next slide, its notes and a strip of
+    the slides in this meeting's order. While slides are on screen the big button says what it will do: **Next
+    animation**, **Next slide**, then, after the last slide, **Next** to the next Frame.
+  - On the phone remote, **Clicker** under *Slide 3 of 12* turns the phone into a clicker: the slide, two big buttons
+    and what Next will do.
+  With a Frame that has a PowerPoint deck on screen:
   - **Animations play** (26.11.46). A .pptx with animations or transitions is played by PowerPoint itself, behind
     your windows, so every animation, transition and video plays as in PowerPoint. **Next** plays the next animation,
     then the next slide; the grid and the Teleprompter show *animation 1 of 3*. Needs PowerPoint on this PC; leave its
@@ -190,6 +201,10 @@ cards across the width, and scriptures are rows beside **Fetch scripture**. **Po
     palette's *Every slide*, or **Slide 3 of 12** in the Command Center and on the phone). The slide on screen and the
     next one are marked; click any slide to put it on screen. **Search** finds words in the slides' titles, text and
     speaker notes.
+    The bar keeps **Previous**, **Next** (it says *Next animation* or *Next slide*), **Zoom** and **Present**; Run
+    order, the hold screens, where you are and members' phones are under **More ▾**. The line under the
+    title says how the deck plays in plain words (*PowerPoint is playing this deck*, *Still slides (no animations)*,
+    *Slide 4 is not on members' phones*).
   - **Run order**: hide a slide or move it for this meeting only (drag it, or ◀ ▶). The PowerPoint file is not
     changed, and Next and Previous follow the new order everywhere.
     **📱 On phones / Off phones** keeps one slide off members' phones (they read *This slide is not shown on phones*);
@@ -224,7 +239,7 @@ FrameDecks, restart that app.
   or slides with ◀ ▶ arrows, the Question / Both / Scripture switch, video play / pause / from the start, every Deck
   with an eye, Black screen and Freeze. **Prepare**: meeting details, switch meeting, every Frame > Deck > Content
   (1 · 1.1 · 1.1.1, tap to show any of them) and the Teleprompter. **Engage**: Draw, Spotlight, Clear drawings and
-  Capture Memory. **Notes**: add a note to this meeting (reading them is off unless the PC turns it on). **More**: PC
+  Capture Chats. **Notes**: add a note to this meeting (reading them is off unless the PC turns it on). **More**: PC
   status, **Disconnect this device**.
 - Upright: chips at the bottom. Sideways or on a tablet: the picture on the left, the chips on the right.
 - The **Emergency** screen is on the PC only.

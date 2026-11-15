@@ -352,14 +352,14 @@ of the way down, marked by a soft gold band that breathes while it hears you. Sp
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
 
-## Capture Memory: copied chats as bubbles on the camera
+## Capture Chats: copied chats as bubbles on the camera
 
-**Capture Memory** turns what you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord,
+**Capture Chats** turns what you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord,
 WhatsApp, ChatGPT, Claude, Copilot or a browser) into **Memory Cards**. **Show** puts a card on FrameDecks vCam as a
 **chat bubble**: just the bubble, with no window or panel around it. There is nothing to paste and no extra window to
 manage.
 
-1. Turn on **Capture**: the switch in the Studio's **Capture Memory** pane (under Decks), **Engage → Capture
+1. Turn on **Capture**: the switch in **Capture Chats** (**Engage → Memory Cards** opens it), **Engage → Capture
    copies**, or the tray's **Capture copies**.
 2. In the chat, select the text and press **Ctrl+C**. Copy several messages at once and each becomes its own card,
    with the sender's name and the message.
@@ -395,9 +395,9 @@ newest. **Esc** (Hide all) takes them all off screen until the next card. You ca
 The Studio preview shows the same. **Also on the Share Window and overlay pages** shows them there too (on the OBS
 pages they float over the picture).
 
-**From your phone:** the phone remote has a **Capture Memory** section. Copy a message in WhatsApp, Teams, Zoom,
+**From your phone:** the phone remote has a **Capture Chats** section. Copy a message in WhatsApp, Teams, Zoom,
 Messages or any app on the phone, paste it there and tap **Show on screen**. See
-[Remote control](remote-control.md#capture-memory-on-the-phone).
+[Remote control](remote-control.md#capture-chats-on-the-phone).
 
 > **Note:** Unpinned cards are kept only while FrameDecks runs; pinned cards are kept in `kc-memory.json` in the
 > FrameDecks data folder. Nothing is sent anywhere. Copies that a password manager marks as private are never read,

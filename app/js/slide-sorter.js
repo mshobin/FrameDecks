@@ -53,7 +53,7 @@ function editOrder(fn){
 }
 
 function close(){
-  clearInterval(S.timer); S.timer = 0;
+  clearInterval(S.timer); S.timer = 0; clearInterval(S.tick); S.tick = 0;
   if (S.dlg){ if (S.dlg.open) S.dlg.close(); S.dlg.remove(); S.dlg = null; }
   document.removeEventListener('keydown', keys, true);
   if (S.opts.onClose) S.opts.onClose();
@@ -62,8 +62,11 @@ function keys(e){
   if (!S.dlg) return;
   if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); if (S.mode !== 'grid'){ S.mode = 'grid'; draw(); } else close(); return; }
   if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
-  if (e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); step(1); }
-  else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); step(-1); }
+  var fwd = e.key === 'ArrowRight' || e.key === 'PageDown' || (S.mode === 'present' && e.key === ' '), back = e.key === 'ArrowLeft' || e.key === 'PageUp';
+  if (!fwd && !back) return;
+  e.preventDefault();
+  if (S.mode === 'present' && fwd) return presentNext();
+  step(fwd ? 1 : -1);
 }
 function step(by){ post('api/slides', {op: 'step', by: by}).then(load).catch(function(e){ say(e.message, true); }); }
 function go(n){ post('api/slides', {op: 'go', n: n}).then(function(r){ say('Slide ' + r.page + ' is on screen'); load(); }).catch(function(e){ say(e.message, true); }); }
@@ -71,7 +74,7 @@ function go(n){ post('api/slides', {op: 'go', n: n}).then(function(r){ say('Slid
 function load(){
   var f = S.opts.file || '';
   return getJSON('api/slides' + (f ? '?file=' + encodeURIComponent(f) : '')).then(function(d){
-    var key = function(x){ return JSON.stringify([x.live && x.live.page, x.order, x.live && x.live.zoom, x.live && x.live.click, x.nophone, x.phones]); };
+    var key = function(x){ return JSON.stringify([x.live && x.live.page, x.order, x.live && x.live.zoom, x.live && x.live.click, x.nophone, x.phones, x.status]); };
     var was = S.info && key(S.info);
     S.info = d;
     if (!S.dlg) return;
@@ -81,8 +84,8 @@ function load(){
 
 function open(opts){
   if (S.dlg) close();
-  S.opts = opts || {}; S.query = ''; S.mode = 'grid'; S.sel = {}; S.drawn = false;
-  var dlg = S.dlg = h('dialog', {cls: 'sl-dlg', 'aria-labelledby': 'sl-title'});
+  S.opts = opts || {}; S.query = ''; S.mode = S.opts.present ? 'present' : 'grid'; S.sel = {}; S.drawn = false;
+  var dlg = S.dlg = h('dialog', {cls: 'sl-dlg' + (S.opts.present ? ' sl-presenting' : ''), 'aria-labelledby': 'sl-title'});
   S.title = h('h2', {id: 'sl-title', text: 'Slides'}); S.sub = h('p', {cls: 'sl-sub'});
   S.search = h('input', {type: 'search', cls: 'sl-search', placeholder: 'Search the slides…', 'aria-label': 'Search the slides'});
   S.search.addEventListener('input', function(){ S.query = S.search.value; draw(); });
@@ -108,23 +111,38 @@ function draw(){
   var live = d.live || null, order = d.order || d.slides.map(function(s){ return s.n - 1; });
   var cur = live ? live.page : -1, pos = order.indexOf(cur), nxt = pos >= 0 && pos < order.length - 1 ? order[pos + 1] : -1;
   S.title.textContent = (d.file || 'Slides').replace(/\.pdf$/i, '');
-  S.sub.textContent = live ? 'Slide ' + (cur + 1) + ' of ' + d.pages + ' on screen' + (order.length < d.pages ? ' · ' + order.length + ' in this meeting' : '') +
-    (live.clicks ? ' · animation ' + live.click + ' of ' + live.clicks : '') + (live.animated ? ' · PowerPoint plays the animations' : '') : d.pages + ' slides';
-  // the bar: Previous / Next, then the tools
+  var nw = nextWhat(live, nextFrameName());
+  S.sub.textContent = (live ? 'Slide ' + (cur + 1) + ' of ' + d.pages + ' on screen' + (order.length < d.pages ? ' · ' + order.length + ' in this meeting' : '') +
+    (live.clicks ? ' · animation ' + live.click + ' of ' + live.clicks : '') : d.pages + ' slides') + (statusWords(d, cur) ? ' · ' + statusWords(d, cur) : '');
+  // the bar (26.11.49 fewer buttons): Previous / Next, Zoom, Present, and the rest under More
   S.bar.innerHTML = '';
-  if (live){
+  if (S.mode === 'order'){
+    S.bar.appendChild(btn('Done', function(){ S.mode = 'grid'; S.sel = {}; draw(); }, 'on', 'Back to the slides'));
+    if (window.KCSlideTools) KCSlideTools.more(S.bar, d, btn, S.sel, true);
+  } else if (live){
     S.bar.appendChild(btn('◀ Previous', function(){ step(-1); }, '', 'Page Up'));
-    S.bar.appendChild(btn('Next ▶', function(){ step(1); }, 'gold', 'Page Down'));
+    S.bar.appendChild(btn(nw.kind === 'end' ? 'Last slide' : nw.label + ' ▶', function(){ step(1); }, 'gold', nw.text + ' (Page Down)'));
     S.bar.appendChild(btn(live.zoom ? 'Zoomed · whole slide' : 'Zoom', function(){
       if (live.zoom){ post('api/slides', {op: 'unzoom'}).then(load); return; } S.mode = S.mode === 'zoom' ? 'grid' : 'zoom'; draw(); }, live.zoom ? 'on' : '', 'Zoom into part of the slide'));
     var cs = d.slides[cur];
     (cs && cs.refs || []).forEach(function(r){ S.bar.appendChild(btn('Show ' + r, function(){ post('api/slides', {op: 'scripture', ref: r, show: true}).then(function(){ say(r + ' is on screen'); }).catch(function(e){ say(e.message, true); }); }, 'verse', 'On this slide: show it as the scripture card')); });
-    if (S.opts.studio && window.KCSlideTools) KCSlideTools.bar(S.bar, d, btn);
+    S.bar.appendChild(btn(S.mode === 'present' ? 'All slides' : S.opts.studio ? 'Present' : 'Clicker', function(){ S.mode = S.mode === 'present' ? 'grid' : 'present'; S.dlg.classList.toggle('sl-presenting', S.mode === 'present'); draw(); },
+      S.mode === 'present' ? 'on' : '', S.mode === 'present' ? 'Every slide at once' : 'The slide large, with big Back and Next buttons'));
   }
-  if (S.opts.studio && live && store()) S.bar.appendChild(btn(S.mode === 'order' ? 'Done' : 'Run order', function(){ S.mode = S.mode === 'order' ? 'grid' : 'order'; S.sel = {}; draw(); }, S.mode === 'order' ? 'on' : '', 'Hide or move slides for this meeting (the file is not changed)'));
-  if (S.opts.studio && live && window.KCSlideTools) KCSlideTools.more(S.bar, d, btn, S.sel);
+  if (S.opts.studio && S.mode !== 'order' && live){
+    var mb = btn('More ▾', function(){
+      var items = [];
+      if (store()) items.push({text: 'Run order: hide or move slides', title: 'Hide or move slides for this meeting (the file is not changed)', run: function(){ S.mode = 'order'; S.sel = {}; draw(); }});
+      if (window.KCSlideTools) items = items.concat(KCSlideTools.items(d, S.sel));
+      if (window.KCSlideTools) KCSlideTools.menu(mb, items);
+    }, '', 'Run order, hold screens, where you are, members’ phones');
+    mb.setAttribute('aria-haspopup', 'menu');
+    S.bar.appendChild(mb);
+  }
+  clearInterval(S.tick); S.tick = 0;
   S.body.innerHTML = '';
   if (S.mode === 'zoom' && live) return drawZoom(d, cur);
+  if (S.mode === 'present' && live) return drawPresent(d, cur, nw);
   // the grid
   var q = S.query.trim().toLowerCase(), words = q ? q.split(/\s+/) : [];
   var list = S.mode === 'order' ? order.concat(d.slides.map(function(s){ return s.n - 1; }).filter(function(p){ return order.indexOf(p) < 0; })) : (live ? order.concat(d.slides.map(function(s){ return s.n - 1; }).filter(function(p){ return order.indexOf(p) < 0; })) : d.slides.map(function(s){ return s.n - 1; }));
@@ -164,8 +182,69 @@ function draw(){
   });
   if (!shown) S.body.appendChild(h('p', {cls: 'sl-empty', text: words.length ? 'No slide has “' + S.query.trim() + '”.' : 'No slides.'}));
   else S.body.appendChild(grid);
-  if (S.mode === 'order') S.body.appendChild(h('p', {cls: 'sl-hint', text: 'Drag a slide, or use ◀ ▶, to change the order. Hide leaves a slide out of this meeting. 📱 keeps a slide off members’ phones. The PowerPoint file is not changed. Select slides to make a Songs Deck from them.'}));
+  if (S.mode === 'order') S.body.appendChild(h('p', {cls: 'sl-hint', text: 'Drag a slide, or use ◀ ▶, to change the order. Hide leaves a slide out of this meeting. 📱 keeps a slide off members’ phones. The PowerPoint file is not changed. Select slides to make a Songs Deck from them (then More).'}));
   else if (live && !words.length) { var c = grid.querySelector('.sl-card.cur'); if (c && !S.scrolled){ S.scrolled = true; c.scrollIntoView({block: 'nearest'}); } }
+}
+
+/* ---------- 26.11.49 what Next does, in words; the deck in plain words ---------- */
+/* Next plays the slide's next animation, then goes to the next slide of the run order; after the last one the Studio's
+   Next goes to the next Frame. dk = live.deck; frame = the next Frame's name (or ''). */
+function nextWhat(dk, frame){
+  if (!dk) return {kind: 'none', label: 'Next', text: ''};
+  if (dk.clicks && (dk.click || 0) < dk.clicks) return {kind: 'click', label: 'Next animation', text: 'Next: animation ' + ((dk.click || 0) + 1) + ' of ' + dk.clicks};
+  if (typeof dk.nxt === 'number') return {kind: 'slide', label: 'Next slide', text: 'Next: slide ' + (dk.nxt + 1)};
+  return {kind: 'end', label: frame ? 'Next Frame' : 'Last slide', text: frame ? 'Last slide. Next: Frame “' + frame + '”' : 'This is the last slide'};
+}
+function nextFrameName(){
+  try {
+    var St = store(), SCn = scenes(); if (!St || !SCn || !SCn.order) return '';
+    var st = St.get(), list = SCn.order(st), i = list.map(function(x){ return x.id; }).indexOf(st.live && st.live.scene);
+    return i >= 0 && list[i + 1] ? list[i + 1].name : '';
+  } catch (e){ return ''; }
+}
+var WHY = {none: 'Still slides (no animations)', off: 'Still slides (Play animations is off)', pdf: 'Still slides (no PowerPoint file beside this PDF)',
+  noppt: 'Still slides (PowerPoint is not on this PC)'};
+function statusWords(d, cur){
+  var out = [], st = d.status;
+  if (st) out.push(st.plays === 'powerpoint' ? 'PowerPoint is playing this deck' : WHY[st.why] || 'Still slides');
+  if (d.phones === false) out.push('Not on members’ phones');
+  else if (cur >= 0 && (d.nophone || []).indexOf(cur) >= 0) out.push('Slide ' + (cur + 1) + ' is not on members’ phones');
+  return out.join(' · ');
+}
+function mmss(ms){ var t = Math.max(0, Math.round(ms / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+
+/* ---------- 26.11.49 Present: the slide large, big Back and Next, what Next does, a strip of the run order ---------- */
+function presentNext(){
+  var d = S.info, nw = nextWhat(d && d.live, nextFrameName());
+  if (nw.kind === 'end'){
+    var nb = document.getElementById('lb-next');
+    if (S.opts.studio && nb && !nb.disabled){ nb.click(); say('Next Frame'); setTimeout(function(){ if (S.dlg) load(); }, 400); }
+    else say('This is the last slide');
+    return;
+  }
+  step(1);
+}
+function drawPresent(d, cur, nw){
+  var live = d.live, order = d.order || d.slides.map(function(s){ return s.n - 1; }), s = d.slides[cur] || {};
+  var time = h('b', {cls: 'sl-pres-time', text: mmss(Date.now() - (live.at || Date.now()))});
+  var next = nw.kind === 'slide' ? h('img', {cls: 'sl-pres-nimg', src: thumbUrl(d.file, nw.kind === 'slide' ? live.nxt + 1 : cur + 1, 480), alt: 'The next slide', loading: 'lazy'}) : null;
+  var side = h('div', {cls: 'sl-pres-side'}, [
+    h('p', {cls: 'sl-pres-n'}, ['Slide ' + (cur + 1) + ' of ' + d.pages + ' · ', time]),
+    h('p', {cls: 'sl-pres-next', text: nw.text}), next,
+    s.notes ? h('p', {cls: 'sl-pres-notes', text: s.notes}) : null]);
+  var main = h('div', {cls: 'sl-pres-main'}, [h('img', {cls: 'sl-pres-cur', src: thumbUrl(d.file, cur + 1, 960), alt: 'Slide ' + (cur + 1) + (s.title ? ': ' + s.title : '') + ' (on screen)'}), side]);
+  var btns = h('div', {cls: 'sl-pres-btns'}, [
+    h('button', {cls: 'sl-big', type: 'button', text: '◀ Back', 'aria-label': 'Back', onclick: function(){ step(-1); }}),
+    h('button', {cls: 'sl-big gold', type: 'button', text: nw.kind === 'end' && !(S.opts.studio && nextFrameName()) ? 'Last slide' : nw.label + ' ▶', onclick: presentNext,
+      disabled: nw.kind === 'end' && !(S.opts.studio && nextFrameName()) ? 'disabled' : null})]);
+  var strip = h('ol', {cls: 'sl-strip', 'aria-label': 'The slides in this meeting’s order'});
+  order.forEach(function(p){
+    strip.appendChild(h('li', {cls: p === cur ? 'cur' : ''}, [h('button', {type: 'button', 'aria-label': 'Slide ' + (p + 1), onclick: function(){ go(p + 1); }},
+      [h('img', {src: thumbUrl(d.file, p + 1, 160), alt: '', loading: 'lazy'}), h('span', {text: String(p + 1)})])]));
+  });
+  S.body.appendChild(h('div', {cls: 'sl-pres'}, [main, btns, strip]));
+  var c = strip.querySelector('.cur'); if (c && c.scrollIntoView) c.scrollIntoView({block: 'nearest', inline: 'center'});
+  S.tick = setInterval(function(){ time.textContent = mmss(Date.now() - (live.at || Date.now())); }, 1000);
 }
 
 /* Zoom: the slide on screen, large; click a point to zoom into it, choose how far, or show the whole slide */
@@ -185,7 +264,7 @@ function drawZoom(d, cur){
   S.body.appendChild(wrap);
 }
 
-window.KCSlides = {open: open, close: close, isOpen: function(){ return !!S.dlg; }};
+window.KCSlides = {open: open, close: close, isOpen: function(){ return !!S.dlg; }, nextWhat: nextWhat, statusWords: statusWords};
 /* the Studio's top bar: "Slide 3 / 12" between the arrows opens every slide at once */
 var top = document.getElementById('lb-slides-t');
 if (top) top.addEventListener('click', function(){ open({studio: true}); });

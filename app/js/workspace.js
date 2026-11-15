@@ -279,7 +279,7 @@ var meetSig = '';
 function renderMeetingBar(){
   var sel = $('mt-pick'); if (!sel) return;
   var list = SC.meetings(live), cur = SC.currentMeeting(live);
-  var sig = JSON.stringify([list.map(function(m){ return [m.id, m.name, m.date]; }), cur.id, live.scenes.map(function(sc){ return sc.group; })]);
+  var sig = JSON.stringify([list.map(function(m){ return [m.id, m.name, m.date]; }), cur.id, live.scenes.map(function(sc){ return sc.group; }), (live.meeting || {}).time, isoDay(new Date())]);
   if (sig === meetSig) return; meetSig = sig;
   sel.innerHTML = '';
   list.forEach(function(m){
@@ -288,6 +288,38 @@ function renderMeetingBar(){
     o.textContent = m.name + (m.date ? ' · ' + m.date : '') + ' (' + n + ')'; o.selected = m.id === cur.id; sel.appendChild(o);
   });
   $('mt-bar').classList.toggle('one', list.length < 2);
+  // 26.11.49 the same meetings as tabs: the date and Frames on each, the next one by date marked, past ones quieter
+  var tabs = $('mt-tabs'), today = isoDay(new Date()), next = null;
+  list.forEach(function(m){ var d = isoOf(m.date); if (d && d >= today && (!next || d < isoOf(next.date))) next = m; });
+  if (tabs){
+    tabs.innerHTML = '';
+    if (list.length > 1) list.forEach(function(m){
+      var n = live.scenes.filter(function(sc){ return !sc.tpl && SC.meetingOf(live, sc).id === m.id; }).length, d = isoOf(m.date);
+      var t = h('button', {cls: 'mt-tab' + (d && d < today ? ' mt-past' : ''), type: 'button', role: 'tab', 'aria-selected': String(m.id === cur.id),
+        title: m.name + (m.date ? ' · ' + m.date : '') + ' · ' + plural(n, 'Frame'), onclick: function(){ showMeeting(m.id); }},
+        [h('b', {text: m.name}), h('small', {text: (next && next.id === m.id ? 'Next · ' : '') + (m.date ? dayLabel(m.date) + ' · ' : '') + plural(n, 'Frame')})]);
+      tabs.appendChild(t);
+    });
+    var on = tabs.querySelector('[aria-selected="true"]'); if (on && on.scrollIntoView) on.scrollIntoView({block: 'nearest', inline: 'nearest'});
+  }
+  // the meeting this PC runs, in one line under the tabs
+  var up = $('mt-up');
+  if (up){
+    var nCur = live.scenes.filter(function(sc){ return !sc.tpl && SC.meetingOf(live, sc).id === cur.id; }).length, tm = String((live.meeting || {}).time || '').trim();
+    up.title = up.textContent = 'This PC runs: ' + cur.name + (cur.date ? ' · ' + dayLabel(cur.date) + (tm ? ', ' + tm : '') : '') + ' · ' + plural(nCur, 'Frame');
+  }
+}
+/* 26.11.49 dates on the meeting tabs: an ISO date (2026-11-19) reads "Thu 19 Nov"; any other text is shown as written */
+function isoDay(d){ return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function isoOf(v){ var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v || '').trim()); return m ? m[0] : ''; }
+function dayLabel(v){
+  var iso = isoOf(v); if (!iso) return String(v || '').slice(0, 24);
+  var d = new Date(iso + 'T12:00:00');
+  return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' + d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
+}
+function showMeeting(id){
+  var name = '';
+  return commit(function(n){ var m = SC.switchMeeting(n, id); name = m ? m.name : ''; }).then(function(){ selScene = null; toast('Now showing “' + name + '”'); });
 }
 /* 26.11.48 a named confirmation for deleting a meeting (red button, Cancel first) */
 function confirmDelete(name, frames, onAir){
@@ -304,33 +336,41 @@ function confirmDelete(name, frames, onAir){
     back.appendChild(card); document.body.appendChild(back); cancel.focus();
   });
 }
-function askName(title, value, ok){
+/* a meeting name; with copyOf (26.11.49, a new meeting) also where it starts: blank, or a copy of that meeting.
+   Resolves the name (rename) or {name, from: 'blank' | 'copy'} (new), or null */
+function askName(title, value, ok, copyOf){
   return new Promise(function(resolve){
     var input = h('input', {type: 'text', maxlength: '60', value: value || '', 'aria-label': title});
     var back = h('div', {cls: 'app-modal-back'}), card = h('div', {cls: 'app-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title});
+    var blank = h('input', {type: 'radio', name: 'mt-from', value: 'blank'}), copy = h('input', {type: 'radio', name: 'mt-from', value: 'copy'});
+    blank.checked = true;
     function done(v){ back.remove(); resolve(v); }
+    function ans(){ var nm = input.value.trim(); if (!nm) return null; return copyOf ? {name: nm, from: copy.checked ? 'copy' : 'blank'} : nm; }
     card.appendChild(h('h2', {text: title}));
     card.appendChild(h('label', {cls: 'mt-ask'}, [h('span', {text: 'Meeting name'}), input]));
+    if (copyOf) card.appendChild(h('fieldset', {cls: 'mt-from'}, [h('legend', {cls: 'sr-only', text: 'Start with'}),
+      h('label', {}, [blank, h('span', {}, ['Blank', h('small', {text: 'One empty Frame, ready for + Content'})])]),
+      h('label', {}, [copy, h('span', {}, ['Copy of “' + copyOf + '”', h('small', {text: 'The same Frames, Decks and looks, with the scripture and questions left empty'})])])]));
     card.appendChild(h('div', {cls: 'app-modal-actions'}, [
       h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ done(null); }}),
-      h('button', {cls: 'btn primary', type: 'button', text: ok, onclick: function(){ done(input.value.trim() || null); }})]));
-    back.addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape') done(null); if (e.key === 'Enter') done(input.value.trim() || null); });
+      h('button', {cls: 'btn primary', type: 'button', text: ok, onclick: function(){ done(ans()); }})]));
+    back.addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape') done(null); if (e.key === 'Enter') done(ans()); });
     back.appendChild(card); document.body.appendChild(back); input.focus(); input.select();
   });
 }
 (function(){
   var sel = $('mt-pick'); if (!sel) return;
-  sel.addEventListener('change', function(){
-    var id = sel.value, name = '';
-    commit(function(n){ var m = SC.switchMeeting(n, id); name = m ? m.name : ''; }).then(function(){ selScene = null; toast('Now showing “' + name + '”'); });
-  });
+  sel.addEventListener('change', function(){ showMeeting(sel.value); });
   $('mt-new').addEventListener('click', function(){
-    askName('A new meeting', '', 'Make the meeting').then(function(nm){
-      if (!nm) return; var made = null;
-      commit(function(n){ made = SC.addMeeting(n, nm, {blank: true}); }).then(function(){   // 26.11.48 starts with a blank Frame
+    var cur = SC.currentMeeting(live);
+    askName('A new meeting', '', 'Make the meeting', cur.name).then(function(r){
+      if (!r) return; var made = null, copy = r.from === 'copy';
+      // 26.11.48 starts with a blank Frame; 26.11.49 or as a copy of the meeting shown (scripture and questions empty)
+      commit(function(n){ made = SC.addMeeting(n, r.name, copy ? {copy: cur.id} : {blank: true}); }).then(function(){
         selScene = null; if (!made) return;
         var first = SC.order(live)[0]; if (first) select(first.id, null, true);
-        toast('“' + made.name + '” made, with a blank Frame. Select + Content to fill it.');
+        toast(copy && made.frames ? '“' + made.name + '” made with ' + plural(made.frames, 'Frame') + ' from “' + cur.name + '”. Add this meeting’s scripture and questions.'
+          : '“' + made.name + '” made, with a blank Frame. Select + Content to fill it.');
       });
     });
   });
@@ -1261,6 +1301,30 @@ function textForm(gen, sc, l, tab){
     gen.appendChild(h('p', {cls: 'hint', text: 'The Frame’s transition (Frame → Transition) plays when the whole Frame changes.'}));
   }
 }
+/* 26.11.49 a deck just added is read at once: its small pictures are made in the background and this line says how it
+   will play ("Ready: 24 slides, 3 with animations · PowerPoint will play it"), so there are no surprises when it goes
+   live. */
+var readyCache = {};
+var READY_WHY = {none: 'still slides (no animations)', off: 'still slides (Play animations is off)', pdf: 'still slides (no PowerPoint file beside this PDF)',
+  noppt: 'still slides (PowerPoint is not on this PC)'};
+function readyText(r){
+  return 'Ready: ' + plural(r.pages, 'slide') + (r.animated ? ', ' + r.animated + ' with animations' : '') + ' · ' +
+    (r.plays === 'powerpoint' ? 'PowerPoint will play it' : READY_WHY[r.why] || 'still slides');
+}
+function deckReady(sid, lid, c){
+  var line = h('p', {cls: 'hint deck-ready', role: 'status', text: 'Checking the slides…'}), k = c.file + '|' + (c.anim !== false);
+  var paint = function(r){ line.textContent = r.error ? r.error : readyText(r); line.classList.toggle('bad', !!r.error); };
+  var got = readyCache[k];                                   // the answer, or the request on its way (asked once per file)
+  if (got && !got.then) paint(got);
+  else {
+    if (!got) got = readyCache[k] = fetch('api/slides', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin',
+      body: JSON.stringify({op: 'ready', file: c.file, anim: c.anim !== false})}).then(function(r){ return r.json(); })
+      .then(function(r){ if (r.error) delete readyCache[k]; else readyCache[k] = r; return r; })
+      .catch(function(){ delete readyCache[k]; return {error: 'Could not check the slides now.'}; });
+    got.then(paint);
+  }
+  return line;
+}
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
   gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this Content on'}),
@@ -1297,6 +1361,7 @@ function mediaForm(gen, sc, l){
       'PowerPoint plays the slides behind your windows, so animations, transitions and videos play. Next plays each click.'));
     if (l.kind === 'pdf') gen.appendChild(checkCtl('On members’ phones', c.phones !== false, function(v){ editLayer(sid, lid, function(x){ x.c.phones = v; }); },   // 26.11.48
       'While the members’ room is open, phones get each slide of this Deck. Keep single slides off them in Slides › Run order.'));
+    if (l.kind === 'pdf' && c.file) gen.appendChild(deckReady(sid, lid, c));   // 26.11.49 how the deck will play
     gen.appendChild(checkCtl('Show objects only', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }, 'Hides a plain slide background.'));
     gen.appendChild(h('p', {cls: 'hint', text: l.kind === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
       'A .pptx with animations plays them when PowerPoint is on this PC. A PDF, or a deck without PowerPoint, shows still slides.'}));

@@ -10,6 +10,27 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.49] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.49.md](releases/v26.11.49.md).
+
+### Added
+- Studio meeting tabs (`#mt-tabs`: date, Frames, *Next*, past quieter), "This PC runs" line (`#mt-up`), New meeting
+  from Blank or Copy (`Scenes.addMeeting(n, name, {copy: id})`, shared `copyFrames` with `nextWeek`).
+- Website: `meetingDates` (Up next / past) and `copyFramesTo` in `lib/meetings.ts`; MeetingBar "Start with" choice;
+  `createMeeting(name, copy)` pushes the copied Frames with the meeting and the order.
+- `live.deck.nxt` (the slide Next goes to) and `KCSlides.nextWhat`: the Live Stage button reads Present slides (goes
+  live, then opens Present) and, while slides are on screen, Next animation / Next slide (the top bar's ▶).
+- Slides window: Present mode (big Back/Next, next slide, notes, timer, strip), More ▾ (`KCSlideTools.items`),
+  plain-words status (`slides_body.status`). (Rehearse was built and removed before release, at the owner's word.)
+- Server: `deck_status` / `deck_ready` (`POST /api/slides {op: ready}`: pages, slides with animations, plays, why,
+  thumbnails in the background), `powerpoint_installed`.
+- Phone remote: Clicker (`#c-clicker`) opens Present on the phone.
+
+### Changed
+- Capture Memory is renamed Capture Chats everywhere it is shown; its Studio pane left the Frames column (below
+  Decks) and is now a window (`#mem-dlg`) opened from Engage › Memory Cards (`chip-bar.js` cards).
+
 ## [26.11.48] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.48.md](releases/v26.11.48.md).

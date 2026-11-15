@@ -80,3 +80,33 @@ test("names stay unique and the record keeps what older PCs read", () => {
   const out = withMeetings({ title: "Sunday", location: "Hall" }, list, "m1");
   assert.deepEqual([out.title, out.date, out.location, out.meetings.length], ["Tuesday", "2026-11-03", "Hall", 2]);
 });
+
+// 26.11.49 "New meeting from": a copy of a meeting's Frames, and how the dates read on the meeting tabs
+test("a copy of a meeting has new ids, the new meeting's name and empty scripture and questions", async () => {
+  const { copyFramesTo } = await import("../src/lib/meetings.ts");
+  const src = [{ id: "sc_a", name: "Welcome", group: "Sunday", fav: true, layers: [
+    { id: "L1", kind: "scripture", c: { ref: "John 3:16", text: "For God", version: "ESV", itemId: "v1" } },
+    { id: "L2", kind: "question", c: { items: [{ id: "q", text: "Why?" }], itemId: "q" } },
+    { id: "L3", kind: "pdf", c: { file: "Talk.pdf", page: 2 } },
+  ] }];
+  const [c] = copyFramesTo(src, "Next Sunday", 5);
+  assert.notEqual(c.id, "sc_a");
+  assert.equal(c.group, "Next Sunday");
+  assert.equal(c.name, "Welcome");
+  assert.equal(c.fav, false);
+  assert.ok(c.layers.every((l, i) => l.id !== src[0].layers[i].id));
+  assert.deepEqual([c.layers[0].c.ref, c.layers[0].c.text, c.layers[1].c.items.length], ["", "", 0]);
+  assert.deepEqual(c.layers[2].c, { file: "Talk.pdf", page: 2 });
+  assert.equal(src[0].layers[0].c.ref, "John 3:16", "the original is not touched");
+});
+
+test("meeting tabs: Thu 19 Nov, the next one marked, past ones known", async () => {
+  const { meetingDates } = await import("../src/lib/meetings.ts");
+  const d = meetingDates([
+    { id: "a", date: "2026-11-12" }, { id: "b", date: "2026-11-26" }, { id: "c", date: "2026-11-19" }, { id: "d", date: "Easter" },
+  ], new Date(2026, 10, 15));
+  assert.deepEqual(d.c, { label: "Thu 19 Nov", when: "next" });
+  assert.equal(d.a.when, "past");
+  assert.equal(d.b.when, "");
+  assert.deepEqual(d.d, { label: "Easter", when: "" });
+});
