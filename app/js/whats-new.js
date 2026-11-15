@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.52': [
+    {title: 'Present slides fixed', text: 'Adding a PowerPoint and pressing Present slides straight away could close FrameDecks. It no longer does.'}
+  ],
   '26.11.51': [
     {title: 'Set order', text: 'Set order under the preview: click the Content in the order it should appear (Shift-click: together with the step before). When the Frame is live, Next shows each step, then the next Frame.', show: {spot: '#program'}},
     {title: 'Copy a look', text: 'Look in the preview\u2019s toolbar: copy a look, paste it, or use it for every one of that kind in this meeting, all meetings or chosen Frames. Never the words; one Undo puts it back.', show: {spot: '#program'}}

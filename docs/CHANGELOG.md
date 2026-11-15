@@ -10,6 +10,20 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.52] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.52.md](releases/v26.11.52.md).
+
+### Fixed
+- PDFium (pypdfium2) is not thread-safe: `slides.PDFIUM_LOCK` (an RLock) is now held by every use of it
+  (`slides.read_pdf`, `page_count`, `thumb`; `vcam.layers.PdfSource` open, render, close). Since 26.11.49
+  `deck_ready` made thumbnails in a background thread while Present put the deck live (the camera's `PdfSource`), and
+  the slides window and phones fetched thumbnails too. The background thumbnails now pause 50 ms between slides.
+
+### Added
+- `crash_reporter()`: `faulthandler` writes every thread's stack to `kc-crash.txt` in the data folder on a native
+  crash; the support bundle includes it.
+
 ## [26.11.51] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.51.md](releases/v26.11.51.md).

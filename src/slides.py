@@ -24,6 +24,11 @@ MAX_SLIDES = 400
 TEXT_MAX, NOTES_MAX, TITLE_MAX = 1200, 4000, 120
 THUMB_WIDTHS = (160, 320, 480, 960)
 _LOCK = threading.Lock()
+# 26.11.51 PDFium (pypdfium2) is not thread-safe: two threads in it at once can bring the whole program down (owner, 15
+# November: "When i added the ppt, and tried to present the slides, the app crashed" - the small pictures of a deck
+# just added were being made in the background while Present put the deck live). Every use of it, here and in the
+# camera (vcam/layers.py), holds this one lock.
+PDFIUM_LOCK = threading.RLock()
 
 NS = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main",
       "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
@@ -148,6 +153,11 @@ def read_pptx(path, hidden=False):
 def read_pdf(path):
     """[{title, text, notes}] from a PDF's own text (no notes in a PDF; the first line is the title)."""
     import pypdfium2 as pdfium
+    with PDFIUM_LOCK:
+        return _read_pdf(pdfium, path)
+
+
+def _read_pdf(pdfium, path):
     doc = pdfium.PdfDocument(str(path))
     out = []
     try:
@@ -169,11 +179,12 @@ def read_pdf(path):
 
 def page_count(path):
     import pypdfium2 as pdfium
-    doc = pdfium.PdfDocument(str(path))
-    try:
-        return len(doc)
-    finally:
-        doc.close()
+    with PDFIUM_LOCK:
+        doc = pdfium.PdfDocument(str(path))
+        try:
+            return len(doc)
+        finally:
+            doc.close()
 
 
 # ---------- the cached description of a deck ----------
@@ -263,16 +274,17 @@ def thumb(folder, name, n, width=320):
     import io
 
     import pypdfium2 as pdfium
-    doc = pdfium.PdfDocument(str(path))
-    try:
-        if not 1 <= n <= len(doc):
-            raise ValueError("No such slide.")
-        page = doc[n - 1]
-        w, _ = page.get_size()
-        img = page.render(scale=width / max(1.0, w)).to_pil().convert("RGB")
-        page.close()
-    finally:
-        doc.close()
+    with PDFIUM_LOCK:
+        doc = pdfium.PdfDocument(str(path))
+        try:
+            if not 1 <= n <= len(doc):
+                raise ValueError("No such slide.")
+            page = doc[n - 1]
+            w, _ = page.get_size()
+            img = page.render(scale=width / max(1.0, w)).to_pil().convert("RGB")
+            page.close()
+        finally:
+            doc.close()
     buf = io.BytesIO()
     img.save(buf, "JPEG", quality=78 if width <= 480 else 85, optimize=True)
     data = buf.getvalue()

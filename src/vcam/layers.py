@@ -235,22 +235,38 @@ class VideoSource:
         self.alive = False
 
 
+def _pdfium_lock():
+    """26.11.51 the one lock every use of PDFium holds (it is not thread-safe; see slides.PDFIUM_LOCK)."""
+    try:
+        from slides import PDFIUM_LOCK
+    except ImportError:                                # the camera on its own (tests): a lock of its own
+        global _OWN_PDFIUM
+        PDFIUM_LOCK = _OWN_PDFIUM
+    return PDFIUM_LOCK
+
+
+_OWN_PDFIUM = threading.RLock()
+
+
 class PdfSource:
     """Slides from a PDF (export from PowerPoint: File > Export > PDF). Rendered once per page and size."""
     def __init__(self, path):
         import pypdfium2 as pdfium
-        self.doc = pdfium.PdfDocument(str(path))
-        self.pages = len(self.doc)
+        with _pdfium_lock():
+            self.doc = pdfium.PdfDocument(str(path))
+            self.pages = len(self.doc)
         self.page, self.width = 0, 1280
         self.img, self.version, self.info = None, 0, f"{self.pages} slides"
         self.lock = threading.Lock()
         self._render()
 
     def _render(self):
-        pg = self.doc[self.page]
-        w, h = pg.get_size()
-        bm = pg.render(scale=self.width / max(1.0, w))
-        img = np.ascontiguousarray(bm.to_numpy()[..., :3])
+        with _pdfium_lock():                           # 26.11.51 PDFium is not thread-safe (slides.PDFIUM_LOCK)
+            pg = self.doc[self.page]
+            w, h = pg.get_size()
+            bm = pg.render(scale=self.width / max(1.0, w))
+            img = np.ascontiguousarray(bm.to_numpy()[..., :3])
+            pg.close()
         with self.lock:
             self.img, self.version = img, self.version + 1
 
@@ -272,7 +288,8 @@ class PdfSource:
             return self.img, self.version
 
     def close(self):
-        self.doc.close()
+        with _pdfium_lock():
+            self.doc.close()
 
 
 class LiveShowSource(PdfSource):

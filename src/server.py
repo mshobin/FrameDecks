@@ -54,7 +54,7 @@ import scripture_listen   # 26.11.14 Listen for scripture (only while it is on a
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "26.11.51"
+APP_VERSION = "26.11.52"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1437,14 +1437,14 @@ def support_bundle(address):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("README.txt", "FrameDecks support bundle\n\nIncluded: the program's log (the last 2 MB), the Diagnostics "
-                   "page and the settings files listed here.\nNot included: your plan, members, the phone-remote PIN and "
+                   "page, where a crash happened (kc-crash.txt) and the settings files listed here.\nNot included: your plan, members, the phone-remote PIN and "
                    "sessions, and any keys.\n")
         z.writestr("diagnostics.json", json.dumps(diagnostics(address), indent=1, ensure_ascii=False, default=str))
         z.writestr("sync.json", json.dumps(SYNC.info(), indent=1, ensure_ascii=False, default=str))
         listing = sorted(({"name": f.name, "bytes": f.stat().st_size} for f in DATA.iterdir() if f.is_file()),
                          key=lambda d: d["name"]) if DATA.exists() else []
         z.writestr("data-folder.json", json.dumps(listing, indent=1))   # names and sizes only
-        for name in (SUPPORT_LOG + ".old", SUPPORT_LOG):
+        for name in (SUPPORT_LOG + ".old", SUPPORT_LOG, CRASH_LOG):     # 26.11.52 kc-crash.txt: where a crash happened
             f = DATA / name
             if f.is_file():
                 data = f.read_bytes()
@@ -2688,6 +2688,7 @@ def deck_ready(name, c=None):
             except (ValueError, OSError) as e:
                 _swallowed("deck_ready thumb", e)
                 return
+            time.sleep(0.05)                               # 26.11.51 one slide at a time, never holding up the live picture
     threading.Thread(target=thumbs, name="deck-ready", daemon=True).start()
     return st
 
@@ -4832,7 +4833,31 @@ def start_main_server():
     return server
 
 
+CRASH_LOG = "kc-crash.txt"
+_CRASH_FILE = []
+
+
+def crash_reporter():
+    """26.11.52 a crash inside PowerPoint, the PDF reader or the camera ends the program without a Python error, so
+    nothing reached the log (the owner's "the app crashed" when presenting slides left no trace). Python's own crash
+    reporter writes every thread's place to kc-crash.txt when that happens; the support bundle includes it."""
+    import faulthandler
+    try:
+        DATA.mkdir(parents=True, exist_ok=True)
+        f = DATA / CRASH_LOG
+        if f.is_file() and f.stat().st_size > 512_000:                  # keep it small: the last few crashes
+            f.write_bytes(f.read_bytes()[-256_000:])
+        fh = open(f, "a", encoding="utf-8")
+        fh.write(f"\n--- FrameDecks {APP_VERSION} started {time.strftime('%Y-%m-%d %H:%M:%S')} ---\n")
+        fh.flush()
+        faulthandler.enable(file=fh, all_threads=True)
+        _CRASH_FILE.append(fh)                                       # kept open for as long as the program runs
+    except OSError as e:
+        _swallowed("crash reporter", e)
+
+
 def main():
+    crash_reporter()
     server = start_main_server()
     if server is None:
         print("Ports 8750-8760 are all in use. Close the other program using them and try again.")
