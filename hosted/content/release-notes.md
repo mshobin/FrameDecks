@@ -26,5 +26,7 @@ keeps all your meetings, members, settings, notes, pinned Memory Cards and recor
 - None in this release.
 
 ## Known Issues
+- A scanned lesson (pictures of pages) has no text to read. Use the lesson's PDF from its website, or type the
+  questions in.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
   Each release is checked with Microsoft Defender before it is published.
