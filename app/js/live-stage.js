@@ -29,6 +29,15 @@ function paintGo(){
   go.classList.remove('is-take');
   go.classList.remove('is-off');
   var up = $('upnext'), name = ($('un-name') || {}).textContent || '', meta = ($('un-meta') || {}).textContent || '';
+  if (st && SC.flowDeckHolds && SC.flowDeckHolds(st, 1) && window.KCSlides && KCSlides.nextWhat){   // 26.11.56 slides that are a step: slide by slide, then the next step
+    var sdk = st.live.deck, snw = KCSlides.nextWhat(sdk, ''), sfs = SC.liveScene(st), sfl = SC.flowOf(sfs), sat = SC.flowAt(st);
+    if (!go.classList.contains('holding')) goT.textContent = snw.label;
+    go.classList.remove('is-off'); go.disabled = false; go.dataset.mode = 'deck';
+    go.removeAttribute('aria-label'); if (go.getAttribute('aria-describedby') === 'kc-hold-hint') go.removeAttribute('aria-describedby');
+    goSub.textContent = 'Slide ' + (sdk.page + 1) + ' of ' + sdk.pages + ' · step ' + (sat + 1) + ' of ' + sfl.length;
+    go.title = snw.text + (sat < sfl.length - 1 ? ' (then step ' + (sat + 2) + ': ' + SC.flowLabel(sfs, sat + 1) + ')' : '');
+    return;
+  }
   if (st && SC.flowCan && SC.flowCan(st, 1)){                 // 26.11.51 the Frame's own order: Next shows its next step first
     var fsc = SC.liveScene(st), fat = SC.flowAt(st) + 1, fl = SC.flowOf(fsc);
     if (!go.classList.contains('holding')) goT.textContent = 'Next step';

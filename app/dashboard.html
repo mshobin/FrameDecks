@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="css/slides.css"><!-- 26.11.45 every slide at once -->
 <link rel="stylesheet" href="css/edit-preview.css"><!-- 26.11.50 type in the preview, Settings as cards -->
 <link rel="stylesheet" href="css/lesson-import.css"><!-- 26.11.54 Import a lesson -->
+<link rel="stylesheet" href="css/run-order.css"><!-- 26.11.56 Run order -->
 <script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
    framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
 (function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
@@ -135,6 +136,8 @@
         <button class="btn small quiet mt-del" type="button" id="mt-delete" title="Delete this meeting with all its Frames, Decks and Content" aria-label="Delete this meeting"><i data-icon="trash-2" data-size="14"></i></button>
         <button class="btn small" type="button" id="mt-new" title="A new meeting with its own Frames" aria-label="New meeting"><i data-icon="plus" data-size="14"></i> New</button>
         <button class="btn small quiet" type="button" id="mt-next" title="Next week from this meeting: the same Frames, a week later, with the scripture and questions left empty to fill in" aria-label="Next week from this meeting"><i data-icon="calendar-days" data-size="14"></i> Next week</button>
+        <!-- 26.11.56 the whole meeting as one list: each Frame's steps and slides, drag to reorder (js/run-order.js) -->
+        <button class="btn small quiet" type="button" id="mt-run" title="Run order: every Frame of this meeting in the order Next walks them, with its steps and slides. Drag to reorder."><i data-icon="list" data-size="14"></i> Run order</button>
       </div>
       <div class="pane-tools">
         <input type="search" id="scene-search" placeholder="Search Frames" aria-label="Search Frames">
@@ -698,6 +701,7 @@
 <script src="js/meeting-book.js"></script>
 <script src="js/meeting-import.js"></script>
 <script src="js/lesson-import.js"></script>
+<script src="js/run-order.js"></script>
 <script src="js/meeting-brand.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/studio-feel.js"></script>

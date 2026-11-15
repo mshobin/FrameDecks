@@ -54,6 +54,7 @@ function step(d){
     Store.undoable(function(n){ lab = SC.songStep(n, d); }).then(function(r){ tell('✓ ' + lab, false, r.undo); }).catch(function(){ tell('FrameDecks did not answer.', true); });
     return;
   }
+  if (SC.flowDeckHolds && SC.flowDeckHolds(live, d)){ post('api/slides', {op: 'step', by: d}).catch(function(){ tell('FrameDecks did not answer.', true); }); return; }   // 26.11.56 slides that are a step
   if (SC.flowCan(live, d)){                                                            // 26.11.51 the Frame's own order: its next step
     var labF = '';
     Store.undoable(function(n){ labF = SC.flowStep(n, d); }).then(function(r){ tell('✓ ' + labF, false, r.undo); }).catch(function(){ tell('FrameDecks did not answer.', true); });

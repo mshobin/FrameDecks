@@ -1,0 +1,18 @@
+/* FrameDecks 26.11.56 - Run order: the meeting as one list (js/run-order.js) */
+.ro-dlg{width:min(940px,96vw)}
+.ro-list{display:flex;flex-direction:column;gap:8px;max-height:58vh;margin:4px 0 0;padding:0 4px 0 0;overflow:auto;list-style:none}
+.ro-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:var(--r-2);background:var(--panel-2);cursor:grab}
+.ro-row.on{border-color:var(--live)}
+.ro-row.deck .ro-n{background:var(--q-soft);color:var(--q)}
+.ro-row.drag{opacity:.5}
+.ro-row.over{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.ro-grip{flex:none;display:grid;place-items:center;color:var(--faint)}
+.ro-n{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:999px;background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:700}
+.ro-name{flex:0 1 240px;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:0;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.ro-name b{max-width:100%;overflow:hidden;font-size:15px;text-overflow:ellipsis;white-space:nowrap}
+.ro-name span{color:var(--muted);font-size:12px}
+.ro-name:hover b{text-decoration:underline}
+.ro-chips{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px}
+.ro-chip{padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-size:12px;white-space:nowrap}
+.ro-mvs{flex:none;display:flex;gap:2px}
+.ro-total{margin:12px 0 0;color:var(--muted);font-size:13px}

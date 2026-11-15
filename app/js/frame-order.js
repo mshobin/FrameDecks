@@ -141,6 +141,7 @@ function buildStrip(sc){
     h('button', {type: 'button', cls: 'btn small primary', text: 'Done', onclick: function(){ stop(true); }})]));
 }
 function paint(){
+  if (!strip) return;                                  // 26.11.56 the Store's first call comes before the strip is made
   var sc = scene(), studio = $('program') && !$('program').hidden;
   if (!sc || !studio || sc.tpl){ strip.hidden = true; svg.style.display = 'none'; badges.innerHTML = ''; return; }
   strip.hidden = false;

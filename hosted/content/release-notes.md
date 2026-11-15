@@ -1,25 +1,24 @@
-## FrameDecks v26.11.55
-Present slides is now clearly yours: it opens inside the Studio and says that only you see it.
+## FrameDecks v26.11.56
+Frame 1, then Frame 2, then the PowerPoint: three easy ways to set the order of a whole meeting.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- None in this release.
+- **Run order.** Beside **Next week**, **Run order** shows every Frame of the meeting in the order Next walks them:
+  each row says what it holds (① Scripture → ② Question, *Talk · 12 slides*), which one is on air, and a total at the
+  bottom. Drag a row, or use its arrows, to move a Frame; click a name to select it.
+- **Put slides after this Frame.** In a PowerPoint's menu, this moves the slides out into a Frame of their own, right
+  after this one. One **Undo** puts them back.
+- **Slides as a step.** A PowerPoint can now be one step of **Set order**, for example scripture, then question, then
+  the slides. On that step the big button reads **Next slide** and goes through the slides and their animations, then
+  on to the next step. The phone remote, the Command Center and voice commands do the same.
 
 ## Enhancements
-- **Present slides opens inside the Studio.** The presenter view takes the place of the preview, with Go Live, Next
-  and Up next still beside it, so it can't be mistaken for the window people see. **Pop out** gives the large window
-  for a second screen.
-- **It says what it is.** *Presenter view · only you see this* at the top, the slide people see marked **ON SCREEN**,
-  and **← Back to Studio** to close it (the slide stays on screen).
-- **The Share Window says it too.** It is called *FrameDecks Share Window – what people see* (it is still listed in
-  Zoom under the name you know). Moving the mouse over it shows *Share Window · what people see*, and the Studio's
-  **Share Window** button has a green edge while it is open.
+- On a slides step the big button shows *Slide 2 of 12 · step 3 of 3*, and Previous goes back through the slides
+  before the step before.
 
 ## Fixes
-- In the presenter view the arrow keys step through the slides straight away, and only once.
-- The slide, the buttons and the strip of slides always fit the presenter view on a computer; the top of the slide is
-  never cut off.
+- The Set order strip no longer reports an error the moment the Studio opens.
 
 ## Performance Improvements
 - None in this release.

@@ -10,6 +10,21 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.56] - 2026-11-15
+
+Full notes: [docs/releases/v26.11.56.md](releases/v26.11.56.md).
+
+### Added
+- `Scenes.flowDeckHolds(st, d)` (store.js): the live deck belongs to the current Set order step and can still move
+  that way. Next / Previous step the deck first (`POST api/slides {op:'step'}`) in workspace.js, remote.js,
+  spotlight-remote.js, voice-commands.js; live-stage.js shows Next slide with *Slide n of m · step k of N*; Prev/Next
+  enablement counts it.
+- `app/js/run-order.js` + `app/css/run-order.css`: Run order dialog (`#mt-run`): Frames of `SC.order`, summary per
+  Frame (flow steps, slide count from `api/slides?file=`), drag or arrows to reorder (`reorder`), totals.
+  `slidesAfter(sid, lid)`: a pdf layer becomes its own Frame right after (flow steps cleaned, Undo); in the layer menu.
+
+### Fixed
+- frame-order.js `paint()` ran on the Store's first callback before the strip existed (TypeError in the console).
 ## [26.11.55] - 2026-11-15
 
 Full notes: [docs/releases/v26.11.55.md](releases/v26.11.55.md).

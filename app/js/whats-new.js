@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.56': [
+    {title: 'Run order', text: 'Run order (beside Next week) shows the whole meeting as one list, each Frame with its steps and slides. Drag a row to move a Frame.', show: {spot: '#mt-run'}},
+    {title: 'Slides in the order', text: 'A PowerPoint can be a step of Set order: Next walks its slides, then the next step. Or use Put slides after this Frame (the deck\u2019s menu) to give the slides a Frame of their own, right after.'}
+  ],
   '26.11.55': [
     {title: 'Present slides in the Studio', text: 'Present slides now opens inside the Studio, marked \u201cPresenter view \u00b7 only you see this\u201d, with the slide people see marked ON SCREEN. Pop out gives the large window; \u2190 Back to Studio closes it. The Share Window says \u201cwhat people see\u201d.'}
   ],

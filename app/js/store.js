@@ -1050,6 +1050,16 @@ var Scenes = {
     return true;
   },
   flowCan: function(st, d){ var f = Scenes.flowOf(Scenes.liveScene(st)); if (!f) return false; var to = Scenes.flowAt(st) + d; return to >= 0 && to < f.length; },
+  /* 26.11.56 a PowerPoint that is a step of the order: Next walks its slides (and animations) first, then the next step;
+     Previous goes back through them to the first slide. True when the deck on screen belongs to the current step and
+     can still move that way (the caller then steps the deck: POST api/slides {op: 'step'}). */
+  flowDeckHolds: function(st, d){
+    var sc = Scenes.liveScene(st), f = Scenes.flowOf(sc), dk = st && st.live && st.live.deck;
+    if (!f || !dk || !dk.layer) return false;
+    var step = f[Scenes.flowAt(st)] || []; if (step.indexOf(dk.layer) < 0) return false;
+    if (d > 0) return !!(dk.clicks && (dk.click || 0) < dk.clicks) || typeof dk.nxt === 'number';
+    return (dk.click || 0) > 0 || (dk.pos || 1) > 1;
+  },
   flowStep: function(n, d){
     var sc = Scenes.liveScene(n), f = Scenes.flowOf(sc); if (!f) return '';
     var to = Scenes.flowAt(n) + d; if (to < 0 || to >= f.length) return '';

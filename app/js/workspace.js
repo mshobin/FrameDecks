@@ -875,7 +875,9 @@ function duplicateLayer(sid, lid){
 }
 function layerMenu(sid, lid, anchor, ev){
   var sc = SC.find(live, sid), l = SC.layer(sc, lid); if (!l) return;
+  var after = l.kind === 'pdf' && window.KCRunOrder && sc.layers.length > 1 && !sc.tpl;   // 26.11.56 a deck becomes its own Frame, right after this one
   menu(anchor, [
+    after ? {icon: 'arrow-down', text: 'Put slides after this Frame', run: function(){ window.KCRunOrder.slidesAfter(sid, lid); }} : null, after ? '-' : null,
     {icon: 'eye', text: (isLiveScene(sid) ? SC.layerOn(live, sc, l) : l.visible) ? 'Hide' : 'Show', run: function(){ toggleLayer(sid, lid); }},
     {icon: 'type', text: 'Rename', hint: 'F2', run: function(){ renameLayer(sid, lid); }},
     {icon: 'copy', text: 'Duplicate', run: function(){ duplicateLayer(sid, lid); }},
@@ -1554,6 +1556,11 @@ function stepScene(d){
     Store.update(function(n){ lab = SC.songStep(n, d); }).then(function(){ offerUndo(keepS, lab + ' is on screen'); });
     return;
   }
+  if (SC.flowDeckHolds(live, d)){                                                      // 26.11.56 slides that are a step: their next slide first
+    if (window.KCSound) KCSound.play('next');
+    fetch('api/slides', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'step', by: d})}).catch(function(){});
+    return;
+  }
   if (SC.flowCan(live, d)){                                                            // 26.11.51 the Frame's own order: its next step
     var keepF = Store.snapshot(), labF = '';
     if (window.KCSound) KCSound.play('next');
@@ -1663,7 +1670,7 @@ function renderLiveBar(){
   $('cb-take').disabled = !sc || sc.tpl;
   $('cb-take').classList.toggle('is-live', !!(sc && isLiveScene(sc.id)));
   var order = SC.order(live), li = order.findIndex(function(s){ return s.id === (L.scene || selScene); });
-  $('lb-prev').disabled = li <= 0 && !!L.scene && !SC.flowCan(live, -1); $('lb-next').disabled = li >= order.length - 1 && li >= 0 && !SC.flowCan(live, 1);   // 26.11.51 a Frame's steps count too
+  $('lb-prev').disabled = li <= 0 && !!L.scene && !SC.flowCan(live, -1) && !SC.flowDeckHolds(live, -1); $('lb-next').disabled = li >= order.length - 1 && li >= 0 && !SC.flowCan(live, 1) && !SC.flowDeckHolds(live, 1);   // 26.11.51 a Frame's steps count too
   $('lb-auto').setAttribute('aria-pressed', String(L.auto));
   $('lb-blackout').setAttribute('aria-pressed', String(L.blackout)); $('lb-blackout').classList.toggle('on', L.blackout);
   $('lb-emergency').setAttribute('aria-pressed', String(L.emergency)); $('lb-emergency').classList.toggle('on', L.emergency);

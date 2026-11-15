@@ -128,6 +128,15 @@ preview; turn on **Show text fields** to see the list and the typing boxes here 
   drag a step to move it, **×** removes it, **Done** saves. When the Frame is live, **Next step** shows each step,
   then Next goes to the next Frame. **Look** in the preview's toolbar copies a look, pastes it, or uses it for every
   one of that kind in this meeting, all meetings or chosen Frames (never the words; one Undo).
+- **Slides in the order** (26.11.56): a PowerPoint can be a step of Set order, for example scripture, then question,
+  then the slides. On that step the big button reads **Next slide** and walks the slides (and their animations); after
+  the last slide it goes on to the next step. Previous goes back through the slides first.
+- **Put slides after this Frame** (26.11.56): in a PowerPoint's menu (⋯ on the Deck), this moves the deck out into a
+  Frame of its own, right after this one, so Next goes: this Frame, then the slides, then the Frame that followed.
+  One **Undo** puts it back.
+- **Run order** (26.11.56): beside **Next week**, it opens every Frame of the meeting in the order Next walks them,
+  each with its steps (① Scripture → ② Question) and its slides (*Talk · 12 slides*), and a total. Drag a row, or use
+  its arrows, to move a Frame; click a name to select it in the Studio.
 - **Type in the preview:** click a card on the preview to select it (a gold outline with its name), then
   double-click it or press **Enter** to type. The toolbar above it has **Edit**, **A−** / **A+**, **◀ 2 of 5 ▶**,
   **+ Question** / **+ Scripture**, **Show** / **Hide** and **Delete** (with Undo). Drag the card to move it, drag a
