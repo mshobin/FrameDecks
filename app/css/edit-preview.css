@@ -101,3 +101,5 @@ body.simple:not(.sm-design-open) .inspector .insp-body.sc-cards .sc-card:not(.sc
 @media (prefers-reduced-motion:reduce){ .pv-bar,.pv-add{animation:none} .sc-tf-k::after{transition:none} }
 /* the Show on card already says so in its title */
 .inspector .insp-body.sc-cards [data-grp="output"] > .cs-sec > .ip-sec > b:first-child,.inspector .insp-body.sc-cards [data-grp="output"] > .ip-sec > b:first-child{display:none}
+/* the words panel (a birthday, or with Show text fields on) scrolls within itself rather than pushing the area taller */
+.inspector .insp-body.sc-cards > .ip[data-itab="content"]:not([hidden]){max-height:100%;min-height:0;overflow:auto}

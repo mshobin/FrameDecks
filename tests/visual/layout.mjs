@@ -193,6 +193,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
 {
   for (const [w, hh] of [[1366, 768], [1920, 1080]]) {
     const p = await browser.newPage({ viewport: { width: w, height: hh } });
+    await p.addInitScript(() => { try { localStorage.setItem("kc-text-fields", "1"); } catch (e) {} });   // 26.11.50 the list shows with Show text fields on
     await p.goto(`${BASE}/dashboard.html`); await p.waitForTimeout(2200);
     await p.evaluate(() => window.KCOnboarding && window.KCOnboarding.close()); await p.waitForTimeout(400);
     const picks = await p.evaluate(() => { const o = {}; for (const s of KCStore.get().scenes.filter((x) => !x.tpl)) { if (!o.frame) o.frame = [s.id, null]; for (const l of s.layers || []) if (!o[l.kind]) o[l.kind] = [s.id, l.id]; } return o; });
@@ -201,7 +202,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
       await p.evaluate((x) => KCWorkspace.select(x[0], x[1]), picks[k]); await p.waitForTimeout(350);
       const r = await p.evaluate(() => { const b = document.getElementById("insp-body"), kids = [...b.children].filter((e) => getComputedStyle(e).display !== "none");
         return { page: document.documentElement.scrollHeight > innerHeight + 1 || document.documentElement.scrollWidth > innerWidth, body: b.scrollHeight > b.clientHeight + 1,
-          empty: kids.some((e) => e.getBoundingClientRect().height < 1) }; });
+          empty: kids.some((e) => getComputedStyle(e).display !== "contents" && e.getBoundingClientRect().height < 1) }; });   // 26.11.50 #ip-gen is display:contents in the Settings cards
       check(!r.page && !r.body && !r.empty, `content area: ${k} fits at ${w} px without scrolling`);
     }
     if (w === 1366) {
