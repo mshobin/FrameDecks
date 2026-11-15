@@ -213,6 +213,10 @@ if (window.KCStore) window.KCStore.subscribe(function(st){
   if (!on) liveKept = false;
   if (want !== liveFold){ liveFold = want; apply(); refit(); }
 });
+/* 26.11.57 picking a Deck in the list while live (Simple) opens the editor again: the person wants to edit it */
+document.addEventListener('click', function(e){
+  if (liveFold && e.target.closest && e.target.closest('#layer-list [data-id]')){ liveFold = false; liveKept = true; apply(); refit(); }
+}, true);
 apply();
 window.KCLayout = {get: function(){ return JSON.parse(JSON.stringify(L)); }, set: function(v){ L = merge(Object.assign({}, L, v)); apply(); save(); refit(); }, reset: function(){ L = merge({}); apply(); save(); refit(); }, focus: focusMode};
 })();

@@ -196,6 +196,8 @@ for (const w of [1920, 1440, 1280, 1100]) {
     await p.addInitScript(() => { try { localStorage.setItem("kc-text-fields", "1"); } catch (e) {} });   // 26.11.50 the list shows with Show text fields on
     await p.goto(`${BASE}/dashboard.html`); await p.waitForTimeout(2200);
     await p.evaluate(() => window.KCOnboarding && window.KCOnboarding.close()); await p.waitForTimeout(400);
+    // 26.11.57 off air first: an earlier block left a Frame live, and while live (Simple) the editor folds away
+    await p.evaluate(() => KCStore.update((n) => { KCScenes.hideAll(n); n.live.scene = ""; })); await p.waitForTimeout(400);
     const picks = await p.evaluate(() => { const o = {}; for (const s of KCStore.get().scenes.filter((x) => !x.tpl)) { if (!o.frame) o.frame = [s.id, null]; for (const l of s.layers || []) if (!o[l.kind]) o[l.kind] = [s.id, l.id]; } return o; });
     for (const k of ["frame", "birthday", "question", "scripture"]) {
       if (!picks[k]) continue;
