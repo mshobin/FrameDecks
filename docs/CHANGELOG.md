@@ -38,6 +38,9 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   with `pg_temp`; Download my data adds Trusted Devices and security events; deleting an account removes the link
   requests made with its address.
 - `vercel.json` sends the same security headers as Cloudflare Pages, in case that deployment is still served.
+- Release signing switched on (sign-off H1): the owner's key `6e249884d5950a0b` is in `TRUSTED_KEYS`
+  (`src/updater.py`). Programs from this release on accept only manifests signed with it, and a release tag without the
+  `MANIFEST_SIGNING_KEY` secret stops before publishing.
 
 ## [26.11.57] - 2026-11-15
 

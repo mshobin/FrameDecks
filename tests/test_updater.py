@@ -71,6 +71,10 @@ class Manifest(unittest.TestCase):
 
 class Updating(unittest.TestCase):
     def setUp(self):
+        # these tests are about downloading and installing; the manifest signature has its own (test_update_chain.py)
+        saved = updater.TRUSTED_KEYS
+        updater.TRUSTED_KEYS = {}
+        self.addCleanup(lambda: setattr(updater, "TRUSTED_KEYS", saved))
         self.dir = Path(tempfile.mkdtemp())
         self.routes = {updater.API: json.dumps(manifest()).encode(), URL: PAYLOAD}
         self.u = updater.Updater(self.dir, "7.0", frozen=False, opener=opener(self.routes), platform="linux")

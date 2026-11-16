@@ -122,8 +122,16 @@ class Updater(unittest.TestCase):
         self.assertIsNone(self.make(tampered, TRUSTED).check()["latest"])
 
     def test_without_a_key_manifests_read_as_before(self):
-        self.assertEqual(updater.TRUSTED_KEYS, {}, "no key is built in until the owner adds one (tools/manifest_key.py)")
         self.assertEqual(self.make(manifest(), {}).check()["latest"], "9.2")
+
+    def test_the_owners_key_is_built_in_and_unsigned_manifests_are_refused(self):
+        # 26.11.58 (release sign-off H1): the owner's key, made with tools/manifest_key.py
+        self.assertEqual(updater.TRUSTED_KEYS, {"6e249884d5950a0b": "c833d619a96556e1315087a2da4b76ee769ef2baad53b7a427b45633ebb91471"})
+        for kid, pub in updater.TRUSTED_KEYS.items():
+            self.assertEqual(manifest_sig.key_id(bytes.fromhex(pub)), kid, "the id belongs to the key")
+        u = self.make(manifest(), None)                   # the program's own keys
+        self.assertIsNone(u.check()["latest"], "an unsigned manifest is ignored")
+        self.assertEqual(u.state.get("checkError"), "BadSignature")
 
     def test_the_installed_app_ignores_the_api_override(self):
         with mock.patch.object(updater, "API", "https://evil.example/latest"):

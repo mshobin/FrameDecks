@@ -139,8 +139,9 @@ code. We do not use Google, Microsoft or Apple to open workspaces.
   downloads.framedecks.com; the updater refuses any other host and any redirect away from them.
 - **Fingerprint check.** Every update is checked against its published SHA-256 fingerprint before it is installed.
   If anything does not match, nothing is installed. If an update fails to install, the previous version is put back.
-- **Release signing.** The release manifest can be signed with Ed25519 and checked by the program. Signing is built
-  and will be switched on when the signing key is issued.
+- **Release signing.** Every release manifest is signed with Ed25519. From the release after 26.11.57, the program
+  accepts an update only when its manifest carries a valid signature from the FrameDecks release key; the signing key
+  is held only by the release pipeline and offline, never in the program or the website.
 - **Code signing.** The installer is not yet code-signed, so Windows may ask you to confirm the first time.
 - **How releases are built.** Every release is built by an automated pipeline from the source repository:
   - Python packages are installed only with matching SHA-256 hashes (`--require-hashes`);
@@ -164,8 +165,8 @@ We list these so nothing is hidden:
 - **Shared devices.** A Trusted Device keeps its session and device token in the browser's storage. Anyone who uses
   that browser profile can open the workspace until the device is removed, so trust only devices you use yourself.
 - **The local Wi-Fi.** The phone remote uses plain HTTP on the local network (see above).
-- **Code signing.** The installer is not yet code-signed, and release-manifest signing is not yet switched on (see
-  above).
+- **Code signing.** The installer is not yet code-signed, so Windows may warn the first time (see above). Release
+  manifests are signed.
 
 ## Responsible disclosure
 

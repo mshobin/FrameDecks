@@ -75,6 +75,10 @@ class LocalGuardTest(unittest.TestCase):
         f = Path(tempfile.mkdtemp()) / "latest.json"
         f.write_text(_json.dumps({"version": "99.0", "downloadUrl": url, "sha256": sha, "size": 1}))
         updater.API = f.as_uri()
+        self.assertFalse(server.check_for_update()["newer"], "26.11.58: an unsigned manifest is not trusted")
+        keys = server.UPDATER.trusted
+        server.UPDATER.trusted = {}                       # the rest is about what the notice reports, not the signature
+        self.addCleanup(lambda: setattr(server.UPDATER, "trusted", keys))
         info = server.check_for_update()
         self.assertTrue(info["newer"])
         self.assertEqual(info["latest"], "99.0")
