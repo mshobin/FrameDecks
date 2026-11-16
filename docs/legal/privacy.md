@@ -58,7 +58,7 @@ The program keeps your plan, songs, notes, member list, settings and daily backu
 are protected by your Windows sign-in; we never see them unless your workspace syncs them (above). Two features work
 only when you switch them on:
 
-- **Capture Chats** reads text you copy (Ctrl+C) while it is on and turns it into Memory Cards. It uses the name of the
+- **Capture Chats** reads text you copy (Ctrl+C) while it is on and turns it into Chat Bubbles. It uses the name of the
   program the text came from and, for a browser, the web page's address only to label the card; neither is kept.
   Unpinned cards stay in memory only; pinned cards are kept on the PC.
 - **Listen for scripture** and **Follow my voice** hear the PC's sound (which in an online meeting includes other

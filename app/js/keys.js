@@ -21,7 +21,7 @@ var KEYS = [
   {keys: 'Alt+V', what: 'Camera on or off in your meeting app', where: 'Command Center'},
   {keys: 'Alt+S', what: 'Share your screen in your meeting app', where: 'Command Center'},
   {keys: 'Alt+= / Alt+-', what: 'Volume up / down', where: 'Command Center'},
-  {keys: 'Ctrl+C', what: 'With Capture on, a copied message becomes a Memory Card', where: 'Anywhere'},
+  {keys: 'Ctrl+C', what: 'With Capture on, a copied message becomes a Chat Bubble', where: 'Anywhere'},
   {keys: 'Ctrl+K or Ctrl+Space', what: 'The command palette: search every action', where: 'Studio'},
   {keys: 'Hold Off air (1 s)', what: 'Off air: with the Frame on air selected, hold Go Live (Space or Enter on it) to take everything off screen, with Undo', where: 'Studio'}
 ];

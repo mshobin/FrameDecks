@@ -144,7 +144,7 @@ class MeetingLog:
         return None
 
     def count(self, what, n=1):
-        """Engagement counted for the run in progress: 'memory' (a Memory Card shown), 'prayer.received', 'prayer.shown',
+        """Engagement counted for the run in progress: 'memory' (a Chat Bubble shown), 'prayer.received', 'prayer.shown',
         26.11.33 'responses.opened' and 'responses.shown' (quick responses and polls)."""
         with self.lock:
             r = self.run
@@ -248,7 +248,7 @@ def as_text(s):
         for v in f["verses"]:
             lines.append("   " + v["label"] + (": " + v["text"] if v["text"] and v["text"] != v["label"] else ""))
     lines.append("")
-    lines.append("%d questions · %d scriptures · %d Memory Cards shown · %d prayer requests" % (
+    lines.append("%d questions · %d scriptures · %d Chat Bubbles shown · %d prayer requests" % (
         s["questionCount"], s["verseCount"], s["memory"], s["prayer"].get("received", 0)))
     return "\n".join(lines)
 

@@ -1,9 +1,9 @@
-"""FrameDecks 9.0 - Memory Cards (Capture Chats): what the presenter copies from a chat becomes a chat bubble on the
+"""FrameDecks 9.0 - Chat Bubbles (Capture Chats): what the presenter copies from a chat becomes a chat bubble on the
 FrameDecks vCam picture.
 
 The presenter turns Capture on, selects something in Teams, Zoom, Meet, Webex, Slack, Discord, ChatGPT, Claude, Copilot
 or a browser and presses Ctrl+C (or pastes it into the phone remote: WhatsApp, SMS, any app). capture.py hands the
-copied text here; this module turns it into Memory Cards (the sender's name and the message), one per message when a
+copied text here; this module turns it into Chat Bubbles (the sender's name and the message), one per message when a
 copy holds several (9.1: a WhatsApp, Teams, Slack, Discord or Zoom conversation), works out the app it came from, drops
 empty, oversized and repeated copies, and decides which cards are on screen:
 
@@ -233,7 +233,7 @@ class Memory:
                 json.dump({"pinned": keep}, f, ensure_ascii=False)
             os.replace(tmp, self.path)
         except OSError as e:
-            print("Memory Cards: could not save the pinned cards:", e)
+            print("Chat Bubbles: could not save the pinned cards:", e)
 
     # ---------- reading ----------
     def snapshot(self):
@@ -301,7 +301,7 @@ class Memory:
         self.added = 0
         if len(raw) > MAX_RAW:
             with self.cond:
-                self._changed("ignored", "Too long for a Memory Card (over %d characters)" % MAX_RAW)
+                self._changed("ignored", "Too long for a Chat Bubble (over %d characters)" % MAX_RAW)
             return "too-long", None
         chunks, seen_src = split(raw)
         src = source if source in SOURCES and source not in ("clipboard", "phone") else detect_source(exe, url)
@@ -335,13 +335,13 @@ class Memory:
                 self.items.insert(0, item)
                 made.append(item)
             if not made:
-                self._changed("duplicate", "Already a Memory Card", dup["id"] if dup else "")
+                self._changed("duplicate", "Already a Chat Bubble", dup["id"] if dup else "")
                 return "duplicate", dict(dup) if dup else None
             unpinned = [i for i in self.items if not i["pinned"]]
             for old in unpinned[MAX_ITEMS:]:
                 self.items.remove(old)
             self.added = len(made)
-            self._changed("captured", "Memory Card created" if len(made) == 1 else "%d Memory Cards created" % len(made),
+            self._changed("captured", "Chat Bubble created" if len(made) == 1 else "%d Chat Bubbles created" % len(made),
                           made[0]["id"])
             return "added", dict(made[0])
 

@@ -140,7 +140,7 @@ const LINES = [
 // 1 the Command Center drops onto the dimmed Studio (Alt+Space, as over any app): Go Live, Next Frame, then Right Ctrl
 //   held and "next frame" said; 2 the camera moves into the Studio's live picture, the Teleprompter docks beside it
 //   and follows the voice, and the verse it hears arrives on the picture word by word (overlay.css word-in);
-// 3 the camera pulls back and the rest of the suite pops out of the Studio: Memory Cards on the camera, the corner
+// 3 the camera pulls back and the rest of the suite pops out of the Studio: Chat Bubbles on the camera, the corner
 //   card, the phone remote, members' phones and the sermon notes.
 type Move = { at: number; x: number; y: number; tap?: boolean };
 type Scene = {
@@ -203,7 +203,7 @@ const HEARD = SCRIPT.join(" ")
   .findIndex((w) => w.startsWith("119:105")); // the word after which it is heard
 const SHOW_AT = 5; // words after that, Show is pressed
 
-// 26.11.3 Memory Cards in the program's own overlay style (overlay.css .chat-list: initials, name, the words; pinned in
+// 26.11.3 Chat Bubbles in the program's own overlay style (overlay.css .chat-list: initials, name, the words; pinned in
 // gold), in the copy order, the picture making room beside them as FrameDecks vCam does
 type Chat = { who: string; ini: string; c: string; text: string };
 const CHAT: readonly Chat[] = [
@@ -571,7 +571,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       }
       set("is-heard", nw > HEARD);
       set("is-shown", nw > HEARD + SHOW_AT);
-      // 3 the suite rises out of the Studio, one piece after another; the Memory Cards pop beside the presenter
+      // 3 the suite rises out of the Studio, one piece after another; the Chat Bubbles pop beside the presenter
       const t3 = ch === 3 ? t : ch > 3 ? 1 : 0;
       sats.forEach((el, i) => {
         const p = ease(clamp((t3 - 0.04 - i * POP) / 0.3));
@@ -883,18 +883,18 @@ function Prompter() {
   );
 }
 
-/** Chapter 3: the suite, out of the Studio: Memory Cards on the camera, the corner card, the phone remote, members'
+/** Chapter 3: the suite, out of the Studio: Chat Bubbles on the camera, the corner card, the phone remote, members'
  *  phones and the sermon notes. */
 function Suite() {
   const tint = (c: string) => `color-mix(in srgb, ${c} 45%, #fff)`;
   return (
     <div
       role="img"
-      aria-label="Around the Studio: Memory Cards on camera, a prayer request in the corner card, the phone remote, a member's phone and the sermon notes"
+      aria-label="Around the Studio: Chat Bubbles on camera, a prayer request in the corner card, the phone remote, a member's phone and the sermon notes"
     >
       <div className="tr-sat tr-sat-mem">
         <span className="tr-sat-tag">
-          Memory Cards · <Keys k="Ctrl+C" />
+          Chat Bubbles · <Keys k="Ctrl+C" />
         </span>
         <div className="tr-mc-cam">
           <div className="tr-mc-pic">

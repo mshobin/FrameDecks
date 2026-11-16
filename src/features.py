@@ -12,7 +12,7 @@ The same list is in app/js/features.js (tests/test_features_2611_31.py keeps the
 # id, group, what the switch is called
 FEATURES = (
     ("vcam", "screen", "FrameDecks vCam and Looks"),
-    ("memory", "screen", "Memory Cards and Capture copies"),
+    ("memory", "screen", "Chat Bubbles and Capture copies"),
     ("birthdays", "screen", "Birthdays"),
     ("seasons", "screen", "Seasons"),
     ("listen", "listening", "Listen for scripture"),

@@ -2,7 +2,7 @@
  *   The stage, always in view: the live picture (touch it to Spotlight, or open Draw), what is on screen, Previous / Next.
  *   Five tabs: Show (the Frame on screen: its questions, scriptures or slides with their own arrows, its videos, and
  *   every Deck with an eye) · Plan (every Frame > Deck > Content, numbered 1 · 1.1 · 1.1.1, one tap to put any of them
- *   on screen) · Tools (Draw, Spotlight, Teleprompter, Freeze, Black screen) · Memory (js/remote-memory.js) · Meeting
+ *   on screen) · Tools (Draw, Spotlight, Teleprompter, Freeze, Black screen) · Chat Bubbles (js/remote-memory.js) · Meeting
  *   (switch meeting, what the PC is doing, disconnect). Hide all, always at the top.
  * Everything acts on the shared state (js/store.js KCScenes), so a press here is exactly the same action as on the PC.
  * Member data never comes here. */

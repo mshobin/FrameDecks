@@ -208,7 +208,7 @@ body.bg-preview{background:
 .card-lowerthird .card-label{text-transform:none;letter-spacing:.01em;font-size:calc(var(--s)*1.9);color:#fff}
 .card-lowerthird .card-rule{margin:calc(var(--s)*.7) 0 calc(var(--s)*.8)}
 .card-lowerthird .card-text{font-weight:500;font-size:calc(var(--s)*1.6);color:var(--gold-text)}
-/* 9.1 the Memory Cards as chat bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): only the bubbles,
+/* 9.1 the Chat Bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): only the bubbles,
    no window or panel, on top of the video. The video never changes size: beside: the overlays (the stage: question,
    scripture and birthday cards, lower thirds, branding) shrink into the left 70 % and the bubbles stack over the video
    on the right; below: the overlays shrink into the top 72 % and the bubbles run along the bottom; over: nothing

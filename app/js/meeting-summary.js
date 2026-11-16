@@ -1,6 +1,6 @@
 /* FrameDecks 26.11.23 - the meeting summary.
  * When the meeting goes off live, the Studio offers a one-page summary: how long it ran, each Frame and how long it
- * was on (against the plan), the questions asked and the scriptures read, and what people sent (Memory Cards shown,
+ * was on (against the plan), the questions asked and the scriptures read, and what people sent (Chat Bubbles shown,
  * prayer requests). Print / Save as PDF, Copy, or Email. Past meetings stay on this PC (src/meeting_log.py).
  * 26.11.24 a second view: the sermon notes for members, shareable on members' phones.
  * 26.11.28 a third: the moment, one picture to share after the meeting (the verse, a question to carry into the week,
@@ -38,7 +38,7 @@ function stat(n, label){ return h('div', {cls: 'sum-stat'}, [h('b', {text: Strin
 function page(s){
   var stats = h('div', {cls: 'sum-stats'}, [stat(s.frames.length, s.frames.length === 1 ? 'Frame' : 'Frames'),
     stat(s.questionCount, s.questionCount === 1 ? 'question' : 'questions'), stat(s.verseCount, s.verseCount === 1 ? 'scripture' : 'scriptures'),
-    stat(s.memory, 'Memory Cards shown'), stat(s.prayer.received || 0, (s.prayer.received === 1 ? 'prayer request' : 'prayer requests')),
+    stat(s.memory, 'Chat Bubbles shown'), stat(s.prayer.received || 0, (s.prayer.received === 1 ? 'prayer request' : 'prayer requests')),
     s.responses && s.responses.opened ? stat(s.responses.opened, s.responses.opened === 1 ? 'poll' : 'polls') : null]);   // 26.11.33
   var list = h('ol', {cls: 'sum-flow'});
   s.frames.forEach(function(f){

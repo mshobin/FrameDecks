@@ -1,4 +1,4 @@
-"""FrameDecks 9.1 - the Memory Cards on the FrameDecks vCam picture, as chat bubbles (live.memory).
+"""FrameDecks 9.1 - the Chat Bubbles on the FrameDecks vCam picture (live.memory).
 
 Only the bubbles are drawn: no window, title bar or panel. Each card is one bubble (the sender's initials in a coloured
 circle, the sender's name, the app it came from and the message), in the order the cards were copied, newest at the

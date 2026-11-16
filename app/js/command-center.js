@@ -2,7 +2,7 @@
  * everything else, the same every time the shortcut opens it:
  *   Prepare  - meetings and Frames, the Teleprompter, the Share Window, the Studio, Quick Start, the Content Library,
  *              .frame files, the camera check;
- *   Engage   - Memory Cards (capture, show, hide), Draw and Spotlight (26.11.14 on the draw pad here, js/cc-drawpad.js;
+ *   Engage   - Chat Bubbles (capture, show, hide), Draw and Spotlight (26.11.14 on the draw pad here, js/cc-drawpad.js;
  *              on the Share Window when people see a shared window);
  *   Control  - Go Live as a switch (on: the first Frame goes on screen; off: everything leaves the screen) and, while
  *              live, the meeting remote (js/spotlight-remote.js: Frames, Content, Hide all, Black, the meeting app);
@@ -84,7 +84,7 @@ function memoryItems(){
 var SCOPES = {
   meetings: {id: 'meetings', label: 'Meetings', hue: 'gold', icon: 'calendar-days', empty: 'No meetings yet. Plan one on framedecks.com or in the Studio.',
     items: function(all){ return all.filter(function(it){ return it.kind === 'meeting'; }).concat(all.filter(function(it){ return it.kind === 'frame'; })); }},
-  memory: {id: 'memory', label: 'Memory Cards', hue: 'violet', icon: 'message-circle', empty: 'No Memory Cards yet. Turn on Capture copies, then copy a message.', items: memoryItems},
+  memory: {id: 'memory', label: 'Chat Bubbles', hue: 'violet', icon: 'message-circle', empty: 'No Chat Bubbles yet. Turn on Capture copies, then copy a message.', items: memoryItems},
   settings: {id: 'settings', label: 'All settings', hue: 'slate', icon: 'settings', items: function(all){ return all.filter(function(it){ return it.kind === 'setting' && it.key.indexOf('feat:') !== 0; }); }},
   /* 26.11.31 More → Features: every switch, in its group; Enter switches one. Locked while live. */
   features: {id: 'features', label: 'Features', hue: 'slate', icon: 'list-checks', items: featureItems},

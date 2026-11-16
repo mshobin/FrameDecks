@@ -368,7 +368,7 @@ var TEXT_ICON = {
   countdown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
   lowerthird: '',
 };
-/* 9.1 the Memory Cards as chat bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): no window, title
+/* 9.1 the Chat Bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): no window, title
  * bar or panel; each card is a bubble (the sender's initials on their colour, the name, the app, the message), in the
  * order the cards were copied, newest at the foot. A new bubble pops open from its avatar; one that leaves fades away.
  * Show expands a bubble to its full text; a pinned one has a gold edge and a Pinned tag. In the Studio preview the

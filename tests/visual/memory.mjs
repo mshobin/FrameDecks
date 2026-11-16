@@ -1,6 +1,6 @@
-// FrameDecks 9.0 / 9.1 - Capture Chats (Memory Cards) in a browser, against a started program:
+// FrameDecks 9.0 / 9.1 - Capture Chats (Chat Bubbles) in a browser, against a started program:
 //   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/memory.mjs [--shots DIR]
-// 26.11.57: Capture Chats is a window opened from Engage › Memory Cards (26.11.49), and a card is what someone copied
+// 26.11.57: Capture Chats is a window opened from Engage › Chat Bubbles (26.11.49), and a card is what someone copied
 // in a chat. The clipboard watcher is Windows-only, so a "copy" here is the same add the watcher makes (one line of chat
 // text, "Name: message", becomes a card titled with the name). Covered: copied lines become cards and chat bubbles
 // (Show, Pin, Hide, Delete; several selected and shown together), a typed note still works, the chat bubbles in the Studio preview (only bubbles: no window) in their three layouts (beside / below the
@@ -43,14 +43,14 @@ await studio.waitForTimeout(2200);
 await studio.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());     // 9.5 the Welcome flow
 await studio.waitForTimeout(600);
 check(await studio.$("#lb-audience") === null && await studio.$("#mem-dlg #mem-pane") !== null, "no Audience Dock; Capture Chats is a window in the Studio");
-async function openChats() {                              // Engage › Memory Cards, as a person does
+async function openChats() {                              // Engage › Chat Bubbles, as a person does
   if (await studio.$eval("#mem-dlg", (d) => d.open)) return;
   await studio.click("#lc-engage");
   await studio.click('#lc-pop-engage [data-action="cards"]');
   await studio.waitForSelector("#mem-dlg[open]");
 }
 await openChats();
-check(await studio.isVisible("#mem-capture") && await studio.isVisible("#mem-add-text"), "Engage › Memory Cards opens Capture Chats, with its Capture switch");
+check(await studio.isVisible("#mem-capture") && await studio.isVisible("#mem-add-text"), "Engage › Chat Bubbles opens Capture Chats, with its Capture switch");
 
 // a copied chat line becomes a card, in the window and in the chat overlay
 const preview = await browser.newPage({ viewport: { width: 1280, height: 720 } });
@@ -158,6 +158,22 @@ await phone.goto(`${BASE}/remote.html`);
 await phone.waitForSelector("#app:not([hidden])");
 await phone.click("#tab-engage");                 // 9.13 Capture Memory lives in the Engage chip
 await phone.waitForSelector("#cm-text");
+// 26.11.60 the box gets the screen above the keyboard: the picture and tabs step aside and the box moves to the top
+await phone.tap("#cm-text");
+await phone.waitForFunction(() => document.body.classList.contains("cm-typing"));
+await phone.waitForTimeout(500);
+const room = await phone.evaluate(() => {
+  const box = document.getElementById("cm-add").getBoundingClientRect(), pane = document.querySelector(".panels").getBoundingClientRect();
+  return { stage: getComputedStyle(document.querySelector(".stage")).display, tabs: getComputedStyle(document.querySelector(".tabs")).display,
+    gap: Math.round(box.top - pane.top), tall: Math.round(document.getElementById("cm-text").getBoundingClientRect().height) };
+});
+check(room.stage === "none" && room.tabs === "none", "typing a chat: the picture and the tabs step aside");
+check(room.gap >= 0 && room.gap < 30, `typing a chat: the box sits at the top (${room.gap} px)`);
+check(room.tall >= 110, `typing a chat: the box is tall enough to hold and paste (${room.tall} px)`);
+if (SHOTS) await phone.screenshot({ path: `${SHOTS}/memory-phone-typing.png` });
+await phone.click("#cm-done");
+await phone.waitForFunction(() => !document.body.classList.contains("cm-typing"));
+check(true, "Done puts the picture and the tabs back");
 await phone.fill("#cm-text", "[10:40, 03/11/2026] Grace: Can we get the slides afterwards?\n[10:41, 03/11/2026] Mark: Yes please!");
 await phone.click("#cm-go");
 await preview.waitForFunction(() => [...document.querySelectorAll(".chat-list:not(.out) .chat-name")].map((e) => e.textContent).join("|") === "Grace|Mark", null, { timeout: 5000 });

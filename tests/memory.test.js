@@ -1,4 +1,4 @@
-/* FrameDecks 9.0 - Memory Cards in the state (app/js/store.js): live.memory kept on every save and cleaned, the chat
+/* FrameDecks 9.0 - Chat Bubbles in the state (app/js/store.js): live.memory kept on every save and cleaned, the chat
  * overlay layer for the overlay pages (the Studio preview follows the camera's layout; OBS pages float it and only
  * with "Also on the Share Window"), and Hide all. Run: node tests/run.js */
 const env = require('./helpers/load-store.js')(), SC = env.Scenes, assert = require('assert');

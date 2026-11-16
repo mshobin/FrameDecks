@@ -1,4 +1,4 @@
-/* FrameDecks 9.0 - Memory Cards: the Studio pane (dashboard.html) and the popup in the screen corner (memory-popup.html).
+/* FrameDecks 9.0 - Chat Bubbles: the Studio pane (dashboard.html) and the popup in the screen corner (memory-popup.html).
  * The bubbles on screen are in overlay.css (.chat-list) and on FrameDecks vCam in src/vcam/chatcard.py. */
 .mem-pane{flex:0 0 auto;max-height:45%;border-top:1px solid var(--line-soft);overflow:hidden}
 .mem-pane.closed .mem-body{display:none}
@@ -74,7 +74,7 @@ body.mem-popup{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 var(
 .mem-card.kc-new{animation:kc-card .42s cubic-bezier(.3,1.4,.5,1) both}
 @keyframes kc-card{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ .mem-card.kc-new{animation:none} }
-/* 26.11.49 Capture Chats as a window (Engage › Memory Cards), no longer in the Frames column */
+/* 26.11.49 Capture Chats as a window (Engage › Chat Bubbles), no longer in the Frames column */
 .mem-dlg{width:min(560px,94vw);max-height:86vh;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow-modal)}
 .mem-dlg:not([open]){display:none}
 .mem-dlg::backdrop{background:var(--scrim,rgba(var(--rgb-gray-50,8,12,22),.6))}

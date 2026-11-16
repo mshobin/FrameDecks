@@ -5,7 +5,7 @@ breath hid the new one), only after a pause, the same verse was blocked for 45 s
 rest of the meeting, and a Studio hidden behind Zoom picked the verse up as slowly as once a minute. Now the newest
 reference is taken, also while the speaker carries on (partial results), and the switch, Off / Ask / Auto, plus the
 verse just heard with Show and Dismiss, are in Control on the Command Center, the top bar and the phone and tablet
-remote. And the chips are the same on every surface: Freeze in the Command Center, Hide the cards on the phone."""
+remote. And the chips are the same on every surface: Freeze in the Command Center, Hide the bubbles on the phone."""
 import json
 import re
 import sys
@@ -170,8 +170,8 @@ class SameChipsEverywhere(unittest.TestCase):
     def test_hide_the_cards_on_the_phone_and_one_name(self):
         self.assertEqual(self.chips()["hidecards"], ["cc", "app", "phone"])
         html = read("app/remote.html")
-        self.assertIn('id="cm-hideall">Hide the cards</button>', html)
-        self.assertIn('id="cm-title">Memory Cards</h2>', html)
+        self.assertIn('id="cm-hideall">Hide the bubbles</button>', html)
+        self.assertIn('id="cm-title">Chat Bubbles</h2>', html)
         self.assertNotIn(">Capture Memory<", html)
 
     def test_one_command_per_key_in_the_palette(self):

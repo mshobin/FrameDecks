@@ -3,8 +3,8 @@
 While members' phones are open (src/member_room.py), the leader can ask one thing at a time (Studio > Engage > Quick
 responses): Yes / No, a poll (pick one of 2 to 6 answers the leader typed) or a rating from 1 to 5. Phones on
 framedecks.com/follow show it under the screen and answer once each; they can change their answer while it is open.
-The leader chooses whether phones see the live results, and can put the results on the meeting screen as a Memory
-Card ("Yes 12 · No 3", with the question as its title), so they reach the camera and the overlays like any card.
+The leader chooses whether phones see the live results, and can put the results on the meeting screen as a Chat
+Bubble ("Yes 12 · No 3", with the question as its title), so they reach the camera and the overlays like any card.
 
 The workspace counts (0022_room_polls.sql); this PC only asks it. Nothing is written to disk, and no phone is ever
 named: the workspace keeps only a hash of each phone's own random id.
@@ -43,7 +43,7 @@ def tidy(question, kind, options=None):
 
 
 def summary(kind, options, counts):
-    """The results in one line, for the Memory Card: "Yes 12 · No 3", or the average of a rating."""
+    """The results in one line, for the Chat Bubble: "Yes 12 · No 3", or the average of a rating."""
     counts = [int(c or 0) for c in (counts or [])] + [0] * max(0, len(options) - len(counts or []))
     total = sum(counts[:len(options)])
     if kind == "rating":
@@ -92,7 +92,7 @@ class RoomResponses:
         return self.body()
 
     def card(self):
-        """The results as a Memory Card: (title, text)."""
+        """The results as a Chat Bubble: (title, text)."""
         self.refresh(force=True)
         with self.lock:
             c = self.current
@@ -145,7 +145,7 @@ class RoomResponses:
     # ---------- the local endpoints (src/server.py) ----------
     def action(self, data, show_card, count):
         """POST /api/room/response {op: open|close|show, question?, kind?, options?, showResults?}.
-        show_card(title, text): puts a Memory Card on screen. count(what): the meeting summary's counter."""
+        show_card(title, text): puts a Chat Bubble on screen. count(what): the meeting summary's counter."""
         op = str((data or {}).get("op") or "")
         if op == "open":
             self.open(data.get("question"), data.get("kind"), data.get("options"), bool(data.get("showResults")))

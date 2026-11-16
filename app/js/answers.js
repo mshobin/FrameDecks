@@ -1,7 +1,7 @@
 /* FrameDecks 26.11.57 - typed answers from members' phones (the palette: Typed answers, or Ask phones on a discussion
  * question while live). Phones on framedecks.com/follow get a box under the screen and send one short answer each;
  * nothing reaches the screen by itself. Read the answers here (newest first, no names) and press Show on one to put
- * it on screen as a Memory Card with the question as its title. Refreshes every 2 seconds while open
+ * it on screen as a Chat Bubble with the question as its title. Refreshes every 2 seconds while open
  * (src/room_answers.py). */
 (function(){
 'use strict';
@@ -40,7 +40,7 @@ function list(){
   if (!a.length) return h('p', {cls: 'hint ta-list', 'aria-live': 'polite', text: 'No answers yet. They appear here as phones send them.'});
   return h('ul', {cls: 'ta-list', 'aria-live': 'polite'}, a.map(function(x){
     return h('li', {cls: 'ta-item'}, [h('p', {text: x.body}),
-      h('button', {cls: 'btn small', type: 'button', text: 'Show', title: 'Put this answer on screen as a Memory Card, without a name', onclick: function(){ act({op: 'show', id: x.id}, 'On screen'); }})]);
+      h('button', {cls: 'btn small', type: 'button', text: 'Show', title: 'Put this answer on screen as a Chat Bubble, without a name', onclick: function(){ act({op: 'show', id: x.id}, 'On screen'); }})]);
   }));
 }
 function key(){ var p = cur && cur.prompt; return cur ? [cur.room ? 1 : 0, p ? p.id : '', p && p.open ? 1 : 0, cur.error ? 1 : 0].join('|') : ''; }

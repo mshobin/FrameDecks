@@ -1,6 +1,6 @@
 /* FrameDecks 9.1 - Capture Chats on the phone remote (remote.html #cm).
  * Paste a message copied on the phone (WhatsApp, Teams, Zoom, Messages, any app) and it is on the live screen as a
- * chat bubble at once; a pasted conversation becomes one bubble per message (src/memory.py split). The Memory Cards
+ * chat bubble at once; a pasted conversation becomes one bubble per message (src/memory.py split). The Chat Bubbles
  * from the PC are listed too, newest first, with Show, Hide and Remove, and several can be selected and shown together
  * in the order they were copied. Talks to GET / POST api/remote/memory (signed-in devices only; long-poll). */
 (function(){
@@ -51,11 +51,11 @@ function render(){
     var li = document.createElement('li');
     li.className = 'cm-card' + (it.on ? ' on' : '') + (it.pinned ? ' pinned' : '') + (sel[it.id] ? ' sel' : '');
     var pick = document.createElement('input'); pick.type = 'checkbox'; pick.className = 'cm-pick'; pick.checked = !!sel[it.id];
-    pick.setAttribute('aria-label', 'Select ' + (it.title || 'card'));
+    pick.setAttribute('aria-label', 'Select ' + (it.title || 'bubble'));
     pick.addEventListener('change', function(){ if (pick.checked) sel[it.id] = true; else delete sel[it.id]; render(); });
     var body = document.createElement('div'); body.className = 'cm-body';
     var top = document.createElement('div'); top.className = 'cm-top';
-    var b = document.createElement('b'); b.textContent = it.title || 'Memory Card'; top.appendChild(b);
+    var b = document.createElement('b'); b.textContent = it.title || 'Chat Bubble'; top.appendChild(b);
     var meta = document.createElement('span'); meta.className = 'cm-meta';
     meta.textContent = (APPS[it.src] || '') + (APPS[it.src] ? ' · ' : '') + ago(it.at); top.appendChild(meta);
     if (it.on){ var o = document.createElement('span'); o.className = 'cm-on'; o.textContent = 'On screen'; top.appendChild(o); }
@@ -64,7 +64,7 @@ function render(){
     var acts = document.createElement('div'); acts.className = 'cm-acts';
     acts.appendChild(button(it.on ? 'Show again' : 'Show', 'gold', null, function(){ act({action: 'show', id: it.id, full: true}).then(function(d){ if (d) toast('✓ On screen'); }); }));
     if (it.on) acts.appendChild(button('Hide', '', null, function(){ act({action: 'hide', id: it.id}).then(function(d){ if (d) toast('Hidden'); }); }));
-    acts.appendChild(button('Remove', 'quiet', 'Remove ' + (it.title || 'card'), function(){ act({action: 'delete', id: it.id}).then(function(d){ if (d) toast('Removed'); }); }));
+    acts.appendChild(button('Remove', 'quiet', 'Remove ' + (it.title || 'bubble'), function(){ act({action: 'delete', id: it.id}).then(function(d){ if (d) toast('Removed'); }); }));
     body.appendChild(top); body.appendChild(p); body.appendChild(acts);
     li.appendChild(pick); li.appendChild(body);
     li.addEventListener('click', function(e){ if (e.target === li || e.target === body || e.target === p || e.target.parentNode === top){ pick.checked = !pick.checked; pick.dispatchEvent(new Event('change')); } });
@@ -87,20 +87,44 @@ $('cm-add').addEventListener('submit', function(e){
     if (d.status === 'added'){ t.value = ''; toast(d.added > 1 ? '✓ ' + d.added + ' messages on screen' : '✓ On screen'); }
     else if (d.status === 'duplicate'){
       if (d.item && d.item.id) act({action: 'show', id: d.item.id, full: true}).then(function(r){ if (r){ t.value = ''; toast('✓ On screen again'); } });
-      else toast('Already a Memory Card');
+      else toast('Already a Chat Bubble');
     }
     else if (d.status === 'too-long') toast('That is too long for a chat bubble.', true);
     else toast('Nothing to show in that text.', true);
   });
 });
-/* Paste needs a secure page (the installed web app or https); on the PC's local address the phone's own paste works */
-if (navigator.clipboard && navigator.clipboard.readText && window.isSecureContext){
-  $('cm-paste').hidden = false;
-  $('cm-paste').addEventListener('click', function(){
-    navigator.clipboard.readText().then(function(t){ if (t){ $('cm-text').value = t; $('cm-text').focus(); } else toast('Nothing copied yet.'); })
-      .catch(function(){ toast('Long-press the box and choose Paste.'); $('cm-text').focus(); });
-  });
+/* 26.11.60 Typing room: on a phone the keyboard covered the box, so the phone's own Paste bubble could not be seen.
+ * While the box is in use the picture, Previous / Next and the tabs step aside (css/remote-chat.css), the page fits
+ * what the keyboard leaves (visualViewport) and the box moves to the top, its Paste bubble in sight above the keyboard. */
+var vv = window.visualViewport, typing = false;
+function fit(){
+  if (!typing) return;
+  if (vv) document.documentElement.style.setProperty('--cm-vh', Math.round(vv.height) + 'px');
+  window.scrollTo(0, 0);
+  var box = $('cm-add'), pane = box.closest('.panels');
+  if (pane) pane.scrollTop += box.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8;
 }
+function typingOn(){ typing = true; document.body.classList.add('cm-typing'); fit(); setTimeout(fit, 120); setTimeout(fit, 400); }
+function typingOff(done){
+  setTimeout(function(){
+    var a = document.activeElement;
+    if (!done && a === $('cm-text')) return;                 // still typing (Paste puts the focus back)
+    typing = false; document.body.classList.remove('cm-typing'); document.documentElement.style.removeProperty('--cm-vh');
+  }, 150);
+}
+$('cm-text').addEventListener('focus', typingOn);
+$('cm-text').addEventListener('blur', function(){ typingOff(false); });
+if (vv) vv.addEventListener('resize', fit);
+$('cm-done').addEventListener('click', function(){ $('cm-text').blur(); typingOff(true); });
+/* Paste reads the phone's clipboard on a secure page (the installed web app or https); on the PC's local address the
+ * button opens the box instead and says how to use the phone's own Paste. */
+var canRead = !!(navigator.clipboard && navigator.clipboard.readText && window.isSecureContext);
+$('cm-paste').addEventListener('click', function(){
+  var t = $('cm-text');
+  if (!canRead){ t.focus(); toast('Hold inside the box, then tap Paste.'); return; }
+  navigator.clipboard.readText().then(function(v){ if (v){ t.value = v; t.focus(); } else { t.focus(); toast('Nothing copied yet.'); } })
+    .catch(function(){ t.focus(); toast('Hold inside the box, then tap Paste.'); });
+});
 $('cm-sel-show').addEventListener('click', function(){
   var ids = Object.keys(sel); if (!ids.length) return; buzz(15);
   act({action: 'showmany', ids: ids}).then(function(d){ if (d){ sel = {}; render(); toast('✓ ' + ids.length + (ids.length > 1 ? ' bubbles' : ' bubble') + ' on screen'); } });

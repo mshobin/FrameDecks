@@ -1,6 +1,6 @@
 /* FrameDecks 26.11.14 - on the phone and tablet remote (remote.html): Listen for scripture in Control, the same switch
  * as in the Command Center and the Studio (Off · Ask · Auto), and the verse just heard with Show and Dismiss. Show
- * asks the PC's Studio to put it on screen. Also Engage's "Hide the cards". Talks to GET / POST
+ * asks the PC's Studio to put it on screen. Also Engage's "Hide the bubbles". Talks to GET / POST
  * api/remote/verse-listen (signed-in devices only; the phone cannot type words in) and api/remote/memory.
  * Light: it waits on the PC for a change (up to 10 s a request) only while Control is open and the page is in view. */
 (function(){

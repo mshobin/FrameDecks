@@ -1,6 +1,6 @@
 """FrameDecks 26.11.43 - the members' side, clear and working (owner, 11 November).
 
-1. "Show the code on screen" in Members' phones did nothing for most leaders: the code went out as a Memory Card,
+1. "Show the code on screen" in Members' phones did nothing for most leaders: the code went out as a Chat Bubble,
    which only reaches the Share Window with "Also show on Share Window" (off by default) and leaves after 12 seconds.
    Now the code is on every screen, stays until it is taken off, and can be shown again at once after being removed.
    Prayer requests and poll results the leader shows reach every screen the same way.

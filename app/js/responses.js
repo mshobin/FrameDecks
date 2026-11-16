@@ -1,7 +1,7 @@
 /* FrameDecks 26.11.33 - Quick responses and polls (Studio > Engage, or the palette). While members' phones are open,
  * ask one thing at a time: Yes / No, a poll (2 to 6 answers you type) or a rating from 1 to 5. Phones on
  * framedecks.com/follow answer under the screen, once each, and can change their answer while it is open. Choose
- * whether phones see the live results. Show on screen puts the results on a Memory Card, so they reach the camera and
+ * whether phones see the live results. Show on screen puts the results on a Chat Bubble, so they reach the camera and
  * the overlays like any card. The counts refresh every 2 seconds while this dialog is open (src/room_responses.py). */
 (function(){
 'use strict';
@@ -138,7 +138,7 @@ function draw(force){
       bars(r, cur.counts || [], cur.total || 0));
     kids.push(h('div', {cls: 'kc-dlg-foot'}, [
       h('button', {cls: 'btn ghost', type: 'button', text: 'Close the poll', onclick: function(){ act({op: 'close'}, 'Closed. Phones stop answering'); }}),
-      h('button', {cls: 'btn', type: 'button', text: 'Show on screen', title: 'The results as a Memory Card', onclick: function(){ act({op: 'show'}, 'On screen'); }}),
+      h('button', {cls: 'btn', type: 'button', text: 'Show on screen', title: 'The results as a Chat Bubble', onclick: function(){ act({op: 'show'}, 'On screen'); }}),
       h('button', {cls: 'btn primary', type: 'button', text: 'Done for now', onclick: function(){ dlg.close(); }})]));
   } else {
     var q = h('input', {type: 'text', id: 'rs-q', maxlength: '200', value: draft.question, placeholder: 'For example: Did this help you this week?'});

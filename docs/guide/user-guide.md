@@ -28,7 +28,7 @@ The **command bar** across the top holds everything you need live:
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame. In the Studio these live in the big button of the right rail, which says where Next goes (*Next ▸ Chorus*); the top bar shows them on the Members and Settings tabs (26.11.57) |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Prepare · Engage · Control · Notes · More | The five chips (in place of Live tools), the same as in the Command Center and on the phone remote. Each opens a panel under it; **Esc** closes it. **Prepare**: meetings, **Teleprompter** (R), share, Quick Start, library, import, camera. **Engage**: Memory Cards, Capture copies, **Draw** and **Spotlight** (on the desktop app they open the Command Center on Engage with that tool ready, or the Share Window when people see a shared window), clear drawings, hide cards. **Control**: Hide the selected Content, **Black screen** (K), **Freeze the picture** (F), Emergency screen. **Notes**: your private notes for this meeting. **More**: settings and help |
+| Prepare · Engage · Control · Notes · More | The five chips (in place of Live tools), the same as in the Command Center and on the phone remote. Each opens a panel under it; **Esc** closes it. **Prepare**: meetings, **Teleprompter** (R), share, Quick Start, library, import, camera. **Engage**: Chat Bubbles, Capture copies, **Draw** and **Spotlight** (on the desktop app they open the Command Center on Engage with that tool ready, or the Share Window when people see a shared window), clear drawings, hide cards. **Control**: Hide the selected Content, **Black screen** (K), **Freeze the picture** (F), Emergency screen. **Notes**: your private notes for this meeting. **More**: settings and help |
 | Hide all **Esc** | Hide everything. The **Esc** key is shown inside the button |
 | ● Ready / Live / LIVE | What is on screen now. Press it to see every output (camera, Share Window, overlays); a separate warning shows only when something needs you (26.11.57) |
 | Window buttons | Minimize, Maximize / Restore and Close, at the top right |
@@ -323,7 +323,7 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
   on screen.
 - **Typed answers** (26.11.57; command palette → *Typed answers*, or **Ask for typed answers instead** in Polls): ask
   everyone to type a short answer (*What stood out to you?*). Phones get a box under the screen, one answer each, no
-  names. Answers arrive in the Studio, newest first; **Show** puts the one you choose on screen as a Memory Card, with
+  names. Answers arrive in the Studio, newest first; **Show** puts the one you choose on screen as a Chat Bubble, with
   the question as its title. When you share the notes, the answers you showed are added as **What we shared**.
 - **Discussion minutes** (26.11.57): in a question's editor, **Discussion minutes** gives it a time. When the question
   is shown, the time left counts down above Next and on the stage screen, and FrameDecks tells you when it is up.

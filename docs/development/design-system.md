@@ -141,7 +141,7 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      edges fade into the page (a mask, no border); with motion allowed the scroll itself carries the screens (each
      shares `MIX` of the scroll with its neighbour, rising `RISE` px in as the last rises away, opacity eased), and
      scrolling on before the build has finished finishes it at once. Without motion the chapters change as before.
-     **Memory Cards (26.11.3)** is the second drawn chapter (with the Teleprompter): a meeting chat with Capture on,
+     **Chat Bubbles (26.11.3)** is the second drawn chapter (with the Teleprompter): a meeting chat with Capture on,
      three messages copied (Ctrl+C) in turn; each copied card arcs onto the FrameDecks vCam picture and pops up as a
      bubble in the program's own overlay style (`overlay.css` `.chat-list`, the same pop curve), in copy order, the
      presenter (a drawn backlit silhouette, never a photo) moving aside to make room, the prayer request pinned in
@@ -163,7 +163,7 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      **Teleprompter**: the camera moves into the Studio's live picture (redrawn over the screenshot, so it moves with
      it), the Teleprompter docks beside it following the voice, and the verse it hears arrives on the picture word by
      word. **Together**: the camera pulls back and the suite pops out of the Studio's middle, one piece after another:
-     Memory Cards on the camera, the corner card, the phone remote, members' phones and the sermon notes. The older
+     Chat Bubbles on the camera, the corner card, the phone remote, members' phones and the sermon notes. The older
      chapters above are folded into these.
   3. Features: four promises on one row.
   4. Questions: the first four; the rest behind **More questions**.

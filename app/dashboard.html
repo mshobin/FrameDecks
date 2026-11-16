@@ -74,7 +74,7 @@
       <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze the picture</button>
       <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Draw on the picture</button>
       <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script in a window above Zoom or Teams. Never shared or recorded (R)">Teleprompter</button>
-      <button class="cb-btn lb-mem" type="button" id="lb-capture" aria-pressed="false" title="Capture: text you copy (Ctrl+C) in Teams, Zoom, ChatGPT, Claude, Slack, a browser… becomes a Memory Card you can show on FrameDecks vCam as a chat bubble">Capture copies</button>
+      <button class="cb-btn lb-mem" type="button" id="lb-capture" aria-pressed="false" title="Capture: text you copy (Ctrl+C) in Teams, Zoom, ChatGPT, Claude, Slack, a browser… becomes a Chat Bubble you can show on FrameDecks vCam">Capture copies</button>
       <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency screen</button>
     </div>
   <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all Content">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
@@ -153,29 +153,29 @@
       <p class="pane-note" id="layers-note"></p>
     </section>
   </aside>
-    <!-- 9.0 Capture Chats (renamed in 26.11.49, and out of the Frames column, opened from Engage › Memory Cards):
-         what you copy from a chat (Capture on) becomes a Memory Card, shown on FrameDecks vCam as a chat bubble (9.1);
+    <!-- 9.0 Capture Chats (renamed in 26.11.49, and out of the Frames column, opened from Engage › Chat Bubbles):
+         what you copy from a chat (Capture on) becomes a Chat Bubble, shown on FrameDecks vCam (9.1);
          select several and Show them together (js/memory.js) -->
     <dialog class="mem-dlg" id="mem-dlg" aria-labelledby="mem-title">
     <section class="pane mem-pane" id="mem-pane" data-feature="memory" aria-labelledby="mem-title">
       <header class="pane-head"><h2 id="mem-title">Capture Chats<button class="mem-fold" type="button" id="mem-fold" aria-expanded="true" aria-controls="mem-body" hidden>Capture Chats</button></h2><span class="pane-sub" id="mem-n"></span>
-        <label class="mem-switch" title="Capture: text you copy (Ctrl+C) becomes a Memory Card"><input type="checkbox" id="mem-capture" role="switch"><span class="mem-knob" aria-hidden="true"></span><span>Capture</span></label>
+        <label class="mem-switch" title="Capture: text you copy (Ctrl+C) becomes a Chat Bubble"><input type="checkbox" id="mem-capture" role="switch"><span class="mem-knob" aria-hidden="true"></span><span>Capture</span></label>
         <button class="help-q" type="button" data-help="memory" title="Help: Capture Chats" aria-label="Help: Capture Chats">?</button>
-        <button class="btn small quiet mem-gear" type="button" id="mem-gear" aria-expanded="false" aria-controls="mem-settings" aria-label="Memory Card settings" title="Memory Card settings"><i data-icon="settings" data-size="15"></i></button>
+        <button class="btn small quiet mem-gear" type="button" id="mem-gear" aria-expanded="false" aria-controls="mem-settings" aria-label="Chat Bubble settings" title="Chat Bubble settings"><i data-icon="settings" data-size="15"></i></button>
         <button class="btn small quiet mem-close" type="button" id="mem-close" aria-label="Close" title="Close (Esc)">×</button></header>
       <div class="mem-body" id="mem-body">
       <div class="mem-settings" id="mem-settings" hidden>
         <label class="mem-row">On FrameDecks vCam <select id="mem-layout"><option value="beside">Beside the video</option><option value="below">Below the video</option><option value="over">Over the picture</option></select></label>
         <label class="mem-row">Side <select id="mem-side"><option value="right">Right</option><option value="left">Left</option></select></label>
-        <label class="mem-row">Unpinned cards stay <input type="number" id="mem-dur" min="3" max="120" step="1" value="12"> seconds</label>
-        <label class="mem-row"><input type="checkbox" id="mem-auto"> Show a card as soon as it's copied</label>
+        <label class="mem-row">Unpinned bubbles stay <input type="number" id="mem-dur" min="3" max="120" step="1" value="12"> seconds</label>
+        <label class="mem-row"><input type="checkbox" id="mem-auto"> Show a bubble as soon as it's copied</label>
         <label class="mem-row"><input type="checkbox" id="mem-share"> Also on the Share Window and overlay pages</label>
-        <div class="mem-acts"><button class="btn small" type="button" id="mem-hideall">Hide all bubbles</button><button class="btn small danger" type="button" id="mem-clear">Clear unpinned cards</button></div>
+        <div class="mem-acts"><button class="btn small" type="button" id="mem-hideall">Hide all bubbles</button><button class="btn small danger" type="button" id="mem-clear">Clear unpinned bubbles</button></div>
       </div>
       <p class="mem-status" id="mem-status" role="status" aria-live="polite"></p>
-      <form class="mem-add" id="mem-add" autocomplete="off"><input type="text" id="mem-add-text" maxlength="500" placeholder="Type a note…" aria-label="Type a Memory Card"><button class="btn small" type="submit">Add</button></form>
+      <form class="mem-add" id="mem-add" autocomplete="off"><input type="text" id="mem-add-text" maxlength="500" placeholder="Type a note…" aria-label="Type a Chat Bubble"><button class="btn small" type="submit">Add</button></form>
       <div class="mem-sel" id="mem-sel" hidden><span id="mem-sel-n"></span><button class="btn small primary" type="button" id="mem-sel-show">Show selected</button><button class="btn small quiet" type="button" id="mem-sel-clear">Clear</button></div>
-      <ol class="mem-list" id="mem-list" aria-label="Memory Cards"></ol>
+      <ol class="mem-list" id="mem-list" aria-label="Chat Bubbles"></ol>
       <p class="pane-note" id="mem-empty">Turn on Capture, then copy text in Teams, Zoom, ChatGPT, Claude, Slack or a browser.</p>
       </div>
     </section>
@@ -412,7 +412,7 @@
            connects, and this PC. Every page keeps its id, so links into Settings (data-sec) still open the right one. -->
       <button type="button" data-sgroup="start" data-k="features switch on off simple bible study full running the meeting smart next corner card sounds summary"><span class="sn-i"><i data-icon="list-checks" data-size="16"></i></span><span class="sn-t"><b>Start here</b><small>Features and running the meeting</small></span><i class="sn-dot" id="sg-start"></i></button>
       <button type="button" data-sgroup="look" data-k="meeting name logo colour color brand look theme dark light season christmas transition fade cut"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting look</b><small>Name, logo, colours, season and transitions</small></span><i class="sn-dot" id="sg-look"></i></button>
-      <button type="button" data-sgroup="content" data-k="bible scripture verse version esv kjv birthday dates reminder memory cards chat bubbles capture"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Content</b><small>Scripture, birthdays and Memory Cards</small></span><i class="sn-dot" id="sg-content"></i></button>
+      <button type="button" data-sgroup="content" data-k="bible scripture verse version esv kjv birthday dates reminder chat bubbles memory cards capture"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Content</b><small>Scripture, birthdays and Chat Bubbles</small></span><i class="sn-dot" id="sg-content"></i></button>
       <button type="button" data-sgroup="screens" data-k="how people see it zoom teams camera vcam projector tv obs display screen output overlay recording record video listen listening microphone voice commands follow my voice"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, projector, OBS and listening</small></span><i class="sn-dot" id="sg-screens"></i></button>
       <button type="button" data-sgroup="people" data-k="phone ipad remote pin qr wifi account website sync cloud workspace team devices security privacy"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>People &amp; devices</b><small>Phone remote, Sync and security</small></span><i class="sn-dot" id="sg-people"></i></button>
       <button type="button" data-sgroup="pc" data-k="window tray minimize command center performance graphics keyboard shortcuts keys hotkey data backup restore reset excel import export folder diagnostics problems log about version"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>This PC</b><small>Window, keys, backups, Diagnostics and About</small></span><i class="sn-dot" id="sg-pc"></i></button>
@@ -430,7 +430,7 @@
       <button type="button" role="tab" class="st-tab" data-in="look" data-sec="transitions" data-k="transition fade cut style profile spotlight annotate circle ctrl"><span class="sn-i"><i data-icon="arrow-right-left" data-size="16"></i></span><span class="sn-t"><b>Transitions</b><small>How Frames change on screen</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="content" data-sec="scripture" data-k="bible esv version verse scripture key"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Scripture</b><small>Bible version and verses</small></span><i class="sn-dot" id="sn-scripture"></i></button>
       <button type="button" role="tab" class="st-tab" data-in="content" data-sec="overlays" data-feature="birthdays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
-      <button type="button" role="tab" class="st-tab" data-feature="memory" data-in="content" data-sec="memory" data-k="memory cards chat bubbles capture beside below over seconds share"><span class="sn-i"><i data-icon="message-circle" data-size="16"></i></span><span class="sn-t"><b>Memory Cards</b><small>Chat bubbles on screen</small></span></button>
+      <button type="button" role="tab" class="st-tab" data-feature="memory" data-in="content" data-sec="memory" data-k="chat bubbles memory cards capture beside below over seconds share"><span class="sn-i"><i data-icon="message-circle" data-size="16"></i></span><span class="sn-t"><b>Chat Bubbles</b><small>Chat bubbles on screen</small></span></button>
       <button type="button" role="tab" class="st-tab" data-in="screens" data-sec="output" data-k="how people see it zoom teams camera framedecks vcam framerelay share window projector tv obs display screen output"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, a projector or OBS</small></span></button>
       <button type="button" role="tab" class="st-tab st-sub" data-in="screens" data-sec="vcam" data-feature="vcam" data-k="framedecks vcam framerelay camera webcam zoom teams blur background virtual record recording video mp4"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FrameDecks vCam</b><small>Your camera in Zoom and Teams, and recording</small></span><i class="sn-dot" id="sn-vcam"></i></button>
       <button type="button" role="tab" class="st-tab st-sub" data-in="screens" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Projector, TV and OBS</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
@@ -466,7 +466,7 @@
       <header class="s-head"><h2 id="sech-pc">Window &amp; performance</h2><p>The window, the tray, the Command Center and how FrameDecks uses this PC.</p></header>
     </section>
     <section class="s-sec" id="sec-memory" aria-labelledby="sech-memory" data-feature="memory" hidden>
-      <header class="s-head"><h2 id="sech-memory">Memory Cards</h2><p>Copied chat messages shown as bubbles. The same choices as the gear on the Memory Cards pane.</p></header>
+      <header class="s-head"><h2 id="sech-memory">Chat Bubbles</h2><p>Copied chat messages shown as bubbles. The same choices as the gear on the Chat Bubbles pane.</p></header>
       <section class="box"><div id="memory-body"></div></section>
     </section>
     <section class="s-sec" id="sec-listening" aria-labelledby="sech-listening" hidden>

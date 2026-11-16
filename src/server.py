@@ -53,10 +53,10 @@ import leader_alerts  # 26.11.25 the leader's corner card while the Studio is be
 import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
-import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
+import memory    # 9.0: Chat Bubbles in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 import dpapi_file   # 26.11.58 (release sign-off L3): the member file encrypted for this Windows account
 
-APP_VERSION = "26.11.59"
+APP_VERSION = "26.11.60"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -108,6 +108,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js", "/js/remote-listen.js",
                  "/js/remote-voice.js",
                  "/js/slide-sorter.js", "/css/slides.css",   # 26.11.45 every slide at once
+                 "/css/remote-chat.css",  # 26.11.60 room to paste a chat above the phone keyboard
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
@@ -705,7 +706,7 @@ def update_state(change):
         return save_state(new)
 
 
-# ---------- 9.0 Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
+# ---------- 9.0 Chat Bubbles in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
 MEMORY = memory.Memory(DATA / "kc-memory.json")
 NOTES = meeting_notes.Notes(str(DATA / "notes"))   # 9.12 one file per meeting, this PC only
 SONGS = songbook.Songbook(str(DATA / "kc-songs.json"))   # 26.11.57 the Song Library
@@ -737,7 +738,7 @@ def _on_copy(text, exe, url):
 
 def memory_capture(on):
     """Capture on/off: the clipboard listener runs only while it is on. Returns whether copies are being watched."""
-    on = bool(on) and feature_on("memory")          # 26.11.31 never while Memory Cards is switched off
+    on = bool(on) and feature_on("memory")          # 26.11.31 never while Chat Bubbles is switched off
     with _MEM["lock"]:
         w = _MEM["watcher"]
         if on:
@@ -1338,7 +1339,7 @@ PRAYER = prayer_wall.PrayerWall(lambda: SYNC._team(), on_received=lambda n: MEET
 
 def _prayer_card(title, text, stay=False, qr=""):
     """Something from the members' side on screen (a prayer request, the "We're praying for" list, a poll's results, the
-    members' phones code), as a Memory Card with this title and text. 26.11.43: on every screen, the Share Window too
+    members' phones code), as a Chat Bubble with this title and text. 26.11.43: on every screen, the Share Window too
     (the leader chose to show it), found again by its text even just after it was removed, and with stay it stays until
     it is taken off instead of for the overlay's seconds. 26.11.44 qr: the link the card shows as a QR code to scan."""
     item = MEMORY.put(title, text, "phone", stay, qr)
@@ -1412,7 +1413,7 @@ RESPONSES = room_responses.RoomResponses(lambda: SYNC._team(), room_open=lambda:
 
 def room_response_http(handler, data=None):
     """GET /api/room/response (the question and its counts, polled by the dialog) and POST {op: open|close|show}
-    (this PC only). Show puts the results on screen as a Memory Card."""
+    (this PC only). Show puts the results on screen as a Chat Bubble."""
     if not handler.is_local():
         return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
     try:
@@ -1438,7 +1439,7 @@ ANSWERS = room_answers.RoomAnswers(lambda: SYNC._team(), room_open=lambda: ROOM.
 
 def room_answers_http(handler, data=None):
     """GET /api/room/answers (the prompt and its answers, polled by the dialog) and POST {op: open|close|show}
-    (this PC only). Show puts one answer on screen as a Memory Card, without a name."""
+    (this PC only). Show puts one answer on screen as a Chat Bubble, without a name."""
     if not handler.is_local():
         return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
     try:
@@ -1967,7 +1968,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "voiceSensitivity": 3,   # 26.11 1 = only a loud, close voice ... 5 = a soft voice in a quiet room
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
-                         "memDur": 12,            # 9.0 Memory Cards: seconds an unpinned card stays in the chat overlay (3..120)
+                         "memDur": 12,            # 9.0 Chat Bubbles: seconds an unpinned card stays in the chat overlay (3..120)
                          "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
                          "joinQr": "off",         # 26.11.44 the members' phones QR on the Branding badge: off / beside / below
                          "slideScripture": True,  # 26.11.45 a slide naming a passage offers it as the scripture card
@@ -3780,7 +3781,7 @@ def _vcam_start():
     comp = Compositor(LAYERS_DIR, cards=layer, cards_on=lambda: VCAM.get("cardsOn", True))
     from vcam.program import ProgramFX
     comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True), logo_path=BRAND_LOGO)
-    comp.program_fx.others = layer.visible          # 9.1 the Memory Card bubbles keep clear of the cards on screen
+    comp.program_fx.others = layer.visible          # 9.1 the Chat Bubble bubbles keep clear of the cards on screen
     comp.program_fx.get_pointer = pointer_now       # 9.4 the follow Spotlight
     VCAM["compositor"] = comp
     st = studio_load()
@@ -4304,7 +4305,7 @@ class Handler(BaseHTTPRequestHandler):
             with cond:
                 if since is not None:
                     # Long-poll: answer as soon as something changes (or after `wait` seconds, at most 25).
-                    # 26.11.20 also when a rider moved (Listen for scripture, Voice commands, Memory Cards): one
+                    # 26.11.20 also when a rider moved (Listen for scripture, Voice commands, Chat Bubbles): one
                     # waiting request per window instead of one each, which had filled the browser's 6 connections
                     # and made every press wait for one to come back (up to 10 s)
                     if riders:
@@ -4449,7 +4450,7 @@ class Handler(BaseHTTPRequestHandler):
             if q.get("format", [""])[0] == "md":
                 return self.reply(200, meeting_notes.as_text(data), "text/markdown; charset=utf-8")
             return self.reply(200, json.dumps(data), TYPES[".json"])
-        if path == "/api/memory":                       # 9.0 Memory Cards (this PC only; long-poll)
+        if path == "/api/memory":                       # 9.0 Chat Bubbles (this PC only; long-poll)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             q = parse_qs(url.query)
@@ -4681,7 +4682,7 @@ class Handler(BaseHTTPRequestHandler):
                 return ok({"desktop": False})
             return ok({"desktop": True, "open": bool(hook(data.get("on", "toggle")))})
         if action == "popup":
-            # 9.0 the Memory Card popup in the screen corner (installed app): hide it, or keep it while the pointer is on it
+            # 9.0 the Chat Bubble popup in the screen corner (installed app): hide it, or keep it while the pointer is on it
             hook = DESKTOP.get("popup_op")
             if not hook:
                 return ok({"desktop": False})
@@ -5343,9 +5344,9 @@ def start_main_server():
     mark_running()                                              # 26.11.22 a crash last time: the live Frame comes back
     ALERTS.start()                                              # 26.11.25 the corner card (only shows in the app)
     try:
-        memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
+        memory_sync()                  # 9.0 pinned Chat Bubbles from the last session go back into the chat overlay
     except Exception as e:
-        print("Memory Cards:", e)
+        print("Chat Bubbles:", e)
     return server
 
 

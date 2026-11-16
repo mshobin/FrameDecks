@@ -5,6 +5,10 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.60': [
+    {title: 'Chat Bubbles', text: 'Memory Cards are now called Chat Bubbles everywhere. They work as before and your pinned ones are kept.'},
+    {title: 'Room to paste on your phone', text: 'On the phone remote, tap the Chat Bubbles box and it moves to the top, above the keyboard, so the phone\u2019s Paste bubble is easy to see. Tap Done to bring the picture back.'}
+  ],
   '26.11.59': [
     {title: 'Signed updates', text: 'FrameDecks now installs an update only when it carries FrameDecks\u2019 signature, so a changed or fake update is refused.'},
     {title: 'Your phone, safer', text: 'Phones stay signed in to the remote for up to 7 days (12 hours unused) and run the meeting but cannot replace your plan. Opening your workspace on a phone from the PC\u2019s code also asks for a code sent to your email.'},
@@ -44,7 +48,7 @@ var NEWS = {
   '26.11.49': [
     {title: 'Meeting tabs', text: 'Your meetings are tabs above the Frames, with their dates; the next one says Next. New can copy the meeting shown, with the scripture and questions left empty.', show: {spot: '#mt-tabs'}},
     {title: 'Present slides', text: 'Select a Frame with slides: the big button reads Present slides and shows them large with big Back and Next. Next says what it will do: the next animation, slide or Frame.', show: {spot: '#ls-go'}},
-    {title: 'Capture Chats', text: 'Capture Memory is now called Capture Chats. It no longer sits below Decks: open it from Engage › Memory Cards.'},
+    {title: 'Capture Chats', text: 'Capture Memory is now called Capture Chats. It no longer sits below Decks: open it from Engage › Chat Bubbles.'},
     {title: 'Your phone as a clicker', text: 'On the phone remote, Clicker under Slide 3 of 12 turns your phone into a clicker: the slide, two big buttons and what Next will do.'}
   ],
   '26.11.48': [

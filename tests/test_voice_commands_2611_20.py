@@ -5,7 +5,7 @@ what is said while held counts, and while held the Teleprompter and Listen for s
 Leave, Share screen or Emergency.
 
 Riders: the Studio and the Command Center each held three to five waiting requests (state, Listen for scripture,
-Memory Cards, the cloud remote, voice). The browser allows about six per address for every window together, so a
+Chat Bubbles, the cloud remote, voice). The browser allows about six per address for every window together, so a
 press waited for one to come back (measured: 0.5 to 9 s). Now each window holds one, and the rest ride on it."""
 import sys
 import unittest

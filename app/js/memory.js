@@ -47,7 +47,7 @@ function apply(d){
   renderPane(); renderSection(); painted = true;
 }
 
-/* 26.11.32 Settings → Content → Memory Cards: the same five choices as the pane's gear, kept in step with it */
+/* 26.11.32 Settings → Content → Chat Bubbles: the same five choices as the pane's gear, kept in step with it */
 function renderSection(){
   var host = document.getElementById('memory-body'); if (!host || !data) return;
   if (!host.firstChild){
@@ -57,15 +57,15 @@ function renderSection(){
     [['beside', 'Beside the video'], ['below', 'Below the video'], ['over', 'Over the picture']].forEach(function(x){ lay.appendChild(opt(x[0], x[1])); });
     var side = document.createElement('select'); side.id = 'ms-side'; side.setAttribute('aria-label', 'Side');
     [['right', 'Right'], ['left', 'Left']].forEach(function(x){ side.appendChild(opt(x[0], x[1])); });
-    var dur = document.createElement('input'); dur.type = 'number'; dur.id = 'ms-dur'; dur.min = 3; dur.max = 120; dur.step = 1; dur.setAttribute('aria-label', 'Seconds an unpinned card stays');
+    var dur = document.createElement('input'); dur.type = 'number'; dur.id = 'ms-dur'; dur.min = 3; dur.max = 120; dur.step = 1; dur.setAttribute('aria-label', 'Seconds an unpinned bubble stays');
     var durWrap = document.createElement('span'); durWrap.appendChild(dur); durWrap.appendChild(document.createTextNode(' seconds'));
     var chk = function(id, text){ var l = document.createElement('label'); l.className = 'check'; var c = document.createElement('input'); c.type = 'checkbox'; c.id = id; l.appendChild(c); l.appendChild(document.createTextNode(' ' + text)); return l; };
     host.appendChild(row('On FrameDecks vCam', lay));
     host.appendChild(row('Side', side));
-    host.appendChild(row('Unpinned cards stay', durWrap));
-    host.appendChild(row('', chk('ms-auto', 'Show a card as soon as it’s copied')));
+    host.appendChild(row('Unpinned bubbles stay', durWrap));
+    host.appendChild(row('', chk('ms-auto', 'Show a bubble as soon as it’s copied')));
     host.appendChild(row('', chk('ms-share', 'Also on the Share Window and overlay pages')));
-    var hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = 'Turn on Capture copies (Engage) and every Ctrl+C in Teams, Zoom, ChatGPT, Claude, Slack or a browser becomes a card. Pinned cards stay until you hide them.'; host.appendChild(hint);
+    var hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = 'Turn on Capture copies (Engage) and every Ctrl+C in Teams, Zoom, ChatGPT, Claude, Slack or a browser becomes a bubble. Pinned bubbles stay until you hide them.'; host.appendChild(hint);
     lay.addEventListener('change', function(){ act({action: 'settings', layout: lay.value}); });
     side.addEventListener('change', function(){ act({action: 'settings', side: side.value}); });
     dur.addEventListener('change', function(){ act({action: 'settings', dur: Number(dur.value) || 12}); });
@@ -90,12 +90,12 @@ function card(it, opts){
   var head = document.createElement('div'); head.className = 'mem-top';
   if (!opts.popup){                                          // 9.1 select several, then Show them together
     var pick = document.createElement('input'); pick.type = 'checkbox'; pick.className = 'mem-pick'; pick.checked = !!sel[it.id];
-    pick.setAttribute('aria-label', 'Select ' + (it.title || 'Memory Card'));
+    pick.setAttribute('aria-label', 'Select ' + (it.title || 'Chat Bubble'));
     pick.addEventListener('change', function(){ if (pick.checked) sel[it.id] = true; else delete sel[it.id]; li.classList.toggle('sel', pick.checked); renderSel(); });
     head.appendChild(pick);
     if (sel[it.id]) li.className += ' sel';
   }
-  var title = document.createElement('b'); title.className = 'mem-title'; title.textContent = it.title || 'Memory Card';
+  var title = document.createElement('b'); title.className = 'mem-title'; title.textContent = it.title || 'Chat Bubble';
   title.title = (APPS[it.src] && it.src !== 'clipboard' ? APPS[it.src] + ' \u00b7 ' : '') + (it.title || '');
   head.appendChild(title);
   if (it.src !== 'clipboard'){ var app = document.createElement('span'); app.className = 'mem-app'; app.textContent = APPS[it.src]; head.appendChild(app); }
@@ -114,8 +114,8 @@ function card(it, opts){
     function(){ act({action: 'pin', id: it.id}); }, it.pinned);
   if (opts.popup) btn('\u2715', 'quiet mem-x', 'Close', opts.close).setAttribute('aria-label', 'Close');
   else {
-    if (on) btn('Hide', 'quiet', 'Take it off screen (the card stays here)', function(){ act({action: 'hide', id: it.id}); });
-    btn('\u2715', 'quiet mem-del', 'Delete this card', function(){ act({action: 'delete', id: it.id}); }).setAttribute('aria-label', 'Delete');
+    if (on) btn('Hide', 'quiet', 'Take it off screen (the bubble stays here)', function(){ act({action: 'hide', id: it.id}); });
+    btn('\u2715', 'quiet mem-del', 'Delete this bubble', function(){ act({action: 'delete', id: it.id}); }).setAttribute('aria-label', 'Delete');
   }
   li.appendChild(head); li.appendChild(p); li.appendChild(acts);
   return li;
@@ -128,8 +128,8 @@ function renderPane(){
   var lb = $('lb-capture'); if (lb){ lb.setAttribute('aria-pressed', String(!!data.capture)); lb.classList.toggle('on', !!data.capture); }
   var nt = data.notice || {};
   if (lastNotice !== null && nt.n !== lastNotice){
-    if (nt.kind === 'captured') status('✓ ' + (nt.text || 'Memory Card created'));
-    else if (nt.kind === 'duplicate') status('Already a Memory Card');
+    if (nt.kind === 'captured') status('✓ ' + (nt.text || 'Chat Bubble created'));
+    else if (nt.kind === 'duplicate') status('Already a Chat Bubble');
     else if (nt.kind === 'ignored') status(nt.text, true);
   }
   lastNotice = nt.n;
@@ -162,7 +162,7 @@ function setFold(open){
   try { localStorage.setItem('kc-mem-pane', open ? 'open' : 'closed'); } catch(e){}
 }
 function initPane(){
-  var dlg = $('mem-dlg');                       // 26.11.49 Capture Chats is a window (Engage › Memory Cards), always open inside
+  var dlg = $('mem-dlg');                       // 26.11.49 Capture Chats is a window (Engage › Chat Bubbles), always open inside
   if (dlg){
     fold = true;
     var x = $('mem-close'); if (x) x.addEventListener('click', function(){ dlg.close(); });
@@ -181,8 +181,8 @@ function initPane(){
   $('mem-clear').addEventListener('click', function(){
     var b = this;
     if (!b.classList.contains('confirm')){ b.classList.add('confirm'); b.textContent = 'Clear them all?';
-      setTimeout(function(){ b.classList.remove('confirm'); b.textContent = 'Clear unpinned cards'; }, 4000); return; }
-    b.classList.remove('confirm'); b.textContent = 'Clear unpinned cards'; act({action: 'clear'});
+      setTimeout(function(){ b.classList.remove('confirm'); b.textContent = 'Clear unpinned bubbles'; }, 4000); return; }
+    b.classList.remove('confirm'); b.textContent = 'Clear unpinned bubbles'; act({action: 'clear'});
   });
   $('mem-add').addEventListener('submit', function(e){
     e.preventDefault(); var t = $('mem-add-text'); if (!t.value.trim()) return;

@@ -87,7 +87,7 @@ jobs:
       - name: Content-Security-Policy (9.3, report-only; no page may break a rule)
         run: node tests/visual/csp.mjs
 
-      - name: Capture Chats (Memory Cards from copied chats, bubbles, popup, phone remote)
+      - name: Capture Chats (Chat Bubbles from copied chats, bubbles, popup, phone remote)
         run: node tests/visual/memory.mjs
 
       - name: Build the website against a stand-in workspace (for the Plan and .frame checks)

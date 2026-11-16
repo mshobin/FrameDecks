@@ -355,11 +355,11 @@ On the phone, the Teleprompter is on the remote too. See [Remote control](remote
 ## Capture Chats: copied chats as bubbles on the camera
 
 **Capture Chats** turns what you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord,
-WhatsApp, ChatGPT, Claude, Copilot or a browser) into **Memory Cards**. **Show** puts a card on FrameDecks vCam as a
+WhatsApp, ChatGPT, Claude, Copilot or a browser) into **Chat Bubbles**. **Show** puts a card on FrameDecks vCam as a
 **chat bubble**: just the bubble, with no window or panel around it. There is nothing to paste and no extra window to
 manage.
 
-1. Turn on **Capture**: the switch in **Capture Chats** (**Engage → Memory Cards** opens it), **Engage → Capture
+1. Turn on **Capture**: the switch in **Capture Chats** (**Engage → Chat Bubbles** opens it), **Engage → Capture
    copies**, or the tray's **Capture copies**.
 2. In the chat, select the text and press **Ctrl+C**. Copy several messages at once and each becomes its own card,
    with the sender's name and the message.
@@ -430,7 +430,7 @@ five chips folded away under it.
 
 1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
    with its shortcut (or the tray's **Command Center**), never by itself.
-2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Memory Cards, settings and
+2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Chat Bubbles, settings and
    commands. Choose with **↑ / ↓** and **Enter**. Start with **>** for commands only, **#** for meetings and Frames,
    or **@** for people.
 3. Or point at the bar: the five chips unfold for as long as the pointer stays. Click a chip, or press **Alt+1** to
@@ -442,7 +442,7 @@ five chips folded away under it.
 | Chip | What it holds |
 |---|---|
 | **Prepare** | Meetings (switch the meeting this PC shows), Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
-| **Engage** | Memory Cards, the Teleprompter, Capture copies, Draw and Spotlight (on a draw pad right in the Command Center), Clear drawings, Hide the cards |
+| **Engage** | Chat Bubbles, the Teleprompter, Capture copies, Draw and Spotlight (on a draw pad right in the Command Center), Clear drawings, Hide the cards |
 | **Control** | **Go Live** as a switch, **Listen for scripture** (Off · Ask · Auto, at the right of its header), and while you are live the meeting remote (below), with **Freeze** (**Alt+F**) and **Emergency** (press it twice) beside Black screen, and the meeting clock: time since Go Live and this Frame against its planned time |
 | **Notes** | Your private notes for this meeting (below) |
 | **More** | Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
@@ -540,7 +540,7 @@ Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 ## Projector, TV and screen sharing
 
-The **Presentation window** shows the same finished picture as the FrameDecks vCam (the Memory Card bubbles
+The **Presentation window** shows the same finished picture as the FrameDecks vCam (the Chat Bubble bubbles
 only when **Also on the Share Window and overlay pages** is on).
 
 1. In the Studio, select **Share Window**. The Presentation window opens.

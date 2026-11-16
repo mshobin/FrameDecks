@@ -4,7 +4,7 @@ While members' phones are open (src/member_room.py), the leader asks people to t
 to you?"), from the Typed answers dialog or the Ask phones button on a question. Phones on framedecks.com/follow show
 a box under the screen; each sends one answer (up to 280 characters) and can change it while the prompt is open.
 Nothing reaches the screen by itself: the leader reads the answers here and shows the ones they choose, one at a time,
-as a Memory Card with the prompt as its title and never a name.
+as a Chat Bubble with the prompt as its title and never a name.
 
 The workspace keeps the answers (0026_room_answers.sql); this PC only asks it. Nothing is written to disk.
 """
@@ -54,7 +54,7 @@ class RoomAnswers:
         return self.body()
 
     def card(self, aid):
-        """One answer as a Memory Card: (title, text)."""
+        """One answer as a Chat Bubble: (title, text)."""
         self.refresh(force=True)
         with self.lock:
             for a in self.answers:
@@ -111,7 +111,7 @@ class RoomAnswers:
             return {"room": room, "prompt": c, "answers": [dict(a) for a in self.answers], "error": self.error}
 
     def action(self, data, show_card, count):
-        """POST /api/room/answers {op: open|close|show, prompt?, id?}. show_card(title, text) puts a Memory Card on
+        """POST /api/room/answers {op: open|close|show, prompt?, id?}. show_card(title, text) puts a Chat Bubble on
         screen; count(what) is the meeting summary's counter."""
         op = str((data or {}).get("op") or "")
         if op == "open":

@@ -1,7 +1,7 @@
 """FrameDecks 26.11.33 - quick responses and polls from members' phones.
 
 While members' phones are open the leader asks one thing at a time (Yes / No, a poll of 2 to 6 answers, a rating 1 to
-5); phones answer under the screen; the dialog shows the counts; Show on screen puts them on a Memory Card; the
+5); phones answer under the screen; the dialog shows the counts; Show on screen puts them on a Chat Bubble; the
 meeting summary counts what was asked. The workspace is faked here (0022_room_polls.sql is tested in hosted/tests)."""
 import http.client
 import json
@@ -198,7 +198,7 @@ class Endpoints(unittest.TestCase):
         status, b = self.call("POST", {"op": "show"})
         self.assertEqual(status, 200)
         card = [i for i in s.MEMORY.items if i.get("text") == "Yes 5 · No 2"]
-        self.assertTrue(card, "the results are on a Memory Card")
+        self.assertTrue(card, "the results are on a Chat Bubble")
         self.assertEqual(card[-1].get("title"), "Did this help?")
         status, b = self.call("POST", {"op": "close"})
         self.assertEqual((status, b["response"]["open"]), (200, False))

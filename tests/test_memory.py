@@ -1,4 +1,4 @@
-"""FrameDecks 9.0 - Memory Cards: reading copied text (who wrote it, which app), the cards' rules (duplicates, pinned
+"""FrameDecks 9.0 - Chat Bubbles: reading copied text (who wrote it, which app), the cards' rules (duplicates, pinned
 cards kept after a restart, unpinned ones leaving after their seconds), the API, and the chat overlay on the FrameDecks vCam
 picture in its three layouts (beside the video, below it, over it). Also the capture window's callback fix."""
 import http.client

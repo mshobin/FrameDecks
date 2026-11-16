@@ -1,5 +1,5 @@
 """FrameDecks 26.11.32 - Settings in the six groups a leader can name: Start here (Features, Running the meeting),
-Meeting look, Content (Scripture, Birthdays, Memory Cards), How people see it (with vCam and Projector as its own pages,
+Meeting look, Content (Scripture, Birthdays, Chat Bubbles), How people see it (with vCam and Projector as its own pages,
 Recording on the vCam page, and Listening), People & devices, This PC. Every old page id still opens."""
 import re
 import unittest

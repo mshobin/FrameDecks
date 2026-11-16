@@ -17,7 +17,7 @@ var GROUPS = [
 // the same ids, groups and names as src/features.py (tests/test_features_2611_31.py)
 var LIST = [
   {id: 'vcam', group: 'screen', label: 'FrameDecks vCam and Looks', what: 'Your picture with the cards, as a camera in Zoom or Teams.', off: 'Off: share the Share Window instead (How people see it). Saves the most memory.'},
-  {id: 'memory', group: 'screen', label: 'Memory Cards and Capture copies', what: 'Copied chat messages shown as bubbles on screen.', off: 'Off: the clipboard is never watched.'},
+  {id: 'memory', group: 'screen', label: 'Chat Bubbles and Capture copies', what: 'Copied chat messages shown as bubbles on screen.', off: 'Off: the clipboard is never watched.'},
   {id: 'birthdays', group: 'screen', label: 'Birthdays', what: 'Birthday reminders and the birthday card.'},
   {id: 'seasons', group: 'screen', label: 'Seasons', what: 'Christmas, Easter and other looks for the cards.'},
   {id: 'listen', group: 'listening', label: 'Listen for scripture', what: 'Hears a Bible reference while live and offers it.', off: 'Off: the microphone is never opened for it.'},
@@ -35,7 +35,7 @@ var LIST = [
   {id: 'timing', group: 'helpers', label: 'Timing plan', what: 'On time or minutes over, against each Frame’s planned minutes. Only you see it.'}];
 var PRESETS = [
   {id: 'simple', label: 'Simple', icon: 'layout-grid', text: 'The essentials and the Teleprompter.'},
-  {id: 'study', label: 'Bible study', icon: 'book-open', text: 'Adds Listen for scripture, Memory Cards, songs, name tags, polls, the phone remote and the summary.'},
+  {id: 'study', label: 'Bible study', icon: 'book-open', text: 'Adds Listen for scripture, Chat Bubbles, songs, name tags, polls, the phone remote and the summary.'},
   {id: 'full', label: 'Full', icon: 'layers', text: 'Everything FrameDecks can do.'}];
 
 var state = {features: null, preset: '', locked: false, rev: -1}, subs = [];

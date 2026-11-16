@@ -88,7 +88,7 @@ var DEFAULT_STATE = {
   /* v6: Scenes own Layers; the live scene and the program controls (see KCScenes below) */
   scenes: [],
   live: {scene: '', seq: 0, at: 0, since: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false, freeze: false, ink: {on: false, items: []},
-         message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},   // 9.0 + memory while Memory Cards are in the chat overlay
+         message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},   // 9.0 + memory while Chat Bubbles are in the chat overlay
   profile: 'bible-study',
   v6: false,
   /* v6.2 Leader branding: shown only by Branding layers and the layers that ask for it ({meeting} / {org} in their
@@ -611,7 +611,7 @@ function compToMedia(o){
   keep.c = c;
   return cleanLayer(keep);
 }
-/* 9.0 live.memory: the Memory Cards in the chat overlay (server.py memory_view; memory.py Memory.overlay) */
+/* 9.0 live.memory: the Chat Bubbles in the chat overlay (server.py memory_view; memory.py Memory.overlay) */
 var MEMORY_SOURCES = ['zoom', 'teams', 'meet', 'webex', 'slack', 'discord', 'chatgpt', 'claude', 'copilot', 'youtube', 'twitch', 'facebook', 'whatsapp', 'sms', 'phone', 'clipboard'];
 /* 26.11.44 the members' phones link (https, printable, short) and live.join: that link and where the Branding badge
  * shows it as a QR code (server.py join_live; the QR itself is /api/join-qr.svg, drawn once on the PC) */
@@ -657,7 +657,7 @@ var Scenes = {
       txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot), follow: !!l.follow,
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
       meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
-    var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)
+    var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Chat Bubbles (kept on every save)
     var jn = cleanJoin(l.join); if (jn) st.live.join = jn;           // 26.11.44 the members' phones QR on the Branding badge
     var dk = cleanDeck(l.deck); if (dk) st.live.deck = dk;           // 26.11.45 the slide on screen
     if (typeof l.stageMsg === 'string' && l.stageMsg.trim()) st.live.stageMsg = str(l.stageMsg, 140);   // 26.11.57 a message to the stage screen
@@ -1331,7 +1331,7 @@ var Scenes = {
     return sc.layers.filter(function(l){ return TEXT_KINDS.indexOf(l.kind) >= 0 && l.kind !== 'brand' && st.live.on[l.id] && (!output || l.c[output] !== false) &&
       (l.kind === 'countdown' || Scenes.brandText(st, l.c.text).trim() !== '' || Scenes.brandText(st, l.c.title).trim() !== ''); });   // an empty layer shows nothing
   },
-  /* 9.0 the chat overlay with the Memory Cards, as one layer for the overlay pages: always in the Studio's preview
+  /* 9.0 the chat overlay with the Chat Bubbles, as one layer for the overlay pages: always in the Studio's preview
    * (output null, in the camera's layout: beside / below / over), on the other pages only with "Also show on Share
    * Window" and always floating over the page (an OBS page cannot shrink the video under it). */
   liveMemory: function(st, output){
@@ -1552,7 +1552,7 @@ function shareParent(){
 /* ---------- Local program mode ---------- */
 /* Quick checks several times a second. Each request finishes instantly, so no connection is
  * ever held open (browsers only allow about six per address, shared by every overlay). */
-/* 26.11.20 riders: small change counters (Listen for scripture "vl", Voice commands "vc", Memory Cards "mem") that
+/* 26.11.20 riders: small change counters (Listen for scripture "vl", Voice commands "vc", Chat Bubbles "mem") that
  * travel with this page's one request for the state, so a window holds one waiting connection, not one per feature:
  * the browser allows about six per address for every window together, and when they were all waiting, a press
  * (Next Frame, a chip) waited for one to come back, up to 10 s. A rider's fn runs when its counter moves; it then

@@ -1325,7 +1325,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
       opacity 0.3s var(--ease-out);
   }
 
-  /* Memory Cards: the pop is the program's own (overlay.css chat-pop: a little past full size, then settle) */
+  /* Chat Bubbles: the pop is the program's own (overlay.css chat-pop: a little past full size, then settle) */
   html.fd-motion:not(.fd-calm) .tr-mc-msg {
     transition:
       transform 0.46s var(--tr-pop),

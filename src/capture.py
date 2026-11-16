@@ -1,8 +1,8 @@
-"""FrameDecks 8.8 - Capture: notices when the presenter copies text (Ctrl+C) while Capture is on (9.0: Memory Cards).
+"""FrameDecks 8.8 - Capture: notices when the presenter copies text (Ctrl+C) while Capture is on (9.0: Chat Bubbles).
 
 Windows' own clipboard listener (AddClipboardFormatListener) on a message-only window, on its own thread. It is passive:
 no keyboard or mouse hook and no simulated keys, so it looks like any clipboard manager to Windows and to antivirus.
-Only started while the Capture switch (the Studio's Memory Cards) is on; stop() removes the listener and ends the thread.
+Only started while the Capture switch (the Studio's Chat Bubbles) is on; stop() removes the listener and ends the thread.
 
 A copy is skipped when:
   * the program that made it asked clipboard tools to leave it alone (password managers mark secrets with

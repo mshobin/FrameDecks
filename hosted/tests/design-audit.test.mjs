@@ -120,7 +120,7 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.match(tour, /className="tr-screen"/);
   assert.match(src("app/tour.css"), /@keyframes tr-word-in/);
   assert.match(tour, /className="tr-band"/);
-  // 26.11.3 Memory Cards: copied chat messages pop up as bubbles on the camera picture, the program's own overlay style
+  // 26.11.3 Chat Bubbles: copied chat messages pop up as bubbles on the camera picture, the program's own overlay style
   assert.match(tour, /className="tr-mc-list"/);
   assert.ok(landing.includes('k="Ctrl+C"'), "Ctrl+C"); // the Teleprompter is the one live piece, in the program's own style
   for (const shot of ["studio", "cc-control", "follow"])

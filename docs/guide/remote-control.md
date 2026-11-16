@@ -80,7 +80,7 @@ floating top bar, the chips as a floating dock, and each tool's icon in a square
 | --- | --- |
 | **Control** (blue, opens first) | The Frame on screen. Its questions, scriptures or PowerPoint slides with round **◀ ▶** arrows (*Question 2 of 5*, *Slide 3 of 12*); a **Question / Both / Scripture** switch when it has both; **Video** controls (play, pause, from the start) for videos in the picture; **On this Frame**: every Deck with an eye to show or hide it; **Black screen** (*Show picture* while on) and **Freeze**; **Listen for scripture**: Off · Ask · Auto, and a verse just heard with **Show** and **Dismiss** (the PC puts it on screen). **Emergency** (tap twice; once to turn it off); **Meeting app**: **Mute** and **Camera** in Zoom, Teams or Google Meet on the PC (Leave and Share stay on the PC); the meeting clock beside **On screen**. |
 | **Prepare** (gold) | This meeting's date, time, place, speaker and expected people; **Switch meeting** when there are several; the whole meeting, Frame > Deck > Content, numbered like the Meeting Workbook (1 · 1.1 · 1.1.1). Tap a Frame to put it on screen, open it (**⌄**) to see its Decks and every question or scripture |
-| **Engage** (violet) | The **Teleprompter**, **Draw**, **Spotlight**, **Clear drawings**, and **Memory Cards** (see below) with **Hide the cards** |
+| **Engage** (violet) | The **Teleprompter**, **Draw**, **Spotlight**, **Clear drawings**, and **Chat Bubbles** (see below) with **Hide the cards** |
 | **Notes** (teal) | Add a note for this meeting from the phone (see below) |
 | **More** (slate) | What the PC is doing (FrameDecks vCam, recording, slides) and **Disconnect this device** |
 
@@ -119,7 +119,7 @@ Show a message from your phone on the live screen as a chat bubble:
    remote is installed as an app).
 3. Tap **Show on screen**. Each message becomes its own bubble with the sender's name, on screen at once.
 
-Below the box are all the Memory Cards, from the phone and from the PC, newest first:
+Below the box are all the Chat Bubbles, from the phone and from the PC, newest first:
 
 | Button | Does |
 |---|---|

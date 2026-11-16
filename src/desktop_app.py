@@ -232,7 +232,7 @@ def tray_hide_all():
             if isinstance(st.get(k), dict):
                 st[k]["visible"] = False
         if isinstance(st.get("live"), dict):
-            st["live"].pop("memory", None)             # 9.0 the chat overlay's Memory Cards too
+            st["live"].pop("memory", None)             # 9.0 the chat overlay's Chat Bubbles too
         return st
     server.update_state(change)
 
@@ -354,7 +354,7 @@ def main():
             pystray.MenuItem("Open App", lambda icon, item: on_open(), default=True),
             pystray.MenuItem("Teleprompter", hook("teleprompter", "toggle"),
                              checked=lambda item: bool(server.DESKTOP.get("teleprompter_open") and server.DESKTOP["teleprompter_open"]())),
-            pystray.MenuItem("Capture copies (Memory Cards)", lambda icon, item: server.memory_capture(not server.MEMORY.capture),
+            pystray.MenuItem("Capture copies (Chat Bubbles)", lambda icon, item: server.memory_capture(not server.MEMORY.capture),
                              checked=lambda item: bool(server.MEMORY.capture)),
             pystray.MenuItem("Command Center", hook("spotlight", True)),
             pystray.MenuItem("Settings", hook("open_settings")),
@@ -628,7 +628,7 @@ def main():
         refresh_tray()
         return True
 
-    # ---------- 9.0 the Memory Card popup: a small card in the screen corner when something is copied ----------
+    # ---------- 9.0 the Chat Bubble popup: a small card in the screen corner when something is copied ----------
     # Replaces 8.8's Audience Dock. Kept deliberately simple, because the dock's handle drag crashed
     # (Illegal Instruction 0xC000001D): one window, made once and then only shown and hidden; never dragged, never
     # click-through, never faded (no WS_EX_LAYERED / WS_EX_TRANSPARENT changes on a WebView2 window), no thread polling
@@ -655,13 +655,13 @@ def main():
             dw.place(hwnd, *popup_rect(dw.display_scale(hwnd)))
 
     def popup_show(on=True):
-        """A new Memory Card: show the popup (made the first time), without taking the keyboard from Zoom or Teams."""
+        """A new Chat Bubble: show the popup (made the first time), without taking the keyboard from Zoom or Teams."""
         if not on:
             return popup_op("hide", {})
         if POP["win"] is None:
             scale = dw.display_scale()
             lr = [int(round(v / scale)) for v in popup_rect(scale)]
-            w = webview.create_window(DISPLAY_NAME + " · Memory Card", keyed("memory-popup.html"), x=lr[0], y=lr[1], width=lr[2],
+            w = webview.create_window(DISPLAY_NAME + " · Chat Bubble", keyed("memory-popup.html"), x=lr[0], y=lr[1], width=lr[2],
                                       height=lr[3], background_color="#0b1222", frameless=True, easy_drag=False, on_top=True,
                                       focus=False, text_select=False)
             POP["win"] = w
@@ -702,9 +702,9 @@ def main():
         return {"desktop": True, "open": bool(POP["open"] and POP["win"] is not None)}
 
     # ---------- 26.11.25 the leader's corner card: a verse heard, a prayer request waiting ----------
-    # Made like the Memory Card popup (one window, made once, then only shown and hidden; never dragged, faded or
+    # Made like the Chat Bubble popup (one window, made once, then only shown and hidden; never dragged, faded or
     # click-through), a little larger so it is clearly seen during the meeting. It never takes the keyboard, is left out
-    # of screen sharing, and sits in the corner above the Memory Card popup when that is open. src/leader_alerts.py
+    # of screen sharing, and sits in the corner above the Chat Bubble popup when that is open. src/leader_alerts.py
     # decides when it shows (something waits, and the Studio is not the window in front).
     ALERT = {"win": None, "open": False, "h": 210}
     ALERT_W = 460                                       # 26.11.41 a little larger again, so it is not missed

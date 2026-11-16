@@ -131,7 +131,7 @@ class Program(unittest.TestCase):
             server.verse_listen_action({"op": "mode", "value": "ask"})
         self.assertFalse(server.memory_capture(True) if not server.feature_on("memory") else False)
         self.call("POST", "/api/app/features", {"set": {"memory": False, "guard": False, "summary": False, "follow": False}})
-        self.assertFalse(server.memory_capture(True), "Capture never starts while Memory Cards is off")
+        self.assertFalse(server.memory_capture(True), "Capture never starts while Chat Bubbles is off")
         self.assertFalse(server._guard_in_use(), "the meeting guard never measures while it is off")
         with self.assertRaises(ValueError):
             server.voice_action({"op": "start", "words": ["hello"]})

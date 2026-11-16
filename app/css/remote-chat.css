@@ -1,0 +1,9 @@
+/* FrameDecks 26.11.60: room to paste a chat on the phone remote (remote.html #cm, js/remote-memory.js).
+   The box is taller, and while it is in use the picture, Previous / Next and the tabs step aside so the box sits at the
+   top of what the keyboard leaves, with the phone's own Paste bubble in sight. Kept out of remote.css on purpose. */
+.cm-add textarea{min-height:120px}
+#cm-done{display:none;margin-right:auto}
+body.cm-typing .app{height:var(--cm-vh,100dvh)}
+body.cm-typing .stage,body.cm-typing .tabs{display:none}
+body.cm-typing #cm-done{display:inline-flex;align-items:center}
+body.cm-typing .panels{padding-bottom:100vh}

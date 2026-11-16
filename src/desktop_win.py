@@ -531,7 +531,7 @@ def bring_to_front(hwnd):
         _swallowed("desktop_win.bring_to_front", _e)
 
 
-# ---------- 9.0 the Memory Card popup (8.8.1: placed in screen pixels, never taking the keyboard) ----------
+# ---------- 9.0 the Chat Bubble popup (8.8.1: placed in screen pixels, never taking the keyboard) ----------
 def place(hwnd, x, y, w=None, h=None):
     """Move (and size) a window without activating it and without waiting for its thread."""
     if not (IS_WIN and hwnd):

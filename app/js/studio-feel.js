@@ -56,7 +56,7 @@ var SECTION_KEYS = {
   ipad: ['remoteNotesAdd', 'remoteNotesRead'],
   output: ['peopleSee']
 };
-var NAMES = {general: 'Running the meeting', pc: 'Window & performance', listening: 'Listening', memory: 'Memory Cards', ipad: 'Phone & iPad Remote', output: 'How people see it'};
+var NAMES = {general: 'Running the meeting', pc: 'Window & performance', listening: 'Listening', memory: 'Chat Bubbles', ipad: 'Phone & iPad Remote', output: 'How people see it'};
 function addReset(id){
   var keys = SECTION_KEYS[id], sec = $('sec-' + id); if (!keys || !sec || sec.querySelector('.kc-reset')) return;
   var head = sec.querySelector('.s-head'); if (!head) return;

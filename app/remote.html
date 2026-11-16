@@ -17,12 +17,13 @@
 <link rel="stylesheet" href="css/notes-pad.css">
 <link rel="stylesheet" href="css/teleprompter.css">
 <link rel="stylesheet" href="css/slides.css">
+<link rel="stylesheet" href="css/remote-chat.css">
 </head>
 <body>
 <!-- FrameDecks 9.4 phone and tablet remote: run the whole meeting from your hand. The live picture is always at the top
      (touch it to Spotlight or Draw), Previous / Next under it, and five tabs: Show (what this Frame shows: its Decks,
      questions, scriptures, slides and videos), Plan (every Frame > Deck > Content, numbered 1 · 1.1 · 1.1.1), Tools,
-     Memory and Meeting. Portrait: tabs at the bottom; sideways and on tablets: the picture on the left, the tabs on the
+     Chat Bubbles and Meeting. Portrait: tabs at the bottom; sideways and on tablets: the picture on the left, the tabs on the
      right. Built by js/remote.js. -->
 
 <!-- PIN screen -->
@@ -150,7 +151,7 @@
         
       </section>
 
-      <!-- Engage: the Teleprompter (26.11.15), Draw, Spotlight and Clear drawings on the picture; Memory Cards (9.1 Capture Chats: paste a message
+      <!-- Engage: the Teleprompter (26.11.15), Draw, Spotlight and Clear drawings on the picture; Chat Bubbles (9.1 Capture Chats: paste a message
            copied on this phone and it is on the live screen as a chat bubble, js/remote-memory.js) -->
       <section class="panel" id="p-engage" role="tabpanel" aria-labelledby="tab-engage" hidden>
         <div class="tools tools-4">
@@ -161,13 +162,13 @@
         </div>
         <p class="note" id="note" role="status"></p>
         <section class="cm" id="cm" aria-labelledby="cm-title" data-feature="memory">
-          <div class="sec-head"><h2 class="sec" id="cm-title">Memory Cards</h2><span class="count" id="cm-count"></span><button class="cm-btn" type="button" id="cm-hideall">Hide the cards</button></div>
+          <div class="sec-head"><h2 class="sec" id="cm-title">Chat Bubbles</h2><span class="count" id="cm-count"></span><button class="cm-btn" type="button" id="cm-hideall">Hide the bubbles</button></div>
           <form class="cm-add" id="cm-add" autocomplete="off">
-            <textarea id="cm-text" rows="2" maxlength="4000" placeholder="Paste a message from WhatsApp, Teams, Zoom, Messages…" aria-label="Message to show"></textarea>
-            <div class="cm-row"><button class="cm-btn" type="button" id="cm-paste" hidden>Paste</button><button class="cm-btn gold" type="submit" id="cm-go">Show on screen</button></div>
+            <textarea id="cm-text" rows="4" maxlength="4000" placeholder="Hold here and tap Paste, or type a message" aria-label="Message to show"></textarea>
+            <div class="cm-row"><button class="cm-btn quiet" type="button" id="cm-done">Done</button><button class="cm-btn" type="button" id="cm-paste">Paste</button><button class="cm-btn gold" type="submit" id="cm-go">Show on screen</button></div>
           </form>
           <div class="cm-sel" id="cm-sel" hidden><span id="cm-sel-n"></span><button class="cm-btn gold" type="button" id="cm-sel-show">Show selected</button><button class="cm-btn" type="button" id="cm-sel-clear">Clear</button></div>
-          <ol class="cm-list" id="cm-list" aria-label="Memory Cards"></ol>
+          <ol class="cm-list" id="cm-list" aria-label="Chat Bubbles"></ol>
           <p class="hint" id="cm-empty">Copy a message in any app, then paste it here. Several messages at once become separate bubbles.</p>
         </section>
       </section>

@@ -32,14 +32,14 @@ var ACTIONS = [
   A('prepare', 'import', 'Import…', 'folder-open', 'Lesson, slides, songs, Excel, .frame', ['cc', 'app']),   // 26.11.57 one Import menu
   A('prepare', 'camera', 'Camera check', 'video', 'FrameDecks vCam', ['cc', 'app'], {feature: 'vcam'}),
   // Engage
-  A('engage', 'cards', 'Memory Cards', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
+  A('engage', 'cards', 'Chat Bubbles', 'message-circle', 'Chat on screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
   // 26.11.15 the Teleprompter is used live, so it lives in Engage only (Command Center, top bar and phone alike)
   A('engage', 'prompter', 'Teleprompter', 'type', 'Your script, only you see it', ['cc', 'app', 'phone']),
   A('engage', 'capture', 'Capture copies', 'copy', 'Each Ctrl+C is a card', ['cc', 'app'], {toggle: true, feature: 'memory'}),
   A('engage', 'draw', 'Draw', 'pencil', 'On the picture', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'spot', 'Spotlight', 'circle-dot', 'Double-click a word', ['cc', 'app', 'phone'], {toggle: true}),
   A('engage', 'clear', 'Clear drawings', 'eraser', 'Everywhere at once', ['cc', 'app', 'phone']),
-  A('engage', 'hidecards', 'Hide the cards', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
+  A('engage', 'hidecards', 'Hide the bubbles', 'eye-off', 'Take chat off screen', ['cc', 'app', 'phone'], {feature: 'memory'}),
   // 26.11.33 a speaker's name across the bottom
   A('engage', 'nametags', 'Name tags', 'user', 'A name and role on screen', ['cc', 'app'], {feature: 'nametags'}),
   // 26.11.43 what members do on their own phones, last in Engage under its own heading (SIDES) on every surface:

@@ -179,7 +179,7 @@ class OverlayLayer:
         return frame
 
     def visible(self):
-        """9.1 [x, y, w, h] of each card on screen now (the Memory Card bubbles keep clear of them)."""
+        """9.1 [x, y, w, h] of each card on screen now (the Chat Bubble bubbles keep clear of them)."""
         out = []
         for kind, have in list(self.cards.items()):
             card = have[1] if have else None

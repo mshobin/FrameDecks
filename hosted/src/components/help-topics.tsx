@@ -185,7 +185,7 @@ export const TOPICS: Topic[] = [
           clips={[
             { name: "go-live", title: "Go Live.", caption: "The first Frame goes on screen, then → shows the next question." },
             { name: "spotlight", title: "Spotlight.", caption: "A soft light on the word you are talking about, for everyone at once." },
-            { name: "memory-cards", title: "Memory Cards.", caption: "Copied chat messages pop up beside you on the picture." },
+            { name: "memory-cards", title: "Chat Bubbles.", caption: "Copied chat messages pop up beside you on the picture." },
           ]}
         />
         <More

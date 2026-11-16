@@ -2,7 +2,7 @@
 
 The link people scan (framedecks.com/follow#c=CODE while members' phones is open) as a QR code: an SVG for the overlay
 pages and the Studio (server.py /api/join-qr.svg) and a picture for the FrameDecks vCam (vcam/chatcard.py on the code's
-Memory Card, vcam/program.py on the Branding badge). Dark modules on a white tile with a quiet zone, medium error
+Chat Bubble, vcam/program.py on the Branding badge). Dark modules on a white tile with a quiet zone, medium error
 correction (src/qr_encode.py), so a phone reads it through Zoom or Teams. Encoded once per link."""
 from functools import lru_cache
 

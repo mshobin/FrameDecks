@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.60] - 2026-11-16
+
+Full notes: [docs/releases/v26.11.60.md](releases/v26.11.60.md).
+
+### Changed
+- Memory Cards are renamed Chat Bubbles in every user-facing text (Studio, Command Center, Settings, phone remote,
+  Help, guides, privacy page, website). Code names, files, API routes and saved data keep `memory`.
+
+### Fixed
+- Phone remote: the paste box was small and the keyboard covered it, hiding the phone's Paste bubble. While the box is
+  in use the stage and tabs step aside and the box moves to the top of what the keyboard leaves (`visualViewport`);
+  the box is taller, Paste is always shown, and Done brings the stage back (`app/css/remote-chat.css`).
+
 ## [26.11.59] - 2026-11-16
 
 Full notes: [docs/releases/v26.11.59.md](releases/v26.11.59.md).

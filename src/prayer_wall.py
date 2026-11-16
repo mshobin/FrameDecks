@@ -6,7 +6,7 @@ this PC takes them in every few seconds (the cloud forgets each one as it is tak
 
 Nothing goes on screen by itself. The leader reads each request and chooses: Show (anonymously, or with the first name
 the person gave), or Done. "We're praying for…" puts the shown requests together on one card. On screen they are
-Memory Cards, so they use the same overlay, layouts and Hide all as everything else.
+Chat Bubbles, so they use the same overlay, layouts and Hide all as everything else.
 
 The requests live in memory only: they are never written to disk, synced, or put in the diagnostics file, and they are
 gone when the wall is closed or FrameDecks is closed.
@@ -127,7 +127,7 @@ class PrayerWall:
         return next((i for i in self.items if i["id"] == item_id), None)
 
     def card(self, item_id, with_name=False):
-        """What a Memory Card shows for one request: (title, text). The name only when asked and given."""
+        """What a Chat Bubble shows for one request: (title, text). The name only when asked and given."""
         with self.lock:
             it = self._find(item_id)
             if not it:

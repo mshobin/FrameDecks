@@ -145,7 +145,7 @@ class ProgramFX:
         self.logo_path, self.logo_cache = logo_path, (None, None)      # (version, PIL RGBA)
         self.get_state, self.cards_on = get_state, cards_on
         self.texts = {}                  # layer id -> _Text
-        # 9.0 the chat overlay with the Memory Cards (live.memory), drawn above everything but Blackout
+        # 9.0 the chat overlay with the Chat Bubbles (live.memory), drawn above everything but Blackout
         # 9.1: one Card per bubble; "items" id -> {card, x, y, born, gone}; "order" the bubbles on screen, oldest first
         self.mem = {"k": 0.0, "items": {}, "order": [], "want": None, "layout": "beside", "side": "right", "info": None,
                     "place": None}
@@ -234,7 +234,7 @@ class ProgramFX:
         self.last = out if out is not frame else _scratch(self, "_last_buf", frame)
         return out
 
-    # ---------- 9.1 the Memory Cards as chat bubbles (vcam/chatcard.py) ----------
+    # ---------- 9.1 the Chat Bubbles (vcam/chatcard.py) ----------
     def _avoid_rects(self, W, H):
         """What the floating bubbles keep clear of: the camera inset, the verse / question / birthday cards and every
         text Content on screen (rounded to whole units, so a card gliding a little does not move the bubbles)."""
@@ -615,7 +615,7 @@ class ProgramFX:
                     self.cond.wait()
                 lid, (key, data, L, W, H, pos) = self.jobs.popitem()
             try:
-                if data.get("memory"):                      # 9.1 the Memory Cards as chat bubbles
+                if data.get("memory"):                      # 9.1 the Chat Bubbles
                     made = chatcard.draw(self.drawer.fonts, data["cards"], W, H, L.get("layout", "beside"), pos)
                     for c in made:
                         OverlayLayer._prepare(c)
