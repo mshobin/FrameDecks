@@ -10,6 +10,10 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.58] - 2026-11-16
+
+Full notes: [docs/releases/v26.11.58.md](releases/v26.11.58.md).
+
 ### Removed
 - The built-in AI question generator (Ollama): `src/ai.py`, `GET /api/ai/status`, `POST /api/ai/questions`, the app
   setting `ai`, the Suggest questions buttons in the question list and the Suggested questions guide page. Discussion

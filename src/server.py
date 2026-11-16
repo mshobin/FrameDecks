@@ -56,7 +56,7 @@ import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, 
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 import dpapi_file   # 26.11.58 (release sign-off L3): the member file encrypted for this Windows account
 
-APP_VERSION = "26.11.57"
+APP_VERSION = "26.11.58"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)

@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.58': [
+    {title: 'Signed updates', text: 'FrameDecks now installs an update only when it carries FrameDecks\u2019 signature, so a changed or fake update is refused.'},
+    {title: 'Your phone, safer', text: 'Phones stay signed in to the remote for up to 7 days (12 hours unused) and run the meeting but cannot replace your plan. Opening your workspace on a phone from the PC\u2019s code also asks for a code sent to your email.'},
+    {title: 'Member details protected', text: 'The member list on this PC is locked to your Windows account, and only FrameDecks\u2019 own windows can change your meeting. Pages in OBS keep working.'}
+  ],
   '26.11.57': [
     {title: 'Song Library', text: 'Keep every song once: paste the words or import ChordPro, OpenLyrics or a PowerPoint\u2019s text, set the arrangement, and jump live with 1\u20139, C, B, P, E. CCLI details and a monthly usage report are built in.'},
     {title: 'Room screen and stage screen', text: 'Choose the projector by its name and Go Live opens the picture there. A stage screen shows musicians and speakers what is now, what is next, the clock and your message.'},
