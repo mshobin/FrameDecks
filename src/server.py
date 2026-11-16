@@ -95,7 +95,9 @@ MAX_BODY = 8 * 1024 * 1024
 REMOTE = "--remote" in sys.argv
 PIN_FILE = DATA / "kc-remote-pin.txt"
 SESSIONS_FILE = DATA / "kc-remote-sessions.json"
-SESSION_DAYS = 30
+SESSION_DAYS = 7                # 26.11.58 (release sign-off M1): a phone stays signed in at most a week (was 30 days)
+SESSION_IDLE = 12 * 3600        # 26.11.58 (release sign-off M1): and a sign-in unused for 12 hours ends
+SESSION_SAVE_EVERY = 600        # last-used times are written to the sessions file at most every 10 minutes
 COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
@@ -154,16 +156,44 @@ def remote_pin():
     return pin
 
 
+def _session_entry(value, now):
+    """26.11.58 (release sign-off M1): one sign-in as {"exp": ends at, "used": last used}. Files written before this
+    version hold only the end time (a number): it is cut to SESSION_DAYS from now and counts as used now."""
+    longest = now + SESSION_DAYS * 86400
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return {"exp": min(float(value), longest), "used": now}
+    if isinstance(value, dict) and isinstance(value.get("exp"), (int, float)) and isinstance(value.get("used"), (int, float)):
+        return {"exp": min(float(value["exp"]), longest), "used": min(float(value["used"]), now)}
+    return None
+
+
+def session_alive(entry, now=None):
+    """Not past its end and used within SESSION_IDLE."""
+    now = time.time() if now is None else now
+    return bool(entry) and entry["exp"] > now and now - entry["used"] < SESSION_IDLE
+
+
 def load_sessions():
     try:
         data = json.loads(SESSIONS_FILE.read_text(encoding="utf-8"))
         now = time.time()
-        return {k: v for k, v in data.items() if isinstance(v, (int, float)) and v > now}
+        out = {}
+        for k, v in (data.items() if isinstance(data, dict) else []):
+            e = _session_entry(v, now)
+            if session_alive(e, now):
+                out[k] = e
+        return out
     except (OSError, ValueError):
         return {}
 
 
+_sessions_saved = {"at": 0.0}
+
+
 def save_sessions():
+    _sessions_saved["at"] = time.time()
     try:
         write_atomic(SESSIONS_FILE, json.dumps(sessions))
     except OSError:
@@ -466,6 +496,135 @@ def save_state(new):
 
 atexit.register(flush_state)
 DISK["plan"] = plan_fingerprint(state)                    # the plan as loaded: a first live press is not a plan change
+
+
+# ---------- 26.11.58 (release sign-off M2): what a signed-in phone may change in the saved state ----------
+# The phone remote sends the whole state it holds (KCStore.update), but it only runs the meeting: what is live, the
+# cards on screen, a Frame's Content shown or hidden, the next item, a song's verse, a deck's slide order and the
+# meeting shown. Everything else (the library, the Frames and their Content, the brand, the meeting details) is taken
+# from the PC's own saved state, so a phone cannot replace the plan. The PC's own windows keep sending everything.
+REMOTE_TAKE_WHOLE = ("question", "verse", "birthday", "layout")   # the cards on screen and where they sit (a Frame's look)
+REMOTE_LAYER_C = {                                                 # a layer's own fields the phone's helpers change
+    "question": ("itemId",), "scripture": ("itemId",), "song": ("at", "title", "text"),
+    "pdf": ("order", "skip", "nophone"), "window": ("order", "skip", "nophone"),
+}
+QUESTION_MODES = ("", "question", "both", "verse")
+
+
+def _int_list(v):
+    return [int(x) for x in v if isinstance(x, (int, float)) and not isinstance(x, bool)][:2000] if isinstance(v, list) else None
+
+
+def _remote_layer(cur, ph):
+    """Copy only a layer's run-time fields from the phone's copy (ph) into the PC's (cur)."""
+    if not isinstance(ph, dict):
+        return
+    if isinstance(ph.get("visible"), bool):
+        cur["visible"] = ph["visible"]
+    c, pc = cur.get("c"), ph.get("c")
+    if not isinstance(c, dict) or not isinstance(pc, dict):
+        return
+    for key in REMOTE_LAYER_C.get(cur.get("kind"), ()):
+        if key not in pc:
+            continue
+        v = pc[key]
+        if key in ("order", "skip", "nophone"):
+            v = _int_list(v)
+            if v is not None:
+                c[key] = v
+        elif key == "at":
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                c[key] = int(v)
+        elif isinstance(v, str):
+            c[key] = v[:40] if key == "itemId" else v[:4000]
+    if cur.get("kind") == "question" and isinstance(c.get("items"), list) and isinstance(pc.get("items"), list):
+        modes = {it.get("id"): it.get("mode") for it in pc["items"] if isinstance(it, dict)}
+        for it in c["items"]:                                   # Question · Both · Scripture remembered per question
+            if isinstance(it, dict) and it.get("id") in modes and modes[it.get("id")] in QUESTION_MODES:
+                it["mode"] = modes[it.get("id")]
+
+
+def _remote_scenes(cur_scenes, ph_scenes):
+    """The PC's Frames stay as they are (which Frames, their Content, names, order); only run-time fields follow."""
+    if not isinstance(cur_scenes, list) or not isinstance(ph_scenes, list):
+        return
+    ph_by_id = {sc.get("id"): sc for sc in ph_scenes if isinstance(sc, dict)}
+    for sc in cur_scenes:
+        ph = ph_by_id.get(sc.get("id")) if isinstance(sc, dict) else None
+        if not isinstance(ph, dict):
+            continue
+        for key in ("modified", "version"):                     # Scenes.stamp after Question · Both · Scripture
+            if isinstance(ph.get(key), (int, float)) and not isinstance(ph.get(key), bool):
+                sc[key] = ph[key]
+        ph_layers = {l.get("id"): l for l in ph.get("layers") or [] if isinstance(l, dict)}
+        for layer in sc.get("layers") or []:
+            if isinstance(layer, dict) and layer.get("id") in ph_layers:
+                _remote_layer(layer, ph_layers[layer["id"]])
+
+
+def _meetings_of(st):
+    """The same list as meetingsOf in app/js/store.js: meeting.meetings, else one meeting made from the details."""
+    m = st.get("meeting") if isinstance(st.get("meeting"), dict) else {}
+    out = [dict(e) for e in m.get("meetings") or [] if isinstance(e, dict) and str(e.get("id") or "").strip()
+           and str(e.get("name") or "").strip()]
+    if not out:
+        out = [{"id": "main", "name": str(m.get("title") or "").strip()[:60] or "Meeting",
+                "date": str(m.get("date") or ""), "notes": str(m.get("notes") or "")}]
+    return out
+
+
+def _current_meeting(st, items):
+    live = st.get("live") if isinstance(st.get("live"), dict) else {}
+    meeting = st.get("meeting") if isinstance(st.get("meeting"), dict) else {}
+    title = str(meeting.get("title") or "").strip().lower()
+    for m in items:
+        if m["id"] == live.get("meeting"):
+            return m
+    for m in items:
+        if str(m["name"]).lower() == title:
+            return m
+    return items[0]
+
+
+def _switch_meeting(st, target):
+    """Scenes.switchMeeting on the PC's own state: show another meeting (the phone only names which)."""
+    items = _meetings_of(st)
+    cur = _current_meeting(st, items)
+    to = next((m for m in items if m["id"] == target), None)
+    if to is None:
+        return False
+    if not isinstance(st.get("meeting"), dict):
+        st["meeting"] = {}
+    meeting = st["meeting"]
+    for m in items:
+        if m["id"] == cur["id"]:
+            m["date"], m["notes"] = meeting.get("date", ""), meeting.get("notes", "")
+    meeting["meetings"] = items
+    meeting["title"], meeting["date"], meeting["notes"] = to["name"], to.get("date", ""), to.get("notes", "")
+    st["live"]["meeting"] = to["id"]
+    return True
+
+
+def remote_state_merge(cur, phone):
+    """The state to save when a signed-in phone sends its copy: the PC's state with the phone's run-time changes."""
+    new = json.loads(json.dumps(cur))
+    new.pop("rev", None)
+    cur_live = cur.get("live") if isinstance(cur.get("live"), dict) else {}
+    want = None
+    if isinstance(phone.get("live"), dict):
+        live = json.loads(json.dumps(phone["live"]))
+        want = live.get("meeting")
+        live["meeting"] = cur_live.get("meeting", "")           # changed only through _switch_meeting below
+        new["live"] = live
+    elif not isinstance(new.get("live"), dict):
+        new["live"] = {}
+    for key in REMOTE_TAKE_WHOLE:
+        if isinstance(phone.get(key), dict):
+            new[key] = phone[key]
+    _remote_scenes(new.get("scenes"), phone.get("scenes"))
+    if isinstance(want, str) and want and want != cur_live.get("meeting"):
+        _switch_meeting(new, want)
+    return new
 
 
 # ---------- v6 Scenes: the live scene's media layers are the FrameDecks picture ----------
@@ -1560,7 +1719,7 @@ def diagnostics(address):
         except OSError:
             files[f.name] = {"exists": False}
     with sessions_lock:
-        n_sessions = len([1 for v in sessions.values() if v > time.time()])
+        n_sessions = len([1 for v in sessions.values() if session_alive(v)])
     return {
         "resources": resources(),
         "version": APP_VERSION, "python": platform.python_version(), "os": platform.platform(),
@@ -3791,9 +3950,18 @@ class Handler(BaseHTTPRequestHandler):
         m = re.search(COOKIE + r"=([A-Za-z0-9_\-]{20,100})", self.headers.get("Cookie", ""))
         if not m:
             return False
+        now = time.time()
         with sessions_lock:
-            exp = sessions.get(m.group(1))
-            return bool(exp and exp > time.time())
+            entry = sessions.get(m.group(1))
+            if not session_alive(entry, now):
+                if entry is not None:                    # 26.11.58 (release sign-off M1): ended (a week, or 12 h unused)
+                    sessions.pop(m.group(1), None)
+                    save_sessions()
+                return False
+            entry["used"] = now
+            if now - _sessions_saved["at"] > SESSION_SAVE_EVERY:   # the last-used time survives a restart
+                save_sessions()
+            return True
 
     def announce(self):
         # Say in the black window when a new device reaches the PC (IP address only)
@@ -3850,7 +4018,7 @@ class Handler(BaseHTTPRequestHandler):
                 known_devices.pop()
         token = secrets.token_urlsafe(32)
         with sessions_lock:
-            sessions[token] = now + SESSION_DAYS * 86400
+            sessions[token] = {"exp": now + SESSION_DAYS * 86400, "used": now}
             save_sessions()
         cookie = f"{COOKIE}={token}; Path=/; Max-Age={SESSION_DAYS * 86400}; HttpOnly; SameSite=Strict"
         return self.reply(200, json.dumps({"ok": True}), TYPES[".json"], [("Set-Cookie", cookie)])
@@ -4866,6 +5034,8 @@ class Handler(BaseHTTPRequestHandler):
                     if base is None:
                         return self.reply(409, state_body(), TYPES[".json"])
                     data["library"] = state.get("library")
+                if not self.is_local():                    # 26.11.58 (release sign-off M2): a phone runs the meeting,
+                    data = remote_state_merge(state, data)  # it never replaces the plan
                 save_state(data)
                 return self.reply(200, state_body(LIBRARY["rev"] if keep else None), TYPES[".json"])
         if path == "/api/sync":
