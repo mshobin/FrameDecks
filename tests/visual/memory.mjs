@@ -1,7 +1,9 @@
-// FrameDecks 9.0 / 9.1 - Capture Memory in a browser, against a started program:
+// FrameDecks 9.0 / 9.1 - Capture Chats (Memory Cards) in a browser, against a started program:
 //   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/memory.mjs [--shots DIR]
-// The Studio's Capture Memory pane (a typed note becomes a card; Show, Pin, Hide, Delete; several selected and shown
-// together), the chat bubbles in the Studio preview (only bubbles: no window) in their three layouts (beside / below the
+// 26.11.57: Capture Chats is a window opened from Engage › Memory Cards (26.11.49), and a card is what someone copied
+// in a chat. The clipboard watcher is Windows-only, so a "copy" here is the same add the watcher makes (one line of chat
+// text, "Name: message", becomes a card titled with the name). Covered: copied lines become cards and chat bubbles
+// (Show, Pin, Hide, Delete; several selected and shown together), a typed note still works, the chat bubbles in the Studio preview (only bubbles: no window) in their three layouts (beside / below the
 // picture, which shrinks out of their way, or over it), the OBS pages (only with "Also on the Share Window", always
 // floating), the corner popup, the phone remote's Capture Memory, and accessibility (dark and light).
 // Clipboard capture and the popup window itself are Windows-only: see docs/architecture/memory-cards.md.
@@ -16,6 +18,7 @@ const SHOTS = shotsAt > 0 ? process.argv[shotsAt + 1] : "";
 
 let failed = 0;
 function check(ok, what) { console.log((ok ? "ok    " : "FAIL  ") + what); if (!ok) failed++; }
+async function copied(text) { return api({ action: "add", text }); }   // what the clipboard watcher hands over
 async function api(body) {
   const r = await fetch(`${BASE}/api/memory`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   return r.json();
@@ -38,16 +41,21 @@ await studio.goto(`${BASE}/dashboard.html`);
 await studio.waitForTimeout(2200);
 await studio.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());     // 9.5 the Welcome flow
 await studio.waitForTimeout(600);
-check(await studio.$("#lb-audience") === null && await studio.$("#mem-pane") !== null, "no Audience Dock; a Memory Cards pane in the Studio");
-if (await studio.$eval("#mem-pane", (e) => e.classList.contains("closed"))) await studio.click("#mem-fold");
-check(await studio.isVisible("#mem-add-text"), "the pane opens");
+check(await studio.$("#lb-audience") === null && await studio.$("#mem-dlg #mem-pane") !== null, "no Audience Dock; Capture Chats is a window in the Studio");
+async function openChats() {                              // Engage › Memory Cards, as a person does
+  if (await studio.$eval("#mem-dlg", (d) => d.open)) return;
+  await studio.click("#lc-engage");
+  await studio.click('#lc-pop-engage [data-action="cards"]');
+  await studio.waitForSelector("#mem-dlg[open]");
+}
+await openChats();
+check(await studio.isVisible("#mem-capture") && await studio.isVisible("#mem-add-text"), "Engage › Memory Cards opens Capture Chats, with its Capture switch");
 
-// a typed note becomes a card, in the pane and in the chat overlay
+// a copied chat line becomes a card, in the window and in the chat overlay
 const preview = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 await preview.goto(`${BASE}/stage.html?bg=preview&preview=1`);
 await preview.waitForTimeout(800);
-await studio.fill("#mem-add-text", "Sarah Lee: How much does the course cost, and is there a discount?");
-await studio.press("#mem-add-text", "Enter");
+await copied("Sarah Lee: How much does the course cost, and is there a discount?");
 await studio.waitForSelector(".mem-card");
 check((await studio.textContent(".mem-card .mem-title")).includes("Sarah Lee"), "the card has a title (who wrote it)");
 await preview.waitForSelector(".chat-list:not(.out) .chat-msg");
@@ -69,7 +77,7 @@ check(true, "Show expands it to the full text");
 await studio.locator(".mem-card").first().getByRole("button", { name: "Pin" }).click();
 await preview.waitForSelector(".chat-msg.pinned");
 check(await studio.$eval(".mem-card", (e) => e.classList.contains("pinned")), "Pin keeps it (gold edge in the pane and the overlay)");
-await studio.fill("#mem-add-text", "The rollout plan has three phases: pilot, regional and national.");
+await studio.fill("#mem-add-text", "The rollout plan has three phases: pilot, regional and national.");   // a typed note still works
 await studio.press("#mem-add-text", "Enter");
 await preview.waitForFunction(() => document.querySelectorAll(".chat-msg").length === 2);
 check(await preview.$(".chat-msg.pop") !== null, "a new bubble pops open");
@@ -101,11 +109,14 @@ await api({ action: "settings", share: false });
 await studio.locator(".mem-card.pinned").getByRole("button", { name: "Hide" }).click();
 await studio.waitForFunction(() => !document.querySelector(".mem-card.pinned"));
 check(true, "Hide takes a card out of the overlay (and unpins it)");
+await studio.keyboard.press("Escape");                    // the first Esc closes the window...
+await studio.waitForFunction(() => !document.getElementById("mem-dlg").open);
 await studio.click("#canvas-wrap", { position: { x: 5, y: 5 } }).catch(() => {});
-await studio.keyboard.press("Escape");
+await studio.keyboard.press("Escape");                    // ...then Esc in the Studio is Hide all
 await preview.waitForFunction(() => !document.querySelector(".chat-list:not(.out)"), null, { timeout: 5000 });
 check(true, "Esc (Hide all) takes every bubble off screen");
 // several selected, shown together in the order copied
+await openChats();
 const picks = studio.locator(".mem-card .mem-pick");
 await picks.nth(0).check(); await picks.nth(1).check();
 check(await studio.isVisible("#mem-sel") && (await studio.textContent("#mem-sel-show")) === "Show 2 together", "select several");
@@ -113,7 +124,7 @@ await studio.click("#mem-sel-show");
 await preview.waitForFunction(() => document.querySelectorAll(".chat-list:not(.out) .chat-msg:not(.leave)").length === 2, null, { timeout: 5000 });
 const order = await preview.$$eval(".chat-list:not(.out) .chat-msg:not(.leave) .chat-text", (l) => l.map((e) => e.textContent));
 check(order[0].startsWith("How much") && order[1].startsWith("The rollout"), "shown together, the first copied at the top");
-await studio.keyboard.press("Escape");
+await studio.click("#mem-gear"); await studio.click("#mem-hideall"); await studio.click("#mem-gear");   // settings › Hide all bubbles
 await preview.waitForFunction(() => !document.querySelector(".chat-list:not(.out)"), null, { timeout: 5000 });
 const before = await studio.$$eval(".mem-card", (l) => l.length);
 await studio.locator(".mem-card").first().getByRole("button", { name: "Delete" }).click();
@@ -125,7 +136,7 @@ const pop = await browser.newPage({ viewport: { width: 360, height: 300 }, bypas
 const asked = [];
 await pop.route("**/api/app/popup", async (route) => { asked.push(JSON.parse(route.request().postData() || "{}").op); await route.fulfill({ json: { desktop: false } }); });
 await pop.goto(`${BASE}/memory-popup.html`);
-await api({ action: "add", text: "Tom: Is the recording shared afterwards?" });
+await copied("Tom: Is the recording shared afterwards?");
 await pop.waitForSelector(".pop .mem-card");
 check((await pop.textContent(".pop .mem-card .mem-title")) === "Tom", "the popup shows the card just copied");
 await pop.hover(".pop");                                   // the pointer on it keeps the cards there
@@ -169,8 +180,9 @@ await api({ action: "hideall" });
 
 for (const theme of ["dark", "light"]) {
   await studio.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);
+  await openChats();
   await studio.click("#mem-gear");
-  if (SHOTS) await studio.locator(".ws-left").screenshot({ path: `${SHOTS}/memory-pane-${theme}.png` });
+  if (SHOTS) await studio.locator("#mem-dlg").screenshot({ path: `${SHOTS}/memory-pane-${theme}.png` });
   await studio.addScriptTag({ path: AXE });
   const r = await studio.evaluate(() => window.axe.run(document.getElementById("mem-pane"), { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] } }));
   for (const v of r.violations) console.log(`      ${theme}: ${v.id} ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);

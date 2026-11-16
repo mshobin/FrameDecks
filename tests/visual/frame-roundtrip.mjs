@@ -80,7 +80,8 @@ await p.setInputFiles("li.frame-editing .flow-file input[type=file]", { name: "v
 await p.waitForTimeout(300);
 await p.click("li.frame-editing .edit-actions .live-primary");
 await p.waitForTimeout(900);
-const [dl] = await Promise.all([p.waitForEvent("download"), p.click(".flow-steps li:nth-child(5) button")]);
+await p.click(".sync-now"); await p.waitForTimeout(900);      // 26.11.39 changes wait on the page until Sync Now
+const [dl] =await Promise.all([p.waitForEvent("download"), p.click(".flow-steps li:nth-child(5) button")]);
 const path = SP + "/roundtrip.frame";
 await dl.saveAs(path);
 const text = readFileSync(path, "utf8");
@@ -92,6 +93,8 @@ const websiteFrames = (() => {
 // the program
 const q = await b.newPage({ viewport: { width: 1500, height: 950 } });
 q.on("pageerror", (e) => console.log("PC PAGEERR", e.message));
+// a PC that has been set up before: the Welcome is done, so it does not come back after the reload below
+await fetch(PC + "/api/app/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ onboarding: { done: true } }) });
 await q.goto(PC + "/dashboard.html");
 await q.waitForTimeout(2500);
 await q.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());          // 9.5 the Welcome flow

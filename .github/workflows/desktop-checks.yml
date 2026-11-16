@@ -50,7 +50,7 @@ jobs:
   # Teleprompter offer the right action, Settings lines up (tests/visual/layout.mjs; design audit DD-26).
   visual:
     runs-on: ubuntu-24.04     # Playwright 1.56 cannot install Chromium on ubuntu-latest (26.04) yet
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Get the code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,6 +64,8 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: hosted/package-lock.json
 
       - name: Install the browser (Playwright 1.56.1, Chromium only) and axe-core 4.10.3
         working-directory: tests/visual
@@ -84,6 +86,24 @@ jobs:
 
       - name: Content-Security-Policy (9.3, report-only; no page may break a rule)
         run: node tests/visual/csp.mjs
+
+      - name: Capture Chats (Memory Cards from copied chats, bubbles, popup, phone remote)
+        run: node tests/visual/memory.mjs
+
+      - name: Build the website against a stand-in workspace (for the Plan and .frame checks)
+        working-directory: hosted
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://x.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: stub
+        run: |
+          npm ci
+          npm run build
+
+      - name: Website Plan workflow (steps, timeline, meetings, Sync Now, .frame export)
+        run: node tests/visual/plan-flow.mjs
+
+      - name: .frame round trip (website export, imported on the program, compared field by field)
+        run: node tests/visual/frame-roundtrip.mjs
 
       - name: Program log (on failure)
         if: failure()
