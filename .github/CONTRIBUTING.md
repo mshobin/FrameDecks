@@ -51,7 +51,7 @@ The short version (the full guide is [docs/development/developer-guide.md](../do
 ```bash
 git clone https://github.com/mshobin/FRAMEDECKS.git
 cd FrameDecks
-python src/server.py                 # opens http://localhost:8750 in your browser
+python src/server.py                 # opens the Studio at the address it prints (it carries this PC's local key; KC_LOCAL_TOKEN=off to turn the key off)
 node tests/run.js                # automated tests (Node.js, no packages to install)
 python packaging/check.py        # self-check: the program starts and serves its pages
 ```

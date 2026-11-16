@@ -48,6 +48,20 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 - Website: codes of 8 characters (6 still read); a closed prayer wall says so; the Members page offers Admin and Remove
   for admins only to the owner; the Content-Security-Policy is enforced and names the build's own Supabase host, with a
   browser check in CI (`tests/visual/site-csp.mjs`). The 0027 and 0028 database tests now run in `npm test`.
+- Sign-off items 7-19 (26.11.58):
+  - Opening your own workspace on a phone from a code the PC shows now also asks for a 6-digit code emailed to the
+    account holder (migration 0029, `device-sign-in` Edge Function, website); codes made on the website are unchanged.
+  - Phone remote: sign-ins last at most 7 days and end after 12 hours unused; a phone runs the meeting but can no
+    longer replace the saved plan or library (`remote_state_merge`).
+  - The program's own windows carry a key made on the PC (`kc-local-token.txt`, cookie `fd_local`); without it, changes
+    and member details are refused to other local programs. Overlay pages for OBS and screens keep working unkeyed.
+    `KC_LOCAL_TOKEN=off` turns the check off for development.
+  - On Windows the member list and its backups are encrypted for the Windows account (DPAPI, `src/dpapi_file.py`).
+  - Members' emails are shown only to owners and admins; /connect says whether the PC asked from the same network;
+    a removed Trusted Device's session is also refused on live channels and cleared in the browser; a failed Terms
+    acceptance is retried; device names leave the change log when an account is deleted; anonymous phone sign-ins
+    with no team are removed after 30 days.
+  - Website size headroom: unused CSS removed, the storage client left out of the browser build (CSS 22.9 KB, JS 373 KB).
 - Release signing switched on (sign-off H1): the owner's key `6e249884d5950a0b` is in `TRUSTED_KEYS`
   (`src/updater.py`). Programs from this release on accept only manifests signed with it, and a release tag without the
   `MANIFEST_SIGNING_KEY` secret stops before publishing.

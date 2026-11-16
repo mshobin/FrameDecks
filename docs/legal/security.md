@@ -18,7 +18,7 @@ yourself.
 | Removing a device | Its session is deleted and every request carrying it is refused before it runs |
 | Access control | PostgreSQL row-level security on every table |
 | Data at rest | AES-256 (database and storage, by our provider); nightly backups AES-256 with an HMAC-SHA256 integrity check |
-| Keys on the PC | Windows Credential Manager |
+| Keys on the PC | Windows Credential Manager; the member list on the PC and its backups encrypted for the Windows account (DPAPI) |
 | Updates | Downloaded only from framedecks.com hosts and checked against a SHA-256 fingerprint before installing |
 | Audit | Security events and workspace changes logged, kept one year |
 
@@ -82,6 +82,8 @@ code. We do not use Google, Microsoft or Apple to open workspaces.
 
 ## Linked PCs and the phone remote
 
+- **Opening your workspace on a phone from the PC.** When the PC shows a code to open your own workspace on a phone,
+  the phone also asks for a 6-digit code sent to your email, so a PC's key alone can never open your workspace.
 - **Linking a PC.**
   - A workspace owner or admin must allow the PC in the browser, with the same check number shown on both screens.
   - The PC makes its own 256-bit key, which never leaves the PC; the cloud stores only its SHA-256 hash.
@@ -102,12 +104,16 @@ code. We do not use Google, Microsoft or Apple to open workspaces.
   - The website's Live page listens on a private channel that only people allowed to run services can join (Realtime
     Authorization, checked by the database).
   - If the connection cannot be made, everything works as before, by asking.
-- **The program's own server.** It listens on the PC itself (127.0.0.1) for everything except the phone remote.
+- **The program's own server.** It listens on the PC itself (127.0.0.1) for everything except the phone remote. Its own
+  windows carry a key made on this PC, so another program or another Windows account on the same PC cannot change
+  anything or read member details; the overlay pages for OBS and other screens keep working without it.
 - **The phone remote on the local Wi-Fi.** It is off until you turn it on.
   - It asks for a 6-digit PIN. After 5 wrong PINs the device waits a minute, and each further 5 doubles the wait (up
     to an hour). 100 wrong PINs from all devices in 10 minutes make new devices wait; a device that has signed in
     with the right PIN before is not held up by another device's guesses.
-  - A correct PIN gives an `HttpOnly`, `SameSite=Strict` session for 30 days. New PIN ends every session.
+  - A correct PIN gives an `HttpOnly`, `SameSite=Strict` session for at most 7 days, ended after 12 hours unused. New PIN
+    ends every session.
+  - A phone runs the meeting (Frames, Next, show and hide, cards) but cannot replace the saved plan or library.
   - The phone remote uses plain HTTP on your local network, because a certificate a phone trusts cannot be issued for
     a home or church network address. Use it on a network you trust.
 
