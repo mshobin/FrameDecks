@@ -55,6 +55,7 @@ async function anonymousUser(uid, sql, params) {
 before(async () => {
   ({ db, as, denied } = await supabaseStandIn({ [ANA]: "ana@church.org", [BEN]: "ben@church.org", [ANON]: null }));
   await db.exec("grant execute on function public.device_code_redeem(text, text, text) to service_role");
+  await db.exec("grant execute on function public.device_code_confirm(text, text, text, boolean) to service_role");
   org = (await one(as(ANA, "insert into organizations(name, created_by) values ('Grace Church', $1) returning id", [ANA]))).id;
   await db.query("insert into memberships (organization_id, user_id, role) values ($1, $2, 'member'), ($1, $3, 'member') on conflict do nothing", [org, BEN, ANON]);
 });
@@ -94,7 +95,10 @@ test("Add a device on the PC: a code that signs the phone in as the person who c
   assert.ok(await denied(BEN, "select device_code_redeem($1)", [c.code]));
   // join_with_code (the anonymous way) never uses a self code
   assert.equal((await one(anonymousUser(ANON, "select join_with_code($1) as r", [c.code]))).r.status, "wrong");
-  const r = (await one(service("select device_code_redeem($1, '198.51.100.4', 'Ana iPhone') as r", [c.code]))).r;
+  // 26.11.58 (0029, release sign-off H2): a PC's code is used only after the account holder's emailed code
+  const ask = (await one(service("select device_code_redeem($1, '198.51.100.4', 'Ana iPhone') as r", [c.code]))).r;
+  assert.equal(ask.status, "confirm");
+  const r = (await one(service("select device_code_confirm($1, '198.51.100.4', 'Ana iPhone', true) as r", [c.code]))).r;
   assert.equal(r.status, "ok");
   assert.equal(r.email, "ana@church.org");
   assert.equal(r.userId, ANA);
