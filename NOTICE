@@ -9,6 +9,6 @@ those versions remain under that licence. Version 7.0 and later are proprietary.
 
 FrameDecks includes third-party software and assets under their own licences, which continue to apply to them. They
 are listed, with where to find each licence, in THIRD_PARTY_NOTICES.md. Components licensed under the Apache License
-2.0 (OpenCV, the MediaPipe selfie segmentation model, SheetJS Community Edition, pypdfium2) are used under that licence;
-their notices are reproduced there. pystray (LGPL-3.0) and the FFmpeg libraries inside OpenCV (LGPL-2.1) are shipped as
-separate, replaceable files in the program folder.
+2.0 (OpenCV, the MediaPipe selfie segmentation model, SheetJS Community Edition, pypdfium2, the Vosk speech engine
+and its English model) are used under that licence; their notices are reproduced there. pystray (LGPL-3.0) and the
+FFmpeg libraries inside OpenCV (LGPL-2.1) are shipped as separate, replaceable files in the program folder.

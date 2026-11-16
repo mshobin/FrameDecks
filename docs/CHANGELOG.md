@@ -17,6 +17,27 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ### Changed
 - Browser checks for Capture Chats, the website Plan workflow and the .frame round trip run in CI again.
+- Legal and privacy texts (release sign-off audit): the Privacy Policy describes members' phones (room, prayer
+  requests, polls, typed answers), what stays on the PC, the legal basis per purpose, who is responsible (church as
+  controller), data processing terms for churches, processors with regions and transfers, and children; the Security
+  page, Cookie Policy (every storage key), Terms and EULA (30 days' notice before anything free becomes paid, liability
+  carve-out, features that read copied text or hear sound) follow. "What is on screen never leaves the PC" is
+  corrected everywhere (program Sync and Security panels, landing page, FAQ). Governing law is still open.
+- Website: the prayer form says how long a request is held online; the members' page links the Privacy Policy; the
+  download steps say the installer is not code-signed yet and point to the SHA-256 check.
+- Vosk, its MinGW-w64 runtime and the English speech model are listed in the third-party notices and NOTICE.
+- New-device and sign-in alert emails quote the device and workspace names, cleaned and cut to 60 characters, and say
+  what FrameDecks never asks.
+
+### Security
+- Phone remote: a device that signed in with the right PIN before is not locked out by another device's guessing
+  (`known_devices`). The member list is flushed to disk on save (`write_atomic`). Importing a data folder no longer
+  brings the other installation's phone sign-ins.
+- Migration `0027_signoff_safe.sql` (owner applies; rollback in `supabase/rollback/`): unlinking a PC closes its
+  members' room and prayer wall at once and removes what they held; every SECURITY DEFINER function's search path ends
+  with `pg_temp`; Download my data adds Trusted Devices and security events; deleting an account removes the link
+  requests made with its address.
+- `vercel.json` sends the same security headers as Cloudflare Pages, in case that deployment is still served.
 
 ## [26.11.57] - 2026-11-15
 

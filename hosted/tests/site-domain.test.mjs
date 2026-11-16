@@ -43,3 +43,13 @@ test("the Pages address is never indexed", () => {
   const headers = readFileSync(new URL("../public/_headers", import.meta.url), "utf8");
   assert.match(headers, /https:\/\/:project\.pages\.dev\/\*\n {2}X-Robots-Tag: noindex/);
 });
+
+test("a Vercel deployment sends the same security headers as Cloudflare Pages", () => {
+  const headers = readFileSync(new URL("../public/_headers", import.meta.url), "utf8");
+  const all = headers.slice(headers.lastIndexOf("\n/*\n") + 4).split("\n").filter((l) => l.startsWith("  "))
+    .map((l) => l.trim().split(/: (.*)/s).slice(0, 2));
+  const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const site = vercel.headers.find((h) => h.source === "/(.*)").headers.map((h) => [h.key, h.value]);
+  assert.deepEqual(site, all);
+  for (const s of ["/auth/(.*)", "/sync"]) assert.equal(vercel.headers.find((h) => h.source === s).headers[0].value, "no-store");
+});

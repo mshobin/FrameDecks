@@ -89,7 +89,7 @@ const FEATURES = [
 ] as const;
 
 const FAQ = [
-  { q: "What does it cost?", a: "Nothing. FrameDecks is free to download and use, with no adverts and no tracking. Paid team features may come later; what is free stays free." },
+  { q: "What does it cost?", a: "Nothing. FrameDecks is free to download and use, with no adverts and no tracking. Paid team features may come later; anything free today will not become paid without at least 30 days’ notice." },
   {
     q: "Do we need a capture card or extra software?",
     a: "No. FrameDecks vCam appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
@@ -102,7 +102,7 @@ const FAQ = [
   { q: "Which computer do we need?", a: "A Windows 10 or 11 PC: the one that drives your screen or your stream. Planning works from any computer or phone." },
   {
     q: "Who can see our information?",
-    a: "Only the people on your team, by their role. Pictures, video, the camera and what is on screen never leave the presenting PC.",
+    a: "Only the people on your team, by their role. Your pictures, video files and the camera stay on the presenting PC. Members’ phones shows people in the meeting only what you choose to share, while the room is open.",
   },
   { q: "Can several people plan the same meeting?", a: "Yes. Invite people by email. Every change is kept for 30 days, so anything can be restored." },
 ] as const;

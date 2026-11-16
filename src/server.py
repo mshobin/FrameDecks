@@ -120,6 +120,8 @@ failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until 
 login_lock = threading.Lock()   # 9.1.2 one PIN check at a time: parallel guesses cannot slip past the lockout
 login_recent = []               # 9.1.2 times of wrong PINs from any device (the limit for all devices together)
 MAX_LOGIN_FAILS = 100           # wrong PINs from all devices in 10 minutes before everyone waits (slows a many-address attack)
+known_devices = set()           # 26.11.58 (audit L1) addresses that have signed in with the right PIN: not held up by the
+                                # limit for all devices, so another device's guessing cannot lock out the church's own phones
 MAX_PUBLIC_BODY = 4096          # 9.1.2 a request from a device that has not signed in (the PIN form) is small
 MAX_CONN_PER_IP = 24            # 9.1.2 open connections one other device may hold (the remote uses about 4)
 conn_lock = threading.Lock()
@@ -1530,9 +1532,7 @@ def load_private():
 
 def save_private(data):
     with private_lock:
-        tmp = PRIVATE_FILE.with_suffix(".tmp")
-        tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-        os.replace(tmp, PRIVATE_FILE)
+        write_atomic(PRIVATE_FILE, json.dumps(data, indent=2, ensure_ascii=False))   # 26.11.58 (audit L4) flushed to disk
     if "SYNC" in globals():
         SYNC.poke()
 
@@ -1970,7 +1970,8 @@ def _backup_loop():
         time.sleep(3600)
 
 
-DATA_FILE_NAMES = ["kc-saved-content.json", "kc-members-private.json", "kc-remote-pin.txt", "kc-remote-sessions.json"]
+# 26.11.58 (audit L5) the phone sign-ins of the other installation stay behind: phones sign in again with the PIN
+DATA_FILE_NAMES = ["kc-saved-content.json", "kc-members-private.json", "kc-remote-pin.txt"]
 
 
 def looks_like_data(folder):
@@ -3726,7 +3727,7 @@ class Handler(BaseHTTPRequestHandler):
             count, until = failures.get(ip, [0, 0])
             if until > now:
                 return self.reply(429, json.dumps({"error": "locked", "wait": int(until - now) + 1}), TYPES[".json"])
-            if len(login_recent) >= MAX_LOGIN_FAILS:          # too many wrong PINs from all devices together
+            if len(login_recent) >= MAX_LOGIN_FAILS and ip not in known_devices:   # too many wrong PINs from all devices
                 wait = int(600 - (now - login_recent[0])) + 1
                 return self.reply(429, json.dumps({"error": "locked", "wait": wait}), TYPES[".json"])
             if not secrets.compare_digest(pin.encode(), remote_pin().encode()):
@@ -3740,6 +3741,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(401, json.dumps({"error": "wrong pin"}), TYPES[".json"])
         with login_lock:
             failures.pop(ip, None)
+            known_devices.add(ip)
+            if len(known_devices) > 256:
+                known_devices.pop()
         token = secrets.token_urlsafe(32)
         with sessions_lock:
             sessions[token] = now + SESSION_DAYS * 86400

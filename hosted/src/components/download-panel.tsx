@@ -50,7 +50,7 @@ const NEEDS = [
 ];
 
 const STEPS = [
-  { title: "Download and open", text: "If Windows protects your PC, choose More info, then Run anyway." },
+  { title: "Download and open", text: "The installer is not code-signed yet, so Windows may warn you. Check its SHA-256 below, then choose More info, then Run anyway." },
   { title: "Keep the camera ticked", text: "“Install the FrameDecks vCam” needs one administrator prompt." },
   { title: "Follow the Setup guide", text: "FrameDecks opens with it. About ten minutes, then you are ready." },
 ];

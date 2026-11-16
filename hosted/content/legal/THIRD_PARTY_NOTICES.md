@@ -32,6 +32,9 @@ change, for anything new that ships.
 | lxml (with libxml2 and libxslt) | BSD-3-Clause; libxml2 and libxslt MIT | Used by python-pptx | https://github.com/lxml/lxml |
 | XlsxWriter | BSD-2-Clause | Used by python-pptx (charts) | https://github.com/jmcnamara/XlsxWriter |
 | MediaPipe selfie segmentation model | Apache-2.0 | Background blur | https://github.com/google-ai-edge/mediapipe |
+| Vosk speech engine (`voice_runtime/libvosk.dll`, includes Kaldi) | Apache-2.0 | Follow my voice, Listen for scripture (offline) | https://github.com/alphacep/vosk-api |
+| MinGW-w64 runtime (`libstdc++-6.dll`, `libgcc_s_seh-1.dll`, `libwinpthread-1.dll`, shipped with Vosk) | GPL-3.0 with the GCC Runtime Library Exception (programs that use it may use any licence); winpthreads MIT | Used by the speech engine | https://www.mingw-w64.org |
+| Vosk small English model (`vosk-model-small-en-us-0.15`, downloaded the first time voice features are used) | Apache-2.0 | Speech recognition | https://alphacephei.com/vosk/models |
 | SheetJS Community Edition (`app/vendor/xlsx.full.min.js`) | Apache-2.0 (`app/vendor/LICENSE-SheetJS.txt`) | Excel import and export | https://sheetjs.com |
 | Lucide icons | ISC (`app/vendor/LICENSE-lucide.txt`) | Icons | https://lucide.dev |
 | QR Code Generator for JavaScript (`app/vendor/qrcode.js`) | MIT, Copyright (c) 2009 Kazuhiko Arase | Phone remote QR code | https://github.com/kazuhikoarase/qrcode-generator |

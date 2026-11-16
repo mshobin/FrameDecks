@@ -135,6 +135,7 @@ class PinGuessing(unittest.TestCase):
     def setUp(self):
         server.failures.clear()
         server.login_recent.clear()
+        server.known_devices.clear()
 
     tearDown = setUp
 
@@ -185,6 +186,14 @@ class PinGuessing(unittest.TestCase):
         server.login_recent[:] = [time.time()] * server.MAX_LOGIN_FAILS
         self.assertEqual(self.login(server.remote_pin()), 429, "even the right PIN waits while many devices guess")
 
+    def test_a_phone_that_signed_in_before_is_not_locked_out_by_other_devices(self):
+        server.known_devices.discard("127.0.0.1")
+        self.assertEqual(self.login(server.remote_pin()), 200)
+        server.login_recent[:] = [time.time()] * server.MAX_LOGIN_FAILS
+        self.assertEqual(self.login(server.remote_pin()), 200, "a known device still signs in while others guess")
+        server.known_devices.discard("127.0.0.1")
+        self.assertEqual(self.login(server.remote_pin()), 429)
+
 
 class Files(unittest.TestCase):
     def test_settings_are_written_whole_or_not_at_all(self):
@@ -196,6 +205,8 @@ class Files(unittest.TestCase):
         src = (ROOT / "src" / "server.py").read_text(encoding="utf-8")
         for name in ("STUDIO_FILE", "APP_SETTINGS_FILE", "VCAM_SETTINGS_FILE", "SESSIONS_FILE", "PIN_FILE", "SCRIPTURE_FILE"):
             self.assertNotIn(name + ".write_text(", src, name)
+        self.assertIn("write_atomic(PRIVATE_FILE", src, "the member list is flushed to disk too")
+        self.assertNotIn("kc-remote-sessions.json", str(server.DATA_FILE_NAMES), "an import leaves the old phone sign-ins behind")
 
 
 class ChatCopies(unittest.TestCase):

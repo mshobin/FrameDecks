@@ -1,6 +1,6 @@
 # FrameDecks Terms of Service
 
-*Effective 29 October 2026 · Version 2026-10-29 · Wording updated 4 November 2026 (passwordless workspace; no change to what you agreed)*
+*Effective 29 October 2026 · Version 2026-10-29 · Wording updated 16 November 2026 (notice before paid features, liability wording)*
 
 These Terms cover your use of the FrameDecks website at framedecks.com, your FrameDecks workspaces, and the online
 services the FrameDecks program uses (opening your workspace with one-time links, Trusted Devices, workspace sync,
@@ -40,8 +40,8 @@ yours, overload or probe the Service (except as the Vulnerability Disclosure pol
 
 ## 5. Free service, and changes
 
-The Service is free today. We may add paid plans for extra team or cloud features; we will tell you before anything
-you use becomes paid, and you can keep using the free features. We may change or stop parts of the Service; when we
+The Service is free today. We may add paid plans for extra team or cloud features. Features that are free today will
+not become paid without at least 30 days' notice. We may change or stop parts of the Service; when we
 stop something you rely on, we will try to give 30 days' notice and a way to export your data.
 
 ## 6. Ending
@@ -54,7 +54,8 @@ Terms. When your data is deleted, it goes as the Privacy Policy describes.
 The Service is provided "as is" and "as available". The desktop program keeps working without the Service, so plan
 your gatherings so that an internet problem does not stop them. To the fullest extent the law allows, we are not
 liable for indirect or consequential losses, or for loss of data, and our total liability for the Service is limited
-to USD 50. Mandatory consumer rights where you live are not affected.
+to USD 50. Nothing in these Terms limits liability for death or personal injury caused by negligence, for fraud, or
+for anything else the law does not allow to be limited. Mandatory consumer rights where you live are not affected.
 
 ## 8. General
 

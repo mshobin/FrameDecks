@@ -1,6 +1,6 @@
 # FrameDecks Cookie Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 4 November 2026 (Trusted Devices)*
+*Effective 29 October 2026 · Version 2026-10-29 · Updated 16 November 2026 (all storage listed)*
 
 framedecks.com does not use advertising, analytics or tracking cookies. It stores only what it needs to work, in your
 browser's storage (local storage, or this tab's session storage until you trust the device):
@@ -14,6 +14,11 @@ browser's storage (local storage, or this tab's session storage until you trust 
 | `fd-theme`, `fd-effects` | Light or dark, and Reduce effects | Until you change them |
 | `framedecks-workspace`, `fd-guide`, `fd-pc-card-hidden` | The workspace you chose last, the Setup guide's progress, a hidden card | Until you change them |
 | `fd-after-sign-in` | Brings you back to a page (such as allowing a PC) after the one-time link | 15 minutes |
+| `fd-terms-accepted` | That you ticked the terms on the sign-up form, until your workspace records it | Read once after you open your workspace, at most a day |
+| `fd-seen`, `fd-passkey`, `fd-email-later` | That this browser opened a workspace before, and whether you saved a passkey or chose later | Until you change them |
+| `fd-plan-changes-…` | Plan changes made on this device that wait for Sync Now | Until they are synced or discarded |
+| `fd-voter` | On members' phones: a random number so each phone answers a poll or a question once (the website keeps only its hash) | Until you clear this site's data |
+| `framedecks-media` (IndexedDB) | Pictures you add to a plan in this browser, until they go into a .frame file | Until you remove them |
 | `fd-consent` | That you have seen this notice | One year |
 
 Cloudflare may set a strictly necessary security cookie (such as `__cf_bm`) to protect the site from abuse.

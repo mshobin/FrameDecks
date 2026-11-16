@@ -83,7 +83,9 @@ test("wrong codes are limited", async () => {
 });
 
 test("rollback removes 0020", async () => {
-  // rollbacks run newest first: 0026 (typed answers), 0025 (slides) and 0022 (polls in the room) are built on this room
+  // rollbacks run newest first: 0027 (rooms close when a PC is unlinked), 0026 (typed answers), 0025 (slides) and 0022
+  // (polls in the room) are built on this room
+  await db.exec(readFileSync(new URL("../supabase/rollback/0027_signoff_safe_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0026_room_answers_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0025_room_slides_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0022_room_polls_down.sql", import.meta.url), "utf8"));

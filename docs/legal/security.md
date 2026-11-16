@@ -1,10 +1,10 @@
 # Security at FrameDecks
 
-*Updated 10 November 2026 · Version 2026-10-29*
+*Updated 16 November 2026 · Version 2026-10-29*
 
-FrameDecks is built so that the most sensitive part of a gathering, what is on screen, never needs the internet. The
-program runs on your own PC. The website and its services carry only the plan and the people your workspace chooses
-to share. This page lists the protocols and controls we use, and the limits we know of, so you can judge them for
+FrameDecks is built so that presenting never needs the internet. The program runs on your own PC. The website and its
+services carry only the plan, the people your workspace chooses to share and, while you use Members' phones, what you
+choose to show on people's phones. This page lists the protocols and controls we use, and the limits we know of, so you can judge them for
 yourself.
 
 ## At a glance
@@ -24,10 +24,14 @@ yourself.
 
 ## Data protection
 
-- **Local first.** Pictures, videos, PDFs, PowerPoint files, audio, the camera picture and what is on screen stay on the
+- **Local first.** Your pictures, video files, PDFs, PowerPoint files, audio and the camera picture stay on the
   presenting PC. The program works fully offline.
 - **Only what is needed online.** A workspace's plan (Frame names and words), its member list, the names of its linked
-  PCs, and the names of its people's Trusted Devices. Nothing else is sent.
+  PCs, and the names of its people's Trusted Devices.
+- **Members' phones, only while you use them.** When you open a room, the words on screen, pictures of the PowerPoint
+  slides you show and the sermon notes you share are stored online until the room is closed or the next one is opened
+  (a room closes by itself after at most 12 hours). Prayer requests, poll answers and typed answers from phones pass
+  through the website; the Privacy Policy lists how long each is kept.
 - **Separated by workspace.** Every table in the database has row-level security. A person sees only the workspaces
   they belong to, and only what their role (owner, admin, member) allows. Linked PCs see only their own workspace.
   Tables that hold device tokens and security events have no direct access at all: they are reached only through
@@ -99,7 +103,8 @@ code. We do not use Google, Microsoft or Apple to open workspaces.
 - **The program's own server.** It listens on the PC itself (127.0.0.1) for everything except the phone remote.
 - **The phone remote on the local Wi-Fi.** It is off until you turn it on.
   - It asks for a 6-digit PIN. After 5 wrong PINs the device waits a minute, and each further 5 doubles the wait (up
-    to an hour). 100 wrong PINs from all devices in 10 minutes make everyone wait.
+    to an hour). 100 wrong PINs from all devices in 10 minutes make new devices wait; a device that has signed in
+    with the right PIN before is not held up by another device's guesses.
   - A correct PIN gives an `HttpOnly`, `SameSite=Strict` session for 30 days. New PIN ends every session.
   - The phone remote uses plain HTTP on your local network, because a certificate a phone trusts cannot be issued for
     a home or church network address. Use it on a network you trust.

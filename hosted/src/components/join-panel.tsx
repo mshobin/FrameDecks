@@ -321,7 +321,7 @@ function PrayerForm({ code }: Readonly<{ code: string }>) {
         Your first name (optional)
         <input value={name} maxLength={PRAYER_NAME_MAX} autoComplete="given-name" onChange={(e) => setName(e.target.value)} />
       </label>
-      <p className="auth-message">Leave your name empty to stay anonymous. The leader reads it first; nothing is kept online.</p>
+      <p className="auth-message">Leave your name empty and the leader won’t see who sent it. The leader reads it first. It is held online only until the church PC takes it in, at most 24 hours (<Link href="/privacy">Privacy</Link>).</p>
       <Button className="auth-primary" type="submit" disabled={busy || body.trim().length < 2}>
         {busy ? "Sending…" : "Send my request"}
       </Button>
@@ -744,6 +744,7 @@ function FollowCode({
           onCode={onCode}
           onBad={() => onBad("Meeting codes have 6 letters and numbers, shown on the meeting screen.")}
         />
+        <p className="auth-message">No account needed. You see only what the leader shares, while the meeting page is open (<Link href="/privacy">Privacy</Link>).</p>
         {problem && (
           <p className="auth-error" role="alert">
             {problem}

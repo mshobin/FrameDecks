@@ -30,9 +30,18 @@ function utc(at: string): string {
   return `${date}, ${time} UTC`;
 }
 
+// 26.11.58 (audit L14): a device or workspace name is typed by whoever connected it, so it is shown as a quoted name
+// only: control characters and line breaks become spaces, and it is cut to 60 characters.
+function named(v: string): string {
+  const t = (v || "").replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim();
+  return `"${t.length > 60 ? `${t.slice(0, 59)}…` : t}"`;
+}
+const NEVER_ASK = "FrameDecks never asks you to reply, call a number or open any link except framedecks.com.";
+
 type Alert = { status: string; kind: "pc" | "device" | "signin"; deviceName: string; createdAt: string; workspace: string; to: string[] };
 
-function message(a: Alert, site: string) {
+function message(raw: Alert, site: string) {
+  const a = { ...raw, deviceName: named(raw.deviceName), workspace: raw.workspace ? named(raw.workspace) : "" };
   if (a.kind === "signin") {
     // 26.11.38 (0024): an email code opened the workspace on a computer; this goes to that person alone
     const workspace = a.workspace || "Your workspace";
@@ -46,6 +55,8 @@ function message(a: Alert, site: string) {
         "",
         "Was this you? Nothing to do.",
         `Not you, or forgot to close it on a work computer? Open Devices on framedecks.com and choose Sign out other computers: ${site}/devices`,
+        "",
+        NEVER_ASK,
       ].join("\n"),
     };
   }
@@ -61,6 +72,7 @@ function message(a: Alert, site: string) {
     `If this wasn't you, remove it in Devices on framedecks.com: ${site}/devices`,
     "",
     "You get this email because you are an owner or admin of this workspace.",
+    NEVER_ASK,
   ].join("\n");
   return { subject, text };
 }

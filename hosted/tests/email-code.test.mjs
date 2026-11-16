@@ -76,3 +76,13 @@ test("the email carries only the code (no link for a work mail scanner to use up
   assert.match(html, /\{\{ \.Token \}\}/);
   assert.doesNotMatch(html, /ConfirmationURL|href=/);
 });
+
+test("names typed by whoever connected a device are quoted, cleaned and cut in alert emails", () => {
+  const fn = readFileSync(new URL("../supabase/functions/device-alert/index.ts", import.meta.url), "utf8");
+  const body = fn.slice(fn.indexOf("function named"), fn.indexOf("const NEVER_ASK"));
+  const named = new Function(`${body.replace(/: string/g, "")}; return named;`)();
+  assert.equal(named("Laptop\nCall +1 555 0100 now"), '"Laptop Call +1 555 0100 now"');
+  assert.equal(named("x".repeat(80)).length, 62, "60 characters and the quotes");
+  assert.match(fn, /deviceName: named\(raw\.deviceName\)/);
+  assert.equal((fn.match(/NEVER_ASK,/g) || []).length, 2, "both kinds of alert say what FrameDecks never asks");
+});
