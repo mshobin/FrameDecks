@@ -15,7 +15,8 @@ import { userSafeError } from "@/lib/user-error";
 // sees which PC asked, how long ago and its check number, picks a workspace and allows it. The PC learns the answer
 // from its own poll (computer_link_poll); nothing secret passes through this page or the framedecks:// link.
 
-type Peek = { status: "pending"; name: string; ageSeconds: number } | { status: "expired" | "unknown" };
+// 26.11.58 (release sign-off L9, 0029): sameNetwork says whether the PC asked from this browser's network (null: unknown)
+type Peek = { status: "pending"; name: string; ageSeconds: number; sameNetwork?: boolean | null } | { status: "expired" | "unknown" };
 type Phase = "ready" | "approving" | "done" | "cancelled";
 
 function ago(seconds: number) {
@@ -197,9 +198,15 @@ export function ConnectPanel() {
         </li>
       </ul>
       <p className="fd-connect-meta">
-        {peek?.status === "pending" ? `Asked ${ago(peek.ageSeconds)}. ` : ""}Pictures, video and what is on screen stay
-        on the PC. You can remove it any time under Devices.
+        {peek?.status === "pending" ? `Asked ${ago(peek.ageSeconds)}${peek.sameNetwork ? ", from the same network as this browser" : ""}. ` : ""}
+        Pictures, video and what is on screen stay on the PC. You can remove it any time under Devices.
       </p>
+      {peek?.status === "pending" && peek.sameNetwork === false && (
+        <p className="auth-error">
+          This request came from a different network than this browser. Allow it only if you can see {pcName} and it shows
+          check number {check ?? "…"}. If someone sent you this link, choose Cancel.
+        </p>
+      )}
       {problem && (
         <p className="auth-error" role="alert">
           {problem}

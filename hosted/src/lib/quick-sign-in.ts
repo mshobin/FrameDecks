@@ -16,6 +16,7 @@ const ANSWERS: Record<string, string> = {
   wrong: "That code doesn’t match. Scan the code on the other screen again. (FD-CLD-01)",
   expired: "This code has run out. Codes last 2 minutes and work once: show a fresh one and scan again.",
   "too-many": "Too many wrong codes from this network. Wait an hour, then try again.",
+  "otp-used-up": "Too many wrong codes from the email. Show a fresh code on the PC and scan it again.", // 26.11.58 (H2)
 };
 
 let features: Promise<AuthFeatures> | null = null;
@@ -35,21 +36,36 @@ export function authFeatures(): Promise<AuthFeatures> {
   return features;
 }
 
-/** Add a device: turns the scanned code into this browser's session. Answers a message when it failed. */
+/** Add a device: turns the scanned code into this browser's session. Answers a message when it failed.
+ * 26.11.58 (release sign-off H2): a code made by a church PC first answers `confirm` with the account holder's masked
+ * address; they get a 6-digit code by email, and calling again with it (otp) signs this browser in. */
 export async function signInWithCode(
   supabase: SupabaseClient,
   code: string,
   device: string,
-): Promise<{ organizationId?: string; problem?: string }> {
-  const { data, error } = await supabase.functions.invoke("device-sign-in", { body: { code, device } });
+  otp?: string,
+): Promise<{ organizationId?: string; problem?: string; confirm?: { who: string | null; sent: boolean } }> {
+  const { data, error } = await supabase.functions.invoke("device-sign-in", { body: otp ? { code, device, otp } : { code, device } });
   if (error) {
     const status = (error as { context?: { status?: number } }).context?.status;
     return { problem: status === 404 || error.name === "FunctionsRelayError" ? NOT_SET_UP : "Couldn’t open your workspace. Check your connection and try again." };
   }
-  const answer = data as { status: string; tokenHash?: string; organizationId?: string };
+  const answer = data as { status: string; tokenHash?: string; accessToken?: string; refreshToken?: string; organizationId?: string; who?: string | null; sent?: boolean; left?: number };
+  if (answer.status === "confirm") return { confirm: { who: answer.who ?? null, sent: answer.sent !== false } };
+  if (answer.status === "otp-wrong") return { problem: otpWrong(answer.left) };
+  if (answer.status === "ok" && answer.accessToken && answer.refreshToken) {
+    const { error: set } = await supabase.auth.setSession({ access_token: answer.accessToken, refresh_token: answer.refreshToken });
+    return set ? { problem: "Couldn’t open your workspace. Scan a fresh code and try again." } : { organizationId: answer.organizationId };
+  }
   if (answer.status !== "ok" || !answer.tokenHash) return { problem: ANSWERS[answer.status] ?? NOT_SET_UP };
-  const { error: otp } = await supabase.auth.verifyOtp({ token_hash: answer.tokenHash, type: "magiclink" });
-  return otp ? { problem: "Couldn’t open your workspace. Scan a fresh code and try again." } : { organizationId: answer.organizationId };
+  const { error: link } = await supabase.auth.verifyOtp({ token_hash: answer.tokenHash, type: "magiclink" });
+  return link ? { problem: "Couldn’t open your workspace. Scan a fresh code and try again." } : { organizationId: answer.organizationId };
+}
+
+/** 26.11.58 (H2): wrong digits from the email; the scanned code still works until the fifth wrong try. */
+export function otpWrong(left?: number): string {
+  const tries = left ? ` ${left} ${left === 1 ? "try" : "tries"} left.` : "";
+  return `That code doesn’t match the one in the email.${tries} Check the 6 digits and try again.`;
 }
 
 /** Connect this PC: a 2-minute grant for the program, opened through its framedecks:// link. */

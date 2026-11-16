@@ -131,6 +131,12 @@ export function deviceName(ua: string = globalThis.navigator?.userAgent ?? ""): 
   return `${browser} on ${system}`;
 }
 
+/** 26.11.58 (release sign-off L12): the Data API's refusal for a removed or expired Trusted Device's session (0015
+ * check_trusted_session). Seen on any request, it ends the session here at once instead of at the next device check. */
+export function isUntrustedAnswer(status: number, body: string): boolean {
+  return (status === 401 || status === 403) && body.includes("no longer trusted");
+}
+
 /** What a device-check answer means for the person. */
 export function statusMessage(status: DeviceStatus): string | null {
   if (status === "revoked") return "This device was removed from your workspace. Open your workspace again to continue here.";

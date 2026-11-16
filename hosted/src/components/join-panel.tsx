@@ -5,13 +5,17 @@ import "@/app/join.css";
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import { CodeBoxes } from "@/components/code-boxes";
 import { ConnectSteps, settle, type StepState } from "@/components/connect-steps";
 import { SlidePicture, SlideViewer, useShownSlides, type ShownSlide } from "@/components/follow-slides";
 import { Button } from "@/components/ui/button";
 import { codeFromHash, codeProblem, guessDeviceName, isShortCode, tidyCode, type JoinRole } from "@/lib/join-code";
 import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
 import { signInWithCode } from "@/lib/quick-sign-in";
-import { TERMS_VERSION } from "@/lib/legal";
+import { CODE_LENGTH } from "@/lib/email-code";
+import { TERMS_VERSION, legalNotSetUp, rememberAcceptance } from "@/lib/legal";
 import { PRAYER_MAX, PRAYER_NAME_MAX, isPrayerCode, prayerCodeFromHash, tidyPrayerCode } from "@/lib/prayer-code";
 import { percentages, tidyResponse, voterId, type RoomResponse } from "@/lib/room-responses";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -26,6 +30,21 @@ type Peek =
 
 const TOO_MANY = "Too many wrong codes from this device or network. Wait an hour, then try again.";
 const CHECK_FAILED = "Couldn’t check the code. Check your connection and try again.";
+
+/** 26.11.58 (release sign-off L17): the Terms tick is recorded; a failure is tried again once, then kept on this device
+ * so the Terms screen records it when the workspace opens (legal-gate.tsx) or asks again there. A database without
+ * accept_terms (0011 not run) needs nothing. */
+async function recordTerms(supabase: SupabaseClient) {
+  for (let i = 0; i < 2; i++) {
+    const { error } = await supabase.rpc("accept_terms", { version: TERMS_VERSION }).then((r) => r, (e: { message?: string }) => ({ error: e }));
+    if (!error || legalNotSetUp(error)) return;
+  }
+  try {
+    rememberAcceptance(localStorage);
+  } catch {
+    /* storage blocked: the Terms screen asks again */
+  }
+}
 
 /** 26.11.12 /join: a phone scanned the QR code shown by the church PC or by a device already in (/join#c=CODE), or a
  * code is typed. The code is looked at first, with no session, so a wrong code never makes a new device. */
@@ -45,6 +64,9 @@ export function JoinPanel() {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [opened, setOpened] = useState<string | null>(null);
+  // 26.11.58 (release sign-off H2): a code from a church PC waits for the account holder's emailed 6-digit code
+  const [confirm, setConfirm] = useState<{ who: string | null; sent: boolean } | null>(null);
+  const [otp, setOtp] = useState("");
 
   const look = useCallback(
     async (c: string) => {
@@ -96,18 +118,22 @@ export function JoinPanel() {
     await finishDevice(supabase!, name.trim() || guessDeviceName(), (fresh || peek?.status === "self") && !shared, organizationId);
   };
 
-  async function join(event?: FormEvent<HTMLFormElement>) {
+  async function join(event?: FormEvent<HTMLFormElement>, digits = otp, again = false) {
     event?.preventDefault();
     if (!supabase || !code || busy || (needTerms && !agreed)) return;
+    if (confirm && !again && digits.length < CODE_LENGTH) return;
     setBusy(true);
     setProblem(null);
     const deviceName = name.trim() || guessDeviceName();
     if (peek?.status === "self") {
-      // 26.11.26 Add a device: this phone signs in as the person themselves (no guest account, no approval)
-      const done = await signInWithCode(supabase, code, deviceName);
-      if (done.problem) {
+      // 26.11.26 Add a device: this phone signs in as the person themselves (no guest account). 26.11.58 (H2): a code
+      // from a church PC first asks the account holder for the 6-digit code emailed to them.
+      const done = await signInWithCode(supabase, code, deviceName, confirm && !again ? digits : undefined);
+      setOtp("");
+      if (done.confirm || done.problem) {
         setBusy(false);
-        setProblem(done.problem);
+        if (done.confirm) setConfirm(done.confirm);
+        setProblem(done.problem ?? null);
         return;
       }
       await openAs(done.organizationId);
@@ -119,7 +145,7 @@ export function JoinPanel() {
       setProblem(started);
       return;
     }
-    if (needTerms && agreed) await supabase.rpc("accept_terms", { version: TERMS_VERSION }).then(() => undefined, () => undefined);
+    if (needTerms && agreed) await recordTerms(supabase);
     const { data, error } = await supabase.rpc("join_with_code", { code, device_name: deviceName, ...(org ? { org } : {}) });
     if (error) {
       setBusy(false);
@@ -145,21 +171,26 @@ export function JoinPanel() {
     await openAs(answer.organizationId, teams?.find((t) => t.id === answer.organizationId)?.name);
   }
 
-  // 26.11.37 the way in as a flowchart: the code, this device, the workspace opening
+  // 26.11.37 the way in as a flowchart: the code, this device, the workspace opening (26.11.58: a PC's code adds the
+  // account holder's emailed code)
   const plan: string[] | null =
     peek?.status === "self"
-      ? [peek.byPc ? "Your PC made a one-time code" : "A one-time code for you", `This browser opens as ${peek.who || "you"}`, `${peek.team} opens`]
+      ? peek.byPc
+        ? ["Your PC made a one-time code", `${peek.who || "You"} confirms with a code from email`, `This browser opens as ${peek.who || "you"}`, `${peek.team} opens`]
+        : ["A one-time code for you", `This browser opens as ${peek.who || "you"}`, `${peek.team} opens`]
       : peek?.status === "pc"
         ? [`${peek.pc} shows a code`, "This device joins as the owner", `${peek.pc} connects to your workspace`, "Your workspace opens"]
         : peek?.status === "invite"
           ? [`An invitation to ${peek.team}`, `This device joins as ${peek.role === "admin" ? "an Admin" : "a Helper"}`, `${peek.team} opens`]
           : null;
+  // how many steps are done: the code; then (a PC's code) the emailed code once it is being checked; then this device
+  const at = opened ? (plan?.length ?? 0) : peek?.status === "self" && peek.byPc ? (busy && confirm ? 2 : 1) : busy ? 2 : 1;
   const flow = plan && (
     <ConnectSteps
       label="Opening your workspace"
       team={opened}
       name={peek && "team" in peek ? peek.team : null}
-      steps={plan.map((t, i): [string, StepState] => [t, opened || i === 0 || (busy && i === 1) ? "done" : i === (busy ? 2 : 1) ? "now" : "next"])}
+      steps={plan.map((t, i): [string, StepState] => [t, i < at ? "done" : i === at ? "now" : "next"])}
     />
   );
 
@@ -189,7 +220,8 @@ export function JoinPanel() {
       {peek?.status === "self" && (
         <p className="jc-ask">
           This device opens your workspace as {peek.who ? <strong>{peek.who}</strong> : "you"}
-          {peek.byPc ? ", from your church PC." : "."} Nothing to type, nothing to remember.
+          {/* 26.11.58 (H2): a PC's code is confirmed with a code from that person's email */}
+          {peek.byPc ? ", from your church PC, once a code from that email confirms it." : ". Nothing to type, nothing to remember."}
         </p>
       )}
       {peek?.status === "pc" && (
@@ -208,7 +240,29 @@ export function JoinPanel() {
         </p>
       )}
 
-      {ready && !teams && (
+      {confirm && (
+        <form onSubmit={(e) => void join(e)}>
+          <p className="jc-ask" role="status">
+            {confirm.sent ? (
+              <>
+                We emailed a 6-digit code to <strong>{confirm.who ?? "the person this code opens as"}</strong> to confirm it’s you.
+              </>
+            ) : (
+              "The email with your code couldn’t be sent just now. Wait a minute, then choose Send a new code."
+            )}
+          </p>
+          <p className="jc-note">This code came from a church PC, so the person it opens as confirms first. If that isn’t you, ask them for the code.</p>
+          <CodeBoxes value={otp} onChange={setOtp} onComplete={(d) => void join(undefined, d)} disabled={busy} />
+          <Button className="auth-primary" type="submit" disabled={busy || otp.length < CODE_LENGTH}>
+            {busy ? "Opening…" : "Confirm and open"}
+          </Button>
+          <button className="auth-link" type="button" disabled={busy} onClick={() => void join(undefined, "", true)}>
+            Send a new code
+          </button>
+        </form>
+      )}
+
+      {ready && !teams && !confirm && (
         <form onSubmit={join}>
           <label className="jc-field">
             Name this device

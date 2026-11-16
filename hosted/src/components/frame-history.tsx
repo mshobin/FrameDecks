@@ -24,8 +24,9 @@ export async function loadNames(organizationId: string): Promise<Names> {
     supabase.from("computers").select("id, name").eq("organization_id", organizationId),
     supabase.rpc("remote_computers", { org: organizationId }),
   ]);
-  for (const p of (people.data as { user_id: string; display_name: string | null; email: string }[] | null) ?? []) {
-    names.people[p.user_id] = p.display_name || p.email;
+  for (const p of (people.data as { user_id: string; display_name: string | null; email: string | null }[] | null) ?? []) {
+    const name = p.display_name || p.email; // 26.11.58 (0029): email only for owners and admins
+    if (name) names.people[p.user_id] = name;
   }
   const computers = [...((pcs.data as { id: string; name: string }[] | null) ?? []), ...((live.data as { id: string; name: string }[] | null) ?? [])];
   for (const c of computers) names.computers[c.id] = c.name;

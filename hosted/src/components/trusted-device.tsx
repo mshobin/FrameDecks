@@ -5,7 +5,7 @@ import "@/app/devices.css"; // 9.8 loaded only with these components
 import { useCallback, useEffect, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 
-import { browserSupabase } from "@/lib/supabase-browser";
+import { browserSupabase, leaveUntrusted } from "@/lib/supabase-browser";
 import {
   ASKED_KEY,
   clearTrust,
@@ -17,7 +17,6 @@ import {
   writeTrust,
   type DeviceStatus,
 } from "@/lib/trusted-device";
-import { clearLocalSession } from "@/lib/sign-out";
 import { useSession } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
 
@@ -47,13 +46,7 @@ export function TrustedDeviceGuard() {
         gone = true;
         clearTrust();
         await supabase!.auth.signOut({ scope: "local" }).catch(() => undefined);
-        try {
-          clearLocalSession(localStorage);
-          clearLocalSession(sessionStorage);
-        } catch {
-          /* storage blocked */
-        }
-        window.location.replace(`/sync?reason=${status}`);
+        leaveUntrusted(status); // 26.11.58 (L12): the same clean-up as a refused request (lib/supabase-browser.ts)
       }
     }
     check();

@@ -151,3 +151,29 @@ Tests: `hosted/tests/supabase-0023.test.mjs` (PGlite).
    "Your FrameDecks code: {{ .Token }}".
 3. Redeploy the Edge Function `device-alert` (it now also writes the sign-in email).
 
+
+## 7. A PC's code asks the account holder first (26.11.58, release sign-off H2)
+
+Before, anyone who held a church PC's key could make an Add a device code and open the website as the person who
+connected that PC. Now (migration `0029_cloud_hardening.sql`, the owner chose "the account holder approves"):
+
+- A `self` code **made by a PC** (`join_codes.computer_id` set) is not used by `device_code_redeem`. It answers
+  `confirm`, the Edge Function `device-sign-in` emails that person a one-time 6-digit code (`auth.signInWithOtp`,
+  `shouldCreateUser: false`, the same email as the email sign-in) and the phone sees only the masked address
+  ("We emailed a 6-digit code to a•••@church.org to confirm it's you"). The code then lasts 10 minutes; at most one
+  email a minute.
+- The phone sends the 6 digits back. The function looks the address up again (`device_code_confirm_email`, nothing is
+  used), Supabase Auth checks the digits (`verifyOtp({ email, token, type: "email" })` with the anon key), and only then
+  `device_code_confirm(..., otp_ok => true)` uses the code. The phone gets that session (`setSession`). Wrong digits
+  are counted (`otp_ok => false`), never use the code, count against the network like wrong codes, and the fifth ends
+  the code.
+- A code made **on the website** by a signed-in person (Devices → Add a device) is unchanged: one step, magic link.
+- "Open in this PC's browser" (section 5) now also asks for the emailed code.
+
+Owner steps, in this order: (1) deploy the website (it understands the new answers and works with the old function
+and database); (2) redeploy `device-sign-in` (`supabase functions deploy device-sign-in --no-verify-jwt`; it reads the
+default `SUPABASE_ANON_KEY`); (3) run `hosted/supabase/migrations/0029_cloud_hardening.sql` (undo:
+`hosted/supabase/rollback/0029_cloud_hardening_down.sql`). The PC's code asks for the email code from step (3) on. Run
+(3) first instead if the gap must close at once: until (1) and (2) are done, a PC's code then shows "Opening by scanning
+isn't set up" on the phone, never a sign-in without the email code. Tests: `hosted/tests/supabase-0029.test.mjs`,
+`hosted/tests/device-confirm.test.mjs`.
