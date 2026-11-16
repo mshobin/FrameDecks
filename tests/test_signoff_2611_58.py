@@ -1,9 +1,10 @@
 """FrameDecks 26.11.58 release sign-off hardening: phone sign-ins end after a week or 12 idle hours (M1), a phone runs
-the meeting but never replaces the plan (M2), and requests from this PC need the program's own key except what
-overlays and OBS read (L2)."""
+the meeting but never replaces the plan (M2), requests from this PC need the program's own key except what overlays
+and OBS read (L2), and the member file is encrypted for the Windows account (L3; DPAPI is mocked here)."""
 import http.client
 import json
 import os
+import shutil
 import sys
 import tempfile
 import threading
@@ -20,6 +21,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("KC_DATA_DIR", tempfile.mkdtemp(prefix="kc-test-"))
 os.environ["FRAMEDECKS_SECRET_STORE"] = "file"
+import dpapi_file  # noqa: E402
 import server  # noqa: E402
 
 DAY = 86400
@@ -423,6 +425,120 @@ class LocalKey(unittest.TestCase):
         with mock.patch.dict(os.environ, {"KC_LOCAL_TOKEN": "off"}):
             self.assertEqual(self.srv.call("GET", "/api/private")[0], 200)
             self.assertEqual(server.local_url("http://localhost:8750"), "http://localhost:8750/")
+
+
+# ---------------------------------------------------------------- L3
+def _fake_protect(b):
+    return b"BLOB" + bytes(x ^ 0x5A for x in b)
+
+
+def _fake_unprotect(b):
+    if not b.startswith(b"BLOB"):
+        raise OSError(13, "The data is invalid")
+    return bytes(x ^ 0x5A for x in b[4:])
+
+
+class MemberFileEncrypted(unittest.TestCase):
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp(prefix="kc-dpapi-"))
+        self.addCleanup(shutil.rmtree, self.dir, True)
+        for p in (mock.patch.object(server, "PRIVATE_FILE", self.dir / "kc-members-private.json"),
+                  mock.patch.object(server, "BACKUP_DIR", self.dir / "backups"),
+                  mock.patch.object(dpapi_file, "available", lambda: True),
+                  mock.patch.object(dpapi_file, "protect", _fake_protect),
+                  mock.patch.object(dpapi_file, "unprotect", _fake_unprotect)):
+            p.start()
+            self.addCleanup(p.stop)
+        server.PRIVATE_STATUS["error"] = ""
+        self.addCleanup(server.PRIVATE_STATUS.update, {"error": ""})
+        self.people = {"members": [{"id": "1", "name": "Ruth", "phone": "0123"}], "settings": {"groupName": "Home group"}}
+
+    def test_saved_encrypted_and_read_back(self):
+        server.save_private(self.people)
+        raw = server.PRIVATE_FILE.read_bytes()
+        self.assertTrue(raw.startswith(b"FDDPAPI1\n"))
+        self.assertNotIn(b"Ruth", raw)
+        self.assertEqual(server.load_private(), self.people)
+
+    def test_a_plain_file_from_an_earlier_version_is_read_and_encrypted_on_the_next_save(self):
+        server.PRIVATE_FILE.write_text(json.dumps(self.people), encoding="utf-8")
+        self.assertEqual(server.load_private(), self.people)
+        server.save_private(server.load_private())
+        self.assertTrue(dpapi_file.is_protected(server.PRIVATE_FILE.read_bytes()))
+        self.assertEqual(server.load_private(), self.people)
+
+    def test_start_up_encrypts_the_file_and_old_backups_keeping_their_dates(self):
+        server.PRIVATE_FILE.write_text(json.dumps(self.people), encoding="utf-8")
+        old = server.BACKUP_DIR / "2026-11-01"
+        old.mkdir(parents=True)
+        (old / "kc-members-private.json").write_text(json.dumps(self.people), encoding="utf-8")
+        os.utime(old / "kc-members-private.json", (1_700_000_000, 1_700_000_000))
+        os.utime(old, (1_700_000_000, 1_700_000_000))
+        server.protect_private_files()
+        self.assertTrue(dpapi_file.is_protected(server.PRIVATE_FILE.read_bytes()))
+        self.assertTrue(dpapi_file.is_protected((old / "kc-members-private.json").read_bytes()))
+        self.assertEqual(int(old.stat().st_mtime), 1_700_000_000, "the backup keeps its place in the list")
+        self.assertEqual(json.loads(dpapi_file.read_text(old / "kc-members-private.json")), self.people)
+
+    def test_backups_hold_the_encrypted_copy_and_restore_on_the_same_account(self):
+        server.PRIVATE_FILE.write_text(json.dumps(self.people), encoding="utf-8")   # even before it was re-saved
+        name = server.backup_now("t1")
+        copy = server.BACKUP_DIR / name / "kc-members-private.json"
+        self.assertTrue(dpapi_file.is_protected(copy.read_bytes()))
+        server.save_private({"members": []})
+        shutil.copy2(copy, server.PRIVATE_FILE)                      # restore: the backup copied back
+        self.assertEqual(server.load_private(), self.people)
+
+    def test_a_file_that_cannot_be_decrypted_is_kept_and_never_replaced(self):
+        bad = b"FDDPAPI1\n" + b"from another Windows account"
+        server.PRIVATE_FILE.write_bytes(bad)
+        with mock.patch("sys.stderr", io.StringIO()) as err:
+            self.assertEqual(server.load_private(), {}, "callers that only read get nothing")
+        self.assertIn("load_private", err.getvalue(), "logged")
+        self.assertTrue(server.PRIVATE_STATUS["error"])
+        with self.assertRaises(dpapi_file.Unreadable):
+            server.save_private({"members": []})
+        self.assertEqual(server.PRIVATE_FILE.read_bytes(), bad, "the file is untouched")
+        server.protect_private_files()
+        self.assertEqual(server.PRIVATE_FILE.read_bytes(), bad)
+        self.assertIsNone(server._sync_read()[1], "sync treats the members as unknown, never as none")
+        with self.assertRaises(dpapi_file.Unreadable):
+            server._sync_write(lambda plan, members: (plan, []))
+        self.assertEqual(server.PRIVATE_FILE.read_bytes(), bad)
+
+    def test_the_members_page_hears_about_it(self):
+        bad = b"FDDPAPI1\n" + b"garbage"
+        server.PRIVATE_FILE.write_bytes(bad)
+        srv = _Server()
+        try:
+            status, raw, _ = srv.call("GET", "/api/private", headers=KEY)
+            self.assertEqual(status, 503)
+            self.assertEqual(json.loads(raw)["code"], "private-unreadable")
+            status, raw, _ = srv.call("POST", "/api/private", {"members": []}, KEY)
+            self.assertEqual(status, 409)
+            self.assertEqual(json.loads(raw)["code"], "private-unreadable")
+        finally:
+            srv.close()
+        self.assertEqual(server.PRIVATE_FILE.read_bytes(), bad)
+
+    def test_plain_json_on_other_systems(self):
+        with mock.patch.object(dpapi_file, "available", lambda: False):
+            server.save_private(self.people)
+            self.assertEqual(json.loads(server.PRIVATE_FILE.read_text(encoding="utf-8")), self.people)
+            server.PRIVATE_FILE.write_bytes(b"FDDPAPI1\n" + _fake_protect(b"{}"))
+            with self.assertRaises(dpapi_file.Unreadable):
+                server.load_private_strict()
+
+
+class WindowsOnly(unittest.TestCase):
+    def test_the_real_windows_call_is_only_made_on_windows(self):
+        self.assertEqual(dpapi_file.available(), os.name == "nt")
+        if os.name != "nt":
+            self.assertEqual(dpapi_file.encode('{"a": 1}'), b'{"a": 1}')
+        src = (ROOT / "src" / "dpapi_file.py").read_text(encoding="utf-8")
+        self.assertIn("CryptProtectData", src)
+        self.assertIn("CryptUnprotectData", src)
+        self.assertIn("LocalFree", src)
 
 
 if __name__ == "__main__":

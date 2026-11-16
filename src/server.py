@@ -54,6 +54,7 @@ import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only w
 import scripture_listen   # 26.11.14 Listen for scripture (only while it is on and a Frame is live)
 import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, live and held)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
+import dpapi_file   # 26.11.58 (release sign-off L3): the member file encrypted for this Windows account
 
 APP_VERSION = "26.11.57"
 STARTED_AT = time.time()
@@ -135,7 +136,7 @@ def write_atomic(path, text):
     file next to it, flushed to disk, then swapped in."""
     path = Path(path)
     tmp = path.with_name(path.name + ".tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
+    with (open(tmp, "wb") if isinstance(text, bytes) else open(tmp, "w", encoding="utf-8")) as f:   # 26.11.58 bytes too
         f.write(text)
         f.flush()
         os.fsync(f.fileno())
@@ -1738,23 +1739,68 @@ def diagnostics(address):
 
 
 private_lock = threading.Lock()
+# 26.11.58 (release sign-off L3): kc-members-private.json is encrypted for this Windows account (src/dpapi_file.py;
+# plain JSON on other systems). A file from an earlier version is read as it is and written encrypted at start-up and
+# on the next save. A file that can't be decrypted (another Windows account, another PC) is kept untouched: the
+# Members page says it couldn't load, and nothing replaces it (save_private refuses) until it is readable again.
+PRIVATE_STATUS = {"error": ""}
+
+
+def load_private_strict():
+    """The member file as a dict ({} when there is none). Raises dpapi_file.Unreadable when it can't be decrypted."""
+    try:
+        raw = PRIVATE_FILE.read_bytes()
+    except FileNotFoundError:
+        PRIVATE_STATUS["error"] = ""
+        return {}
+    try:
+        data = json.loads(dpapi_file.decode(raw))
+    except dpapi_file.Unreadable as e:
+        if PRIVATE_STATUS["error"] != str(e):
+            _swallowed("server.load_private " + PRIVATE_FILE.name, e)
+        PRIVATE_STATUS["error"] = str(e)
+        raise
+    except ValueError:
+        data = None
+    PRIVATE_STATUS["error"] = ""
+    return data if isinstance(data, dict) else {}
 
 
 def load_private():
     try:
-        data = json.loads(PRIVATE_FILE.read_text(encoding="utf-8"))
-        if isinstance(data, dict):
-            return data
-    except (OSError, ValueError):
-        pass
-    return {}
+        return load_private_strict()
+    except OSError:
+        return {}
 
 
 def save_private(data):
     with private_lock:
-        write_atomic(PRIVATE_FILE, json.dumps(data, indent=2, ensure_ascii=False))   # 26.11.58 (audit L4) flushed to disk
+        if PRIVATE_FILE.exists():
+            load_private_strict()                    # an unreadable file is never replaced (raises Unreadable)
+        write_atomic(PRIVATE_FILE, dpapi_file.encode(json.dumps(data, indent=2, ensure_ascii=False)))   # (audit L4) flushed
     if "SYNC" in globals():
         SYNC.poke()
+
+
+def protect_private_files():
+    """At start-up on Windows: the member file and its copies in backups/ written by earlier versions (plain JSON)
+    become encrypted. A file that can't be read is left as it is."""
+    if not dpapi_file.available():
+        return
+    try:
+        if PRIVATE_FILE.exists() and not dpapi_file.is_protected(PRIVATE_FILE.read_bytes()):
+            save_private(load_private_strict())
+    except (OSError, ValueError) as e:
+        _swallowed("server.protect_private_files", e)
+    try:
+        copies = list(BACKUP_DIR.glob("*/" + PRIVATE_FILE.name)) if BACKUP_DIR.is_dir() else []
+    except OSError:
+        copies = []
+    for f in copies:
+        try:
+            dpapi_file.protect_file(f)
+        except (OSError, ValueError) as e:
+            _swallowed("server.protect_private_files backup", e)
 
 
 # ---------- Phase 4: syncing service plans (src/cloud_sync.py; docs/architecture/metadata-sync.md) ----------
@@ -1771,7 +1817,7 @@ def _sync_read():
 def _sync_write(change):
     """Apply changes from the workspace to the latest plan and member list, through the normal save path."""
     with cond:
-        private = load_private()
+        private = load_private_strict()          # 26.11.58 (release sign-off L3): unreadable member file: change nothing
         current = json.loads(json.dumps(state))
         plan, members = change(json.loads(json.dumps(current)), list(private.get("members") or []))
         plan.pop("rev", None)
@@ -2169,6 +2215,11 @@ def backup_now(tag=""):
         folder.mkdir(parents=True, exist_ok=True)
         for f in files:
             shutil.copy2(f, folder / f.name)
+            if f == PRIVATE_FILE:                 # 26.11.58 (release sign-off L3): the copy is encrypted too (Windows)
+                try:
+                    dpapi_file.protect_file(folder / f.name)
+                except (OSError, ValueError) as e:
+                    _swallowed("server.backup_now protect", e)
         dirs = sorted((d for d in BACKUP_DIR.iterdir() if d.is_dir()), key=lambda d: d.stat().st_mtime, reverse=True)
         for old in dirs[KEEP_BACKUPS:]:
             shutil.rmtree(old, ignore_errors=True)
@@ -2205,8 +2256,8 @@ def _describe(folder):
         if f:
             info["modified"] = max(info["modified"], f.stat().st_mtime)
     try:
-        info["members"] = len(json.loads(legacy.find(folder, DATA_FILE_NAMES[1]).read_text(encoding="utf-8")).get("members") or [])
-    except (OSError, ValueError, AttributeError):
+        info["members"] = len(json.loads(dpapi_file.read_text(legacy.find(folder, DATA_FILE_NAMES[1]))).get("members") or [])
+    except (OSError, ValueError, AttributeError, TypeError):
         pass
     try:
         info["questions"] = len((json.loads(legacy.find(folder, DATA_FILE_NAMES[0]).read_text(encoding="utf-8")).get("library") or {}).get("questions") or [])
@@ -4235,7 +4286,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps({"on": CLOUD_REMOTE.info()["active"], "commands": commands}),
                               TYPES[".json"])
         if path == "/api/private":
-            data = load_private()
+            try:
+                data = load_private_strict()
+            except OSError as e:                         # 26.11.58 (release sign-off L3): kept, said, never emptied
+                return self.reply(503, json.dumps({"error": "The member list couldn't be read: " + str(e),
+                                                   "code": "private-unreadable"}), TYPES[".json"])
             data["storedAt"] = str(PRIVATE_FILE)
             return self.reply(200, json.dumps(data), TYPES[".json"])
         if path == "/api/state":
@@ -5098,7 +5153,11 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(data, dict) or not isinstance(data.get("members", []), list):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
             data.pop("storedAt", None)
-            save_private(data)
+            try:
+                save_private(data)
+            except dpapi_file.Unreadable as e:           # 26.11.58 (release sign-off L3): the unreadable file stays
+                return self.reply(409, json.dumps({"error": "The member list couldn't be read, so it was not replaced: "
+                                                   + str(e), "code": "private-unreadable"}), TYPES[".json"])
             return self.reply(204, b"", "text/plain")
         if path == "/api/presence":
             if isinstance(data, dict) and isinstance(data.get("id"), str):
@@ -5272,6 +5331,7 @@ def start_main_server():
     if app_settings()["peopleSee"] != "window":                  # 26.11.12 Share Window only: no camera loaded at all
         threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameDecks
     _guard().start()                                             # 26.11.7 measures only while a meeting uses FrameDecks vCam
+    protect_private_files()                                      # 26.11.58 (release sign-off L3) Windows only
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     threading.Thread(target=_update_loop, daemon=True).start()   # once a day: is a newer version published?
