@@ -13,6 +13,10 @@ srv = server.start_main_server()
 assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
+# 26.11.58 (release sign-off L2): the Studio and every change need the program's key, as its own windows send it
+_opener = urllib.request.build_opener()
+_opener.addheaders = [(server.LOCAL_HEADER, server.LOCAL_TOKEN)]
+urllib.request.install_opener(_opener)
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
              "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-book.js", "js/frame-lists.js", "js/annotate.js", "js/preview-edit.js", "speaker.html", "js/speaker.js", "css/speaker.css", "templates/FRAMEDECKS-Meeting-Workbook.xlsx", "js/meeting-brand.js", "js/panels.js", "js/editable.js", "js/teleprompter.js", "js/script-file.js", "js/frame-file.js", "js/palette.js", "css/teleprompter.css", "spotlight.html", "js/window-chrome.js", "css/window.css", "js/about.js", "js/account.js", "js/service.js", "js/cloud-remote.js", "js/remote-memory.js", "remote-manifest.json", "icons/remote-192.png", "icons/favicon-16.png", "icons/favicon-32.png", "icons/tray-64.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:

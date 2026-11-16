@@ -252,7 +252,7 @@ class Api(unittest.TestCase):
 
     def call(self, method, path, body=None):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
-        headers = {"Host": f"127.0.0.1:{self.port}", "Content-Type": "application/json", "Origin": f"http://127.0.0.1:{self.port}"}
+        headers = {"Host": f"127.0.0.1:{self.port}", server.LOCAL_HEADER: server.LOCAL_TOKEN, "Content-Type": "application/json", "Origin": f"http://127.0.0.1:{self.port}"}
         c.request(method, path, body=json.dumps(body) if body is not None else None, headers=headers)
         r = c.getresponse()
         data = r.read()

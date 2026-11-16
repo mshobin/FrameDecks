@@ -4,6 +4,7 @@
 // Memory Cards pane) and fails on any rule the page breaks. The policy is enforced (26.11.30); the browser
 // raises a securitypolicyviolation event for each break; that event is what this counts.
 import { createRequire } from "node:module";
+import { keyHeaders, unlock } from "./local-key.mjs";   // 26.11.58 (release sign-off L2) the program's key
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -14,6 +15,7 @@ const PAGES = ["dashboard.html", "remote.html", "speaker.html", "spotlight.html"
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 } });
+await (await unlock(await ctx.newPage(), BASE)).close();   // the program's own windows carry its key
 await ctx.addInitScript(() => {
   window.__csp = [];
   document.addEventListener("securitypolicyviolation", (e) =>

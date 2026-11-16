@@ -357,7 +357,7 @@ class Endpoints(unittest.TestCase):
     def post(self, body):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
         c.request("POST", "/api/sync", body=json.dumps(body),
-                  headers={"Host": f"127.0.0.1:{self.port}", "Content-Type": "application/json"})
+                  headers={"Host": f"127.0.0.1:{self.port}", self.server.LOCAL_HEADER: self.server.LOCAL_TOKEN, "Content-Type": "application/json"})
         r = c.getresponse()
         data = json.loads(r.read().decode("utf-8"))
         c.close()
@@ -399,7 +399,7 @@ class Endpoints(unittest.TestCase):
 
     def test_the_info_carries_the_update_notice(self):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
-        c.request("GET", "/api/sync", headers={"Host": f"127.0.0.1:{self.port}"})
+        c.request("GET", "/api/sync", headers={"Host": f"127.0.0.1:{self.port}", self.server.LOCAL_HEADER: self.server.LOCAL_TOKEN})
         d = json.loads(c.getresponse().read().decode("utf-8"))
         c.close()
         self.assertIn("update", d)

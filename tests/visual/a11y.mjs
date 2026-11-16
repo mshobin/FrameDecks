@@ -5,6 +5,7 @@
 // 26.11.30 the program enforces its Content-Security-Policy: pages that get axe injected are opened with bypassCSP
 // (test browser only; tests/visual/csp.mjs checks the real pages with the policy on).
 import { createRequire } from "node:module";
+import { keyHeaders, unlock } from "./local-key.mjs";   // 26.11.58 (release sign-off L2) the program's key
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -26,7 +27,7 @@ async function scan(p, where) {
 
 const browser = await chromium.launch();
 for (const theme of ["dark", "light"]) {
-  const p = await browser.newPage({ viewport: { width: 1600, height: 900 }, bypassCSP: true });
+  const p = await unlock(await browser.newPage({ viewport: { width: 1600, height: 900 }, bypassCSP: true }), BASE);
   await p.goto(`${BASE}/dashboard.html`);
   await p.waitForTimeout(2200);
   if (await p.evaluate(() => !!document.querySelector(".app-modal-back"))) {      // an import dialog
@@ -64,7 +65,7 @@ for (const theme of ["dark", "light"]) {
   await p.close();
 }
 for (const page of ["speaker.html", "spotlight.html"]) {
-  const p = await browser.newPage({ viewport: { width: 1280, height: 800 }, bypassCSP: true });
+  const p = await unlock(await browser.newPage({ viewport: { width: 1280, height: 800 }, bypassCSP: true }), BASE);
   await p.goto(`${BASE}/${page}`);
   await p.waitForTimeout(1500);
   await scan(p, page);

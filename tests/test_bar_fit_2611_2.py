@@ -63,7 +63,7 @@ class VoiceInFront(unittest.TestCase):
 class CommandCenterOpens(unittest.TestCase):
     def test_no_empty_box_before_the_bar(self):
         main = read("src/desktop_app.py")
-        self.assertIn('url + "spotlight.html?glass=1", width=820, height=spot_height(),\n                                          x=-32000, y=-32000,', main)
+        self.assertIn('keyed("spotlight.html?glass=1"), width=820, height=spot_height(),\n                                          x=-32000, y=-32000,', main)
         html = read("app/spotlight.html")
         self.assertIn("if (/[?&]glass=1/.test(location.search)) d.classList.add('kc-glass');", html)
         self.assertIn("html.kc-glass body.spotlight{background:transparent}", read("app/css/spotlight.css"))

@@ -4,6 +4,7 @@
 // the screens are also saved to tests/visual/out/ to compare by eye with tests/visual/baselines/.
 import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
+import { keyHeaders, unlock } from "./local-key.mjs";   // 26.11.58 (release sign-off L2) the program's key
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -20,7 +21,7 @@ const check = (ok, what) => {
 
 const browser = await chromium.launch();
 async function page(width, height = 860, setup) {
-  const p = await browser.newPage({ viewport: { width, height } });
+  const p = await unlock(await browser.newPage({ viewport: { width, height } }), BASE);
   if (setup) await setup(p);
   await p.goto(`${BASE}/dashboard.html`);
   await p.waitForTimeout(2200);
@@ -93,7 +94,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
 
 // 4. The Teleprompter (8.0: one overlay window): the script fills it, the top bar is hidden until asked for
 {
-  const p = await browser.newPage({ viewport: { width: 1000, height: 640 } });
+  const p = await unlock(await browser.newPage({ viewport: { width: 1000, height: 640 } }), BASE);
   await p.goto(`${BASE}/speaker.html`);
   await p.mouse.move(500, 500);                 // the pointer away from the top edge
   await p.waitForTimeout(800);
@@ -173,7 +174,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
     check(!r.scroll && r.ctl && (w < 1280 || (r.fits && r.fit !== "6")), `top bar fits at ${w} px (level ${r.fit})`);
   }
   await p.close();
-  const t = await browser.newPage({ viewport: { width: 1280, height: 600 } });
+  const t = await unlock(await browser.newPage({ viewport: { width: 1280, height: 600 } }), BASE);
   await t.goto(`${BASE}/speaker.html`); await t.waitForTimeout(1200);
   await t.evaluate(() => { document.body.classList.add("sp-bar-open"); document.documentElement.classList.add("win-chrome");
     document.querySelectorAll("[data-win-controls]").forEach((e) => window.KCWindow.mount(e));
@@ -192,7 +193,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
 // list point at each other (a click on a card lights its item; an item gives its card an outline; live words are a draft)
 {
   for (const [w, hh] of [[1366, 768], [1920, 1080]]) {
-    const p = await browser.newPage({ viewport: { width: w, height: hh } });
+    const p = await unlock(await browser.newPage({ viewport: { width: w, height: hh } }), BASE);
     await p.addInitScript(() => { try { localStorage.setItem("kc-text-fields", "1"); } catch (e) {} });   // 26.11.50 the list shows with Show text fields on
     await p.goto(`${BASE}/dashboard.html`); await p.waitForTimeout(2200);
     await p.evaluate(() => window.KCOnboarding && window.KCOnboarding.close()); await p.waitForTimeout(400);

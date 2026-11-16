@@ -66,7 +66,7 @@ class StateJson(unittest.TestCase):
             rev = server.state["rev"]
             threading.Timer(0.2, lambda: server.save_state(dict(server.state, title="Woken"))).start()
             c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
-            c.request("GET", f"/api/state?since={rev}&wait=5", headers={"Host": f"127.0.0.1:{port}"})
+            c.request("GET", f"/api/state?since={rev}&wait=5", headers={"Host": f"127.0.0.1:{port}", server.LOCAL_HEADER: server.LOCAL_TOKEN})
             r = c.getresponse()
             body = json.loads(r.read())
             c.close()
@@ -149,7 +149,7 @@ class ContentSecurityPolicy(unittest.TestCase):
         try:
             for path, want in (("/dashboard.html", True), ("/", True), ("/stage.html", True), ("/js/store.js", False)):
                 c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
-                c.request("GET", path, headers={"Host": f"127.0.0.1:{port}"})
+                c.request("GET", path, headers={"Host": f"127.0.0.1:{port}", server.LOCAL_HEADER: server.LOCAL_TOKEN})
                 r = c.getresponse()
                 r.read()
                 c.close()
@@ -230,7 +230,7 @@ class BadBodies(unittest.TestCase):
         try:
             for path in ("/api/vcam/recordings", "/api/vcam/studio"):
                 c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
-                c.request("POST", path, body="[]", headers={"Host": f"127.0.0.1:{port}", "Content-Type": "application/json",
+                c.request("POST", path, body="[]", headers={"Host": f"127.0.0.1:{port}", server.LOCAL_HEADER: server.LOCAL_TOKEN, "Content-Type": "application/json",
                                                            "Origin": f"http://127.0.0.1:{port}"})
                 r = c.getresponse()
                 r.read()

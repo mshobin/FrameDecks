@@ -7,6 +7,7 @@
 // Checks the steps, drag and drop and Alt + arrows on the timeline, the Preview, Choose Animation, a file kept in the
 // browser and the .frame export with it, axe (WCAG 2.1 AA) and no sideways scrolling.
 import { createRequire } from "node:module";
+import { keyHeaders, unlock } from "./local-key.mjs";   // 26.11.58 (release sign-off L2) the program's key
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
@@ -91,10 +92,10 @@ const websiteFrames = (() => {
   return order.map((id) => records.find((r) => r.kind === "frame" && r.id === id).body);
 })();
 // the program
-const q = await b.newPage({ viewport: { width: 1500, height: 950 } });
+const q = await unlock(await b.newPage({ viewport: { width: 1500, height: 950 } }), PC);
 q.on("pageerror", (e) => console.log("PC PAGEERR", e.message));
 // a PC that has been set up before: the Welcome is done, so it does not come back after the reload below
-await fetch(PC + "/api/app/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ onboarding: { done: true } }) });
+await fetch(PC + "/api/app/settings", { method: "POST", headers: { "Content-Type": "application/json", ...keyHeaders() }, body: JSON.stringify({ onboarding: { done: true } }) });
 await q.goto(PC + "/dashboard.html");
 await q.waitForTimeout(2500);
 await q.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());          // 9.5 the Welcome flow

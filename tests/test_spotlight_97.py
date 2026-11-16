@@ -88,6 +88,7 @@ class Desktop(unittest.TestCase):
         # first asked for (never at start) and hidden again whenever it shows itself
         main = src[src.index("def main"):]
         self.assertNotIn('url + "spotlight.html"', main[:main.index("def spot_window")])
+        self.assertNotIn('keyed("spotlight.html', main[:main.index("def spot_window")])
         body = main[main.index("def spot_window"):main.index("def spotlight(")]
         self.assertIn("if spot_holder[\"w\"] is None and create:", body)
         self.assertIn("for ev in (w.events.loaded, w.events.shown):", body)

@@ -51,7 +51,7 @@ class Served(unittest.TestCase):
     def get(self, path):
         import http.client
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=15)
-        c.request("GET", path, headers={"Host": f"127.0.0.1:{self.port}"})
+        c.request("GET", path, headers={"Host": f"127.0.0.1:{self.port}", server.LOCAL_HEADER: server.LOCAL_TOKEN})
         r = c.getresponse()
         body = r.read()
         c.close()

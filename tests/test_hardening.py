@@ -142,7 +142,7 @@ class PinGuessing(unittest.TestCase):
     def login(self, pin):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
         c.request("POST", "/api/remote-login", json.dumps({"pin": pin}),
-                  {"Host": f"127.0.0.1:{self.port}", "Content-Type": "application/json"})
+                  {"Host": f"127.0.0.1:{self.port}", server.LOCAL_HEADER: server.LOCAL_TOKEN, "Content-Type": "application/json"})
         r = c.getresponse()
         r.read()
         c.close()

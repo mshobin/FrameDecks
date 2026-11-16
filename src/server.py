@@ -30,7 +30,7 @@ import time
 import webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
-from urllib.parse import urlparse, parse_qs, unquote
+from urllib.parse import urlparse, parse_qs, unquote, urlencode
 
 import sync_entities   # what is live and what is plan (the same split as sync)
 import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
@@ -171,6 +171,67 @@ def save_sessions():
 
 
 sessions = load_sessions()
+
+
+# ---------- 26.11.58 (release sign-off L2): the program's own key for requests from this PC ----------
+# Any program on this PC (another Windows account on the same computer too) could reach 127.0.0.1 and use the whole
+# API, member data included. Now a random key made once per installation, kept in the data folder (which only this
+# Windows account can read), must come with every change and every request for personal data or settings. The
+# program's own windows open their first page with ?t=KEY; the server answers with an HttpOnly cookie and the same
+# address without the key. Overlay, stage and Share Window pages and the read-only requests they make (OBS, a second
+# screen) never need it, so existing OBS setups keep working. The phone remote keeps its own PIN and cookie.
+# The key is never sent in an answer, never in the support bundle and never copied by Import from another folder.
+# KC_LOCAL_TOKEN=off switches the check off (development only).
+LOCAL_TOKEN_FILE = DATA / "kc-local-token.txt"
+LOCAL_COOKIE = "fd_local"
+LOCAL_HEADER = "X-FrameDecks-Key"          # for programs on this PC that read the key file (the second start, checks)
+LOCAL_COOKIE_DAYS = 400
+# Read-only requests the overlay, stage and Share Window pages make (store.js, overlay.js, present.html)
+LOCAL_OPEN_GET = {"/api/rev", "/api/state", "/api/pointer", "/api/join-qr.svg", "/api/brand/logo", "/api/presence",
+                  "/api/app/ping", "/api/present.mjpg", "/api/vcam/status", "/api/vcam/preview.jpg"}
+LOCAL_OPEN_POST = {"/api/presence"}        # overlays say they are open (Store.presence)
+LOCAL_KEY_PAGES = {"/", "", "/dashboard.html"}   # the Studio itself: without the key a short page says how to open it
+LOCAL_KEY_ERROR = ("This needs FrameDecks' own window. Open FrameDecks from its icon, or use the address with the key "
+                   "that FrameDecks printed when it started.")
+LOCAL_KEY_PAGE = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>FrameDecks</title>'
+                  '<meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:100vh;'
+                  'display:flex;align-items:center;justify-content:center;background:#070c18;color:#e8edf7;'
+                  'font:16px/1.5 "Segoe UI",system-ui,sans-serif}main{max-width:34em;padding:24px}h1{font-size:22px}</style>'
+                  '</head><body><main><h1>Open FrameDecks from its own window</h1><p>For your privacy, the Studio opens only '
+                  'from FrameDecks itself. Open FrameDecks from its icon. If you started it from a command window, use the '
+                  'Dashboard address it printed (it ends with a key).</p><p>Overlay links in OBS keep working as before.</p>'
+                  '</main></body></html>')
+
+
+def _local_token():
+    try:
+        tok = LOCAL_TOKEN_FILE.read_text(encoding="utf-8").strip()
+        if re.fullmatch(r"[A-Za-z0-9_\-]{40,100}", tok):
+            return tok
+    except OSError:
+        pass
+    tok = secrets.token_urlsafe(32)
+    try:
+        write_atomic(LOCAL_TOKEN_FILE, tok + "\n")
+    except OSError as e:
+        _swallowed("server.local_token", e)
+    return tok
+
+
+LOCAL_TOKEN = _local_token()
+
+
+def local_key_needed():
+    """False only while KC_LOCAL_TOKEN=off (development and some tests)."""
+    return os.environ.get("KC_LOCAL_TOKEN", "").strip().lower() not in ("off", "0", "no", "false")
+
+
+def local_url(base, page=""):
+    """The address of one of the program's pages with the key, for the program's own windows to open once."""
+    url = base.rstrip("/") + "/" + page.lstrip("/")
+    if not local_key_needed():
+        return url
+    return url + ("&" if "?" in url else "?") + "t=" + LOCAL_TOKEN
 
 
 _lan_cache = {"at": 0.0, "value": []}
@@ -3677,6 +3738,49 @@ class Handler(BaseHTTPRequestHandler):
     def is_local(self):
         return self.client_address[0] in ("127.0.0.1", "::1", "::ffff:127.0.0.1")
 
+    def local_key_ok(self):
+        """26.11.58 (release sign-off L2): the request carries the program's key (its cookie, or the header)."""
+        if not local_key_needed():
+            return True
+        key = self.headers.get(LOCAL_HEADER, "")
+        if key and secrets.compare_digest(key.encode(), LOCAL_TOKEN.encode()):
+            return True
+        m = re.search(r"(?:^|;\s*)" + LOCAL_COOKIE + r"=([A-Za-z0-9_\-]{20,100})", self.headers.get("Cookie", ""))
+        return bool(m) and secrets.compare_digest(m.group(1).encode(), LOCAL_TOKEN.encode())
+
+    def local_key_refused(self, path, method):
+        """A request from this PC that needs the key and has none: answer it here (True). Overlay pages, their files
+        and the read-only requests they make are open; every change and everything else under /api/ needs the key."""
+        if not self.is_local() or self.local_key_ok():
+            return False
+        if method == "POST":
+            if path in LOCAL_OPEN_POST:
+                return False
+        elif not path.startswith("/api/"):
+            if path not in LOCAL_KEY_PAGES:
+                return False
+            self.reply(403, LOCAL_KEY_PAGE, TYPES[".html"], [(CSP_HEADER, "default-src 'none'; style-src 'unsafe-inline'"),
+                                                              PAGE_FRAME_HEADER])
+            return True
+        elif path in LOCAL_OPEN_GET:
+            return False
+        self.reply(403, json.dumps({"error": LOCAL_KEY_ERROR, "code": "local-key"}), TYPES[".json"])
+        return True
+
+    def local_key_cookie(self, url):
+        """GET page?t=KEY from this PC: set the key's cookie and send the browser to the same address without it."""
+        if not self.is_local() or url.path.startswith("/api/") or "t=" not in url.query:
+            return False
+        q = parse_qs(url.query, keep_blank_values=True)
+        tok = (q.pop("t", [""]) or [""])[0]
+        if not secrets.compare_digest(tok.encode(), LOCAL_TOKEN.encode()):
+            return False
+        rest = urlencode(q, doseq=True)
+        where = (url.path or "/") + ("?" + rest if rest else "")
+        cookie = f"{LOCAL_COOKIE}={LOCAL_TOKEN}; Path=/; Max-Age={LOCAL_COOKIE_DAYS * 86400}; HttpOnly; SameSite=Strict"
+        self.reply(302, "", "text/plain", [("Location", where), ("Set-Cookie", cookie)])
+        return True
+
     def cross_site_api(self, path):
         """A web page from another site calling the program's API (e.g. an <img> pointing at /api/...). Browsers say so
         in Sec-Fetch-Site; the program's own pages, the phone remote and OBS are same-origin or direct, and programs
@@ -3759,6 +3863,8 @@ class Handler(BaseHTTPRequestHandler):
         path = unquote(url.path)
         if self.cross_site_api(path):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
+        if self.local_key_cookie(url) or self.local_key_refused(path, "GET"):   # 26.11.58 (release sign-off L2)
+            return None
         if not self.is_local() and REMOTE and path in ("", "/", "/remote"):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
@@ -4491,6 +4597,8 @@ class Handler(BaseHTTPRequestHandler):
         count_request(urlparse(self.path).path)
         if not self.host_ok() or not self.origin_ok() or self.cross_site_api(urlparse(self.path).path):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
+        if self.local_key_refused(urlparse(self.path).path, "POST"):     # 26.11.58 (release sign-off L2)
+            return None
         if urlparse(self.path).path == "/api/vcam/upload":
             return self.upload_layer_file()
         if urlparse(self.path).path == "/api/brand/logo":
@@ -5047,7 +5155,8 @@ def main():
     print()
     print("  FrameDecks is running.")
     print()
-    print(f"  Dashboard (opens automatically):  {base}/")
+    studio = local_url(base)                    # 26.11.58 (release sign-off L2): the Studio's address carries the key
+    print(f"  Dashboard (opens automatically):  {studio}")
     print(f"  Scripture overlay:            {base}/focus-verse.html")
     print(f"  Question overlay:             {base}/discussion-question.html")
     print(f"  Birthday Celebration overlay:     {base}/birthday.html")
@@ -5073,7 +5182,7 @@ def main():
     print("  Keep this window open during your meeting. Close it to stop.")
     print()
     if "--no-browser" not in sys.argv:
-        threading.Timer(0.8, lambda: webbrowser.open(base + "/")).start()
+        threading.Timer(0.8, lambda: webbrowser.open(studio)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:

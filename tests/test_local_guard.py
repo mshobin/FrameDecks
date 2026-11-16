@@ -31,7 +31,7 @@ class LocalGuardTest(unittest.TestCase):
 
     def get(self, path, site=None):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
-        headers = {"Host": f"127.0.0.1:{self.port}"}
+        headers = {"Host": f"127.0.0.1:{self.port}", server.LOCAL_HEADER: server.LOCAL_TOKEN}
         if site:
             headers["Sec-Fetch-Site"] = site
         c.request("GET", path, headers=headers)

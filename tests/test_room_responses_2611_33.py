@@ -170,7 +170,7 @@ class Endpoints(unittest.TestCase):
 
     def call(self, method, body=None):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
-        headers = {"Host": "127.0.0.1:%d" % self.port, "Content-Type": "application/json"}
+        headers = {"Host": "127.0.0.1:%d" % self.port, self.server.LOCAL_HEADER: self.server.LOCAL_TOKEN, "Content-Type": "application/json"}
         c.request(method, "/api/room/response", body=json.dumps(body) if body is not None else None, headers=headers)
         r = c.getresponse()
         out = (r.status, json.loads(r.read() or b"{}"))

@@ -86,7 +86,7 @@ class Program(unittest.TestCase):
         import http.client
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=15)
         data = json.dumps(body).encode() if body is not None else None
-        c.request(method, path, body=data, headers={"Host": f"127.0.0.1:{self.port}", "Content-Type": "application/json"})
+        c.request(method, path, body=data, headers={"Host": f"127.0.0.1:{self.port}", server.LOCAL_HEADER: server.LOCAL_TOKEN, "Content-Type": "application/json"})
         r = c.getresponse()
         out = r.status, json.loads(r.read() or b"{}")
         c.close()

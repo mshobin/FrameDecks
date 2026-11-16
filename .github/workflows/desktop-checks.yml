@@ -76,7 +76,7 @@ jobs:
       - name: Start the program
         run: |
           FRAMEDECKS_NO_UPDATE_CHECK=1 nohup python src/server.py > server.log 2>&1 &
-          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8750/dashboard.html > /dev/null && break; sleep 1; done
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8750/api/app/ping > /dev/null && break; sleep 1; done
 
       - name: Visual checks
         run: node tests/visual/layout.mjs

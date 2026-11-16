@@ -151,9 +151,15 @@ def open_app_window(url, profile):
         return False
 
 
+def key_header():
+    """26.11.58 (release sign-off L2): the program's key (kc-local-token.txt), sent by this second start to the copy
+    that is already running."""
+    return {server.LOCAL_HEADER: server.LOCAL_TOKEN}
+
+
 def ask(port, action):
     req = urllib.request.Request(f"http://127.0.0.1:{port}/api/app/{action}", data=b"{}",
-                                 headers={"Content-Type": "application/json"}, method="POST")
+                                 headers=dict(key_header(), **{"Content-Type": "application/json"}), method="POST")
     with urllib.request.urlopen(req, timeout=3) as r:
         return r.status
 
@@ -256,7 +262,7 @@ def grant_from_args(argv):
 def hand_grant(port, code):
     """Gives the program (this copy or the running one) the website's grant to ask about."""
     req = urllib.request.Request(f"http://127.0.0.1:{port}/api/app/grant", data=json.dumps({"code": code}).encode(),
-                                 headers={"Content-Type": "application/json"}, method="POST")
+                                 headers=dict(key_header(), **{"Content-Type": "application/json"}), method="POST")
     with urllib.request.urlopen(req, timeout=15) as r:
         return r.status
 
@@ -303,6 +309,11 @@ def main():
     if server.app_settings()["remoteAutostart"]:
         server.set_remote(True)
     url = f"http://127.0.0.1:{port}/"
+
+    def keyed(page=""):
+        """26.11.58 (release sign-off L2): every window opens its first page with the program's key (?t=); the server
+        then keeps it in a cookie and shows the page without it."""
+        return server.local_url(url, page)
 
     state = {"quitting": False, "tray": None, "window": None, "hinted": False}
 
@@ -396,11 +407,11 @@ def main():
         profile = str(server.DATA / "appwindow")
 
         def open_ui():
-            if open_app_window(url, profile):
+            if open_app_window(keyed(), profile):
                 server.DESKTOP["shell"] = "app-browser"
             else:
                 server.DESKTOP["shell"] = "browser"
-                webbrowser.open(url)
+                webbrowser.open(keyed())
 
         def quit_fallback():
             done.set()
@@ -418,7 +429,7 @@ def main():
     webview.settings["ALLOW_DOWNLOADS"] = True                 # backups and Excel exports
     webview.settings["OPEN_EXTERNAL_LINKS_IN_BROWSER"] = True  # WhatsApp etc. open in your browser
     # 9.7 the main window opens maximized: it fills the screen (the taskbar stays), after an install and every start
-    window = webview.create_window(DISPLAY_NAME, url, width=1440, height=900, min_size=(1000, 640),
+    window = webview.create_window(DISPLAY_NAME, keyed(), width=1440, height=900, min_size=(1000, 640),
                                    background_color="#070c18", text_select=True, maximized=True)
     state["window"] = window
     server.DESKTOP["shell"] = "webview"
@@ -545,7 +556,7 @@ def main():
                 print("Presentation window: native window unavailable, using WebView2 instead:", e)
         # Frameless: no title bar, no minimise/maximise/close buttons, no window frame. Drag anywhere to move it.
         # The title stays internal (never shown) so Zoom can list it under "Share specific window".
-        w = webview.create_window("FrameDecks Share Window – what people see", url + "present.html", width=1280, height=720,
+        w = webview.create_window("FrameDecks Share Window – what people see", keyed("present.html"), width=1280, height=720,
                                   min_size=(480, 270), background_color="#000000", text_select=False,
                                   frameless=True, easy_drag=True)
         state["present_fs"] = False
@@ -595,7 +606,7 @@ def main():
             except Exception:
                 state["teleprompter"] = None
         cfg = server.app_settings()
-        w = webview.create_window(DISPLAY_NAME + " · Teleprompter", url + "speaker.html", width=1000, height=640,
+        w = webview.create_window(DISPLAY_NAME + " · Teleprompter", keyed("speaker.html"), width=1000, height=640,
                                   min_size=(420, 260), background_color="#000000" if prompter_glass() else "#070c18",
                                   text_select=True, transparent=prompter_glass(), on_top=bool(cfg.get("prompterOnTop", True)))
         def shown():
@@ -650,7 +661,7 @@ def main():
         if POP["win"] is None:
             scale = dw.display_scale()
             lr = [int(round(v / scale)) for v in popup_rect(scale)]
-            w = webview.create_window(DISPLAY_NAME + " · Memory Card", url + "memory-popup.html", x=lr[0], y=lr[1], width=lr[2],
+            w = webview.create_window(DISPLAY_NAME + " · Memory Card", keyed("memory-popup.html"), x=lr[0], y=lr[1], width=lr[2],
                                       height=lr[3], background_color="#0b1222", frameless=True, easy_drag=False, on_top=True,
                                       focus=False, text_select=False)
             POP["win"] = w
@@ -726,7 +737,7 @@ def main():
         if ALERT["win"] is None:
             scale = dw.display_scale()
             lr = [int(round(v / scale)) for v in alert_rect(scale)]
-            w = webview.create_window(DISPLAY_NAME + " · For you", url + "alert-card.html", x=lr[0], y=lr[1], width=lr[2],
+            w = webview.create_window(DISPLAY_NAME + " · For you", keyed("alert-card.html"), x=lr[0], y=lr[1], width=lr[2],
                                       height=lr[3], background_color="#0b1222", frameless=True, easy_drag=False, on_top=True,
                                       focus=False, text_select=False)
             ALERT["win"] = w
@@ -794,7 +805,7 @@ def main():
                 # 26.11.2 made off the screen and see-through from its first paint (?glass=1): pywebview shows a new
                 # window by itself while its page loads, and that showed an empty 820 x 720 box before the bar; the
                 # shortcut moves it to where you are (center_on_cursor) only when it opens for real
-                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html?glass=1", width=820, height=spot_height(),
+                w = webview.create_window(DISPLAY_NAME + " · Command Center", keyed("spotlight.html?glass=1"), width=820, height=spot_height(),
                                           x=-32000, y=-32000,
                                           background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
                                           on_top=True, text_select=False, transparent=True)
