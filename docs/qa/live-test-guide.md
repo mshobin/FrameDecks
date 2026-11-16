@@ -120,8 +120,6 @@ SQL editor.
    one slide per Frame, and each Frame's script is in the speaker notes.
 2. On a Frame: **+ Content → Audio…**, choose an MP3. **Go Live**. **Expect:** it plays through the speakers;
    **Hide all** (Esc) stops it. In a Zoom test call with **Share sound** on, the other side hears it.
-3. Optional, with Ollama (see [ai.md](../guide/ai.md)): on a Frame with a Bible passage, **Question → Content → Suggest**.
-   **Expect:** draft questions in the Add several box.
 
 ## 9. Test G: plan the meeting on the website (6.11)
 

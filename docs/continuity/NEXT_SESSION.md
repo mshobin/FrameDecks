@@ -392,7 +392,7 @@ top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen 
      - A linked PC rebuilds a lost member file from the workspace.
   6. M-D3: free AI with Ollama on the PC.
      - **Suggest** drafts discussion questions from a Frame's passage, and is hidden without Ollama.
-     - Code in `src/ai.py`; user guide [docs/guide/ai.md](../guide/ai.md).
+     - Removed after 26.11.57 (owner, 16 November 2026): `src/ai.py`, its endpoints and the Suggest questions buttons are gone.
   7. M-D4: **Export this meeting to PowerPoint** (`src/pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
   8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../architecture/hosting.md).

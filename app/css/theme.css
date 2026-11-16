@@ -1882,9 +1882,6 @@ html[data-theme="light"]{
 /* 7. a few questions in a tall area: three lines each; and the suggest card */
 .fl-list.fl-questions.fl-roomy .item{min-height:84px}
 .fl-list.fl-questions.fl-roomy .t1{-webkit-line-clamp:3}
-.fl-ai{border-style:dashed;border-color:var(--line)}
-.fl-ai-btn{display:inline-flex;align-items:center;gap:8px;width:100%;min-height:44px;border:0;background:none;color:var(--muted);font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left}
-.fl-ai-btn:hover{color:var(--gold)}
 /* 8. a calm place to write the script; the rest of the window steps back while it has the keyboard */
 .sc-main .tp-script-in{font-size:16px;line-height:1.7;padding:14px 18px 14px 22px;box-shadow:inset 3px 0 0 var(--gold-soft)}
 .sc-main .tp-script-in:focus{box-shadow:inset 3px 0 0 var(--gold)}

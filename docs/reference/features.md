@@ -12,7 +12,7 @@
 | **+ Deck** | The Decks list's add button reads **+ Deck** (was **+ Content**): Frame > Deck > Content everywhere | `app/dashboard.html` |
 | **KJV and World English Bible** | Fetched without a key (public domain, bible-api.com), saved for offline use like the ESV; also from the Meeting Workbook when a reference ends in KJV or WEB | `src/server.py` (`OPEN_BIBLES`, `_open_bible_lookup`), `app/js/scripture.js`, `app/js/meeting-book.js` |
 | **Church Service Quick Start** | Countdown, welcome, announcements, the reading, the message, a blessing and thank you | `app/js/store.js` (`QUICK_START`) |
-| **Neutral defaults** | New cards are labelled **Scripture** and **Question** (were Focus Verse and Discussion Question; saved Frames keep their labels); sample text without "this week"; example roles Leader / Host; the AI drafts questions for any meeting around a passage | `app/js/store.js`, `app/js/frame-lists.js`, `app/js/members.js`, `src/ai.py` |
+| **Neutral defaults** | New cards are labelled **Scripture** and **Question** (were Focus Verse and Discussion Question; saved Frames keep their labels); sample text without "this week"; example roles Leader / Host | `app/js/store.js`, `app/js/frame-lists.js`, `app/js/members.js` |
 
 
 ## v9.4 at a glance

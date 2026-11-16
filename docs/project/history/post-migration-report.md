@@ -91,7 +91,7 @@ feature, API or integration was removed or renamed:
 | Visible | One button, in the existing style, **only when Ollama answers**. Without it the program is exactly as before (checked). The owner approved one entry for the AI feature (M-D3) |
 | Off switch | App setting `ai` = `off` |
 | Paid providers | Never called from the PC. If added later, a Supabase Edge Function holds the key server-side (review §6) |
-| Checked | 6 tests with a stand-in Ollama server (model choice, cleaning, cache hit offline, plain messages when absent or off, other answer shapes, self-hosted endpoint), and the real program in a browser: the button appears, drafts four questions, adds them; it is hidden when Ollama is not running. Screenshot `docs/qa/2026-10-25-ai-suggest-questions.png`. User guide: [ai.md](../../guide/ai.md) |
+| Checked | 6 tests with a stand-in Ollama server (model choice, cleaning, cache hit offline, plain messages when absent or off, other answer shapes, self-hosted endpoint), and the real program in a browser: the button appears, drafts four questions, adds them; it is hidden when Ollama is not running. Screenshot `docs/qa/2026-10-25-ai-suggest-questions.png`. (The feature was removed after 26.11.57.) |
 
 ## Step 7: PowerPoint export and Audio Content (M-D4)
 

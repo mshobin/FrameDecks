@@ -139,7 +139,6 @@ export function guides(): Guide[] {
     "presentations",
     "media",
     "remote-control",
-    "ai",
     "troubleshooting",
     "faq",
     "glossary",

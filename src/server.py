@@ -36,7 +36,6 @@ import sync_entities   # what is live and what is plan (the same split as sync)
 import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
 import live_push      # 9.11: the doorbell (told when something changed instead of asking every few seconds)
 import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
-import ai           # M-D3: optional AI, free by default (Ollama on this PC); hidden when none answers
 import legacy   # 6.9: moves data saved under the program's earlier name
 import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerShell, netsh or taskkill)
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
@@ -1702,7 +1701,6 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "voiceSensitivity": 3,   # 26.11 1 = only a loud, close voice ... 5 = a soft voice in a quiet room
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
-                         "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
                          "memDur": 12,            # 9.0 Memory Cards: seconds an unpinned card stays in the chat overlay (3..120)
                          "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
                          "joinQr": "off",         # 26.11.44 the members' phones QR on the Branding badge: off / beside / below
@@ -1747,7 +1745,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "voiceKey": "rctrl",
                          # 26.11.31 features switched off ({id: false}; src/features.py). Never chosen = everything on
                          "features": {}}
-APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
+APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
                        "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom"),
                        "peopleSee": ("camera", "window", "both"), "studioMode": ("simple", "advanced"),
@@ -2577,26 +2575,6 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
         tmp.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, SCRIPTURE_CACHE)
     return {"ref": canon, "text": text, "version": "ESV", "cached": False}
-
-
-AI = ai.Service(DATA / "kc-ai-cache.json", enabled=lambda: app_settings()["ai"] != "off")
-
-
-def _passages_with_text(passages):
-    """A Frame's scripture as [{"ref", "text"}]; a reference without text is looked up (the offline cache first, then
-    the ESV with the church's own key); one that cannot be found keeps its reference only."""
-    out = []
-    for p in (passages if isinstance(passages, list) else [])[:6]:
-        if not isinstance(p, dict):
-            continue
-        ref, text = str(p.get("ref") or "")[:120], str(p.get("text") or "")[:6000]
-        if ref and not text.strip():
-            try:
-                text = scripture_lookup(ref).get("text", "")
-            except (ValueError, OSError):
-                text = ""
-        out.append({"ref": ref, "text": text})
-    return out
 
 
 def scripture_info():
@@ -3933,10 +3911,6 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps({"enabled": REMOTE, "results": results}), TYPES[".json"])
         if path == "/api/diagnostics":
             return self.reply(200, json.dumps(diagnostics(self.server.server_address)), TYPES[".json"])
-        if path == "/api/ai/status":                     # M-D3: is a free local AI there? (this PC only)
-            if not self.is_local():
-                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            return self.reply(200, json.dumps(AI.status(fresh=parse_qs(url.query).get("fresh", ["0"])[0] == "1")), TYPES[".json"])
         if path == "/api/media/file":                    # 8.2 a Content's file, for Export Frame File (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -4551,15 +4525,6 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, KeyError, TypeError) as e:
                 return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, body, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        if path == "/api/ai/questions":                  # M-D3: discussion questions drafted from a Frame's scripture
-            if not self.is_local():
-                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            d = data if isinstance(data, dict) else {}
-            try:
-                res = AI.discussion_questions(_passages_with_text(d.get("passages")), d.get("count") or 5)
-            except ai.AiError as e:
-                return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
-            return self.reply(200, json.dumps(res), TYPES[".json"])
         if path == "/api/scripture/settings":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

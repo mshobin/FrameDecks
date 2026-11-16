@@ -24,30 +24,6 @@ var NAMES = {question: {one: 'question', One: 'Question', many: 'questions', Man
   verse: {one: 'scripture', One: 'Scripture', many: 'scriptures', Many: 'Scriptures', layer: 'scripture'}};
 var TRANS = [['', 'Content default'], ['random', 'Random']].concat((window.KCTransitions.list || []).map(function(t){ return [t, window.KCTransitions.names[t]]; }));
 var live = null, editing = null, bulkOpen = {}, sigs = {}, prefill = {};
-/* M-D3: free AI on this PC (Ollama). "Suggest" appears only when it answers; without it nothing here changes. */
-var ai = {ok: false, model: '', busy: false};
-function aiCheck(){
-  if (!Store.served) return;
-  fetch('api/ai/status', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(s){
-    var ok = !!(s && s.ok);
-    if (ok !== ai.ok){ ai.ok = ok; sigs.question = ''; render(); }
-    ai.model = s && s.model || '';
-  }).catch(function(){});
-}
-function suggest(sid){
-  var v = cardOf(live, 'verse', sid);
-  var passages = items(v).map(function(it){ return {ref: it.ref || '', text: it.text || ''}; }).filter(function(x){ return x.ref || x.text.trim(); });
-  ai.busy = true; sigs.question = ''; render();
-  fetch('api/ai/questions', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({passages: passages, count: 5})})
-    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'The AI did not answer'); return d; }); })
-    .then(function(d){
-      prefill.question = d.questions.join('\n'); bulkOpen.question = true;
-      toast('Drafted on this PC' + (d.model ? ' by ' + d.model : '') + '. Check and edit them, then Add to this Frame.');
-    })
-    .catch(function(e){ toast(e.message, true); })
-    .then(function(){ ai.busy = false; sigs.question = ''; render(); });
-}
-
 function frameId(){ var s = window.KCSelFrame && window.KCSelFrame(); return s || (live ? live.live.scene : ''); }
 function cardOf(st, kind, sid){ var sc = SC.find(st, sid); return sc ? SC.first(sc, NAMES[kind].layer) : null; }
 function items(l){ return l && Array.isArray(l.c.items) ? l.c.items : []; }
@@ -89,9 +65,6 @@ function renderList(host, kind, sid, l){
   var N = NAMES[kind], list = items(l), cur = l.c.itemId;
   var add = h('button', {cls: 'btn primary small', type: 'button', id: 'fl-add-' + kind, html: I('plus', 14) + ' ' + N.One, title: 'Add a ' + N.one + ' to this Frame', onclick: function(){ addItem(kind, sid); }});
   var more = h('button', {cls: 'fl-mi', type: 'button', role: 'menuitem', text: 'Add several…', id: 'fl-bulk-' + kind, onclick: function(){ closePops(); bulkOpen[kind] = !bulkOpen[kind]; sigs[kind] = ''; render(); }});
-  var draft = kind === 'question' && ai.ok ? h('button', {cls: 'fl-mi', type: 'button', role: 'menuitem', id: 'fl-suggest-question', html: I('sparkles', 14) + ' ' + (ai.busy ? 'Drafting…' : 'Suggest questions'),
-    disabled: ai.busy ? 'disabled' : null, title: 'Draft discussion questions from this Frame’s scripture with the free AI on this PC (' + (ai.model || 'Ollama') + '). Nothing is added until you choose.',
-    onclick: function(){ closePops(); suggest(sid); }}) : null;
   /* the count and the buttons go to the title row; what Show puts on screen (Question / Both / Scripture) stays on the
      Frame card in the Frames list */
   var acts = $('fl-acts-' + kind);
@@ -100,7 +73,7 @@ function renderList(host, kind, sid, l){
     var clear = list.length ? h('button', {cls: 'fl-mi danger', type: 'button', role: 'menuitem', text: 'Remove all', title: 'Remove every ' + N.one + ' from this Frame',
       onclick: function(){ closePops(); if (confirm('Remove every ' + N.one + ' from this Frame? Anything on screen stays on screen.')) editList(kind, sid, function(x){ x.c.items = []; x.c.itemId = ''; }); }}) : null;
     [h('span', {cls: 'fl-count', text: list.length + ' ' + (list.length === 1 ? N.one : N.many)}), add,
-      pop('fl-more-' + kind, h('span', {cls: 'fl-dots', 'aria-hidden': 'true', text: '⋯'}), 'More for these ' + N.many, h('div', {cls: 'fl-menu', role: 'menu'}, [more, draft, clear]))]
+      pop('fl-more-' + kind, h('span', {cls: 'fl-dots', 'aria-hidden': 'true', text: '⋯'}), 'More for these ' + N.many, h('div', {cls: 'fl-menu', role: 'menu'}, [more, clear]))]
       .forEach(function(x){ if (x) acts.appendChild(x); });
   }
   if (bulkOpen[kind]){
@@ -181,8 +154,6 @@ function renderList(host, kind, sid, l){
       editList(kind, sid, function(x){ x.c.items.push({id: newId(kind), text: t}); });
     });
     ol.appendChild(h('li', {cls: 'fl-new', role: 'presentation'}, [h('span', {cls: 'num', 'aria-hidden': 'true', text: '+'}), nq]));
-    if (ai.ok && list.length < 6) ol.appendChild(h('li', {cls: 'fl-new fl-ai', role: 'presentation'}, [h('button', {type: 'button', cls: 'fl-ai-btn', disabled: ai.busy ? 'disabled' : null,
-      html: I('sparkles', 15) + ' ' + (ai.busy ? 'Drafting questions…' : 'Suggest questions from this passage'), onclick: function(){ suggest(sid); }})]));
   }
   host.appendChild(ol);
 }
@@ -387,7 +358,7 @@ function render(){
     renderLabel(kind, sid, l);
     var ed = editing && editing.kind === kind ? items(l).filter(function(x){ return x.id === editing.id; })[0] : null;
     if (editing && editing.kind === kind && !ed) editing = null;
-    var sig = JSON.stringify([sid, l && l.id, ed ? ['ed', ed.id, items(l).length, items(l).indexOf(ed)] : [l && l.c, live[kind].itemId, live[kind].visible, live.live.scene, bulkOpen[kind], live.question.mode, ai.ok, ai.busy]]);
+    var sig = JSON.stringify([sid, l && l.id, ed ? ['ed', ed.id, items(l).length, items(l).indexOf(ed)] : [l && l.c, live[kind].itemId, live[kind].visible, live.live.scene, bulkOpen[kind], live.question.mode]]);
     if (sigs[kind] === sig){ roomy(host); return; }
     if (ed && host.contains(document.activeElement) && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && sigs[kind] && sigs[kind].indexOf('"ed"') >= 0) return;   // typing: keep the cursor
     if (!ed && bulkOpen[kind] && host.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') return;
@@ -419,7 +390,6 @@ function onVerse(d){
 }
 
 Store.subscribe(function(st){ live = st; render(); });
-aiCheck(); setInterval(aiCheck, 120000);
 window.addEventListener('kc-edit-done', function(){ render(); });
 window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem, ping: ping};
 })();
