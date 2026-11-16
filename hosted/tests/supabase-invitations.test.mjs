@@ -63,17 +63,19 @@ test("only the invitee can accept, once, and joins with the invited role", async
   assert.ok(await denied(INVITEE, "select accept_invitation($1)", [id]));
 });
 
-test("members see each other's names and emails; outsiders see nobody", async () => {
+test("members see each other's names; only owners and admins see emails (0029); outsiders see nobody", async () => {
   await as(OWNER, "insert into profiles(user_id, display_name) values ($1, 'Shobin')", [OWNER]);
   const members = await as(INVITEE, "select email, role, display_name from workspace_members($1)", [org]);
   assert.deepEqual(
     members.rows.map((m) => [m.email, m.role, m.display_name]),
     [
-      ["owner@church.org", "owner", "Shobin"],
-      ["admin@church.org", "admin", null],
+      [null, "owner", "Shobin"],
+      [null, "admin", null],
       ["Invitee@Church.org", "member", null],
     ],
   );
+  const seenByOwner = await as(OWNER, "select email from workspace_members($1)", [org]);
+  assert.deepEqual(seenByOwner.rows.map((m) => m.email), ["owner@church.org", "admin@church.org", "Invitee@Church.org"]);
   assert.equal((await as(OUTSIDER, "select * from workspace_members($1)", [org])).rows.length, 0);
 });
 

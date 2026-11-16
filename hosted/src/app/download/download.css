@@ -1,5 +1,133 @@
 /* framedecks.com/download (26.11.45): the download card with Windows and Mac (coming soon), the minimum
    requirements under the buttons and the install steps, beside What's new. Loaded on /download only. */
+/* 26.11.58 (release sign-off, size budget): the download card's base rules, moved here from public.css (only /download
+   uses them; the website-wide stylesheet is smaller). Same order as before: after every website-wide rule. */
+.fd-dl {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.fd-dl-card {
+  gap: 10px;
+  padding: clamp(22px, 3vw, 32px);
+}
+
+.fd-dl-card h2,
+.fd-dl-notes h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.fd-dl-card p {
+  margin: 0;
+  color: var(--text-2);
+}
+
+.fd-dl-icon {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--gold-2);
+}
+
+.fd-dl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.fd-dl-fine {
+  font-size: 13px;
+}
+
+.fd-dl-card p.fd-dl-fine {
+  color: var(--text-3);
+}
+
+.fd-dl-actions .fd-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+.fd-dl-soon {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 12px;
+  background: var(--fill);
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.fd-dl-next {
+  padding: 14px 16px;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--text);
+}
+
+.fd-dl-next ol {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  list-style: decimal;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.fd-dl-hash summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.fd-dl-hash code {
+  display: block;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.fd-dl-hash p {
+  font-size: 13px;
+}
+
+.fd-dl-notes h3 {
+  margin: 14px 0 4px;
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fd-dl-notes ul {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+@media (max-width: 960px) {
+  .fd-dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .fd-dl{grid-template-columns:minmax(0,1fr)}
 .fd-dl-main{display:grid;gap:20px;min-width:0}
 .fd-dl-head{display:flex;gap:16px;align-items:center}

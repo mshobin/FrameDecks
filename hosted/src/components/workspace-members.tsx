@@ -9,7 +9,9 @@ import type { Role } from "@/lib/supabase-config";
 import { ListSkeleton } from "@/components/states";
 import { userSafeError } from "@/lib/user-error";
 
-type Member = { user_id: string; role: Role; display_name: string | null; email: string };
+// 26.11.58 (release sign-off L6, 0029): email is null for other people unless you are an owner or admin
+type Member = { user_id: string; role: Role; display_name: string | null; email: string | null };
+const who = (m: Member) => m.display_name ?? m.email ?? "A team member";
 type Invitation = { id: string; email: string; role: Exclude<Role, "owner"> };
 
 const roleLabels: Record<Role, string> = { owner: "Owner", admin: "Admin", member: "Member" };
@@ -73,7 +75,7 @@ export function WorkspaceMembers({
     if (!supabase) return;
     const address = email.trim().toLowerCase();
     if (!address) return;
-    if (members?.some((m) => m.email.toLowerCase() === address)) {
+    if (members?.some((m) => m.email?.toLowerCase() === address)) {
       setMessage({ ok: false, text: `${address} is already in this workspace.` });
       return;
     }
@@ -125,8 +127,8 @@ export function WorkspaceMembers({
       setMessage({
         ok: true,
         text: allowed
-          ? `${member.display_name ?? member.email} can now run services from the companion's Live page.`
-          : `${member.display_name ?? member.email} can no longer run services.`,
+          ? `${who(member)} can now run services from the companion's Live page.`
+          : `${who(member)} can no longer run services.`,
       });
     await load();
   }
@@ -134,7 +136,7 @@ export function WorkspaceMembers({
   // 9.3 handing the team to someone already in it (0014 transfer_ownership); the owner stays as an admin
   async function handOver(member: Member) {
     if (!supabase) return;
-    const name = member.display_name ?? member.email;
+    const name = who(member);
     if (!(await ask({
       title: `Make ${name} the owner?`,
       description: "They can then change roles and delete the team. You stay in the team as an admin.",
@@ -153,7 +155,7 @@ export function WorkspaceMembers({
   async function remove(member: Member) {
     if (!supabase) return;
     const leaving = member.user_id === myUserId;
-    const name = member.display_name ?? member.email;
+    const name = who(member);
     if (!(await ask({
       title: leaving ? "Leave this team?" : `Remove ${name}?`,
       description: leaving
@@ -187,8 +189,8 @@ export function WorkspaceMembers({
             return (
               <li key={member.user_id}>
                 <span className="member-who">
-                  <strong>{member.display_name ?? member.email}</strong>
-                  {member.display_name && <span>{member.email}</span>}
+                  <strong>{who(member)}</strong>
+                  {member.display_name && member.email && <span>{member.email}</span>}
                 </span>
                 <span className="workspace-role">{roleLabels[member.role]}</span>
                 {runners && member.role === "member" && canManage && (

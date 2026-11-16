@@ -49,7 +49,6 @@
 @keyframes flow-spin{to{transform:rotate(1turn)}}
 @media (max-width:640px){.flow-steps{grid-template-columns:repeat(5,minmax(168px,1fr));overflow-x:auto;scroll-snap-type:x proximity}.flow-steps li{scroll-snap-align:start}}
 @media (prefers-reduced-motion:no-preference){.flow-tx button:hover i,.flow-tx button:focus-visible i,.pv-scene{animation:var(--pv,pv-fade) .9s var(--ease-out) both}.flow-steps li.is-done .flow-dot{animation:flow-pop .4s var(--ease-out)}.flow-sync.is-syncing svg{animation:flow-spin 1s linear 10}}
-@media (prefers-reduced-motion:reduce){.flow-tile:hover{transform:none}}
 /* 8.4 Meeting Details: name, date and notes, roomy */
 .meet-form{display:grid;grid-template-columns:2fr 1fr;gap:16px 18px;margin-top:16px}
 .meet-form label{display:grid;gap:6px;font-weight:600}
