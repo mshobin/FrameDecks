@@ -146,9 +146,7 @@ html.fd-calm .hc-clip .hc-clip-still{display:block}
 .hb{display:grid;gap:12px}
 .hb-log{display:grid;gap:10px;max-height:min(60vh,560px);overflow:auto;padding:4px 2px}
 .hb-msg{display:grid;gap:8px;justify-items:start}
-.hb-you{justify-items:end}
 .hb-bubble{max-width:min(560px,92%);padding:10px 14px;border:1px solid var(--hairline-strong);border-radius:16px 16px 16px 4px;background:var(--surface-solid);color:var(--text);line-height:1.5}
-.hb-you .hb-bubble{border-color:rgba(232,185,49,.45);border-radius:16px 16px 4px 16px;background:rgba(232,185,49,.1)}
 .hb-bubble kbd{padding:0 6px;border:1px solid var(--hairline-strong);border-radius:4px;font-size:13px}
 .hb-opts{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .hb-opts span{color:var(--muted);font-size:14px}

@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   // cacheComponents / partialPrefetching were on before; they need a server (partial prerendering), and nothing here
   // used them: every page is a client component.
   turbopack: {
+    // 26.11.58 (size budget): the website uses no Supabase Storage; src/lib/no-storage.ts says why it is left out
+    resolveAlias: { "@supabase/storage-js": { browser: "./src/lib/no-storage.ts" } },
     rules: {
       "*.css": {
         loaders: ["@tailwindcss/turbopack"],

@@ -698,36 +698,11 @@ h3 {
 
 /* ---------- Overview (signed in) ---------- */
 
-
-
-
-
-
 .fd-hero-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-}
-
-
-
-.fd-tile {
-  position: relative;
-  display: grid;
-  gap: 4px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  padding: 18px 18px 16px;
-  transition: transform 0.2s var(--ease-out), border-color 0.2s var(--ease-out), background 0.2s var(--ease-out);
-}
-
-.fd-tile:hover {
-  border-color: rgba(227, 183, 90, 0.35);
-  background: var(--surface-2);
-  transform: translateY(-2px);
 }
 
 .fd-tile-icon {
@@ -741,33 +716,11 @@ h3 {
   color: var(--gold);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 @keyframes fd-pulse {
   50% {
     box-shadow: 0 0 0 7px rgba(74, 222, 128, 0.06);
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 .fd-assurance {
   margin: 28px auto 0;
@@ -811,38 +764,13 @@ h3 {
   place-items: center;
 }
 
-
-
-
-
-
-
-
-
-
-
 /* The connector: a hairline to the next step with a point of light travelling along it */
-
-
-
 
 @keyframes fd-travel {
   to {
     transform: translateX(30px); /* transform only: no layout per frame */
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ---------- Landing (signed out) ---------- */
 .fd-landing {
@@ -874,17 +802,6 @@ h3 {
   color: var(--text);
 }
 
-.fd-hero {
-  display: grid;
-  justify-items: center;
-  padding: clamp(56px, 9vw, 110px) 20px clamp(48px, 7vw, 90px);
-  text-align: center;
-}
-
-.fd-hero .fd-hero-actions {
-  justify-content: center;
-}
-
 /* ---------- Sign-in ---------- */
 .fd-auth {
   display: grid;
@@ -903,10 +820,6 @@ h3 {
     rgba(255, 255, 255, 0.015);
   padding: 48px clamp(24px, 4vw, 56px);
 }
-
-
-
-
 
 .fd-auth-main {
   display: grid;
@@ -962,22 +875,6 @@ h3 {
   margin-bottom: 26px;
 }
 
-.fd-auth .auth-providers button,
-.fd-auth .auth-providers a {
-  min-height: 46px;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 600;
-  transition: background 0.15s var(--ease-out);
-}
-
-.fd-auth .auth-providers button:hover {
-  background: rgba(255, 255, 255, 0.11);
-}
-
 .fd-auth .auth-form input {
   min-height: 46px;
   border-radius: 12px;
@@ -991,12 +888,6 @@ h3 {
   font-size: 15px;
   font-weight: 700;
 }
-
-.fd-auth .auth-divider {
-  color: var(--text-3);
-}
-
-
 
 @media (max-width: 860px) {
   .fd-sidebar {
@@ -1104,8 +995,7 @@ h3 {
     animation: none;
   }
 
-  .fd-btn,
-  .fd-tile{
+  .fd-btn{
     transition: none;
   }
 }
@@ -1343,43 +1233,6 @@ h3 {
   font-weight: 600;
 }
 
-
-
-
-
-
-
-.fd-style {
-  display: grid;
-  gap: 3px;
-  border: 1px solid var(--hairline);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-  padding: 12px 14px;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.2s var(--ease-out), background 0.2s var(--ease-out), transform 0.2s var(--ease-out);
-}
-
-.fd-style:hover:not(:disabled) {
-  border-color: rgba(227, 183, 90, 0.35);
-  transform: translateY(-1px);
-}
-
-.fd-style strong {
-  font-size: 14px;
-}
-
-.fd-style span {
-  color: var(--text-3);
-  font-size: 12px;
-}
-
-
-
-
-
 .fd-birthdays {
   margin: 0 0 22px;
   border: 1px solid var(--hairline);
@@ -1564,7 +1417,6 @@ h3 {
 .fd-auth-foot a,
 .auth-link,
 .workspace-signed-out a,
-.auth-legal a,
 .pc-setup-copy p a {
   color: var(--text);
   text-decoration: underline;
@@ -1580,7 +1432,6 @@ h3 {
 .fd-auth-foot a:hover,
 .auth-link:hover,
 .workspace-signed-out a:hover,
-.auth-legal a:hover,
 .pc-setup-copy p a:hover {
   text-decoration-color: currentColor;
 }

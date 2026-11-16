@@ -19,6 +19,10 @@ import { gzipSync } from "node:zlib";
 // page. Each stylesheet loaded that way is held to its own small budget, so "later" cannot become a back door.
 // 9 November (26.11.28): one gesture, one chapter on the front page's stage (wheel, trackpad and touch) adds 0.25 KB to the
 // total; the heaviest page is unchanged.
+// 16 November (26.11.58, release sign-off): headroom without changing the look: unused rules removed, Tailwind scans
+// src/ only, the download card's rules load on /download only, and supabase-js's storage client (unused here, with an
+// Iceberg client and a Buffer polyfill) is left out of the browser build (src/lib/no-storage.ts). CSS 23.9 -> 22.9 KB on
+// the heaviest page, JS 384 -> 371 KB in all; budgets unchanged.
 const BUDGET = { pageJsKB: 320, totalJsKB: 401, largestJsKB: 90, cssKB: 24, laterCssKB: 3 };
 const dir = fileURLToPath(new URL("../out/_next/static/chunks/", import.meta.url)); // a real path on Windows too (not "/C:/…")
 // the scripts browsers that run modules never load (<script noModule>): not counted
