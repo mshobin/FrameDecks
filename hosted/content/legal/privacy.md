@@ -32,6 +32,9 @@ data is set out under "Who is responsible" below.
 | Commands sent to a PC from the website (who sent which command, and when) | To run a meeting from the website, and to show the PC what was asked | 7 days |
 | Device alerts: a new PC or device in the workspace, with its name and when | To tell owners and admins | One year (the last 30 days are shown) |
 | Wrong codes: a hash of the network address a wrong code came from | To stop people guessing codes | One hour |
+
+Every network address on this page is kept only as a hash made with a key that changes every day and is deleted after
+two days, so a stored hash cannot be turned back into an address.
 | Update checks from the program: the program version and Windows version | To offer the right update | Not stored with any identity; Cloudflare keeps request logs briefly |
 
 ## Members' phones
@@ -41,10 +44,10 @@ account:
 
 | Data | Why | Kept online |
 | --- | --- | --- |
-| The room: what is on screen as words (the Frame's name, a question, a scripture), the sermon notes the leader shares, and a picture (JPEG), title and words of each PowerPoint slide shown | So phones can follow along | Until the room is closed or the next one is opened; a room closes by itself after at most 12 hours |
+| The room: what is on screen as words (the Frame's name, a question, a scripture), the sermon notes the leader shares, and a picture (JPEG), title and words of each PowerPoint slide shown | So phones can follow along | Until the room is closed or the next one is opened; a room closes by itself after at most 12 hours, and what it held is removed within an hour after that |
 | Prayer requests: the request, the first name if the person gives one, and a hash of the network address it came from | So the leader can read them and choose what to show | Until the church PC takes it in, at most 24 hours. On the PC it is kept in memory only and is gone when the wall or FrameDecks is closed |
-| Poll answers: the choice, and a hash of a random number the phone keeps (`fd-voter`) so each phone answers once | To count answers | Until the next poll replaces it, or the PC is unlinked |
-| Typed answers: the answer (up to 280 characters) and the same hash | So the leader can read them and choose what to show | Until the next question replaces it, or the PC is unlinked |
+| Poll answers: the choice, and a hash of a random number the phone keeps (`fd-voter`) so each phone answers once | To count answers | Until the next poll replaces it or the room closes |
+| Typed answers: the answer (up to 280 characters) and the same hash | So the leader can read them and choose what to show | Until the next question replaces it or the room closes |
 
 A request sent without a name does not show the leader who sent it. It is not fully anonymous: the network hash above
 is kept with it for up to 24 hours to stop abuse.

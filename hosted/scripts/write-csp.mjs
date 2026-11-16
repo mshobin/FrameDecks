@@ -2,18 +2,29 @@
 // out/_headers (Cloudflare Pages) after `next build`. Each page's own inline scripts (Next.js puts the page data in
 // them) are named by their SHA-256, so no other inline script runs; scripts otherwise come only from this site; the
 // page talks only to this site, the FrameDecks cloud (Supabase) and FrameDecks' own update and download servers.
-// Report-only for now (REPORT_ONLY): a broken rule is reported in the browser, nothing stops working.
-// tests/visual/site-csp.mjs serves out/ with these headers and fails on any reported break.
+// 26.11.58 (release sign-off M7): enforced. The page may talk to this workspace's own Supabase project only (its address
+// from NEXT_PUBLIC_SUPABASE_URL at build time; any *.supabase.co when the build has none).
+// tests/visual/site-csp.mjs serves out/ with these headers and fails on any break.
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const REPORT_ONLY = true;
+export const REPORT_ONLY = false;
 export const HEADER = REPORT_ONLY ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy";
+
+/** The cloud the page may reach: this build's Supabase host, or any *.supabase.co when the build names none. */
+export function cloudHost(url = process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  try {
+    const h = new URL(url ?? "").host;
+    return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(h) ? h : "*.supabase.co";
+  } catch {
+    return "*.supabase.co";
+  }
+}
 export const BASE = [
   "default-src 'self'",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.framedecks.com https://downloads.framedecks.com",
+  `connect-src 'self' https://${cloudHost()} wss://${cloudHost()} https://api.framedecks.com https://downloads.framedecks.com`,
   "img-src 'self' data: blob:",
   "media-src 'self' data: blob:",
   "font-src 'self' data:",

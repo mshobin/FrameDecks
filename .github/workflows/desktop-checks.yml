@@ -99,6 +99,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Website Content-Security-Policy (enforced; no page may break a rule)
+        run: node tests/visual/site-csp.mjs
+
       - name: Website Plan workflow (steps, timeline, meetings, Sync Now, .frame export)
         run: node tests/visual/plan-flow.mjs
 

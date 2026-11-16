@@ -38,6 +38,16 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   with `pg_temp`; Download my data adds Trusted Devices and security events; deleting an account removes the link
   requests made with its address.
 - `vercel.json` sends the same security headers as Cloudflare Pages, in case that deployment is still served.
+- Migration `0028_codes_limits_retention.sql` (owner applies after the website is deployed; rollback in
+  `supabase/rollback/`): a wrong-code lock is checked only after a code is not found, so one network's wrong guesses
+  never block phones with the right code; room and prayer codes have 8 characters and an IPv6 address counts as its
+  /64; sources are hashed with a daily key deleted after two days; only the owner invites or removes an admin on the
+  tables too; closing a room removes its poll and answers; `members_phones_sweep()` (hourly with pg_cron, and whenever
+  a PC opens a room or wall) clears rooms and walls that timed out. `prayer_send` answers `{sent: false}` for a closed
+  wall instead of failing, so the wrong guess is counted.
+- Website: codes of 8 characters (6 still read); a closed prayer wall says so; the Members page offers Admin and Remove
+  for admins only to the owner; the Content-Security-Policy is enforced and names the build's own Supabase host, with a
+  browser check in CI (`tests/visual/site-csp.mjs`). The 0027 and 0028 database tests now run in `npm test`.
 - Release signing switched on (sign-off H1): the owner's key `6e249884d5950a0b` is in `TRUSTED_KEYS`
   (`src/updater.py`). Programs from this release on accept only manifests signed with it, and a release tag without the
   `MANIFEST_SIGNING_KEY` secret stops before publishing.

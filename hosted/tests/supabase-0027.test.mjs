@@ -54,7 +54,7 @@ test("unlinking a PC closes its members' room and prayer wall and removes what t
   for (const t of ["room_slides", "room_responses", "room_answer_prompts", "prayer_requests"]) {
     assert.equal(Number((await one(db.query(`select count(*) as n from public.${t} where computer_id = $1`, [pcId]))).n), 0, t);
   }
-  await assert.rejects(phone("select prayer_send($1, 'Another request')", [wall]), /closed/);
+  assert.deepEqual((await one(phone("select prayer_send($1, 'Another request') as r", [wall]))).r, { sent: false, status: "closed" }, "the wall is closed (0028 answers instead of failing)");
 });
 
 test("every SECURITY DEFINER function searches public then pg_temp", async () => {

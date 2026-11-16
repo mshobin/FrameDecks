@@ -2,7 +2,7 @@
 // (cd hosted && NEXT_PUBLIC_SUPABASE_URL=https://x.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=stub npm run build),
 // then: node tests/visual/site-csp.mjs
 // Serves hosted/out with the page policies scripts/write-csp.mjs wrote into out/_headers, opens every page and fails
-// on any rule a page breaks (the policy is report-only, so the browser reports each break as an event).
+// on any rule a page breaks (the browser reports each break as an event; 26.11.58 the policy is enforced).
 import { createRequire } from "node:module";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";

@@ -14,7 +14,8 @@ type Invitation = { id: string; email: string; role: Exclude<Role, "owner"> };
 
 const roleLabels: Record<Role, string> = { owner: "Owner", admin: "Admin", member: "Member" };
 
-// Members and pending invitations of one workspace. Owners and admins can invite, cancel and remove;
+// Members and pending invitations of one workspace. Owners and admins can invite, cancel and remove (26.11.58: only the
+// owner invites or removes an admin; admins handle members, as 0013/0018/0028 enforce);
 // row-level security enforces the same rules in the database.
 export function WorkspaceMembers({
   organizationId,
@@ -181,7 +182,8 @@ export function WorkspaceMembers({
         <ul className="members-list">
           {members.map((member) => {
             const isMe = member.user_id === myUserId;
-            const canRemove = member.role !== "owner" && (isMe || canManage);
+            // 26.11.58 (0028): only the owner removes an admin; admins remove members
+            const canRemove = member.role !== "owner" && (isMe || myRole === "owner" || (canManage && member.role === "member"));
             return (
               <li key={member.user_id}>
                 <span className="member-who">
@@ -248,7 +250,7 @@ export function WorkspaceMembers({
               onChange={(event) => setRole(event.target.value as Invitation["role"])}
             >
               <option value="member">Member</option>
-              <option value="admin">Admin</option>
+              {myRole === "owner" && <option value="admin">Admin</option>}
             </select>
             <Button disabled={busy || !email.trim()} type="submit" variant="outline">
               {busy ? "Inviting…" : "Invite"}

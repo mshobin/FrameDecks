@@ -42,7 +42,7 @@ let code;
 test("the PC opens a wall; a phone sees it is open and sends a request with only the code", async () => {
   await assert.rejects(phone("select pc_prayer_open()"), /not connected/);
   code = (await one(pc("select pc_prayer_open(3) as r"))).r.code;
-  assert.match(code, /^[A-Z0-9]{6}$/);
+  assert.match(code, /^[A-Z0-9]{8}$/, "0028: codes have 8 characters");
   const peek = (await one(phone("select prayer_peek($1) as r", [code.toLowerCase()]))).r;
   assert.deepEqual(peek, { status: "open", team: "Grace Church" });
   const sent = (await one(phone("select prayer_send($1, $2, $3) as r", [code, "  Pray for my mother's surgery on Friday \u0007 ", "Mary"]))).r;
@@ -77,7 +77,7 @@ test("a new code replaces the old one; a closed wall takes nothing", async () =>
   assert.equal((await one(phone("select prayer_peek($1) as r", [code]))).r.status, "unknown");
   await pc("select pc_prayer_close()");
   assert.equal((await one(phone("select prayer_peek($1) as r", [fresh]))).r.status, "closed");
-  await assert.rejects(phone("select prayer_send($1, $2)", [fresh, "Hello"]), /closed/);
+  assert.deepEqual((await one(phone("select prayer_send($1, $2) as r", [fresh, "Hello"]))).r, { sent: false, status: "closed" }, "0028: an answer, so the wrong guess is counted");
 });
 
 test("wrong codes are limited like join codes", async () => {
@@ -86,6 +86,8 @@ test("wrong codes are limited like join codes", async () => {
 });
 
 test("rollback removes 0019", async () => {
+  // rollbacks run newest first: 0028 (codes, limits, sweep) changed the wall's functions
+  await db.exec(readFileSync(new URL("../supabase/rollback/0028_codes_limits_retention_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0019_prayer_wall_down.sql", import.meta.url), "utf8"));
   const left = (await db.query("select count(*)::int as n from pg_proc where proname like '%prayer%'")).rows[0].n;
   assert.equal(left, 0);

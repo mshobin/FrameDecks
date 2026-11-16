@@ -294,10 +294,14 @@ function PrayerForm({ code }: Readonly<{ code: string }>) {
     if (!supabase || busy) return;
     setBusy(true);
     setProblem(null);
-    const { error } = await supabase.rpc("prayer_send", { code, body: body.trim(), name: name.trim() || null });
+    const { data, error } = await supabase.rpc("prayer_send", { code, body: body.trim(), name: name.trim() || null });
     setBusy(false);
     if (error) {
       setProblem(userSafeError(error, "Couldn’t send your request. Check your connection and try again."));
+      return;
+    }
+    if ((data as { sent?: boolean } | null)?.sent === false) {
+      setProblem("This prayer wall is closed.");           // 26.11.58 (0028): a closed wall answers instead of failing
       return;
     }
     setSent(name.trim());
@@ -738,11 +742,11 @@ function FollowCode({
         <CodeBox
           prompt={room ? "Try another code" : "Type the code on the meeting screen"}
           button="Follow the meeting"
-          placeholder="K7PM2X"
+          placeholder="K7PM2XQ4"
           busy={checking}
           read={(t) => (isPrayerCode(t) ? tidyPrayerCode(t) : null)}
           onCode={onCode}
-          onBad={() => onBad("Meeting codes have 6 letters and numbers, shown on the meeting screen.")}
+          onBad={() => onBad("Meeting codes have 8 letters and numbers, shown on the meeting screen.")}
         />
         <p className="auth-message">No account needed. You see only what the leader shares, while the meeting page is open (<Link href="/privacy">Privacy</Link>).</p>
         {problem && (

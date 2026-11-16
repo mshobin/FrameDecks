@@ -91,6 +91,8 @@ test("phones and the anon role cannot touch the table itself", async () => {
 });
 
 test("the rollback removes it and members' phones keep working", async () => {
+  // rollbacks run newest first: 0028's sweep clears slides too
+  await db.exec(readFileSync(new URL("../supabase/rollback/0028_codes_limits_retention_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0025_room_slides_down.sql", import.meta.url), "utf8"));
   const left = await one(db.query("select to_regclass('public.room_slides') as t, to_regprocedure('public.room_slide(text,integer)') as f"));
   assert.deepEqual([left.t, left.f], [null, null]);

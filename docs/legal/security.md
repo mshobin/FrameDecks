@@ -32,6 +32,8 @@ yourself.
   slides you show and the sermon notes you share are stored online until the room is closed or the next one is opened
   (a room closes by itself after at most 12 hours). Prayer requests, poll answers and typed answers from phones pass
   through the website; the Privacy Policy lists how long each is kept.
+- **Room codes.** Members' phone and prayer wall codes have 8 characters. Wrong codes are limited per network (an
+  IPv6 /64 counts as one network), and a network that guessed wrong never blocks phones that have the right code.
 - **Separated by workspace.** Every table in the database has row-level security. A person sees only the workspaces
   they belong to, and only what their role (owner, admin, member) allows. Linked PCs see only their own workspace.
   Tables that hold device tokens and security events have no direct access at all: they are reached only through
@@ -114,7 +116,8 @@ code. We do not use Google, Microsoft or Apple to open workspaces.
 - **Static pages, no third-party scripts.** framedecks.com is a static site served by Cloudflare. It loads no
   advertising, analytics or third-party scripts.
 - **Security headers on every page:**
-  - `Content-Security-Policy` with per-page script hashes (report-only while it is checked against real use);
+  - `Content-Security-Policy` with per-page script hashes, enforced: no other script runs, and pages talk only to this
+    site, the workspace's own database and FrameDecks' update and download servers;
   - `frame-ancestors 'none'` and `X-Frame-Options: DENY`;
   - `X-Content-Type-Options: nosniff`;
   - `Referrer-Policy: strict-origin-when-cross-origin`;

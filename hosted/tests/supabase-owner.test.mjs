@@ -89,6 +89,8 @@ test("the database's own work is not affected (deleting an account hands a team 
 });
 
 test("the rollback restores 0001's rules", async () => {
+  // rollbacks run newest first: 0028's admin rules use is_org_owner
+  await db.exec(readFileSync(new URL("../supabase/rollback/0028_codes_limits_retention_down.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/rollback/0013_protect_owner_down.sql", import.meta.url), "utf8"));
   assert.equal((await db.query("select to_regprocedure('public.is_org_owner(uuid)') as f")).rows[0].f, null);
   assert.equal((await as(ADMIN, "update memberships set role = 'admin' where organization_id = $1 and user_id = $2 returning 1", [org, MEMBER])).rows.length, 1,

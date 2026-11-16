@@ -1,8 +1,9 @@
 // 26.11.23/24 the members' room code the church PC shows (0019 prayer wall, 0020 members' phones), read from
-// /follow#c=CODE or typed: six characters from the same alphabet as join codes (no 0/O, 1/I/L), tidied the same way.
+// /follow#c=CODE or typed: eight characters (26.11.58, migration 0028; six before it, still read while rooms opened
+// earlier are open) from the same alphabet as join codes (no 0/O, 1/I/L), tidied the same way.
 import { tidyCode } from "@/lib/join-code";
 
-const ROOM = /^[A-HJ-NP-Z2-9]{6}$/;
+const ROOM = /^(?:[A-HJ-NP-Z2-9]{6}|[A-HJ-NP-Z2-9]{8})$/;
 
 export const tidyPrayerCode = tidyCode;
 
