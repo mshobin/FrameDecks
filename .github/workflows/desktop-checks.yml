@@ -110,5 +110,5 @@ jobs:
 
       - name: Program log (on failure)
         if: failure()
-        run: cat server.log
+        run: tail -n 80 server.log          # the end only, so the failing step above stays readable
 

@@ -40,7 +40,11 @@ const srv = createServer((q, r) => {
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+// 26.11.58: every outside request is answered here (the cloud with {}, FrameDecks' servers and anything else with
+// nothing), so the check is the same on a CI runner with the internet as on a machine without it. A request the policy
+// blocks never gets this far: the browser reports it first.
 await ctx.route(/supabase\.co/, (route) => route.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
+await ctx.route(/^https?:\/\/(?!127\.0\.0\.1)/, (route) => route.fulfill({ status: 204, body: "" }));
 await ctx.addInitScript(() => {
   window.__csp = [];
   document.addEventListener("securitypolicyviolation", (e) =>
@@ -50,8 +54,14 @@ const found = [];
 const routes = Object.keys(policies);
 for (const route of routes) {
   const p = await ctx.newPage();
-  const res = await p.goto(`http://127.0.0.1:8932${route}`, { waitUntil: "networkidle" });
-  if (!res.headers()["content-security-policy-report-only"] && !res.headers()["content-security-policy"]) found.push(`${route}: no policy`);
+  let res = null;
+  try {
+    res = await p.goto(`http://127.0.0.1:8932${route}`, { waitUntil: "load", timeout: 20000 });
+    await p.waitForTimeout(800);
+  } catch (e) {
+    found.push(`${route}: did not load (${String(e.message).split("\n")[0]})`);
+  }
+  if (res && !res.headers()["content-security-policy-report-only"] && !res.headers()["content-security-policy"]) found.push(`${route}: no policy`);
   await p.mouse.wheel(0, 4000);                       // the landing's reveal effects and lazy parts
   await p.waitForTimeout(500);
   for (const v of await p.evaluate(() => window.__csp)) found.push(`${route}: ${v}`);
