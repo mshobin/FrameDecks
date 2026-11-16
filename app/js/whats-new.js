@@ -5,7 +5,7 @@
 (function(){
 'use strict';
 var NEWS = {
-  '26.11.58': [
+  '26.11.59': [
     {title: 'Signed updates', text: 'FrameDecks now installs an update only when it carries FrameDecks\u2019 signature, so a changed or fake update is refused.'},
     {title: 'Your phone, safer', text: 'Phones stay signed in to the remote for up to 7 days (12 hours unused) and run the meeting but cannot replace your plan. Opening your workspace on a phone from the PC\u2019s code also asks for a code sent to your email.'},
     {title: 'Member details protected', text: 'The member list on this PC is locked to your Windows account, and only FrameDecks\u2019 own windows can change your meeting. Pages in OBS keep working.'}

@@ -10,6 +10,16 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.59] - 2026-11-16
+
+Full notes: [docs/releases/v26.11.59.md](releases/v26.11.59.md).
+
+### Changed
+- The release manifest signing key is replaced: `TRUSTED_KEYS` holds `51d7b2656dd549ce` instead of `6e249884d5950a0b`,
+  whose private half was not kept. 26.11.58 was never published to the update server (its publish step refused to run
+  without the matching key), so installed copies update from 26.11.57 or earlier straight to 26.11.59, which carries
+  everything listed under 26.11.58.
+
 ## [26.11.58] - 2026-11-16
 
 Full notes: [docs/releases/v26.11.58.md](releases/v26.11.58.md).

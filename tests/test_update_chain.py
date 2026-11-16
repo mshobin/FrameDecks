@@ -126,7 +126,7 @@ class Updater(unittest.TestCase):
 
     def test_the_owners_key_is_built_in_and_unsigned_manifests_are_refused(self):
         # 26.11.58 (release sign-off H1): the owner's key, made with tools/manifest_key.py
-        self.assertEqual(updater.TRUSTED_KEYS, {"6e249884d5950a0b": "c833d619a96556e1315087a2da4b76ee769ef2baad53b7a427b45633ebb91471"})
+        self.assertEqual(updater.TRUSTED_KEYS, {"51d7b2656dd549ce": "25b1def99e6360fcf6c0f521522e293bb87510fdf11fc38b069d2bbb1a5cb746"})
         for kid, pub in updater.TRUSTED_KEYS.items():
             self.assertEqual(manifest_sig.key_id(bytes.fromhex(pub)), kid, "the id belongs to the key")
         u = self.make(manifest(), None)                   # the program's own keys

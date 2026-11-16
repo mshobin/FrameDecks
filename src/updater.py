@@ -50,10 +50,10 @@ PUBLISHER = "Shobin Mathews"                # the code-signing certificate's nam
 # 9.2 Public keys whose signature a release manifest must carry ({key id: 32-byte public key in hex}), made with
 # tools/manifest_key.py; the private key is the MANIFEST_SIGNING_KEY secret of the release workflow. Empty: manifests
 # are read as before 9.2 (the workflow refuses to publish an unsigned manifest once a key is here).
-# 26.11.58 (release sign-off H1): the owner's key, made on the owner's PC on 16 November 2026; the private key is only in
-# the MANIFEST_SIGNING_KEY secret and the owner's offline backup.
+# 26.11.59: the owner's key, made on the owner's PC on 16 November 2026 (it replaces the 26.11.58 key, whose private half
+# was not kept); the private key is only in the MANIFEST_SIGNING_KEY secret and the owner's offline backup.
 TRUSTED_KEYS = {
-    "6e249884d5950a0b": "c833d619a96556e1315087a2da4b76ee769ef2baad53b7a427b45633ebb91471",
+    "51d7b2656dd549ce": "25b1def99e6360fcf6c0f521522e293bb87510fdf11fc38b069d2bbb1a5cb746",
 }
 ALLOWED_HOSTS = ("https://downloads.framedecks.com/", "https://api.framedecks.com/")
 

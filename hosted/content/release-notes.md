@@ -1,6 +1,7 @@
-## FrameDecks v26.11.58
+## FrameDecks v26.11.59
 A security and privacy release: signed updates, a safer phone remote, protected member details on the PC, and
-clearer privacy information for everyone who uses members' phones.
+clearer privacy information for everyone who uses members' phones. It includes everything prepared for
+26.11.58.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
