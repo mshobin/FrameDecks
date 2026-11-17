@@ -7,8 +7,8 @@
  *     Advanced);
  *   - technical lines (camera numbers, Snap to guides, the overlay note) in Advanced;
  *   - the status panel says it in one sentence (js/stage-status.js); its details open on a click;
- *   - the editor shows the words first; Position and size, Look, Animation and Show on are in Advanced (26.11.57: the
- *     Design button switches to Advanced, so there are two modes, not three);
+ *   - the editor shows the words first; Position and size, Look, Animation and Show on are in Advanced (26.11.62: the
+ *     Design button that only switched to Advanced is gone);
  *   - the five chips keep their words wherever they fit.
  * The choice is kept for this PC (kc-app-settings.json "studioMode"), and in localStorage so the first paint is right. */
 (function(){
@@ -44,21 +44,9 @@ if (tbar){
   });
 }
 
-/* the editor's settings (Position and size, Look, Animation, Show on) behind one Design button in Simple */
-if (tbar){
-  design = document.createElement('button');
-  design.type = 'button'; design.className = 'btn small quiet sm-design'; design.id = 'sm-design';
-  design.setAttribute('aria-expanded', 'false');
-  design.innerHTML = (window.KCIcon ? window.KCIcon('palette', 14) + ' ' : '') + 'Design';
-  design.title = 'Position and size, look, animation and where it shows: opens Advanced';
-  /* 26.11.57 two modes, not three: the design settings are part of Advanced, so Design switches to it */
-  design.addEventListener('click', function(){
-    set('advanced', true);
-    if (window.KCActions) window.KCActions.toast('Advanced: every setting of the selected Content is below. Simple brings back the essentials.');
-  });
-  tbar.appendChild(design);
-  if (seg) tbar.appendChild(seg);
-}
+/* 26.11.62 (owner) one switch: the Design button only turned Advanced on, so it is gone; Simple | Advanced is the one
+   way to show every setting of the selected Content */
+if (tbar && seg) tbar.appendChild(seg);
 
 /* the program's saved choice wins (another person may have switched this PC) */
 fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){

@@ -51,8 +51,7 @@ function warnings(){
     if (L.blackout) w.push(['bad', 'Black screen is on']);
     if (L.emergency) w.push(['bad', 'The emergency screen is on']);
     if (L.freeze) w.push(['warn', 'The picture is frozen']);
-    var ls = SC.liveScene(st);
-    if (ls && !(st.question.visible || st.verse.visible || st.birthday.visible || SC.liveText(st).length)) w.push(['warn', 'Live, but nothing is shown']);
+    // 26.11.62 "Live, but nothing is shown" left: the top bar's pill says "Live · nothing shown yet"
   }
   var cam = chip('h-vcam');
   if (cam && cam.tone === 'bad') w.push(['bad', 'FrameDecks vCam: ' + cam.text]);
@@ -71,9 +70,10 @@ function sentence(r, w){
   /* 26.11.57 slides, pictures, video and the camera on screen count too (it said "nothing is showing" over slides) */
   var media = (live.layers || []).some(function(l){ return l.visible && SC.isMedia(l.kind); }) || !!(st.live && st.live.deck && st.live.deck.layer);
   var shown = st.question.visible || st.verse.visible || st.birthday.visible || SC.liveText(st).length || media;
-  if (!shown) return ['warn', 'Live, but nothing is showing yet. Press Show on a question or verse below.'];
+  /* 26.11.62 (owner) live and nothing wrong: no line here, the top bar's pill already says "Live · nothing shown yet"
+     or what is on screen; this line speaks only for a problem the pill cannot fit */
   if (w.length) return ['warn', w[0][1] + '.'];
-  return ['live', 'All good. People see \u201c' + live.name + '\u201d.'];
+  return ['live', ''];
 }
 var sig = '';
 function paint(){
@@ -96,6 +96,7 @@ function paint(){
   $('ss-state').textContent = live ? 'Live output' : 'Output';
   $('ss-dot2').className = 'ss-dot t-' + sum[0];
   $('ss-sentence').textContent = sum[1];
+  if (sumBtn){ var quiet = !sum[1]; sumBtn.hidden = quiet; if (quiet && panel.classList.contains('open')){ panel.classList.remove('open'); sumBtn.setAttribute('aria-expanded', 'false'); } }
 }
 var panel = document.getElementById('stage-status'), sumBtn = $('ss-sum');
 if (sumBtn) sumBtn.addEventListener('click', function(){

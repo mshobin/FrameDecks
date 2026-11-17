@@ -37,10 +37,10 @@ class SimpleMode(unittest.TestCase):
         self.assertIn('body[data-tab="studio"] .cmdbar #cb-take{display:none}', self.css)
         self.assertIn("box-shadow:0 0 0 2px var(--live)", self.css)       # one clear on-screen signal
 
-    def test_design_button_opens_the_editor_settings(self):
-        # 26.11.57 two modes, not three: Design switches to Advanced, where the design settings are
-        self.assertIn("set('advanced', true);", self.js)
-        self.assertIn("aria-expanded", self.js)
+    def test_advanced_shows_the_editor_settings(self):
+        # 26.11.57 two modes, not three; 26.11.62 the Design button (which only switched to Advanced) is gone
+        self.assertIn("b.addEventListener('click', function(){ set(o[0], true); });", self.js)
+        self.assertNotIn("'Design'", self.js)
 
     def test_status_says_it_in_one_sentence(self):
         self.assertIn("function sentence(", self.status)

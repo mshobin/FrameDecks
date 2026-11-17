@@ -103,7 +103,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 26.11.58: release sign-off: signed updates, emailed confirmation for PC codes, phone remote limits, local key, member list encrypted on the PC, 8-character room codes, owner-only admin rules, privacy and security texts | On `main`; owner applied 0027-0029 and redeployed device-alert and device-sign-in, then tags `v26.11.58` |
 | 26.11.59: 26.11.58 with a new release signing key (26.11.58 was not published) | Released |
 | 26.11.60: Memory Cards renamed Chat Bubbles; room to paste a chat on the phone | Tag pending |
-| 26.11.61: Branding in one place, hold Hide all for off air, clear preview, members' QR fix | On `main`; owner tags `v26.11.61` |
+| 26.11.61: Branding in one place, hold Hide all for off air, clear preview, members' QR fix | Tag pending |
+| 26.11.62: one control for each job (Next, + New, mode under the preview, Settings tidy) | On `main`; owner tags `v26.11.62` |
 | 26.11.17: Command Center waterfall restored (curved joins traced into the window shape, pour motion), never cut short (timer shape check) | Released; showed only the bar on the owner's PC |
 | 26.11.16: Emergency + meeting clock on the Command Center and phone, phone Mute/Camera, Teleprompter in Engage only, Heard earlier, planned verses | Released |
 | 26.11.15: Listen for scripture catches every verse (newest in a phrase, partials, retry, hidden Studio), Off/Ask/Auto in Control on the Command Center, top bar and phone; Freeze in the Command Center, Hide the cards on the phone | Released |

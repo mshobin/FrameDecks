@@ -42,11 +42,11 @@ never changes another.
 | Way | How | Result |
 | --- | --- | --- |
 | **+ Frame** | Select **+ Frame** above the Frames list | One blank Frame, after the selected Frame |
-| **Quick Start** | **✨ Meeting → Quick Start…** | A complete set of Frames for a Sunday Service, Bible Study, Youth Service, Conference and more |
+| **Ready-made set** | **+ New → From a ready-made set…** | A complete set of Frames for a Sunday Service, Bible Study, Youth Service, Conference and more |
 | **Library** | The **Library** filter in the Frames list | Ready-made Frames you can add |
-| **From a template** | **✨ Meeting → From your templates** | A new Frame made from one of your templates |
+| **From a template** | **+ New → From your templates** | A new Frame made from one of your templates |
 | **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or Plan on the website: see [Plan on the website](service-planning.md#plan-on-the-website)) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
-| **From a file** | **✨ Meeting → Import a Frame file…**, or **Import a Frame file…** in the Quick Start dialog | A Frame exported from another PC (.json), or a whole plan (.frame) |
+| **From a file** | **+ New → Import… → A Frame file**, or **Import a Frame file…** in the Quick Start dialog | A Frame exported from another PC (.json), or a whole plan (.frame) |
 | **From a .frame file** | **Settings → Data / Backup → Import Frame File…**, or Quick Start → **Import a Frame file…**  | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
 
 After creating a Frame, add Content with **+ Deck**. See [Content](content.md).
@@ -67,7 +67,6 @@ After creating a Frame, add Content with **+ Deck**. See [Content](content.md).
 - **Order:** drag a Frame up or down, or use **⋯ → Move up / Move down**. The order is the order of
   **Frame ▶**.
 - **Favourite:** select the star on a Frame. The **Favorites** filter shows only starred Frames.
-- **Recent:** the **Recent** filter shows what you worked on last.
 - **Search:** type in **Search Frames** above the list, or press **Ctrl+K** to open the command palette and find any
   Frame, question or scripture. See [Presentations](presentations.md#command-palette).
 
@@ -144,14 +143,14 @@ Some leaders prefer each question on its own Frame, so **Frame ▶** moves to th
 A **template** is a Frame you keep for making new Frames, such as your standard *Welcome* or *Closing*.
 
 - **Make one:** **Advanced → Save as template** in Frame settings.
-- **Use one:** **✨ Meeting → From your templates →** the template's name.
+- **Use one:** **+ New → From your templates →** the template's name.
 - Templates stay in the Frames list but are not part of the running order: **Frame ▶** skips them and you cannot
   **Go Live** on a template.
 
 ## Frame files: share a Frame with another PC
 
 - **Export:** **⋯ → Export Frame file** saves the Frame to your Downloads folder.
-- **Import:** **✨ Meeting → Import a Frame file…** (or **Import a Frame file…** in Quick Start) on the other PC.
+- **Import:** **+ New → Import… → A Frame file** (or **Import a Frame file…** in Quick Start) on the other PC.
   This also opens .frame files: they go through the same import as Settings → Data / Backup (**Use this
   plan** or **Add after my Frames**, then the check). A file that is not a Frame file, comes from a newer FrameDecks
   or is damaged is refused with a plain message in the Quick Start dialog, and nothing changes.

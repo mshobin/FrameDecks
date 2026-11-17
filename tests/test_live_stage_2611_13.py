@@ -48,7 +48,7 @@ class LiveStage(unittest.TestCase):
 
     def test_simple_or_advanced_sits_in_the_editor_bar_and_stays_when_it_is_folded(self):
         self.assertIn("var tbar = document.getElementById('insp-tools');", self.simple)
-        self.assertIn("if (seg) tbar.appendChild(seg);", self.simple)
+        self.assertIn("if (tbar && seg) tbar.appendChild(seg);", self.simple)
         self.assertIn(".ws.c-insp .ws-right > .insp-tools > :not(.sm-seg){display:none}", self.css)
 
     def test_the_remote_and_vcam_switches_are_the_normal_switch(self):

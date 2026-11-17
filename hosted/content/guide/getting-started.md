@@ -56,7 +56,7 @@ A webcam is optional. You need one only if people should see you on the FrameDec
    screen: three short pages that show how a meeting is built and how to run it with the Command Center
    (Alt+Space).
    - **Building a meeting**: a Frame is one moment on screen; it holds Decks (a scripture, a question, text, a picture,
-     a video or slides), and each Deck holds its Content. **+ Frame** (or **Quick Start**), **+ Deck**, **+ Question**
+     a video or slides), and each Deck holds its Content. **+ Frame** (or **+ New → From a ready-made set…**), **+ Deck**, **+ Question**
      and **+ Scripture** add them.
    - **Going live**: the Command Center with **Alt+Space**, **Go Live** under Control, Draw and Spotlight.
    - **Finish**: optionally **Add a device**, to plan on framedecks.com and sync to this PC: scan the QR code with
@@ -121,8 +121,8 @@ There are two quick ways to start.
 
 ### Option A: Quick Start (fastest)
 
-1. Select the **✨ Meeting** button next to **+ Frame**.
-2. Choose **Quick Start…**.
+1. Select **+ New** above the Frames.
+2. Choose **From a ready-made set…**.
 3. Pick what you are leading, for example **Sunday Service** or **Bible Study**.
 4. A complete set of Frames appears in its own group. Change any of them; nothing is on screen until you press
    **Go Live**.

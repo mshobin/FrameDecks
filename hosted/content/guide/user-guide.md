@@ -108,11 +108,11 @@ of them.
   Decks and looks, with the scripture and questions left empty). The bin button beside the meeting's name deletes the
   whole meeting (its Frames, Decks and Content, nothing of any other meeting) after asking; **Undo** brings it back.
   See [Frames](frames.md#name-group-and-order).
-- **Meeting** (the ✨ button next to + Frame) has:
-  - Import / Export / Download the Excel Meeting Workbook;
-  - Quick Start;
-  - the Content Library;
-  - your Frame templates.
+- **+ New** (26.11.62, beside the meeting's name) is the one place to start a meeting:
+  - **Blank meeting** and **Copy of** the meeting shown;
+  - **From a ready-made set…** (Bible study, prayer, youth, fellowship);
+  - the Content Library and your Frame templates;
+  - **Import…** and **Export this meeting to PowerPoint**.
 - **+ Frame** adds one **blank** Frame after the selected one. Name it by double-clicking its **name** (or F2), or
   in its **Name** box in Content Settings. The name is edited right in the list: **Enter** saves, **Esc** cancels.
 - Select the Frame, then **+ Deck** (the **Decks** section under the Frames list shows its Content):
@@ -162,7 +162,7 @@ preview; turn on **Show text fields** to see the list and the typing boxes here 
 - **Put slides after this Frame** (26.11.56): in a PowerPoint's menu (⋯ on the Deck), this moves the deck out into a
   Frame of its own, right after this one, so Next goes: this Frame, then the slides, then the Frame that followed.
   One **Undo** puts it back.
-- **Run order** (26.11.56): beside **Quick Start**, it opens every Frame of the meeting in the order Next walks them,
+- **Run order** (26.11.56): in the Frames header, it opens every Frame of the meeting in the order Next walks them,
   each with its steps (① Scripture → ② Question) and its slides (*Talk · 12 slides*), and a total. Drag a row, or use
   its arrows, to move a Frame; click a name to select it in the Studio.
 - **Type in the preview:** click a card on the preview to select it (a gold outline with its name), then
@@ -236,7 +236,7 @@ preview; turn on **Show text fields** to see the list and the typing boxes here 
   PC)*. Since 26.11.53 a deck's settings are cards like every other Content: **Slides** (the file, Start at slide and
   the ready line), **Playback** (Play animations, On members' phones, Show objects only), **Position and size** and
   **Look**. Pictures, video, camera and sound use the same cards, and the cards always fill their rows evenly. In
-  Simple, Slides and Playback stay; the others are behind **Design**.
+  Simple, Slides and Playback stay; the others show in **Advanced**.
   - **Present slides** (26.11.49): with a Frame that has slides selected, the big button reads **Present slides**:
     it goes live and shows the slide large, with big **Back** and **Next**, the next slide, its notes and a strip of
     the slides in this meeting's order. While slides are on screen the big button says what it will do: **Next
@@ -335,7 +335,7 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
 
 ## 7. Import a lesson
 A study lesson becomes Frames in one go (26.11.54). Choose **Meeting ▾ → Import a lesson (PDF or Word)…**, or
-**Import a lesson…** in Quick Start or **Settings → Data / Backup → Meeting from a lesson**, then pick the lesson: a
+**+ New → Import… → A lesson** or **Settings → Data / Backup → Meeting from a lesson**, then pick the lesson: a
 PDF, a Word file (.docx) or a text file.
 - FrameDecks reads it on this PC and finds its **days or parts** (*Day 1*, *First Day*, *Lesson 3*, *Week 2*,
   *Part One*…), its **numbered questions** (*3*, *3a*, *3b*) and every **Bible reference** (*John 3:16*,
@@ -374,13 +374,12 @@ loads only when you first need it, so the app starts faster.
 
 ## 9. Your branding
 **Settings → Meeting look → Meeting & Branding** holds everything about Branding, top to bottom:
-- **Meeting identity**: Meeting Name, organisation and logo.
+- **Meeting identity**: Meeting Name, organisation and logo. (A Meeting Title Frame and a Meeting lower third are in the Frames panel's Library.)
 - **Branding on screen**: one switch, **Show my logo and Meeting Name on every Frame**, and the badge's settings:
   what it shows, where (a corner or centred, safe margin), size and style (size, opacity, padding, background) and
   where it shows (FrameDecks vCam, OBS pages), plus the **members' phones QR code**. **Hide all** takes the badge off
   until the next Frame. The QR code shows while members' phones is open, even with the badge switched off.
-- **Colours on screen**: your accent colour and the season.
-- **Branded templates**: a Meeting Title Frame and a Meeting lower third.
+- **Colours on screen**: your accent colour, the season, and the background behind songs and scriptures (themes).
 - **This window's look**: the Studio's own colours (only this window changes).
 
 Text that uses `{meeting}` / `{org}` and cards with **Show my logo on this card** use the same name and logo.

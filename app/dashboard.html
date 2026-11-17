@@ -131,17 +131,16 @@
         <button class="btn small quiet mt-del" type="button" id="mt-delete" title="Delete this meeting with all its Frames, Decks and Content" aria-label="Delete this meeting"><i data-icon="trash-2" data-size="14"></i></button>
         <!-- 26.11.41 Sync, as on framedecks.com: a preview of what changes first (js/frames-sync.js) -->
         <button class="btn small fs-btn" type="button" id="frames-sync" title="Sync with framedecks.com: see what changes first, then Sync now. Nothing is added twice."><i data-icon="refresh-cw" data-size="15"></i> Sync</button>
-        <button class="btn small" type="button" id="mt-new" title="A new meeting with its own Frames" aria-label="New meeting"><i data-icon="plus" data-size="14"></i> New</button>
+        <button class="btn small" type="button" id="mt-new" aria-haspopup="menu" title="New meeting: blank, a copy of this one, a ready-made set, the Library or Import" aria-label="New meeting"><i data-icon="plus" data-size="14"></i> New</button>
       </div>
       <header class="pane-head"><h2 id="scenes-title">Frames</h2>
-        <button class="btn small qs-btn" type="button" id="quick-start" title="Quick Start: a ready-made set of Frames for a Bible study, prayer meeting, youth gathering or fellowship"><i data-icon="sparkles" data-size="15"></i> Quick Start</button>
         <!-- 26.11.56 the whole meeting as one list: each Frame's steps and slides, drag to reorder (js/run-order.js) -->
         <button class="btn small quiet" type="button" id="mt-run" aria-pressed="false" title="Run order: show the Frames as the order Next walks them, with each one’s steps and slides. Drag to reorder. Click again for the Frames list."><i data-icon="list" data-size="14"></i> Run order</button>
         <button class="btn primary small" type="button" id="scene-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Frame</button></header>
       <div class="pane-tools">
         <input type="search" id="scene-search" placeholder="Search Frames" aria-label="Search Frames">
         <div class="chips sfilter" id="scene-filter" role="tablist" aria-label="Show">
-          <button type="button" role="tab" data-sf="all" aria-selected="true">All</button><button type="button" role="tab" data-sf="fav" aria-selected="false">Favorites</button><button type="button" role="tab" data-sf="recent" aria-selected="false">Recent</button><button type="button" role="tab" data-sf="tpl" aria-selected="false">Library</button></div>
+          <button type="button" role="tab" data-sf="all" aria-selected="true">All</button><button type="button" role="tab" data-sf="fav" aria-selected="false">Favorites</button><button type="button" role="tab" data-sf="tpl" aria-selected="false">Library</button></div>
       </div>
       <ol class="scene-list" id="scene-list" aria-label="Frames"></ol>
     </section>
@@ -169,7 +168,7 @@
         <label class="mem-row">Unpinned bubbles stay <input type="number" id="mem-dur" min="3" max="120" step="1" value="12"> seconds</label>
         <label class="mem-row"><input type="checkbox" id="mem-auto"> Show a bubble as soon as it's copied</label>
         <label class="mem-row"><input type="checkbox" id="mem-share"> Also on the Share Window and overlay pages</label>
-        <div class="mem-acts"><button class="btn small" type="button" id="mem-hideall">Hide all bubbles</button><button class="btn small danger" type="button" id="mem-clear">Clear unpinned bubbles</button></div>
+        <div class="mem-acts"><button class="btn small" type="button" id="mem-hideall">Hide bubbles</button><button class="btn small danger" type="button" id="mem-clear">Clear unpinned bubbles</button></div>
       </div>
       <p class="mem-status" id="mem-status" role="status" aria-live="polite"></p>
       <form class="mem-add" id="mem-add" autocomplete="off"><input type="text" id="mem-add-text" maxlength="500" placeholder="Type a note…" aria-label="Type a Chat Bubble"><button class="btn small" type="submit">Add</button></form>

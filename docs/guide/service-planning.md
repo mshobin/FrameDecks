@@ -54,8 +54,8 @@ During the meeting you move from one Frame to the next with **Frame ▶**, on th
 ## Three ways to start
 
 ### 1. Quick Start
-1. Select the **✨ Meeting** button next to **+ Frame**.
-2. Choose **Quick Start…**.
+1. Select **+ New** above the Frames.
+2. Choose **From a ready-made set…**.
 3. Pick a ready-made meeting, for example **Sunday Service**, **Bible Study**, **Youth Service** or **Conference**.
 4. The Frames appear in their own group. Rename, change or delete any of them.
 
@@ -186,7 +186,7 @@ While it runs, the button says **Syncing…**. Then the result shows next to it:
    It also lists the files the Frames use that are not in the file: "Not in the file (not in this browser): … The
    service PC must already have them."
 2. Copy the file to the service PC, for example on a USB stick.
-3. On the service PC: **Settings → Data / Backup → Import Frame File…** (or in Studio: **Quick Start → Import a
+3. On the service PC: **Settings → Data / Backup → Import Frame File…** (or in Studio: **+ New → Import… → A Frame file**, formerly **Quick Start → Import a
    Frame file…**, the same import), and choose the file. A file that is cut
    short or was changed by hand is refused, and nothing changes. Export it again.
 4. Choose:
@@ -229,7 +229,7 @@ The workbook has just two tabs.
 - Type the date like `2026-10-25` and the time like `19:00`.
 - Many cells have a drop-down list (Level, Type, Effect). Pick from it.
 - The plan shows a few empty rows. Need more? Select the **+** button in the left margin to open the next rows.
-- Import it with **Import from Excel…** in Quick Start (under **Import a Frame file…**), or in Settings → Data / Backup.
+- Import it with **+ New → Import… → A meeting from Excel…**, or in Settings → Data / Backup.
 
 **Dashboard** fills itself in from the Meeting Form. You never type on it, and it is never imported. It shows the
 meeting at a glance: how many days to go, the counts of Frames, Content, questions and scriptures, a **Readiness**
@@ -288,7 +288,7 @@ Today, churches show lyrics in one of two ways:
 
 ## Weekly planning checklist
 
-- [ ] Duplicate last week's Frames and move the copies into a new group, or start from Quick Start.
+- [ ] Duplicate last week's Frames and move the copies into a new group, or start from **+ New → From a ready-made set…**.
 - [ ] Update every Frame name so the volunteer running it knows what comes next.
 - [ ] Add this week's questions and scriptures, and write each Frame's Teleprompter script.
 - [ ] Preview each Frame on the Studio Canvas (select it; the badge says PREVIEW).

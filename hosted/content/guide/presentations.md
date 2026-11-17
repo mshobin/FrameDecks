@@ -91,7 +91,7 @@ time** (in the Frame's settings, in minutes) and the list shows its time against
 turning gold once it runs over; Frames that are not live show their plan, such as *5 min*. While a Frame is live, the
 top bar brings **Control** forward and lets **Prepare** and **More** step back; before you go live, the reverse.
 
-**Sync in the Frames panel.** When this PC is linked to your team, **Sync** (beside Quick Start) first shows what
+**Sync in the Frames panel.** When this PC is linked to your team, **Sync** (beside + New) first shows what
 would change, Frame by Frame: what comes from framedecks.com, what this PC sends, and what was changed in both places
 (the website's version is kept and this PC's beside it as a copy). Nothing changes until you press **Sync now**, and a
 Frame made in both places is kept once, never twice.
@@ -118,7 +118,7 @@ A Frame with a Question or Scripture list shows one item at a time.
 - In the command bar, **◀ Question ▶** does the same as the arrow keys.
 - In the list, **Show** puts one item on screen directly.
 
-**Question · Scripture · Both** on the Frame's card in the Frames list chooses what **Show** puts on screen:
+**Question · Scripture · Both** in the row under the preview (26.11.62; the Frame's card shows the choice as a tag) chooses what **Show** puts on screen:
 - **Question**: the question only;
 - **Both**: the question with its scripture;
 - **Scripture**: the scripture only.

@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.62': [
+    {title: 'One Next', text: 'In the Studio the big Next beside the preview is the one Next. The top bar keeps its Previous arrows.'},
+    {title: '+ New starts every meeting', text: 'Blank, a copy of this meeting, a ready-made set (Quick Start), the Library, Import and Export are all in + New.', show: {spot: '#mt-new'}},
+    {title: 'Question, Scripture or Both', text: 'Choose what a Frame shows first in the row under the preview, beside Set order. The card shows it as a tag.'}
+  ],
   '26.11.61': [
     {title: 'Branding in one place', text: 'Settings \u2192 Meeting look \u2192 Meeting & Branding holds everything: your logo and name, one switch for the badge on every Frame, and all its settings. Branding has left the Decks panel.', show: {settings: 'meeting'}},
     {title: 'Hold Hide all to go off air', text: 'A click on Hide all hides everything as before. Hold it for a second while live and it goes off air, with Undo.'},

@@ -10,6 +10,23 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.62] - 2026-11-17
+
+Full notes: [docs/releases/v26.11.62.md](releases/v26.11.62.md).
+
+### Changed
+- Studio top bar: `#lb-next` and `#lb-step-next` hidden on the Studio tab (the rail's Next is the one Next).
+- `stage-status.js`: no sentence or warning for "live, nothing shown" or "all good" (the pill says it); the summary
+  button hides when there is nothing to say.
+- + New (`#mt-new`) opens `meetingMenu`: Blank, Copy of, From a ready-made set (Quick Start), Library, templates,
+  Import, Export to PowerPoint; `#quick-start` removed; `KCNewMeeting`.
+- Settings › Meeting & Branding: Themes moved into Colours on screen (`#themes-box`, from `meeting-brand.js`); the
+  Branded templates box removed (the Library has them).
+- Frames panel: Recent tab removed. Frame card: Question / Scripture / Both is a read-only tag; the switch is in the
+  order row under the preview (`frame-order.js qsChoice`).
+- `#sm-design` removed (it only switched to Advanced). "Hide all bubbles" → "Hide bubbles".
+- Chips: the items shown on only one of the top bar and the Command Center are checked by a test, each with its reason.
+
 ## [26.11.61] - 2026-11-17
 
 Full notes: [docs/releases/v26.11.61.md](releases/v26.11.61.md).

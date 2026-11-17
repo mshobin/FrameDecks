@@ -4,8 +4,8 @@
  *   - the Branding badge (26.11.61: one badge for every Frame, switched on and set up here only);
  *   - text layers (Announcement, Prayer, Lower Third, Countdown) that use {meeting} / {org} or "Show logo";
  *   - the accent colour replaces the gold of the cards on FrameDecks vCam and the overlay pages.
- * Page order (26.11.61): Meeting identity, Branding on screen, Colours on screen (accent + season), templates, then
- * this window's own look.
+ * Page order (26.11.62): Meeting identity, Branding on screen, Colours on screen (accent, season, background theme),
+ * then this window's own look. The branded templates are in the Library.
  * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, FrameDecks vCam) reads one file.
  */
 (function(){
@@ -178,7 +178,7 @@ function build(){
       h('div', {}, [
         h('label', {cls: 'field'}, [h('span', {text: 'Meeting Name'}), el.meeting]),
         h('label', {cls: 'field'}, [h('span', {text: 'Leader / Organization Name'}), el.org]),
-        h('p', {cls: 'hint', html: 'In any Announcement, Prayer, Lower Third or Countdown, type <b>{meeting}</b> or <b>{org}</b> and it is replaced by these names on screen.'})]),
+        h('p', {cls: 'hint', html: 'In any Announcement, Prayer, Lower Third or Countdown, type <b>{meeting}</b> or <b>{org}</b> and it is replaced by these names on screen. A Meeting Title Frame and a Meeting lower third are in the Frames panel\u2019s <b>Library</b>.'})]),
       h('div', {}, [
         h('span', {cls: 'mb-lbl', text: 'Logo'}), drop,
         h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', html: I('image', 15) + ' Upload logo…', onclick: function(){ el.file.click(); }}), el.knock, el.remove, el.file]),
@@ -201,14 +201,12 @@ function build(){
     h('div', {cls: 'mb-sub', id: 'mb-season', 'data-feature': 'seasons'}, [
       h('h3', {text: 'Season'}),
       h('p', {cls: 'hint', text: 'One choice changes the colours of every card together with a small touch of the season. No season goes back to your own colours.'}),
-      el.season])]));
-  // materials
-  root.appendChild(h('section', {cls: 'box'}, [
-    h('div', {cls: 'box-head'}, [h('h2', {text: 'Branded templates & meeting materials'})]),
-    h('div', {cls: 'actions mb-acts'}, [
-      h('button', {cls: 'btn small', type: 'button', html: I('star', 15) + ' Add a Meeting Title Frame', onclick: function(){ addLib('lib-meeting-title'); }}),
-      h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third Frame', onclick: function(){ addLib('lib-meeting-lower'); }})]),
-    h('p', {cls: 'hint', text: 'Excel import and export are in Settings → Data / Backup.'})]));
+      el.season]),
+    // 26.11.62 (owner) the background theme sits with the colours (it was a box of its own above Meeting identity)
+    h('div', {cls: 'mb-sub', id: 'themes-box'}, [
+      h('h3', {id: 'themes-h', text: 'Background behind songs and scriptures'}),
+      h('p', {cls: 'hint', text: 'One background (a picture or a looping video) behind every song, scripture or announcement.'}),
+      h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', html: I('palette', 14) + ' Choose themes…', onclick: function(){ if (window.KCThemes) window.KCThemes.open(); }})])])]));
 }
 /* ---------- 26.11.61 (owner) Branding on screen: one switch and one badge for every Frame, all its settings here ---------- */
 var CORNERS = [['upper-left', 'Top left'], ['upper-right', 'Top right'], ['lower-left', 'Bottom left'], ['lower-right', 'Bottom right']];
@@ -312,13 +310,6 @@ function setSeason(id){
   commit(function(n){ SC.setSeason(n, id); }).then(function(){
     var now = SC.season(Store.get());
     toast(now ? now.name + ' colours are on the cards' : (was ? 'Back to your own colours' : 'No season'));
-  });
-}
-function addLib(id){
-  var made = null;
-  commit(function(n){ made = SC.fromLibrary(n, id, {creator: ''}); }).then(function(){
-    if (!made) return;
-    toast('Added: ' + made.name + ' (Studio)');
   });
 }
 

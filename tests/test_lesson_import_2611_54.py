@@ -145,7 +145,7 @@ class TheDashboard(unittest.TestCase):
         self.assertIn('id="s-lesson-import"', dash)
         ws = read("app/js/workspace.js")
         self.assertIn("'A lesson (PDF or Word)…'", ws)      # 26.11.57 in the one Import menu
-        self.assertIn("openImport($('quick-start'))", ws)
+        self.assertIn("openImport($('mt-new'))", ws)   # 26.11.62 + New holds the meeting menu
         self.assertIn("api/lesson/read?name=", js)
         srv = read("src/server.py")
         self.assertIn('"/api/lesson/read"', srv)

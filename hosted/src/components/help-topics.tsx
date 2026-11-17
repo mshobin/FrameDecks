@@ -140,10 +140,10 @@ export const TOPICS: Topic[] = [
             <h3>Quick Start</h3>
             <ul>
               <li>
-                <b>Quick Start</b> makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting.
+                <b>+ New → From a ready-made set…</b> makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting.
               </li>
               <li>
-                <b>Import a Frame file…</b> in Quick Start opens a .frame file from the website or another PC, exactly as Settings → Data / Backup does.
+                <b>+ New → Import…</b> opens a .frame file from the website or another PC, exactly as Settings → Data / Backup does.
               </li>
             </ul>
           </section>

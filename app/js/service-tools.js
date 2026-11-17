@@ -158,14 +158,7 @@ function showVerse(text){
 buildVerseBox();
 Store.subscribe(function(st){ if (qv) qv.hidden = !(st && st.live && st.live.scene); });
 
-/* Settings > Meeting & Branding: where Themes opens */
-(function(){
-  var sec = $('sec-meeting'); if (!sec || $('themes-box')) return;
-  var box = h('section', {cls: 'box', id: 'themes-box', 'aria-labelledby': 'themes-h'}, [h('div', {cls: 'box-head'}, [h('h2', {id: 'themes-h', text: 'Themes'})]),
-    h('p', {cls: 'hint', text: 'One background (a picture or a looping video) behind every song, scripture or announcement.'}),
-    h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', html: I('palette', 14) + ' Choose themes…', onclick: open})])]);
-  var head = sec.querySelector('.s-head'); sec.insertBefore(box, head ? head.nextSibling : sec.firstChild);
-})();
+/* 26.11.62 Themes opens from Settings › Meeting & Branding › Colours on screen (js/meeting-brand.js) */
 window.KCThemes = {open: open, apply: apply, layerFor: layerFor};
 window.KCQuickVerse = {show: showVerse};
 window.KCDiscussion = {breakout: breakout};

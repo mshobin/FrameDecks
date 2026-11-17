@@ -1,28 +1,29 @@
-## FrameDecks v26.11.61
-Branding in one place, a clearer preview, and Hide all that can take you off air.
+## FrameDecks v26.11.62
+One control for each job: fewer duplicate buttons in the Studio, the Frames panel and Settings.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Chat Bubbles and recordings.
 
 ## What's New
-- **Branding in one place.** Everything about your branding is now in **Settings → Meeting look → Meeting & Branding**:
-  your name and logo, one switch to show the badge on every Frame, and all its settings (what it shows, where, size,
-  opacity, padding, background, and where it shows). Branding no longer appears in the Decks panel or + Deck. If you
-  used Branding before, it stays on with the same look.
-- **Hold Hide all to go off air.** A click on Hide all still hides everything. Hold it for a second while you are live
-  and it goes off air, the same as holding Go Live, with Undo.
-- **Nothing written over your picture.** The Live and Preview labels no longer sit on the top-left corner of the
-  preview, where a logo often is. The top bar shows whether you are live.
+- **One Next.** In the Studio the big gold Next beside the preview is the one Next; the top bar keeps only its
+  Previous arrows. The keys, the phone remote and the Command Center work as before.
+- **+ New starts every meeting.** + New now offers a blank meeting, a copy of the meeting shown, a ready-made set
+  (what Quick Start did), the Content Library, your templates, Import and Export to PowerPoint. The Quick Start button
+  has left the Frames panel.
+- **What a Frame shows, under the preview.** Question, Scripture or Both is now chosen in the row under the preview,
+  beside Set order. The Frame's card shows the choice as a small tag.
 
 ## Enhancements
-- The Meeting & Branding page is arranged top to bottom: Meeting identity, Branding on screen, Colours on screen
-  (accent colour and season together), branded templates, and this window's own look last.
-- The phone remote shows your logo in its top bar, and the FrameDecks logo only while you have not set one.
-- Next week has left the Frames panel: **New → copy this meeting** does the same.
-- The Meeting Title template is now a title card with your Meeting Name, organisation and logo.
+- The line beside the preview no longer repeats the top bar's "Live · nothing shown yet". It speaks only when
+  something needs attention, such as Black screen on or the camera off.
+- Settings › Meeting & Branding: the background theme (Choose themes…) sits under Colours on screen with the accent
+  colour and the season. The Meeting Title and Meeting lower third templates are in the Frames panel's Library.
+- The Frames panel has All, Favorites and Library; the Recent tab is gone (Search finds any Frame).
+- The Studio's Simple | Advanced switch is the one way to show every setting; the Design button that only switched to
+  Advanced is gone.
+- The Chat Bubbles pane's button reads **Hide bubbles**, so it is not mistaken for the main Hide all.
 
 ## Fixes
-- The members' phones QR code now shows on screen whenever members' phones is open and the QR is turned on, even when
-  the branding badge is off. Before, it showed only on Frames that had Branding.
+- No changes in this release.
 
 ## Performance Improvements
 - No changes in this release.

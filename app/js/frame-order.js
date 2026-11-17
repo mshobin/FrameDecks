@@ -116,12 +116,28 @@ function chip(i, st, sc){
   }
   return c;
 }
+/* 26.11.62 Question · Scripture · Both, moved here from the Frame card (the card shows it as a tag): with Set order it is
+   the order's first step (a preset of the same order), as before */
+var QS = [['question', 'Question', 'Question only'], ['verse', 'Scripture', 'Scripture only'], ['both', 'Both', 'Question and Scripture together']];
+function qsChoice(sc){
+  var m = SC.qsMode(sc); if (!m) return;
+  var g = h('span', {cls: 'si-qs fo-qs', role: 'radiogroup', 'aria-label': 'What this Frame shows'});
+  QS.forEach(function(o){
+    g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), title: o[2], text: o[1], onclick: function(){
+      if (m === o[0]) return;
+      commit(function(n){ SC.setQS(n, sc.id, o[0]); var x = SC.find(n, sc.id); if (x && SC.flowOf(x)) SC.flowPreset(x, o[0]); })
+        .then(function(){ toast(sc.name + ': ' + o[2] + (SC.flowOf(SC.find(live, sc.id)) ? ' first, then the rest of its order' : '')); });
+    }}));
+  });
+  strip.appendChild(g);
+}
 function buildStrip(sc){
   strip.innerHTML = '';
   var st = steps();
   if (!editing){
     strip.appendChild(h('button', {type: 'button', cls: 'fo-set', title: 'Choose the order this Frame shows its Content; Next goes through it', html: I('list-checks', 15) + '<span>' + (st.length ? 'Order · ' + st.length + ' steps' : 'Set order') + '</span>', onclick: start}));
     strip.title = st.length ? st.map(function(s, i){ return (i + 1) + '. ' + s.map(function(id){ return nameOf(SC.layer(sc, id)); }).join(' + '); }).join('   ') : '';
+    qsChoice(sc);
     return;
   }
   strip.appendChild(h('span', {cls: 'fo-help', text: st.length ? 'Next: click what comes after. Shift-click: together with step ' + st.length + '.' : 'Click the Content in the order it should appear. Shift-click: together with the step before.'}));
@@ -145,7 +161,7 @@ function paint(){
   var sc = scene(), studio = $('program') && !$('program').hidden;
   if (!sc || !studio || sc.tpl){ strip.hidden = true; svg.style.display = 'none'; badges.innerHTML = ''; return; }
   strip.hidden = false;
-  var s2 = JSON.stringify([sc.id, sc.flow || null, editing && editing.steps, orderable(sc).map(function(l){ return l.id + nameOf(l); })]);
+  var s2 = JSON.stringify([sc.id, sc.flow || null, editing && editing.steps, orderable(sc).map(function(l){ return l.id + nameOf(l); }), SC.qsMode(sc)]);
   if (s2 !== sig){ sig = s2; buildStrip(sc); }
   var p = prog.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
   strip.classList.toggle('editing', !!editing);

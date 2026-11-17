@@ -361,19 +361,22 @@ function askName(title, value, ok, copyOf){
 (function(){
   var sel = $('mt-pick'); if (!sel) return;
   sel.addEventListener('change', function(){ showMeeting(sel.value); });
-  $('mt-new').addEventListener('click', function(){
+  /* 26.11.62 (owner) + New is the one place to start a meeting: blank, a copy of this one, a ready-made set (what the
+     Quick Start button did), the Library, your templates, Import, and Export to PowerPoint */
+  function newMeeting(copy){
     var cur = SC.currentMeeting(live);
-    askName('A new meeting', '', 'Make the meeting', cur.name).then(function(r){
-      if (!r) return; var made = null, copy = r.from === 'copy';
-      // 26.11.48 starts with a blank Frame; 26.11.49 or as a copy of the meeting shown (scripture and questions empty)
-      commit(function(n){ made = SC.addMeeting(n, r.name, copy ? {copy: cur.id} : {blank: true}); }).then(function(){
+    askName(copy ? 'A copy of \u201c' + cur.name + '\u201d' : 'A new meeting', '', 'Make the meeting').then(function(name){
+      if (!name) return; var made = null;
+      commit(function(n){ made = SC.addMeeting(n, name, copy ? {copy: cur.id} : {blank: true}); }).then(function(){
         selScene = null; if (!made) return;
         var first = SC.order(live)[0]; if (first) select(first.id, null, true);
-        toast(copy && made.frames ? '“' + made.name + '” made with ' + plural(made.frames, 'Frame') + ' from “' + cur.name + '”. Add this meeting’s scripture and questions.'
-          : '“' + made.name + '” made, with a blank Frame. Select + Content to fill it.');
+        toast(copy && made.frames ? '\u201c' + made.name + '\u201d made with ' + plural(made.frames, 'Frame') + ' from \u201c' + cur.name + '\u201d. Add this meeting\u2019s scripture and questions.'
+          : '\u201c' + made.name + '\u201d made, with a blank Frame. Select + Content to fill it.');
       });
     });
-  });
+  }
+  window.KCNewMeeting = newMeeting;
+  $('mt-new').addEventListener('click', function(e){ e.stopPropagation(); meetingMenu($('mt-new')); });
   /* 26.11.61 Next week left the Frames panel (owner): New › copy this meeting does it; KCScenes.nextWeek stays for older code */
   /* 26.11.48 delete this meeting: all its Frames, Decks and Content, nothing else (KCScenes.deleteMeeting), with Undo */
   var del = $('mt-delete');
@@ -412,17 +415,11 @@ function visibleScenes(){
 /* Question · Scripture · Both, right on the scene card (scenes with both cards) */
 var QS_OPTS = [['question', 'Question', 'Question only'], ['verse', 'Scripture', 'Scripture only'], ['both', 'Both', 'Question and Scripture together']];
 function qsPill(sc){
+  /* 26.11.62 (owner) a read-only tag: what the Frame shows first. It is chosen in the order row under the preview
+     (js/frame-order.js), the phone remote, the Command Center or by voice; the card no longer has its own switch. */
   var m = SC.qsMode(sc); if (!m) return null;
-  var g = h('span', {cls: 'si-qs', role: 'radiogroup', 'aria-label': 'What this Frame shows'});
-  QS_OPTS.forEach(function(o){
-    g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), title: o[2], text: o[1], onclick: function(e){
-      e.stopPropagation(); if (m === o[0]) return;
-      /* 26.11.57 one order per Frame: with Set order, the choice is the order's first step (a preset of the same order) */
-      commit(function(n){ SC.setQS(n, sc.id, o[0]); var x = SC.find(n, sc.id); if (x && SC.flowOf(x)) SC.flowPreset(x, o[0]); }).then(function(){ toast(sc.name + ': ' + o[2] + (SC.flowOf(SC.find(live, sc.id)) ? ' first, then the rest of its order' : '') + (isLiveScene(sc.id) ? ' (on screen now)' : '')); });
-    }}));
-  });
-  g.addEventListener('dblclick', stop);
-  return g;
+  var o = QS_OPTS.filter(function(x){ return x[0] === m; })[0];
+  return h('span', {cls: 'si-qs si-qs-tag', title: o[2] + '. Change it in the row under the preview.', text: o[1]});
 }
 
 /* Content Library: ready-made Welcome, Prayer, Discussion, Scripture and Closing scenes, plus your own templates */
@@ -596,12 +593,16 @@ $('scene-add').addEventListener('click', function(e){ e.stopPropagation(); newSc
 /* Meeting: ready-made Frames, the Excel workbook and Frame files (never part of + Frame) */
 function meetingMenu(anchor){
   var saved = live.scenes.filter(function(s){ return s.tpl; });
-  var items = [{label: 'Meeting'},              /* 6.11: the Excel workbook is under Settings → Data / Backup */
-    Store.served ? {icon: 'presentation', text: 'Export this meeting to PowerPoint', run: exportPowerPoint} : null,
+  var cur = SC.currentMeeting(live);
+  var items = [{label: 'New meeting'},
+    {icon: 'file-plus', text: 'Blank meeting', hint: 'one empty Frame', run: function(){ window.KCNewMeeting(false); }},
+    {icon: 'copy', text: 'Copy of \u201c' + cur.name + '\u201d', hint: 'same Frames, words empty', run: function(){ window.KCNewMeeting(true); }},
+    {icon: 'sparkles', text: 'From a ready-made set\u2026', hint: 'a full meeting', run: openQuickStart},
     '-', {label: 'Ready-made Frames'},
-    {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
+    {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
   items.push('-', {icon: 'folder-open', text: 'Import…', hint: 'lesson, slides, songs, Excel, .frame', run: function(){ openImport(anchor); }});   // 26.11.57 one Import menu
+  if (Store.served) items.push({icon: 'presentation', text: 'Export this meeting to PowerPoint', run: exportPowerPoint});
   menu(anchor, items);
 }
 /* 26.11.57 Import: one menu for everything that comes from a file. Every place that imports opens this same menu. */
@@ -614,7 +615,7 @@ function openImport(anchor){
     .concat([{icon: 'file-spreadsheet', text: 'A meeting from Excel…', hint: 'the Meeting Workbook', run: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }},
       {icon: 'folder-open', text: 'A Frame file (.frame)…', hint: 'from framedecks.com', run: importScene}]);
   if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');
-  menu(anchor && anchor.isConnected && anchor.offsetParent ? anchor : ($('quick-start') || document.body), items);
+  menu(anchor && anchor.isConnected && anchor.offsetParent ? anchor : ($('mt-new') || document.body), items);
 }
 /* PowerPoint slides as a Frame of their own, after the selected Frame */
 function importSlides(){
@@ -689,7 +690,7 @@ function openQuickStart(){
       /* 26.11.57 one Import menu: a lesson, PowerPoint slides, songs, Excel or a .frame file */
       h('span', {cls: 'qs-imports'}, [
         h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import…', title: 'A lesson, PowerPoint slides, songs, a meeting from Excel or a .frame file',
-          onclick: function(){ dlg.close(); openImport($('quick-start')); }})]),
+          onclick: function(){ dlg.close(); openImport($('mt-new')); }})]),
       h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
   if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');
@@ -707,7 +708,7 @@ function runQuickStart(q){
   });
 }
 window.KCQuickStart = {open: openQuickStart, importFile: importFrameFile};
-$('quick-start').addEventListener('click', function(e){ e.stopPropagation(); meetingMenu($('quick-start')); });
+/* 26.11.62 the Quick Start button left the Frames panel: + New opens this menu (meetingMenu) */
 
 function sceneMenu(id, anchor, ev){
   var sc = SC.find(live, id); if (!sc) return;

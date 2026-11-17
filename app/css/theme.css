@@ -856,6 +856,9 @@ html[data-theme="light"] .console-top .brand h1{background:linear-gradient(180de
 .si-qs button:hover{color:var(--ink)}
 .si-qs button[aria-checked="true"]{background:var(--accent);color:var(--accent-ink)}
 .si-qs button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+/* 26.11.62 on the card a tag only; the switch is in the order row under the preview (js/frame-order.js) */
+.si-qs-tag{padding:2px 10px;font-size:12px;font-weight:700;color:var(--muted)}
+.fo-qs{margin-left:8px;order:0}
 
 /* Content Library */
 .lib-item{display:flex;align-items:center;gap:9px;padding:7px 6px 7px 8px;margin-bottom:3px;border:1px solid transparent;border-radius:var(--r-2);cursor:pointer}
@@ -1144,7 +1147,7 @@ body.kc-live .cmdbar #lc-control{border-color:var(--ch);box-shadow:inset 0 -2px 
   .ws.c-insp .ws-right > .insp-tools > :not(.sm-seg){display:none}
 }
 .insp-tools .sm-seg{margin-left:8px}
-.insp-tools:not(:has(.fl-acts:not([hidden]))) > :is(.sm-design:not([hidden]),.sm-design[hidden] + .sm-seg){margin-left:auto}
+.insp-tools:not(:has(.fl-acts:not([hidden]))) > .sm-seg{margin-left:auto}
 @container insp (min-width:760px){
   .insp-body > #ip-gen:not([hidden]),.insp-body > .ip:not([hidden]){display:block;columns:2 320px;column-gap:28px}
   .insp-body .ip-sec,.insp-body .field,.insp-body .row,.insp-body .ibox,.insp-body .ip-pin,.insp-body .check,.insp-body .hint,.insp-body .ip-acts{break-inside:avoid}
@@ -2124,6 +2127,8 @@ body.ac-body{margin:0;background:var(--surface);overflow:hidden}
    Members and Settings tabs the rail is not on screen and the top bar's controls show as before. */
 body[data-tab="studio"] .cmdbar #cb-take{display:none}
 body.simple[data-tab="studio"] .cmdbar #lb-prev,body.simple[data-tab="studio"] .cmdbar #lb-next{display:none}
+/* 26.11.62 (owner) one Next in the Studio: the rail's big Next; the top bar keeps only its Previous arrows */
+body[data-tab="studio"] .cmdbar #lb-next,body[data-tab="studio"] .cmdbar #lb-step-next{display:none}
 body.advanced[data-tab="studio"] .cmdbar .lb-step-big .lb-t{display:none}
 body.advanced[data-tab="studio"] .cmdbar .cb-btn.lb-step-big{padding:0 8px}
 /* 26.11.57 one status pill: the live pill (Ready · Live · LIVE) opens every output's state; the outputs no longer sit
