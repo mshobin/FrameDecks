@@ -54,7 +54,7 @@ Media Content is part of the **FrameDecks picture**: the finished 16:9 image tha
 - **Logo / Watermark**: a small image in a corner, shown on every Frame you add it to.
 - **Background**: fills the whole picture behind everything else.
 
-Your organisation's own logo and Meeting Name are set once in **Settings → Meeting & Branding**. They appear only where you put them: Branding Content, text that uses `{meeting}` / `{org}`, and cards with **Show my logo on this card** ticked. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
+Your organisation's own logo and Meeting Name are set once in **Settings → Meeting & Branding**. The badge with them shows on every Frame once **Branding on screen** is switched on there; text that uses `{meeting}` / `{org}` and cards with **Show my logo on this card** ticked use them too. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
 
 ## Videos
 

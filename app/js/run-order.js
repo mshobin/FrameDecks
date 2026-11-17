@@ -1,7 +1,7 @@
 /* FrameDecks 26.11.56 - Run order: the whole meeting, start to finish, as one list (owner, 15 November: "how do i set
  * the order from 1 frame to the other frame to the ppt slide?").
  *
- * - Run order (beside Next week) opens every Frame of the meeting shown, in the order Next walks them: each row says
+ * - Run order (beside Quick Start) opens every Frame of the meeting shown, in the order Next walks them: each row says
  *   what that Frame holds - its Set order steps ("① Scripture → ② Question"), its slides ("Talk · 12 slides"), or its
  *   Content - and which one is on air. Drag a row (or use its arrows) to move the Frame; the Frames list follows.
  * - Put slides after this Frame (a PowerPoint's menu): the deck leaves its Frame and becomes a Frame of its own, right

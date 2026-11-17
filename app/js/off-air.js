@@ -6,8 +6,8 @@
  * Off air takes everything off screen (the same as the Command Center's Go Live switch turned off), with Undo. Only a
  * hold of a second does it: a thin bar fills along the button while you hold, and letting go sooner does nothing but
  * say so. A plain click never goes off air, so a nervous double press mid-meeting cannot take the picture away. The
- * keyboard can hold it too (Space or Enter). Selecting any other Frame turns it back into Go Live; Esc / Hide all are
- * unchanged. */
+ * keyboard can hold it too (Space or Enter). Selecting any other Frame turns it back into Go Live; Esc is unchanged.
+ * 26.11.61: holding the top bar's Hide all goes off air too (a click still hides all Content). */
 (function(){
 'use strict';
 var Store = window.KCStore, SC = window.KCScenes;
@@ -111,6 +111,25 @@ var go = $('ls-go');
 if (go){
   var goT = $('ls-go-t');
   attach(go, function(){ return go.classList.contains('is-off') && onAir(); }, function(h){ if (goT && go.classList.contains('is-off')) goT.textContent = h ? 'Keep holding…' : 'On air'; });
+}
+/* ---------- 26.11.61 (owner) the top bar's Hide all: a click hides all Content as before; held for a second while
+   something is on air, it goes off air like holding Go Live (Esc stays Hide all) ---------- */
+var hide = document.querySelector('.cmdbar [data-cb="hideAll"]');
+if (hide){
+  var hideText = null;
+  for (var i = 0; i < hide.childNodes.length; i++) if (hide.childNodes[i].nodeType === 3 && hide.childNodes[i].nodeValue.trim()){ hideText = hide.childNodes[i]; break; }
+  var hideAria = hide.getAttribute('aria-label');
+  var paintHide = function(){
+    var on = onAir(), want = hide.classList.contains('holding') ? 'Keep holding…' : 'Hide all';
+    if (hideText && hideText.nodeValue !== want) hideText.nodeValue = want;
+    var tip = on ? 'Hide all Content (Esc). Hold for a second to go off air.' : 'Hide all Content (Esc)';
+    if (hide.title !== tip) hide.title = tip;
+    var lab = on ? 'Hide all Content. Hold for a second to go off air.' : hideAria;
+    if (lab && hide.getAttribute('aria-label') !== lab) hide.setAttribute('aria-label', lab);
+  };
+  attach(hide, function(){ return onAir() && !hide.disabled; }, function(){ paintHide(); }, true);
+  Store.subscribe(function(){ requestAnimationFrame(paintHide); });
+  paintHide();
 }
 window.KCOffAir = {offAir: offAir, hold: HOLD};
 })();

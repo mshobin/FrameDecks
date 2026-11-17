@@ -142,10 +142,8 @@ from, Original Frame).
 
 Where each piece of Content appears (FrameDecks, OBS pages) is set once, in that Content's **Show on** group.
 
-**Branding Content** has: **Display** (Logo only, Name only, Logo + Name, and optionally the Organization Name);
-**Position** (a corner, or centred at the top, centre or bottom) and **Safe margin**; **Size** (Small, Medium,
-Large, plus a fine size), **Opacity**, **Padding** and **Background plate** (off = a soft shadow). It looks the same
-on the camera and the OBS pages, at any resolution.
+**Branding** is not Content of a Frame: it is one badge for the whole meeting, switched on and set up in
+**Settings → Meeting look → Meeting & Branding → Branding on screen** (see section 9).
 
 ### Questions and Scriptures
 A Question (or Scripture) Content holds **its own list**, in the area under the preview. Its **Label** and the
@@ -164,7 +162,7 @@ preview; turn on **Show text fields** to see the list and the typing boxes here 
 - **Put slides after this Frame** (26.11.56): in a PowerPoint's menu (⋯ on the Deck), this moves the deck out into a
   Frame of its own, right after this one, so Next goes: this Frame, then the slides, then the Frame that followed.
   One **Undo** puts it back.
-- **Run order** (26.11.56): beside **Next week**, it opens every Frame of the meeting in the order Next walks them,
+- **Run order** (26.11.56): beside **Quick Start**, it opens every Frame of the meeting in the order Next walks them,
   each with its steps (① Scripture → ② Question) and its slides (*Talk · 12 slides*), and a total. Drag a row, or use
   its arrows, to move a Frame; click a name to select it in the Studio.
 - **Type in the preview:** click a card on the preview to select it (a gold outline with its name), then
@@ -375,8 +373,17 @@ import; their answers and notes go into the Frame's Teleprompter script. The Exc
 loads only when you first need it, so the app starts faster.
 
 ## 9. Your branding
-**Settings → Meeting & Branding**: your Meeting Name, organisation, logo and accent colour. They appear only where you
-put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my logo on this card**.
+**Settings → Meeting look → Meeting & Branding** holds everything about Branding, top to bottom:
+- **Meeting identity**: Meeting Name, organisation and logo.
+- **Branding on screen**: one switch, **Show my logo and Meeting Name on every Frame**, and the badge's settings:
+  what it shows, where (a corner or centred, safe margin), size and style (size, opacity, padding, background) and
+  where it shows (FrameDecks vCam, OBS pages), plus the **members' phones QR code**. **Hide all** takes the badge off
+  until the next Frame. The QR code shows while members' phones is open, even with the badge switched off.
+- **Colours on screen**: your accent colour and the season.
+- **Branded templates**: a Meeting Title Frame and a Meeting lower third.
+- **This window's look**: the Studio's own colours (only this window changes).
+
+Text that uses `{meeting}` / `{org}` and cards with **Show my logo on this card** use the same name and logo.
 **Remove background** makes a plain logo background transparent, on this PC, with **Undo**.
 
 ## 10. Saving and backups

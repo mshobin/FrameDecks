@@ -7,3 +7,5 @@ body.cm-typing .app{height:var(--cm-vh,100dvh)}
 body.cm-typing .stage,body.cm-typing .tabs{display:none}
 body.cm-typing #cm-done{display:inline-flex;align-items:center}
 body.cm-typing .panels{padding-bottom:100vh}
+/* 26.11.61 the meeting's own logo in the top bar keeps its shape (remote.js) */
+.top-mark.is-brand{width:auto;max-width:96px;object-fit:contain}

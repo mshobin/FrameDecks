@@ -566,6 +566,9 @@ html[data-theme="light"] .upnext.has-warn{border-color:var(--warn)}
 .stage-row .canvas-wrap{flex:none;width:min(100cqw - var(--rail) - 16px,100cqh * 16 / 9);min-width:0;padding:0}
 .stage-row .studio-host .s2-centre{padding:0}
 .stage-row .canvas-badge{position:absolute;left:10px;top:10px;z-index:3;pointer-events:none}
+/* 26.11.61 (owner) nothing written over the picture's top-left corner, where a logo often sits: Live / Preview and
+   what is on screen show on the top ribbon only. The badges stay in the page for the code that fills them. */
+html body .stage-row .canvas-badge,html body .program-badge,html body .s2-badge{display:none}
 .stage-row .canvas-badge:not(.live):not(.bad){background:rgba(var(--rgb-gray-0),.6);color:var(--gray-1000);border-color:transparent}
 .ws-center .canvas-wrap{background:none}
 .ws-center .canvas-frame{box-shadow:0 0 0 1px var(--line),var(--shadow-2)}
@@ -943,6 +946,13 @@ body:not(.insp-basic) #insp-body .basic-only{display:none!important}
 .mb-inline select{height:36px;padding:4px 10px;line-height:1.2}
 .mb-acts{flex-wrap:wrap;gap:8px}
 .mb-acts .btn{display:inline-flex;align-items:center;gap:6px}
+/* 26.11.61 Branding on screen: one badge, grouped settings */
+.mb-sub{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.mb-sub h3{margin:0 0 6px;font-size:13px;font-weight:700;color:var(--muted)}
+.mb-sub .row .hint{margin:4px 0 0}
+.mb-range{display:flex;align-items:center;gap:10px}.mb-range input{flex:1;min-width:0}
+.mb-show{font-weight:700}
+.mb-sub > .check{display:flex;margin:6px 0}
 #mb-scenes.found{box-shadow:0 0 0 2px var(--gold)}
 
 /* v6.2 - Import a meeting from Excel */

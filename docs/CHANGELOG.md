@@ -10,6 +10,26 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.61] - 2026-11-17
+
+Full notes: [docs/releases/v26.11.61.md](releases/v26.11.61.md).
+
+### Changed
+- Branding is one badge for every Frame: `brand.show` and `brand.badge` (the Branding Content's settings, cleaned by
+  `cleanBadge`), set only in Settings › Meeting look › Meeting & Branding (`app/js/meeting-brand.js`, reordered into
+  identity, Branding on screen, Colours on screen, templates, then this window's look). `KCScenes.liveBrand` and
+  `vcam/program.py live_brand` return the one badge; Hide all hides it on that Frame (`live.brandOff`). Older
+  workspaces take the first Branding Content as the badge and keep branding on; Branding Content left in Frames is
+  not shown, listed or offered in + Deck. `autoBrand` does nothing; the Meeting Title template is an announcement.
+- The preview's Live / Preview / What Zoom receive labels are hidden; the top bar says it.
+- Holding Hide all for a second goes off air (`app/js/off-air.js`), with Undo; a click still hides all Content.
+- Next week (`#mt-next`) removed from the Frames panel; `KCScenes.nextWeek` kept.
+- Phone remote: the top bar shows the meeting's logo (`api/brand/logo`), the FrameDecks emblem while none is set.
+
+### Fixed
+- The members' phones QR (`live.join`) shows on its own badge when branding is off; before it needed a Frame with
+  Branding Content.
+
 ## [26.11.60] - 2026-11-16
 
 Full notes: [docs/releases/v26.11.60.md](releases/v26.11.60.md).

@@ -37,7 +37,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | **PowerPoint…** | Screen…, Window (live PowerPoint or any app)… |
 | | Logo…, Watermark…, Free text on the picture, Shape, Background |
 
-> **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
+> **Note:** A Frame has at most one Question, one Scripture and one Birthday (Branding is one badge for the whole meeting, in Settings). Put all of a
 > Frame's questions into its one Question list. If you choose Question again, FrameDecks takes you to the
 > existing list.
 

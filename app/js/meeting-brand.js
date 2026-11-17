@@ -1,10 +1,11 @@
 /* FrameDecks v6.2 - Settings → Meeting & Branding.
  *
  * The leader's Meeting Name, Leader / Organization Name, logo and accent colour (state.brand), and where they appear:
- *   - Branding layers (a small badge with the logo and/or names), added per scene from here or from the Studio;
+ *   - the Branding badge (26.11.61: one badge for every Frame, switched on and set up here only);
  *   - text layers (Announcement, Prayer, Lower Third, Countdown) that use {meeting} / {org} or "Show logo";
  *   - the accent colour replaces the gold of the cards on FrameDecks vCam and the overlay pages.
- * Nothing is forced onto a scene: the leader ticks the scenes that carry the badge.
+ * Page order (26.11.61): Meeting identity, Branding on screen, Colours on screen (accent + season), templates, then
+ * this window's own look.
  * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, FrameDecks vCam) reads one file.
  */
 (function(){
@@ -51,7 +52,7 @@ function uploadLogo(file){
   toPng(file).then(function(png){
     return fetch('api/brand/logo', {method: 'POST', headers: {'Content-Type': 'image/png'}, body: png}).then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Upload failed'); return d; }); });
   }).then(function(d){
-    return commit(function(n){ n.brand.logo = d.logo; n.brand.lw = d.w; n.brand.lh = d.h; }).then(function(){ toast('Logo saved. It appears on every Frame with Branding switched on.'); offerScenes(); });
+    return commit(function(n){ n.brand.logo = d.logo; n.brand.lw = d.w; n.brand.lh = d.h; }).then(function(){ toast('Logo saved. It shows on every Frame while Branding on screen is on.'); offerScenes(); });
   }).catch(function(e){ toast(e.message || 'The logo could not be saved.', true); });
 }
 /* ---------- 6.7 Remove background: done here, on this PC (no service, no download) ----------
@@ -130,27 +131,18 @@ function removeBackground(){
     .then(function(){ bgBusy = false; });
 }
 function removeLogo(){
-  if (!confirm('Remove the logo? Branding Content then show only the Meeting Name.')) return;
+  if (!confirm('Remove the logo? The badge then shows only the Meeting Name.')) return;
   fetch('api/brand/logo?remove=1', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).catch(function(){})
     .then(function(){ return commit(function(n){ n.brand.logo = ''; n.brand.lw = 0; n.brand.lh = 0; }); }).then(function(){ toast('Logo removed'); });
 }
-/* First time a logo or name is set and no scene carries branding: offer to pick scenes (never automatic) */
+/* First time a logo or name is set while branding is off: point at the switch (never automatic) */
 function offerScenes(){
-  if (!live || live.scenes.some(function(s){ return SC.first(s, 'brand'); })) return;
+  if (!live || (live.brand && live.brand.show)) return;
   var box = $('mb-scenes'); if (box){ box.scrollIntoView({block: 'center', behavior: 'smooth'}); box.classList.add('found'); setTimeout(function(){ box.classList.remove('found'); }, 1800); }
 }
 
-/* ---------- scenes that carry the badge ---------- */
-function setBranding(ids, on){
-  return commit(function(n){
-    n.scenes.forEach(function(sc){
-      if (ids.indexOf(sc.id) < 0) return;
-      var b = SC.first(sc, 'brand');
-      if (on && !b){ var l = SC.addBrand(sc); if (n.live.scene === sc.id) n.live.on[l.id] = true; SC.stamp(sc); }
-      if (!on && b){ sc.layers = sc.layers.filter(function(x){ return x.kind !== 'brand'; }); delete n.live.on[b.id]; SC.stamp(sc); }
-    });
-  });
-}
+/* 26.11.61 kept for older callers: Branding is one switch for every Frame now */
+function setBranding(ids, on){ return commit(function(n){ n.brand.show = !!on; if (!n.brand.badge) n.brand.badge = SC.cleanBadge({}); }); }
 
 /* ---------- the form ---------- */
 var built = false, el = {};
@@ -190,10 +182,8 @@ function build(){
       h('div', {}, [
         h('span', {cls: 'mb-lbl', text: 'Logo'}), drop,
         h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', html: I('image', 15) + ' Upload logo…', onclick: function(){ el.file.click(); }}), el.knock, el.remove, el.file]),
-        h('p', {cls: 'hint', text: 'PNG, JPG or SVG. A transparent PNG or SVG looks best; Remove background makes a plain background transparent. Kept on this PC only.'})])]),
-    h('div', {cls: 'mb-colour'}, [
-      h('label', {cls: 'check'}, [el.colorOn, ' Use my accent colour for the cards and badges (instead of gold)']),
-      h('div', {cls: 'mb-colour-row'}, [el.sw, el.color])])]));
+        h('p', {cls: 'hint', text: 'PNG, JPG or SVG. A transparent PNG or SVG looks best; Remove background makes a plain background transparent. Kept on this PC only.'})])])]));
+  buildBadge();
   // 26.11.28 the season: one switch for the cards' accent and surface (camera and overlay pages) and their touch
   el.season = h('div', {cls: 'look-grid mb-seasons', id: 'mb-seasons', role: 'radiogroup', 'aria-label': 'Season'},
     [{id: '', name: 'No season', note: 'Your own colours', accent: '', a: '#182c54', b: '#0c1a38'}].concat(SC.seasons).map(function(x){
@@ -202,42 +192,16 @@ function build(){
           [h('i', {style: 'background:' + (x.accent || '#d9ab4a')})]),
         h('span', {cls: 'look-t'}, [h('b', {text: x.name}), h('small', {text: x.note})])]);
     }));
-  root.appendChild(h('section', {cls: 'box', id: 'mb-season', 'data-feature': 'seasons'}, [
-    h('div', {cls: 'box-head'}, [h('h2', {text: 'Season'})]),
-    h('p', {cls: 'plain', text: 'One choice changes the colours of every card, on the camera and the shared screen, together with a small touch of the season. Choose No season to go back to your own colours.'}),
-    el.season]));
-  // where
-  el.auto = h('input', {type: 'checkbox', id: 'mb-auto'});
-  el.auto.addEventListener('change', function(){ var v = el.auto.checked; commit(function(n){ n.brand.auto = v; }); });
-  el.pos = h('select', {id: 'mb-pos', 'aria-label': 'Badge position'}, POSITIONS.map(function(p){ return h('option', {value: p[0], text: p[1]}); }));
-  el.pos.value = 'upper-right';
-  el.list = h('ul', {cls: 'mb-list', id: 'mb-list'});
-  el.preview = h('div', {cls: 'mb-preview', 'aria-hidden': 'true'});
-  root.appendChild(h('section', {cls: 'box', id: 'mb-scenes'}, [
-    h('div', {cls: 'box-head'}, [h('h2', {text: 'Where branding appears'})]),
-    h('p', {cls: 'plain', text: 'Tick the Frames that show the Branding badge (your logo and Meeting Name). Untick to remove it. You can also add Branding to any Frame in the Studio: + Content → Branding.'}),
-    el.preview,
-    h('div', {cls: 'actions'}, [
-      h('button', {cls: 'btn small', type: 'button', text: 'Brand every Frame', onclick: function(){ setBranding(live.scenes.filter(function(s){ return !s.tpl; }).map(function(s){ return s.id; }), true).then(function(){ toast('Branding added to every Frame'); }); }}),
-      h('button', {cls: 'btn quiet small', type: 'button', text: 'Remove from every Frame', onclick: function(){ if (confirm('Remove the Branding badge from every Frame?')) setBranding(live.scenes.map(function(s){ return s.id; }), false); }}),
-      h('label', {cls: 'mb-inline'}, [h('span', {text: 'Badge position'}), el.pos]),
-      h('button', {cls: 'btn quiet small', type: 'button', text: 'Apply to all badges', onclick: function(){ var p = el.pos.value; commit(function(n){ n.scenes.forEach(function(sc){ sc.layers.forEach(function(l){ if (l.kind === 'brand') l.c.pos = p; }); }); }).then(function(){ toast('Every badge moved'); }); }})]),
-    el.list,
-    h('label', {cls: 'check'}, [el.auto, ' New Frames include branding (Quick Start, Library, + Frame)'])]));
-  // 26.11.44 the members' phones QR on the Branding badge, so someone who arrives late scans it straight from the screen
-  el.qr = h('select', {id: 'mb-qr', 'aria-label': 'Members’ phones QR code on the badge'},
-    [['off', 'Off'], ['beside', 'Beside the logo'], ['below', 'Below the logo']].map(function(p){ return h('option', {value: p[0], text: p[1]}); }));
-  el.qr.addEventListener('change', function(){
-    var v = el.qr.value;
-    fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({joinQr: v})})
-      .then(function(){ toast(v === 'off' ? 'No QR code on the badge' : 'The QR code shows on the badge while members’ phones is open'); })
-      .catch(function(){ toast('Could not save', true); });
-  });
-  fetch('api/app/info').then(function(r){ return r.json(); }).then(function(d){ el.qr.value = (d.settings && d.settings.joinQr) || 'off'; }).catch(function(){});
-  root.appendChild(h('section', {cls: 'box', id: 'mb-join', 'data-feature': 'team'}, [
-    h('div', {cls: 'box-head'}, [h('h2', {text: 'Members’ phones QR code'})]),
-    h('p', {cls: 'plain', text: 'A small QR code on the Branding badge, beside or below your logo, so someone who joins late scans it and follows on their phone. It shows only while members’ phones is open (Engage → On members’ phones), on the camera and the shared screen.'}),
-    h('label', {cls: 'mb-inline'}, [h('span', {text: 'On the badge'}), el.qr])]));
+  root.appendChild(h('section', {cls: 'box', id: 'mb-colours'}, [
+    h('div', {cls: 'box-head'}, [h('h2', {text: 'Colours on screen'})]),
+    h('p', {cls: 'plain', text: 'The colour of every card and of the badge, on the camera and the shared screen.'}),
+    h('div', {cls: 'mb-colour'}, [
+      h('label', {cls: 'check'}, [el.colorOn, ' Use my accent colour for the cards and the badge (instead of gold)']),
+      h('div', {cls: 'mb-colour-row'}, [el.sw, el.color])]),
+    h('div', {cls: 'mb-sub', id: 'mb-season', 'data-feature': 'seasons'}, [
+      h('h3', {text: 'Season'}),
+      h('p', {cls: 'hint', text: 'One choice changes the colours of every card together with a small touch of the season. No season goes back to your own colours.'}),
+      el.season])]));
   // materials
   root.appendChild(h('section', {cls: 'box'}, [
     h('div', {cls: 'box-head'}, [h('h2', {text: 'Branded templates & meeting materials'})]),
@@ -245,6 +209,103 @@ function build(){
       h('button', {cls: 'btn small', type: 'button', html: I('star', 15) + ' Add a Meeting Title Frame', onclick: function(){ addLib('lib-meeting-title'); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third Frame', onclick: function(){ addLib('lib-meeting-lower'); }})]),
     h('p', {cls: 'hint', text: 'Excel import and export are in Settings → Data / Backup.'})]));
+}
+/* ---------- 26.11.61 (owner) Branding on screen: one switch and one badge for every Frame, all its settings here ---------- */
+var CORNERS = [['upper-left', 'Top left'], ['upper-right', 'Top right'], ['lower-left', 'Bottom left'], ['lower-right', 'Bottom right']];
+var SIZES = [['s', 'Small', 0.75], ['m', 'Medium', 1], ['l', 'Large', 1.4]];
+function setBadge(fn, now){
+  var go = function(){ return commit(function(n){ n.brand.badge = SC.cleanBadge(n.brand.badge || {}); fn(n.brand.badge, n); }); };
+  if (now) return go();
+  later('badge', go);
+}
+function seg(items, pick){
+  var box = h('div', {cls: 'seg', role: 'radiogroup'});
+  items.forEach(function(it){ box.appendChild(h('button', {type: 'button', role: 'radio', 'data-v': it[0], text: it[1], onclick: function(){ pick(it[0]); }})); });
+  box.mark = function(v){ Array.prototype.forEach.call(box.children, function(b){ b.setAttribute('aria-checked', String(b.dataset.v === v)); }); };
+  return box;
+}
+function range(min, max, step, fmt, put){
+  var inp = h('input', {type: 'range', min: String(min), max: String(max), step: String(step)}), out = h('span', {cls: 'val'});
+  inp.addEventListener('input', function(){ out.textContent = fmt(+inp.value); put(+inp.value); });
+  var wrap = h('div', {cls: 'mb-range'}, [inp, out]);
+  wrap.set = function(v){ if (document.activeElement !== inp){ inp.value = String(v); out.textContent = fmt(+v); } };
+  return wrap;
+}
+function rowOf(label, ctl, hint){
+  var inp = ctl.querySelector && ctl.querySelector('input[type=range]'); if (inp) inp.setAttribute('aria-label', label);   // a name for screen readers
+  if (ctl.getAttribute && ctl.getAttribute('role') === 'radiogroup') ctl.setAttribute('aria-label', label);
+  return h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: label}), hint ? h('div', {}, [ctl, h('p', {cls: 'hint', text: hint})]) : ctl]);
+}
+function pct(v){ return Math.round(v * 100) + '%'; }
+function buildBadge(){
+  el.show = h('input', {type: 'checkbox', role: 'switch', id: 'mb-show'});
+  el.show.addEventListener('change', function(){
+    var v = el.show.checked;
+    commit(function(n){ n.brand.show = v; if (!n.brand.badge) n.brand.badge = SC.cleanBadge({}); }).then(function(){
+      toast(v ? (SC.hasBrand(Store.get()) ? 'Your branding shows on every Frame' : 'Branding is on: add a Meeting Name or logo above') : 'No branding on screen');
+    });
+  });
+  el.what = seg([['logo', 'Logo only'], ['name', 'Name only'], ['both', 'Logo + Name']], function(v){ setBadge(function(c){ c.logo = v !== 'name'; c.name = v !== 'logo'; }, true); });
+  el.orgOn = h('input', {type: 'checkbox', id: 'mb-org-on'});
+  el.orgOn.addEventListener('change', function(){ var v = el.orgOn.checked; setBadge(function(c){ c.org = v; }, true); });
+  el.corner = seg(CORNERS, function(v){ setBadge(function(c){ c.pos = v; }, true); });
+  el.centre = h('select', {id: 'mb-pos', 'aria-label': 'Or centred'}, [h('option', {value: '', text: 'A corner (above)'}), h('option', {value: 'top', text: 'Top centre'}),
+    h('option', {value: 'center', text: 'Centre'}), h('option', {value: 'bottom', text: 'Bottom centre'})]);
+  el.centre.addEventListener('change', function(){ var v = el.centre.value; if (v) setBadge(function(c){ c.pos = v; }, true); });
+  el.margin = range(0, 12, 0.5, function(v){ return v ? (+v).toFixed(1).replace(/\.0$/, '') + '%' : 'Edge'; }, function(v){ setBadge(function(c){ c.margin = v; }); });
+  el.size = seg(SIZES.map(function(t){ return [t[0], t[1]]; }), function(v){ var t = SIZES.filter(function(x){ return x[0] === v; })[0]; setBadge(function(c){ c.scale = t[2]; }, true); });
+  el.scale = range(0.4, 3, 0.05, pct, function(v){ setBadge(function(c){ c.scale = v; }); });
+  el.opacity = range(0.1, 1, 0.01, pct, function(v){ setBadge(function(c){ c.opacity = v; }); });
+  el.pad = range(0, 3, 0.05, pct, function(v){ setBadge(function(c){ c.pad = v; }); });
+  el.bg = range(0, 1, 0.01, function(v){ return v ? pct(v) : 'None'; }, function(v){ setBadge(function(c){ c.bg = v; c.plate = v > 0; }); });
+  el.vcam = h('input', {type: 'checkbox', id: 'mb-vcam'}); el.vcam.addEventListener('change', function(){ var v = el.vcam.checked; setBadge(function(c){ c.vcam = v; }, true); });
+  el.obs = h('input', {type: 'checkbox', id: 'mb-obs'}); el.obs.addEventListener('change', function(){ var v = el.obs.checked; setBadge(function(c){ c.obs = v; }, true); });
+  // 26.11.44 the members' phones QR on the badge, so someone who arrives late scans it straight from the screen
+  el.qr = h('select', {id: 'mb-qr', 'aria-label': 'Members’ phones QR code on the badge'},
+    [['off', 'Off'], ['beside', 'Beside the logo'], ['below', 'Below the logo']].map(function(p){ return h('option', {value: p[0], text: p[1]}); }));
+  el.qr.addEventListener('change', function(){
+    var v = el.qr.value;
+    fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({joinQr: v})})
+      .then(function(){ toast(v === 'off' ? 'No QR code on screen' : 'The QR code shows on screen while members’ phones is open (Engage → On members’ phones)' + (live && live.brand && live.brand.show ? '' : ', on its own badge')); })
+      .catch(function(){ toast('Could not save', true); });
+  });
+  fetch('api/app/info').then(function(r){ return r.json(); }).then(function(d){ el.qr.value = (d.settings && d.settings.joinQr) || 'off'; }).catch(function(){});
+  el.preview = h('div', {cls: 'mb-preview', 'aria-hidden': 'true'});
+  el.badgeBody = h('div', {cls: 'mb-badge-body'}, [
+    h('div', {cls: 'mb-sub'}, [h('h3', {text: 'What it shows'}),
+      rowOf('Display', el.what),
+      h('label', {cls: 'check'}, [el.orgOn, ' Also show the Leader / Organization Name'])]),
+    h('div', {cls: 'mb-sub'}, [h('h3', {text: 'Where'}),
+      rowOf('Corner', el.corner),
+      rowOf('Or centred', el.centre),
+      rowOf('Safe margin', el.margin, 'Distance from the edges of the picture. Sizes follow the picture, so the badge looks the same at 720p, 1080p or 4K.')]),
+    h('div', {cls: 'mb-sub'}, [h('h3', {text: 'Size and style'}),
+      rowOf('Size', el.size), rowOf('Fine size', el.scale), rowOf('Opacity', el.opacity), rowOf('Padding', el.pad),
+      rowOf('Background', el.bg, 'The plate behind your logo and name. At None only the logo and name show, with a soft shadow so they stay readable on any picture.')]),
+    h('div', {cls: 'mb-sub'}, [h('h3', {text: 'Shows on'}),
+      h('label', {cls: 'check'}, [el.vcam, ' FrameDecks vCam (Zoom or Teams, the recording and the Share Window)']),
+      h('label', {cls: 'check'}, [el.obs, ' OBS and browser overlay pages']),
+      h('div', {'data-feature': 'team'}, [rowOf('Members’ QR', el.qr, 'A small QR code on the badge while members’ phones is open, so someone who joins late scans it and follows on their phone.')])])]);
+  root.appendChild(h('section', {cls: 'box', id: 'mb-scenes'}, [
+    h('div', {cls: 'box-head'}, [h('h2', {text: 'Branding on screen'})]),
+    h('label', {cls: 'check mb-show'}, [el.show, ' Show my logo and Meeting Name on every Frame']),
+    h('p', {cls: 'hint', text: 'One badge for the whole meeting, new Frames included. Hide all takes it off until the next Frame.'}),
+    el.preview, el.badgeBody]));
+}
+function renderBadge(b){
+  var c = b.badge || SC.cleanBadge({});
+  el.show.checked = !!b.show;
+  el.badgeBody.classList.toggle('off', !b.show);
+  el.what.mark(c.logo && c.name ? 'both' : c.logo ? 'logo' : c.name ? 'name' : 'both');
+  el.orgOn.checked = !!c.org;
+  var corner = CORNERS.some(function(p){ return p[0] === c.pos; });
+  el.corner.mark(corner ? c.pos : ''); el.centre.value = corner ? '' : c.pos;
+  el.margin.set(c.margin);
+  var near = SIZES.reduce(function(a, t){ return Math.abs(t[2] - c.scale) < Math.abs(a[2] - c.scale) ? t : a; });
+  el.size.mark(Math.abs(near[2] - c.scale) < 0.06 ? near[0] : '');
+  el.scale.set(c.scale); el.opacity.set(c.opacity == null ? 1 : c.opacity); el.pad.set(c.pad);
+  el.bg.set(c.plate === false ? 0 : (c.bg == null ? 1 : c.bg));
+  el.vcam.checked = c.vcam !== false; el.obs.checked = c.obs !== false;
 }
 function setSeason(id){
   var was = SC.season(live);
@@ -272,29 +333,18 @@ function render(){
   el.logoImg.hidden = !src; el.logoEmpty.hidden = !!src; el.remove.disabled = !src; el.knock.disabled = !src;
   el.colorOn.checked = !!b.color; if (b.color && document.activeElement !== el.color) el.color.value = b.color;
   Array.prototype.forEach.call(el.sw.children, function(x){ x.setAttribute('aria-checked', String(x.dataset.c === b.color)); });
-  el.auto.checked = !!b.auto;
   var sea = SC.season(live);
   Array.prototype.forEach.call(el.season.children, function(x){ x.setAttribute('aria-checked', String(x.dataset.season === (sea ? sea.id : ''))); });
   // preview badge
   var pal = SC.brandPalette(b.color);
   el.preview.style.setProperty('--mb-edge', pal ? pal.g2 : '#d9ab4a'); el.preview.style.setProperty('--mb-text', pal ? pal.text : '#f2c35b');
   el.preview.innerHTML = '';
+  var bc = b.badge || SC.cleanBadge({});
   if (SC.hasBrand(live)){
-    el.preview.appendChild(h('div', {cls: 'mb-badge'}, [src ? h('img', {src: src, alt: ''}) : null,
-      h('div', {}, [b.meeting ? h('b', {text: b.meeting}) : null, b.org ? h('span', {text: b.org}) : null])]));
-  } else el.preview.appendChild(h('p', {cls: 'hint', text: 'Add a Meeting Name or a logo to see the badge.'}));
-  // scene list
-  var sig = JSON.stringify(live.scenes.map(function(s){ return [s.id, s.name, s.group, s.tpl, !!SC.first(s, 'brand')]; }));
-  if (el.list.dataset.sig !== sig){
-    el.list.dataset.sig = sig; el.list.innerHTML = '';
-    var scenes = live.scenes.filter(function(s){ return !s.tpl; });
-    if (!scenes.length) el.list.appendChild(h('li', {cls: 'hint', text: 'No Frames yet. Create some in the Studio (Quick Start or Import from Excel).'}));
-    scenes.forEach(function(sc){
-      var cb = h('input', {type: 'checkbox', 'data-sid': sc.id}); cb.checked = !!SC.first(sc, 'brand');
-      cb.addEventListener('change', function(){ setBranding([sc.id], cb.checked); });
-      el.list.appendChild(h('li', {}, [h('label', {cls: 'check'}, [cb, ' ' + sc.name, sc.group ? h('small', {text: ' · ' + sc.group}) : null])]));
-    });
-  }
+    el.preview.appendChild(h('div', {cls: 'mb-badge', style: 'opacity:' + (bc.opacity == null ? 1 : bc.opacity)}, [src && bc.logo ? h('img', {src: src, alt: ''}) : null,
+      h('div', {}, [b.meeting && bc.name ? h('b', {text: b.meeting}) : null, b.org && bc.org ? h('span', {text: b.org}) : null])]));
+  } else el.preview.appendChild(h('p', {cls: 'hint', text: 'Add a Meeting Name or a logo above to see the badge.'}));
+  renderBadge(b);
 }
 Store.subscribe(function(st){
   live = st;

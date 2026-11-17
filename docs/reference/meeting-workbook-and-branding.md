@@ -152,6 +152,10 @@ skipped, a Timer value that isn't minutes or a time.
 ## Branding options (v6.7)
 
 ### The Branding Content
+> **26.11.61:** Branding is no longer Content of a Frame. One badge for every Frame is switched on and set up in
+> Settings → Meeting look → Meeting & Branding → **Branding on screen**, with the same settings as below. A Frame's
+> Branding Content from before is not shown; the first one's settings became the badge.
+
 Select the Branding Content in a Frame. Its settings are in Content Settings:
 
 | Section | Setting | Choices |

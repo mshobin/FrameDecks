@@ -52,16 +52,27 @@ def _join_of(live):
 
 
 def live_brand(st, output="vcam"):
-    """v6.2 The live scene's Branding layers that have something to show (same rules as KCScenes.liveBrand)."""
+    """26.11.61 The one Branding badge (Settings > Meeting look) while it is on and a Frame is live; Hide all takes it off
+    that Frame (live.brandOff). Same rules as KCScenes.liveBrand; Branding Content left in Frames from before is not shown."""
     live = st.get("live") or {}
     sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == live.get("scene")), None)
-    if not sc or (sc.get("out") or {}).get(output) is False:
+    b = st.get("brand") or {}
+    qr = bool(live.get("join"))                       # the members' phones QR sits on the badge, even with Branding off
+    if not sc or sc.get("tpl") or (sc.get("out") or {}).get(output) is False:
         return []
-    b, on = st.get("brand") or {}, live.get("on") or {}
-    return [l for l in sc.get("layers") or [] if isinstance(l, dict) and l.get("kind") == "brand" and on.get(l.get("id"))
-            and (l.get("c") or {}).get(output) is not False
-            and (((l.get("c") or {}).get("logo") and b.get("logo")) or ((l.get("c") or {}).get("name") and b.get("meeting"))
-                 or ((l.get("c") or {}).get("org") and b.get("org")))]
+    if live.get("brandOff") and live.get("brandOff") == sc.get("id"):
+        return []
+    c = dict(b.get("badge")) if isinstance(b.get("badge"), dict) else {"logo": True, "name": True, "org": False}
+    has = (c.get("logo") and b.get("logo")) or (c.get("name") and b.get("meeting")) or (c.get("org") and b.get("org"))
+    if not (b.get("show") and has) and not qr:
+        return []
+    if c.get(output) is False:
+        return []
+    if not (b.get("show") and has):
+        c.update(logo=False, name=False, org=False)   # the QR alone
+    op = c.get("opacity")
+    return [{"id": "brand-badge", "kind": "brand", "name": "Branding", "visible": True,
+             "opacity": 1 if op is None else op, "c": c}]
 
 
 def _scratch(owner, name, src):

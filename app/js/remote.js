@@ -545,6 +545,12 @@ function render(){
   var anyOn = live.question.visible || live.verse.visible || live.birthday.visible || SC.liveText(live).length > 0;
   document.body.classList.toggle('on-air', anyOn);
   setText($('meeting'), (live.meeting && live.meeting.title) || (live.brand && live.brand.meeting) || 'FrameDecks');
+  /* 26.11.61 (owner) the meeting's Branding logo in the top bar; the FrameDecks emblem only while no logo is set */
+  var mark = document.querySelector('.top-mark'), logo = live.brand && live.brand.logo;
+  if (mark){
+    var want = logo ? 'api/brand/logo?v=' + encodeURIComponent(logo) : 'img/framedecks-emblem.webp';
+    if (mark.getAttribute('src') !== want){ mark.setAttribute('src', want); mark.classList.toggle('is-brand', !!logo); }
+  }
   var oa = $('onair'), oc = 'air' + (L.blackout || L.emergency ? ' bad' : anyOn ? ' on' : '');
   if (oa.className !== oc) oa.className = oc;
   setText(oa.querySelector('b'), L.blackout ? 'Black screen' : L.emergency ? 'Emergency' : L.freeze ? 'Frozen' : anyOn ? 'On screen' : 'Off air');

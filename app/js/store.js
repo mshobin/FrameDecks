@@ -93,7 +93,7 @@ var DEFAULT_STATE = {
   v6: false,
   /* v6.2 Leader branding: shown only by Branding layers and the layers that ask for it ({meeting} / {org} in their
      text, "Show logo" on text cards). logo = version of the uploaded picture ('' = none; the file is api/brand/logo). */
-  brand: {meeting: '', org: '', color: '', logo: '', lw: 0, lh: 0, auto: false},
+  brand: {meeting: '', org: '', color: '', logo: '', lw: 0, lh: 0, auto: false},   // 26.11.61 + show and badge once used: one badge for every Frame (Settings › Meeting look)
   /* v6.5 Meeting details (Excel Meeting Form, js/meeting-book.js FIELDS); 6.9 adds time, location, speaker contact,
      attendees, presentation owner and notes */
   meeting: {title: '', date: '', time: '', location: '', presenter: '', contact: '', attendees: '', attendeeNotes: '', owner: '',
@@ -515,6 +515,11 @@ function foldOut(layers, out){
   });
   return layers;
 }
+/* 26.11.61 the one Branding badge (Settings › Meeting look): the Branding Content's own settings, cleaned the same way */
+function cleanBadge(c){
+  var l = cleanLayer({id: 'brand-badge', kind: 'brand', name: 'Branding', c: isObj(c) ? c : {}, opacity: isObj(c) && c.opacity != null ? c.opacity : 1});
+  var out = l.c; out.opacity = l.opacity; return out;
+}
 function newLayer(kind, extra){
   var l = {id: rid(), kind: kind, name: KIND_INFO[kind].name, visible: true, locked: false, opacity: 1, c: {}};
   if (kind === 'camera') l.c = {x: 0.5, y: 0.5, w: 1, h: 1, props: {fit: 'cover', mirror: false}};
@@ -561,7 +566,7 @@ var LIBRARY = [
     ['announcement', {name: 'Welcome', c: {title: 'Welcome', text: 'We’re glad you’re here. Find a seat; we begin soon.'}}],
     ['announcement', {name: 'This Week', c: {title: 'This Week', text: 'Add this week’s news here.'}}],
     ['announcement', {name: 'Connect', c: {title: 'Stay Connected', text: 'Add how people can join a group or get in touch.'}}]]},
-  {id: 'lib-meeting-title', cat: 'welcome', name: 'Meeting Title', layers: [['brand', {name: 'Meeting Title', c: {pos: 'center', scale: 2, logo: true, name: true, org: true}}]]},
+  {id: 'lib-meeting-title', cat: 'welcome', name: 'Meeting Title', layers: [['announcement', {name: 'Meeting Title', c: {title: '{meeting}', text: '{org}', pos: 'center', scale: 1.6, label: true, logo: true}}]]},   // 26.11.61 a title card, not a Branding Content
   {id: 'lib-meeting-lower', cat: 'welcome', name: 'Meeting Lower Third', layers: [['lowerthird', {name: 'Meeting', c: {title: '{meeting}', text: '{org}', logo: true}}]]},
   {id: 'lib-welcome-host', cat: 'welcome', name: 'Welcome · Host', layers: [['lowerthird', {name: 'Host', c: {title: 'Welcome', text: 'Your host for today'}}]]},
   {id: 'lib-song', cat: 'worship', name: 'Song', layers: [['song', {name: 'Song', c: {song: '', items: []}}]]},   // 26.11.57 filled from the Song Library
@@ -660,6 +665,7 @@ var Scenes = {
     var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Chat Bubbles (kept on every save)
     var jn = cleanJoin(l.join); if (jn) st.live.join = jn;           // 26.11.44 the members' phones QR on the Branding badge
     var dk = cleanDeck(l.deck); if (dk) st.live.deck = dk;           // 26.11.45 the slide on screen
+    if (typeof l.brandOff === 'string' && l.brandOff && l.brandOff === st.live.scene) st.live.brandOff = str(l.brandOff, 40);   // 26.11.61 Hide all took the badge off this Frame
     if (typeof l.stageMsg === 'string' && l.stageMsg.trim()) st.live.stageMsg = str(l.stageMsg, 140);   // 26.11.57 a message to the stage screen
     if (isObj(l.flow) && typeof l.flow.scene === 'string' && isFinite(l.flow.at)){ st.live.flow = {scene: str(l.flow.scene, 40), at: Math.max(0, Math.min(29, Number(l.flow.at) | 0))}; if (isFinite(l.flow.t) && l.flow.t > 0) st.live.flow.t = Number(l.flow.t); }   // 26.11.51 the step on screen (26.11.57 t: when it came on, for the step timer)
     if (isObj(l.smart) && typeof l.smart.scene === 'string' && isFinite(l.smart.at)) st.live.smart = {scene: str(l.smart.scene, 40), at: Math.max(-1, Math.min(999, Number(l.smart.at) | 0))};   // 26.11.22 Smart Next's place
@@ -1201,7 +1207,7 @@ var Scenes = {
     if (k === 'question' && window.KCPresent) window.KCPresent.afterShow(n);
     return true;
   },
-  hideAll: function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; n.live.on = {}; delete n.live.memory; },
+  hideAll: function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; n.live.on = {}; delete n.live.memory; if (n.live.scene) n.live.brandOff = n.live.scene; },
   /* Show / hide one layer on the program (live scene only). Used by Hide selected and the live layer eyes. */
   setOn: function(n, sceneId, layerId, on){
     var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l || n.live.scene !== sceneId) return;
@@ -1344,12 +1350,20 @@ var Scenes = {
   join: function(st){ return st && st.live ? cleanJoin(st.live.join) : null; },   // 26.11.44 the members' phones QR on the badge
   deck: function(st){ return st && st.live ? cleanDeck(st.live.deck) : null; },   // 26.11.45 the slide on screen
   /* v6.2 Branding: badges on the program, {meeting} / {org} in text, the accent colour */
+  /* 26.11.61 one badge for every Frame while Branding is on (Settings › Meeting look); Hide all takes it off this Frame
+     (live.brandOff names the Frame), the next Frame brings it back. Branding Content in Frames from before are not shown. */
+  /* The members' phones QR (live.join, set by the PC while members' phones is open and the QR is asked for) sits on the
+     badge: it shows even with Branding on screen off, then on a badge of its own (the QR alone). */
   liveBrand: function(st, output){
-    var sc = Scenes.liveScene(st); if (!sc || (output && sc.out[output] === false)) return [];
-    var b = st.brand || {};
-    return sc.layers.filter(function(l){ return l.kind === 'brand' && st.live.on[l.id] && (!output || l.c[output] !== false) &&
-      ((l.c.logo && b.logo) || (l.c.name && b.meeting) || (l.c.org && b.org)); });
+    var sc = Scenes.liveScene(st), b = st.brand || {}, qr = !!(st.live && st.live.join);
+    if (!sc || sc.tpl || (output && sc.out[output] === false) || (st.live.brandOff && st.live.brandOff === sc.id)) return [];
+    var c = b.badge || cleanBadge({}), has = (c.logo && b.logo) || (c.name && b.meeting) || (c.org && b.org);
+    if (!(b.show && has) && !qr) return [];
+    if (output && c[output] === false) return [];
+    if (!(b.show && has)) c = Object.assign({}, c, {logo: false, name: false, org: false});   // the QR alone
+    return [{id: 'brand-badge', kind: 'brand', name: 'Branding', visible: true, opacity: c.opacity == null ? 1 : c.opacity, c: c}];
   },
+  cleanBadge: function(c){ return cleanBadge(c); },
   brandText: function(st, s){
     var b = (st && st.brand) || {};
     return String(s == null ? '' : s).replace(/\{meeting\}/gi, b.meeting || '').replace(/\{org\}/gi, b.org || '');
@@ -1390,7 +1404,7 @@ var Scenes = {
   },
   /* A Branding layer for a scene (the leader chooses which scenes have one) */
   /* Settings → Meeting → "New scenes include branding" */
-  autoBrand: function(st, sc){ if (st.brand && st.brand.auto && !sc.tpl && Scenes.hasBrand(st)) Scenes.addBrand(sc); },
+  autoBrand: function(){},   // 26.11.61 the one badge in Settings › Meeting look covers every Frame, new ones too
   addBrand: function(sc, opts){
     if (!sc || Scenes.first(sc, 'brand')) return null;
     var l = newLayer('brand', {c: opts || {}}); sc.layers.unshift(l); return l;
@@ -1498,6 +1512,16 @@ function normalize(s){
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};
+  /* 26.11.61 (owner) Branding lives in Settings › Meeting look only: one switch (show) and one badge (its position, size,
+     plate, what it shows) for every Frame, instead of a Branding Content in each Frame. A workspace from before takes
+     its first Branding Content's settings as the badge, and the switch is on if any Frame had one. */
+  var oldBrand = null;
+  st.scenes.forEach(function(sc){ sc.layers.forEach(function(l){ if (!oldBrand && l.kind === 'brand' && !sc.tpl) oldBrand = l; }); });
+  var show = b.show === undefined ? !!oldBrand : !!b.show;
+  if (show || isObj(b.badge) || oldBrand){                     // written only once Branding is used (older files stay as they were)
+    st.brand.show = show;
+    st.brand.badge = cleanBadge(isObj(b.badge) ? b.badge : oldBrand ? Object.assign({}, oldBrand.c, oldBrand.opacity < 1 ? {opacity: oldBrand.opacity} : {}) : {});
+  }
   /* 7.1 the workspace look, chosen on the website (Branding → Look): the card surface, the scripture font and the
      light or dark base for "Follow my workspace". Only a well-formed look is kept; none means the standard navy. */
   var lk = isObj(s) && isObj(s.look) ? s.look : null, hex = /^#[0-9a-fA-F]{6}$/;

@@ -154,7 +154,7 @@ class Wiring(unittest.TestCase):
     def test_pages(self):
         for page in ("app/dashboard.html", "app/spotlight.html"):
             self.assertIn('<script src="js/ready-check.js"></script>', read(page))
-        self.assertIn('id="mt-next"', read("app/dashboard.html"))
+        self.assertNotIn('id="mt-next"', read("app/dashboard.html"))   # 26.11.61 New copies this meeting instead
         self.assertIn("KCPalette.input()", read("app/js/cc-voice.js"))
         self.assertIn("['moment', 'Moment']", read("app/js/meeting-summary.js"))
         self.assertIn("SC.setSeason(n, id)", read("app/js/meeting-brand.js"))

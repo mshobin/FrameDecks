@@ -73,6 +73,23 @@ SC.setOn(au, 'sc_au', 'A1', false); assert.ok(!au.live.on.A1, 'its eye turns it 
 SC.setOn(au, 'sc_au', 'A1', true); SC.hideAll(au); assert.ok(!au.live.on.A1, 'Hide all silences it');
 assert.strictEqual(JSON.stringify(env.Store.normalize(JSON.parse(JSON.stringify(au))).scenes[0]), JSON.stringify(au.scenes[0]), 'stable');
 
+/* ---------- 26.11.61 Branding: one badge for every Frame, set in Settings › Meeting look ---------- */
+{
+  const old = env.Store.normalize({v6: true, brand: {meeting: 'Tuesday Study', logo: 'v1'}, scenes: [
+    {id: 'sc_x', name: 'X', layers: [{id: 'BX', kind: 'brand', opacity: 0.6, c: {pos: 'lower-left', scale: 1.4}}]}, {id: 'sc_y', name: 'Y', layers: []}]});
+  assert.strictEqual(old.brand.show, true, 'a workspace with Branding Content keeps branding on');
+  assert.strictEqual(JSON.stringify([old.brand.badge.pos, old.brand.badge.scale, old.brand.badge.opacity]), JSON.stringify(['lower-left', 1.4, 0.6]), 'the first badge becomes the one badge');
+  SC.take(old, 'sc_y', 'cut');
+  assert.strictEqual(SC.liveBrand(old).map(l => l.id).join(), 'brand-badge', 'it shows on a Frame that never had Branding Content');
+  SC.hideAll(old); assert.strictEqual(SC.liveBrand(old).length, 0, 'Hide all takes it off this Frame');
+  SC.take(old, 'sc_x', 'cut'); assert.strictEqual(SC.liveBrand(old).length, 1, 'the next Frame brings it back');
+  old.brand.badge.vcam = false; assert.strictEqual(SC.liveBrand(old, 'vcam').length, 0, 'Shows on: not the camera');
+  const fresh = env.Store.normalize({v6: true, brand: {meeting: 'M'}, scenes: [{id: 'a', name: 'A', layers: []}]});
+  assert.ok(!fresh.brand.show, 'off unless switched on');
+  SC.take(fresh, 'a', 'cut'); assert.strictEqual(SC.liveBrand(fresh).length, 0);
+  const kept = env.Store.normalize(JSON.parse(JSON.stringify(old)));
+  assert.strictEqual(JSON.stringify([kept.brand.show, kept.brand.badge.pos]), JSON.stringify([true, 'lower-left']), 'the badge survives a save');
+}
 console.log('store: OK');
 
 /* ---------- 26.11.22 Smart Next: the questions, then the scriptures, then the next Frame ---------- */

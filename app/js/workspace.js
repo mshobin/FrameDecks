@@ -374,16 +374,7 @@ function askName(title, value, ok, copyOf){
       });
     });
   });
-  /* 26.11.28 next week from this meeting (KCScenes.nextWeek), with Undo */
-  var nx = $('mt-next');
-  if (nx) nx.addEventListener('click', function(){
-    var keep = Store.snapshot ? Store.snapshot() : null, made = null;
-    commit(function(n){ made = SC.nextWeek(n); }).then(function(){
-      selScene = null; if (!made) return;
-      var msg = '“' + made.meeting.name + '”: ' + made.frames + ' Frame' + (made.frames === 1 ? '' : 's') + ' from “' + made.from + '”. Add this week’s scripture and questions.';
-      if (keep && window.KCActions && KCActions.toastAction) KCActions.toastAction(msg, 'Undo', function(){ Store.restore(keep); }); else toast(msg);
-    });
-  });
+  /* 26.11.61 Next week left the Frames panel (owner): New › copy this meeting does it; KCScenes.nextWeek stays for older code */
   /* 26.11.48 delete this meeting: all its Frames, Decks and Content, nothing else (KCScenes.deleteMeeting), with Undo */
   var del = $('mt-delete');
   if (del) del.addEventListener('click', function(){
@@ -825,11 +816,13 @@ function renderLayers(){
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
   if (!sc){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'Select a Frame to see its Content.'})); $('layers-note').textContent = ''; return; }
-  if (!sc.layers.length) ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('span', {cls: 'pe-art', 'aria-hidden': 'true', html: EMPTY_ART.content}),
+  if (!sc.layers.some(function(l){ return l.kind !== 'brand'; })) ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('span', {cls: 'pe-art', 'aria-hidden': 'true', html: EMPTY_ART.content}),
     h('b', {text: 'Nothing in this Frame yet'}), h('span', {text: 'Add a Deck: a question, a scripture, text, a picture or slides. It shows on screen when this Frame goes live.'}),
     h('button', {cls: 'btn primary small pe-go', type: 'button', html: I('plus', 15) + ' Deck', onclick: function(){ var b = $('layer-add'); if (b) b.click(); }})]));
-  var n = sc.layers.length;
+  var n = sc.layers.length, shown = 0;
   sc.layers.forEach(function(l, i){
+    if (l.kind === 'brand') return;     // 26.11.61 Branding is one badge in Settings › Meeting look, not Content of a Frame
+    var nth = ++shown;
     var on = isLiveScene(sc.id) ? SC.layerOn(live, sc, l) : l.visible, st = status[l.id] || {};
     var eye = h('button', {cls: 'ib s2-eye' + (on ? ' on' : ''), type: 'button', title: on ? 'Hide' : 'Show', 'aria-label': (on ? 'Hide ' : 'Show ') + l.name, html: I(on ? 'eye' : 'eye-off', 16),
       onclick: function(e){ e.stopPropagation(); toggleLayer(sc.id, l.id); }});
@@ -841,7 +834,7 @@ function renderLayers(){
     var lInSel = picked.layers.length > 1 && picked.layers.indexOf(l.id) >= 0;
     var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
       'data-id': l.id, tabindex: '0', draggable: 'true', 'aria-current': String(l.id === selLayer || lInSel)}, [
-      h('span', {cls: 'li-n', text: String(i + 1), title: 'Content ' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
+      h('span', {cls: 'li-n', text: String(nth), title: 'Content ' + nth}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
       h('span', {cls: 'li-t'}, [name, h('small', {text: (st.error ? '⚠ ' + st.error : layerSub(sc, l))})]),
       on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'On screen'}) : null, lock, eye]);   // 26.11.14 one word each: a Frame is Live, its Decks and Content are On screen
     li.addEventListener('click', function(e){ pickClick('layers', l.id, e, ol); });
@@ -919,7 +912,7 @@ function toggleLayer(sid, lid){
 var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['song', 'Song', 'music'], ['text', 'Text', 'type'],
   ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['audio', 'Audio…', 'volume-2'], ['countdown', 'Timer', 'timer'], ['pptx', 'Sermon slides (PowerPoint)…', 'presentation']];
 var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
-  ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
+  ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
   ['logo', 'Logo…', 'image'], ['watermark', 'Watermark…', 'image'], ['freetext', 'Free text on the picture', 'type'], ['rect', 'Shape', 'shapes'], ['background', 'Background', 'paint-bucket']];
 var NEEDS_CAM = {image: 1, video: 1, pptx: 1, camera: 1, screen: 1, window: 1, logo: 1, watermark: 1, freetext: 1, rect: 1, background: 1};
 $('layer-add').addEventListener('click', function(e){
@@ -943,7 +936,7 @@ $('layer-add').addEventListener('click', function(e){
 });
 var ADD_GROUPS = [['Worship', ['song', 'video', 'audio', 'background']], ['Word', ['scripture', 'question', 'pptx', 'text']],
   ['Church life', ['announcement', 'countdown', 'prayer', 'birthday', 'lowerthird', 'image']],
-  ['Camera and screen', ['camera', 'screen', 'window', 'brand', 'logo', 'watermark', 'freetext', 'rect']]];
+  ['Camera and screen', ['camera', 'screen', 'window', 'logo', 'watermark', 'freetext', 'rect']]];   // 26.11.61 Branding: Settings › Meeting look
 var ADD_EXTRA = {};          // other scripts add entries to a group (js/songs.js: a song from the Song Library)
 window.KCAddContent = {extra: function(group, x){ (ADD_EXTRA[group] = ADD_EXTRA[group] || []).push(x); }, add: function(what){ addLayer(what); }, pickFile: function(kind){ return pickFile(kind); }};
 function addLayer(what){
@@ -1250,7 +1243,6 @@ function sceneForm(gen, sc){
   var advd = h('details', {cls: 'ip-adv', id: 'sc-adv'}, [h('summary', {text: 'Advanced'}), h('div', {cls: 'ip-adv-body'}, [
     field('Group', gr), dl,
     h('div', {cls: 'two'}, [field('Transition into this Frame', tx), field('Length (ms)', ms)]),
-    checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.KCBrandSettings) window.KCBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); }),
     checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
     checkCtl('Template', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }, 'Kept for making new Frames; Previous and Next skip it.'),
     h('div', {cls: 'ip-acts'}, [

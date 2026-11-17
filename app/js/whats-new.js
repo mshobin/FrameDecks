@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.61': [
+    {title: 'Branding in one place', text: 'Settings \u2192 Meeting look \u2192 Meeting & Branding holds everything: your logo and name, one switch for the badge on every Frame, and all its settings. Branding has left the Decks panel.', show: {settings: 'meeting'}},
+    {title: 'Hold Hide all to go off air', text: 'A click on Hide all hides everything as before. Hold it for a second while live and it goes off air, with Undo.'},
+    {title: 'A clear preview', text: 'No labels sit over the top-left of the preview any more, where your logo goes. The top bar says when you are live.'}
+  ],
   '26.11.60': [
     {title: 'Chat Bubbles', text: 'Memory Cards are now called Chat Bubbles everywhere. They work as before and your pinned ones are kept.'},
     {title: 'Room to paste on your phone', text: 'On the phone remote, tap the Chat Bubbles box and it moves to the top, above the keyboard, so the phone\u2019s Paste bubble is easy to see. Tap Done to bring the picture back.'}

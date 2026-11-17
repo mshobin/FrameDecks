@@ -185,7 +185,7 @@ class OnTheBadge(unittest.TestCase):
         mb = read("app/js/meeting-brand.js")
         self.assertIn("[['off', 'Off'], ['beside', 'Beside the logo'], ['below', 'Below the logo']]", mb)
         self.assertIn("body: JSON.stringify({joinQr: v})", mb)
-        self.assertIn("{cls: 'box', id: 'mb-join', 'data-feature': 'team'}", mb)
+        self.assertIn("h('div', {'data-feature': 'team'}, [rowOf('Members’ QR', el.qr", mb)   # 26.11.61 inside Branding on screen
 
     def test_the_svg_endpoint_only_while_open(self):
         src = read("src/server.py")
