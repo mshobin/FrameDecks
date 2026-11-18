@@ -30,6 +30,7 @@ function whoAmI(){
   fetch('api/remote/me', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){
     var co = d.role === 'co';
     document.body.classList.toggle('co', co);
+    if (co && tab === 'notes') openTab('control');           // 26.11.64 Notes are the leader's (the server refuses them too)
     var b = document.getElementById('co-badge');
     if (co && !b){ b = document.createElement('span'); b.id = 'co-badge'; b.className = 'co-badge'; b.textContent = 'Co-leader'; $('hide-all').before(b); }
     if (b) b.hidden = !co;

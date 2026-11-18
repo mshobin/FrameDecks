@@ -88,7 +88,10 @@ export function NameBar({ supabase, code }: Readonly<{ supabase: SupabaseClient;
           {busy ? "Saving…" : "Save"}
         </button>
       </span>
-      <small>So the leader can invite you to share. Only the leader sees it.</small>
+      <small>
+        So the leader can invite you to share. It shows on the quiz leaderboard if you play, and the leader&apos;s PC may
+        keep it for attendance (up to 12 months). Leave it empty to stay anonymous.
+      </small>
       {problem && (
         <small className="auth-error" role="alert">
           {problem}

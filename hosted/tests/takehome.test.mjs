@@ -105,7 +105,7 @@ test("the follow page offers the take-home and keeps the prayer ids it sends", (
   for (const s of ['rpc("room_takehome"', "tidyTakehome(", "rememberPrayer(", "Take-home", "Still praying", "Answered prayers", "Your prayer requests", "Between meetings", "Next time"]) {
     assert.ok(panel.includes(s), s);
   }
-  for (const s of ['rpc("room_checkin"', 'rpc("room_hand"', 'rpc("room_quiz_view"', 'rpc("room_quiz_answer"', "fd-follow-name", "So the leader can invite you to share. Only the leader sees it."]) {
+  for (const s of ['rpc("room_checkin"', 'rpc("room_hand"', 'rpc("room_quiz_view"', 'rpc("room_quiz_answer"', "fd-follow-name", "It shows on the quiz leaderboard if you play"]) {
     assert.ok(panel.includes(s), s);
   }
   assert.doesNotMatch(panel, /Sign in|Sign up|Account|Password|\bAI\b/);

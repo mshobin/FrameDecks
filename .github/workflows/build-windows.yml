@@ -186,6 +186,9 @@ jobs:
           }
           Get-ChildItem src/voice_runtime
 
+      - name: Collect the licence texts of the bundled Python packages (MIT, BSD and others ask for them)
+        run: python tools/write_third_party_licenses.py build-extra/THIRD_PARTY_LICENSES.txt
+
       - name: Build the app (PyInstaller)
         run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 
@@ -194,6 +197,7 @@ jobs:
         run: |
           if (-not (Test-Path "dist/FRAMEDECKS/FRAMEDECKS.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
+          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter THIRD_PARTY_LICENSES.txt)) { throw "THIRD_PARTY_LICENSES.txt is missing" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter framedecks_vcam64.dll)) { throw "FrameDecks is missing" }
           if (-not (Test-Path "dist/FRAMEDECKS/_internal/voice_runtime/libvosk.dll")) { throw "The speech engine (Follow my voice) is missing" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter cloud_builtin.json)) { Write-Host "::notice::No built-in cloud address (SUPABASE_URL / SUPABASE_ANON_KEY secrets not set): new PCs ask the website, as before" }

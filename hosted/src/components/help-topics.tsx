@@ -419,7 +419,7 @@ export const TOPICS: Topic[] = [
               <li>
                 <Link href="/account">Your workspace</Link> lets you download your data or delete it, with your workspace email.
               </li>
-              <li>Pictures and video stay on your devices; they are never put in the cloud.</li>
+              <li>Video files and the camera stay on your PC. Slide pictures go online only while Members&apos; phones is open, so phones can follow along, and are removed when the room closes.</li>
             </ul>
           </section>
         </div>

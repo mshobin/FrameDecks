@@ -60,24 +60,70 @@ def clean_song(raw, keep_id=None):
 
 
 class Songbook:
-    def __init__(self, path):
+    """26.11.64 (release review B3): the library is never written over a file that could not be read. A file that is
+    only busy (another program, a sync tool) makes the change fail with a message and nothing is lost; a damaged file
+    is kept aside as kc-songs.json.damaged-<time> and the newest good copy from the backups (backup_dir) is used."""
+
+    def __init__(self, path, backup_dir=None):
         self.path = path
+        self.backup_dir = backup_dir
         self.lock = threading.Lock()
 
-    def _read(self):
+    @staticmethod
+    def _clean(data):
+        songs = data.get("songs") if isinstance(data, dict) else None
+        return {"v": 1, "songs": [s for s in songs if isinstance(s, dict) and s.get("id")] if isinstance(songs, list) else []}
+
+    def _read(self, strict=False):
+        """The library. strict (before a change): a file that exists but cannot be read raises ValueError, so the
+        change never replaces songs it could not see. Not strict (only looking): an empty list then."""
         try:
             with open(self.path, encoding="utf-8") as f:
                 data = json.load(f)
-        except (OSError, ValueError):
+        except FileNotFoundError:
             return {"v": 1, "songs": []}
-        songs = data.get("songs") if isinstance(data, dict) else None
-        return {"v": 1, "songs": [s for s in songs if isinstance(s, dict) and s.get("id")] if isinstance(songs, list) else []}
+        except OSError as e:
+            if strict:
+                raise ValueError("The Song Library could not be opened just now (%s). Nothing was changed; try again."
+                                 % e.__class__.__name__)
+            return {"v": 1, "songs": []}
+        except ValueError:
+            return self._recover()
+        return self._clean(data)
+
+    def _recover(self):
+        """A damaged file: keep it aside, then use the newest backup copy that reads (or start empty)."""
+        aside = "%s.damaged-%s" % (self.path, time.strftime("%Y%m%d-%H%M%S"))
+        try:
+            os.replace(self.path, aside)
+            print("Song Library: the file was damaged; kept as", aside)
+        except OSError as e:
+            raise ValueError("The Song Library file is damaged and could not be set aside (%s). Nothing was changed."
+                             % e.__class__.__name__)
+        name = os.path.basename(self.path)
+        try:
+            dirs = sorted((os.path.join(self.backup_dir, d) for d in os.listdir(self.backup_dir or "")),
+                          key=os.path.getmtime, reverse=True) if self.backup_dir else []
+        except OSError:
+            dirs = []
+        for d in dirs:
+            try:
+                with open(os.path.join(d, name), encoding="utf-8") as f:
+                    data = self._clean(json.load(f))
+            except (OSError, ValueError):
+                continue
+            self._write(data)
+            print("Song Library: restored", len(data["songs"]), "songs from the backup", os.path.basename(d))
+            return data
+        return {"v": 1, "songs": []}
 
     def _write(self, data):
         os.makedirs(os.path.dirname(self.path) or ".", exist_ok=True)
         tmp = self.path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=1)
+            f.flush()
+            os.fsync(f.fileno())                        # a power cut never leaves half a library
         os.replace(tmp, self.path)
 
     def list(self, q=""):
@@ -104,7 +150,7 @@ class Songbook:
 
     def save(self, raw):
         with self.lock:
-            data = self._read()
+            data = self._read(strict=True)
             sid = _s((raw or {}).get("id"), 40) if isinstance(raw, dict) else ""
             old = next((s for s in data["songs"] if s.get("id") == sid), None) if sid else None
             song = clean_song(raw, keep_id=old["id"] if old else None)
@@ -121,7 +167,7 @@ class Songbook:
 
     def delete(self, sid):
         with self.lock:
-            data = self._read()
+            data = self._read(strict=True)
             n = len(data["songs"])
             data["songs"] = [s for s in data["songs"] if s.get("id") != sid]
             if len(data["songs"]) == n:
@@ -133,7 +179,7 @@ class Songbook:
         """A song went on screen: counted once per day (a service), for the usage report."""
         day = time.strftime("%Y-%m-%d", time.localtime(when or time.time()))
         with self.lock:
-            data = self._read()
+            data = self._read(strict=True)
             for s in data["songs"]:
                 if s.get("id") == sid:
                     uses = [u for u in (s.get("uses") or []) if isinstance(u, str)]

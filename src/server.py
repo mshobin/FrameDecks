@@ -59,7 +59,7 @@ import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, 
 import memory    # 9.0: Chat Bubbles in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 import dpapi_file   # 26.11.58 (release sign-off L3): the member file encrypted for this Windows account
 
-APP_VERSION = "26.11.63"
+APP_VERSION = "26.11.64"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -190,7 +190,9 @@ def load_sessions():
         out = {}
         for k, v in (data.items() if isinstance(data, dict) else []):
             e = _session_entry(v, now)
-            if session_alive(e, now):
+            # 26.11.64 (release review L1): a co-leader's sign-in ends with the program; after a restart the Studio
+            # could not show it (the co-leader PIN lives in memory only), so it never comes back
+            if session_alive(e, now) and e.get("role") != "co":
                 out[k] = e
         return out
     except (OSError, ValueError):
@@ -215,6 +217,10 @@ sessions = load_sessions()
 # opens the same phone remote with a focused layout (Next, Previous, Hide all, Chat Bubbles, the Content). The Studio
 # shows that a co-leader is connected; Take back ends every co-leader sign-in at once and forgets the PIN.
 CO_HOURS = 8                    # a co-leader sign-in lasts one meeting day at most
+# 26.11.64 (release review M1): what a co-leader's phone may not do, enforced by the server (allowed() and the state
+# merge), not only by the phone's focused layout: the leader's meeting app (Mute, Camera), the leader's notes, voice
+# commands, and switching to another meeting. Next, Previous, Hide all, the Content, slides and Chat Bubbles stay.
+CO_DENIED = frozenset({"/api/remote/meeting-key", "/api/remote/notes", "/api/remote/voice-commands"})
 CO = {"pin": "", "since": 0.0}
 
 
@@ -646,8 +652,9 @@ def _switch_meeting(st, target):
     return True
 
 
-def remote_state_merge(cur, phone):
-    """The state to save when a signed-in phone sends its copy: the PC's state with the phone's run-time changes."""
+def remote_state_merge(cur, phone, switch=True):
+    """The state to save when a signed-in phone sends its copy: the PC's state with the phone's run-time changes.
+    switch=False (26.11.64, a co-leader's phone): the meeting shown stays the one the leader chose."""
     new = json.loads(json.dumps(cur))
     new.pop("rev", None)
     cur_live = cur.get("live") if isinstance(cur.get("live"), dict) else {}
@@ -663,7 +670,7 @@ def remote_state_merge(cur, phone):
         if isinstance(phone.get(key), dict):
             new[key] = phone[key]
     _remote_scenes(new.get("scenes"), phone.get("scenes"))
-    if isinstance(want, str) and want and want != cur_live.get("meeting"):
+    if switch and isinstance(want, str) and want and want != cur_live.get("meeting"):
         _switch_meeting(new, want)
     return new
 
@@ -748,7 +755,7 @@ def update_state(change):
 # ---------- 9.0 Chat Bubbles in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
 MEMORY = memory.Memory(DATA / "kc-memory.json")
 NOTES = meeting_notes.Notes(str(DATA / "notes"))   # 9.12 one file per meeting, this PC only
-SONGS = songbook.Songbook(str(DATA / "kc-songs.json"))   # 26.11.57 the Song Library
+SONGS = songbook.Songbook(str(DATA / "kc-songs.json"), str(BACKUP_DIR))   # 26.11.57 the Song Library (26.11.64 restores from backups)
 MEETING_LOG = meeting_log.MeetingLog(str(DATA / "meetings-log"))   # 26.11.23 one file per meeting run, this PC only
 atexit.register(MEETING_LOG.flush)
 
@@ -2403,11 +2410,19 @@ def list_backups():
     return [{"name": d.name, "files": sorted(f.name for f in d.iterdir())} for d in dirs]
 
 
+def backup_files():
+    """26.11.64 (release review M10): every file a church would miss: the plan, members (encrypted), the Song
+    Library, care and attendance and the prayer journey (both encrypted already), settings, looks and the Studio."""
+    return [STATE_FILE, PRIVATE_FILE, Path(SONGS.path), Path(CARE.path), Path(JOURNEY.path), APP_SETTINGS_FILE,
+            LOOKS_FILE, STUDIO_FILE]
+
+
 def backup_now(tag=""):
-    """Copy the verses/questions file and the member file into backups/<date>. Keeps the newest 10."""
+    """Copy every data file (backup_files) into backups/<date>. Keeps the newest 10 daily copies and, apart from
+    them, the newest 10 made by hand or before an update (tagged), so pressing Back up never pushes out the dailies."""
     flush_state()                                         # the file must hold the latest live state too
     with backup_lock:
-        files = [f for f in (STATE_FILE, PRIVATE_FILE) if f.exists()]
+        files = [f for f in backup_files() if f.exists()]
         if not files:
             return None
         name = time.strftime("%Y-%m-%d") + (("-" + tag) if tag else "")
@@ -2425,7 +2440,9 @@ def backup_now(tag=""):
                 except (OSError, ValueError) as e:
                     _swallowed("server.backup_now protect", e)
         dirs = sorted((d for d in BACKUP_DIR.iterdir() if d.is_dir()), key=lambda d: d.stat().st_mtime, reverse=True)
-        for old in dirs[KEEP_BACKUPS:]:
+        daily = [d for d in dirs if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d.name)]
+        tagged = [d for d in dirs if d not in daily]
+        for old in daily[KEEP_BACKUPS:] + tagged[KEEP_BACKUPS:]:
             shutil.rmtree(old, ignore_errors=True)
         return folder.name
 
@@ -4251,6 +4268,8 @@ class Handler(BaseHTTPRequestHandler):
             return False
         if path in REMOTE_PUBLIC or path.startswith("/fonts/"):
             return True
+        if path in CO_DENIED and self.session_role() == "co":   # 26.11.64 (release review M1): checked here, not on the phone
+            return False
         return path in REMOTE_SIGNED_IN and self.signed_in()
 
     def remote_login(self, data):
@@ -5339,7 +5358,7 @@ class Handler(BaseHTTPRequestHandler):
                         return self.reply(409, state_body(), TYPES[".json"])
                     data["library"] = state.get("library")
                 if not self.is_local():                    # 26.11.58 (release sign-off M2): a phone runs the meeting,
-                    data = remote_state_merge(state, data)  # it never replaces the plan
+                    data = remote_state_merge(state, data, switch=self.session_role() != "co")  # it never replaces the plan
                 save_state(data)
                 return self.reply(200, state_body(LIBRARY["rev"] if keep else None), TYPES[".json"])
         if path == "/api/sync":

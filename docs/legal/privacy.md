@@ -1,6 +1,6 @@
 # FrameDecks Privacy Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 18 November 2026 (members' phones: first names, hands, the quiz, the take-home page; the prayer journey and attendance on your PC)*
+*Effective 29 October 2026 · Version 2026-10-29 · Updated 18 November 2026 (members' phones: first names, hands, the quiz, the take-home page; the prayer journey and attendance on your PC; processors and children corrected)*
 
 FrameDecks is made by **Shobin Mathews** ("we", "us"). Contact: privacy@framedecks.com. Who is responsible for which
 data is set out under "Who is responsible" below.
@@ -32,10 +32,12 @@ data is set out under "Who is responsible" below.
 | Commands sent to a PC from the website (who sent which command, and when) | To run a meeting from the website, and to show the PC what was asked | 7 days |
 | Device alerts: a new PC or device in the workspace, with its name and when | To tell owners and admins | One year (the last 30 days are shown) |
 | Wrong codes: a hash of the network address a wrong code came from | To stop people guessing codes | One hour |
-
-Every network address on this page is kept only as a hash made with a key that changes every day and is deleted after
-two days, so a stored hash cannot be turned back into an address.
 | Update checks from the program: the program version and Windows version | To offer the right update | Not stored with any identity; Cloudflare keeps request logs briefly |
+| A helper phone's anonymous sign-in (a phone that runs a meeting from the website without an account) | So that phone can act for the PC it was linked to | Removed 30 days after it was last used |
+
+Network addresses we store ourselves are kept only as a hash. Supabase, which runs sign-in for us, also keeps its own
+sign-in logs (including the network address and browser of each sign-in) for its security, under its own retention;
+Cloudflare keeps short request logs the same way.
 
 ## Members' phones
 
@@ -48,8 +50,8 @@ account:
 | Prayer requests: the request, the first name if the person gives one, and a hash of the network address it came from | So the leader can read them and choose what to show | Until the church PC takes it in, at most 24 hours. On the PC it is kept in the Prayer journey (see "On your PC") |
 | Poll answers: the choice, and a hash of a random number the phone keeps (`fd-voter`) so each phone answers once | To count answers | Until the next poll replaces it or the room closes |
 | Typed answers: the answer (up to 280 characters) and the same hash | So the leader can read them and choose what to show | Until the next question replaces it or the room closes |
-| A first name, if the person types one, a raised hand ("I'd like to share") and when, with the same hash | So the leader can invite people to share in turn | Until the room closes or gets a new code |
-| Quiz answers: the choice, how quickly it came, and the same hash | To show the right answer and a leaderboard by first name | Until the next question replaces it or the room closes |
+| A first name, if the person types one, a raised hand ("I'd like to share") and when, with the same hash | So the leader can invite people to share in turn; the leader's PC may also keep the first names for Care and attendance (see "On your PC") | Online: until the room closes or gets a new code |
+| Quiz answers: the choice, how quickly it came, and the same hash | To show the right answer, and a leaderboard by first name on the meeting screen (so everyone in the meeting sees the names of the top players) | Until the next question replaces it or the room closes |
 | The take-home page: the meeting's name and date, scriptures, questions, song titles, the sermon notes if shared, prayer requests the leader marked OK to share (never with a name), and when the next meeting is | So members can look back during the week | Up to 14 days (the leader chooses), or until the leader removes it |
 
 A request sent without a name does not show the leader who sent it. It is not fully anonymous: the network hash above
@@ -70,7 +72,8 @@ only when you switch them on:
 - **Prayer journey** keeps every prayer request from members' phones (the words, the first name if given, and whether it
   is still being prayed for or answered), encrypted to your Windows account. You can remove any request.
 - **Care and attendance** keeps the first names people chose to type on their phones, with the date of each meeting,
-  encrypted to your Windows account. It is for the leader only; you can remove any meeting or name.
+  encrypted to your Windows account. It is for the leader only; you can remove any meeting or name, and meetings older
+  than 12 months are removed by themselves. Tell people in your meeting that first names are kept for this.
 
 On the phone, framedecks.com remembers in that browser only the first name the person typed, the prayer requests it
 sent (so it can show whether each is still being prayed for or answered) and their Transpose and Capo choice.
@@ -115,7 +118,8 @@ For data a workspace holds, we:
 | Processor | What it does | Where |
 | --- | --- | --- |
 | **Supabase** | The database, sign-in and one-time links, members' phones | The project's chosen region; may involve the United States |
-| **Cloudflare** | The website, downloads, the update service and email forwarding | Global network |
+| **Cloudflare** | The website, downloads, the update service, email forwarding and the encrypted nightly database backups (R2) | Global network |
+| **GitHub** | Runs the nightly backup: the database copy is made and encrypted on a GitHub Actions machine, then stored in Cloudflare R2 (nothing is kept at GitHub) | United States |
 | **Resend** | Delivering the one-time email codes, new-device emails to owners and admins, and the email telling you when your workspace was opened with your email code (the computer's browser and system, and the time) | United States |
 
 Where data leaves the UK or the European Economic Area, these processors use the European Commission's Standard
@@ -124,12 +128,6 @@ Contractual Clauses (and the UK Addendum) or an adequacy decision.
 The program also contacts, only when you use them: **Crossway's ESV API** (api.esv.org) with your church's own key, to
 fetch passages you ask for; and, to download the speech model the first time you use voice features,
 downloads.framedecks.com or the model's own publisher. Only the request itself is sent.
-
-## Who processes it for us
-
-- **Supabase** — the database, and sending the one-time links, for workspaces.
-- **Cloudflare** — the website, downloads, the update service and email forwarding.
-- **Resend** — delivering the one-time email codes, the new-device emails to owners and admins, and the email telling you when your workspace was opened with your email code (the computer's browser and system, and the time).
 
 ## Cookies and storage
 
@@ -149,8 +147,8 @@ You can see, correct, export and delete your data:
 - **Devices:** Manage Devices lists your Trusted Devices and removes any of them at once.
 - Workspace owners and admins can remove members and whole workspaces.
 - Encrypted nightly backups are kept 30 days, so deleted data leaves the backups within 30 days.
-- Your export has your profile, workspaces and records; ask privacy@framedecks.com for your security events and
-  device list too.
+- Your export also includes your Trusted Devices and your security events. Passkeys are kept by Supabase's sign-in
+  service; ask privacy@framedecks.com if you want a list of them.
 
 Depending on where you live, you may also have the right to object, to restrict processing, and to complain to your
 data protection authority. Write to privacy@framedecks.com; we answer within one month.
@@ -160,10 +158,12 @@ data protection authority. Write to privacy@framedecks.com; we answer within one
 Workspaces are not meant for children under 16. A workspace may list young people as members (for example, a youth
 group); the workspace is responsible for having permission from their parents or guardians.
 
-The members' phone pages need no account and ask for no personal details. We do not knowingly collect personal
-information from children under 13: the only identifier is the random number a phone keeps for polls, used for
-nothing else. A church that uses members' phones with children should tell parents and avoid asking children for
-their names in prayer requests or typed answers.
+The members' phone pages need no account. When the leader switches them on, a phone can send a first name, a raised
+hand, quiz answers (shown on a leaderboard by first name) and prayer requests, and the leader's PC may keep first names
+for Care and attendance. We do not knowingly collect personal information from children under 13 ourselves, and these
+features are run by the church. A church that uses members' phones with children should tell parents first, leave
+**Ask for a first name** and the **Bible quiz** off for groups under 13, and avoid asking children for their names in
+prayer requests or typed answers.
 
 ## Changes
 

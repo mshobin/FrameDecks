@@ -18,6 +18,8 @@ browser's storage (local storage, or this tab's session storage until you trust 
 | `fd-seen`, `fd-passkey`, `fd-email-later` | That this browser opened a workspace before, and whether you saved a passkey or chose later | Until you change them |
 | `fd-plan-changes-…` | Plan changes made on this device that wait for Sync Now | Until they are synced or discarded |
 | `fd-voter` | On members' phones: a random number so each phone answers a poll or a question once (the website keeps only its hash) | Until you clear this site's data |
+| `fd-voted:<article>` | That you rated a Help article, so it does not ask again | Until you clear this site's data |
+| `fd-meeting-<workspace>` | Which meeting you were planning in that workspace, so the page opens on it again | Until you change it |
 | `fd-follow-name`, `fd-my-prayers`, `fd-chords` | On members' phones: the first name you typed (optional), the prayer requests this phone sent (to show whether each is answered), and your Transpose and Capo choice | Until you clear this site's data; prayer requests at most the last 30 |
 | `framedecks-media` (IndexedDB) | Pictures you add to a plan in this browser, until they go into a .frame file | Until you remove them |
 | `fd-consent` | That you have seen this notice | One year |

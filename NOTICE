@@ -15,7 +15,9 @@ the FrameDecks Proprietary Software License, and copies of those versions remain
 again published under the Apache License 2.0.
 
 FrameDecks includes third-party software and assets under their own licences, which continue to apply to them. They
-are listed, with where to find each licence, in THIRD_PARTY_NOTICES.md. Components licensed under the Apache License
-2.0 (OpenCV, the MediaPipe selfie segmentation model, SheetJS Community Edition, pypdfium2, the Vosk speech engine
-and its English model) are used under that licence; their notices are reproduced there. pystray (LGPL-3.0) and the
-FFmpeg libraries inside OpenCV (LGPL-2.1) are shipped as separate, replaceable files in the program folder.
+are listed, with where to find each licence, in THIRD_PARTY_NOTICES.md (docs/legal/ in the source; next to the program
+in the installed folder), and the full licence texts of the bundled Python packages are in THIRD_PARTY_LICENSES.txt
+next to the program. Components licensed under the Apache License 2.0 (OpenCV, the MediaPipe selfie segmentation
+model, SheetJS Community Edition, pypdfium2, the Vosk speech engine and its English model) are used under that
+licence. The FFmpeg libraries inside OpenCV (LGPL-2.1) are a separate, replaceable file; pystray (LGPL-3.0) is included
+unmodified and can be replaced by rebuilding the program from its public source.

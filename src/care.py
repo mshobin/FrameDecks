@@ -15,6 +15,7 @@ import time
 import dpapi_file
 
 MAX_MEETINGS = 104          # about two years of weekly meetings
+KEEP_DAYS = 365             # 26.11.64 (release review B4): meetings older than 12 months are removed by themselves
 
 
 def _s(v, n):
@@ -48,7 +49,12 @@ class Care:
                             "names": sorted({_s(n, 40) for n in m.get("names") or [] if _s(n, 40)}, key=str.lower)[:300],
                             "count": max(0, int(m.get("count") or 0))})
         with self.lock:
-            self.meetings = sorted(out, key=lambda m: m["date"])[-MAX_MEETINGS:]
+            self.meetings = self._recent(sorted(out, key=lambda m: m["date"]))
+
+    def _recent(self, meetings):
+        """Only the last KEEP_DAYS of meetings, at most MAX_MEETINGS."""
+        cutoff = time.strftime("%Y-%m-%d", time.localtime(self.clock() - KEEP_DAYS * 86400))
+        return [m for m in meetings if m["date"] >= cutoff][-MAX_MEETINGS:]
 
     def save(self):
         with self.lock:
@@ -75,7 +81,7 @@ class Care:
             else:
                 m = {"date": day, "meeting": _s(meeting, 120), "names": names[:300], "count": max(int(count or 0), len(names))}
                 self.meetings.append(m)
-                self.meetings = sorted(self.meetings, key=lambda x: x["date"])[-MAX_MEETINGS:]
+            self.meetings = self._recent(sorted(self.meetings, key=lambda x: x["date"]))
             self.rev += 1
             out = dict(m)
         self.save()

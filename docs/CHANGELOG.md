@@ -10,6 +10,35 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.64] - 2026-11-18
+
+Full notes: [docs/releases/v26.11.64.md](releases/v26.11.64.md). Fixes from the production release review.
+
+### Fixed
+- `src/songbook.py`: a write never replaces a file that could not be read (busy → error, nothing changed; damaged →
+  kept as `.damaged-<time>` and the newest backup copy used); fsync on write. `Songbook(path, backup_dir)`.
+- `backup_now` copies every data file (`backup_files()`: plan, members, songs, care, prayer journey, settings, looks,
+  studio) and keeps 10 daily plus 10 tagged backups separately.
+- Co-leader limits on the server: `CO_DENIED` paths refused in `allowed()`, `remote_state_merge(..., switch=False)` for
+  co-leaders, co-leader sessions dropped in `load_sessions()`; the phone hides Notes for co-leaders.
+- `updater.PUBLISHERS` accepts "SignPath Foundation" (exact) besides the author.
+- `care.KEEP_DAYS = 365`.
+- Customer-facing wording: landing, help, FAQ, getting started, service planning, CONTRIBUTING; phone first-name note;
+  privacy (members' phones names, processors merged with GitHub added, helper sign-ins, Supabase sign-in logs,
+  rights, children), cookies (two keys); footer and About wording; installer copyright line.
+
+### Added
+- `tools/write_third_party_licenses.py` → `THIRD_PARTY_LICENSES.txt` bundled by the Windows build (checked); notices
+  inventory completed (bottle, pythonnet, WebView2, wheel-bundled libraries, MSVC runtime); NOTICE corrected (pystray).
+- Test `tests/test_review_fixes_2611_64.py`.
+
+### Removed
+- `infra/site/.wrangler/` local state committed by mistake in 7ec0af8; `.wrangler/` and `build-extra/` ignored.
+
+## [26.11.63] - 2026-11-18
+
+Full notes: [docs/releases/v26.11.63.md](releases/v26.11.63.md).
+
 ### Added (README screenshots)
 - `docs/images/`: real captures of the Studio, the Presentation window and the phone remote, and `go-live.gif`
   (Go Live → next question twice → Black screen), taken from `python src/server.py` with the sample plan; shown in a
@@ -52,10 +81,6 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ### Removed
 - `hosted/vercel.json` and the test comparing it with `_headers`; `.vercel/` in `.gitignore`; Vercel in the docs.
-
-## [26.11.63] - 2026-11-18
-
-Full notes: [docs/releases/v26.11.63.md](releases/v26.11.63.md).
 
 ### Added
 - Workspace migration `0030_meeting_together.sql` (rollback in `hosted/supabase/rollback/`): `room_people`, `room_quiz`,

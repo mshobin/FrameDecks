@@ -59,3 +59,7 @@ tests/visual/out/
 # Personal editor settings
 .vscode/
 framedecks-manifest-key*.txt
+
+# 26.11.64 wrangler and Miniflare local state (wrangler pages dev)
+.wrangler/
+build-extra/

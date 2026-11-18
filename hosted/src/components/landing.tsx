@@ -84,7 +84,7 @@ const FEATURES = [
   {
     icon: ShieldCheck,
     title: "Private by design",
-    text: "Works without internet. Your voice, pictures, video and the camera never leave your PC. No adverts, no tracking.",
+    text: "Presenting works without internet. Your voice, video files and the camera stay on your PC; slide pictures go online only while Members\u2019 phones is open. No adverts, no tracking.",
   },
 ] as const;
 

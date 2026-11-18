@@ -20,7 +20,8 @@ leader or a media volunteer.
 ## What FrameDecks is
 
 FrameDecks is a presentation app for services, Bible studies, prayer meetings and small groups. It runs on one
-Windows PC. It needs no accounts and no cloud, and it works without internet.
+Windows PC. Presenting needs no account and works without internet; a free workspace on framedecks.com is only for
+planning together, syncing and members' phones.
 
 You build a **Meeting** (your service or meeting) out of **Frames**. A Frame is one screen or one step, such as
 *Welcome*, *Scripture Reading*, *Discussion* or *Closing*. Each Frame holds **Content**: a question, a scripture, a

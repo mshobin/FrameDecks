@@ -177,13 +177,13 @@ Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is n
 On your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded unless you link the PC to your team (Settings → Sync). Then your plans sync with framedecks.com, but media (pictures, video, audio and slides) never goes to the cloud.
 
 **Does FrameDecks work without the internet?**
-Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet). On a linked PC the **Sync** chip shows **Offline**: your changes wait and go up later, and presenting is not affected.
+Yes, presenting does. Planning together, Sync, Members' phones, fetching new ESV verses, updates and the first download of the speech model need the internet, and so does your meeting app (Zoom itself needs the internet). On a linked PC the **Sync** chip shows **Offline**: your changes wait and go up later, and presenting is not affected.
 
 **Are backups made?**
 Yes, automatically once a day (the newest 10 are kept), plus **Back up now** in Settings → Data / Backup.
 
 **What about member information?**
-The Members section stays on the PC. Member details are never sent to the phone remote or the overlay pages, and **Copy diagnostics** never includes them.
+On a PC that is not linked to a workspace, the Members section stays on the PC. When a PC is linked, the member list syncs with your workspace on framedecks.com, where only its owners and admins can see member details. Member details are never sent to the phone remote or the overlay pages, and **Copy diagnostics** never includes them.
 
 **How do we move to a new PC?**
 Install FrameDecks on the new PC. On first run, the last page of **Welcome to FrameDecks** offers to bring in data from an earlier installation it finds (also in **Settings → Data**), or copy your data folder across while the app is closed.

@@ -157,8 +157,9 @@ itself. The header shows a **Sync** chip:
 | **Offline** | No internet. Your changes wait on the PC and go up later. Presenting is not affected |
 | **Sync failed** (red) | Open **Settings → Sync** to see why |
 
-**Settings → Sync** shows the same word. Sync carries everything except media: pictures, video,
-audio and slides are never put in the cloud.
+**Settings → Sync** shows the same word. Sync carries everything except media: Sync never puts pictures, video,
+audio or slides in the cloud. (Members' phones is separate: while it is open, it shows pictures of the slides on
+screen to phones, and removes them when the room closes.)
 
 The PC syncs by itself as soon as the workspace changes (within a minute while it rests). To sync now, choose **Sync now**:
 

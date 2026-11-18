@@ -22,7 +22,7 @@ start while something is on screen (the page asks first; the server checks again
 9.2 (production audit H3): a manifest counts only when it is signed by a key in TRUSTED_KEYS (manifest_sig.py), once
 that list has a key; so the download bucket alone can no longer choose the installer, its checksum or whether the
 Authenticode check runs. The installed app ignores FRAMEDECKS_UPDATE_API, downloads never follow a redirect to another
-server, "latest" never installs an older version, and the signer must be exactly PUBLISHER.
+server, "latest" never installs an older version, and the signer must be exactly one of PUBLISHERS.
 """
 import hashlib
 import json
@@ -47,6 +47,12 @@ HEX64 = re.compile(r"^[0-9a-f]{64}$")
 MAX_INSTALLER = 600 * 1024 * 1024          # a FrameDecks installer is about 150 MB; anything this big is wrong
 KEEP_INSTALLED = 2                          # installers kept for putting a version back
 PUBLISHER = "Shobin Mathews"                # the code-signing certificate's name (packaging/installer.iss AppPublisher)
+# 26.11.64 (release review B7): the names an installer's Authenticode signer may have. SignPath Foundation's free
+# certificates for open-source projects are issued to "SignPath Foundation", not to the author, so that name is
+# accepted too; check it against the first certificate SignPath issues and keep this list exact (no "contains").
+# Which file is installed is still decided by the Ed25519-signed manifest (its SHA-256 is checked first), so the
+# Authenticode check is a second lock, not the only one.
+PUBLISHERS = (PUBLISHER, "SignPath Foundation")
 # 9.2 Public keys whose signature a release manifest must carry ({key id: 32-byte public key in hex}), made with
 # tools/manifest_key.py; the private key is the MANIFEST_SIGNING_KEY secret of the release workflow. Empty: manifests
 # are read as before 9.2 (the workflow refuses to publish an unsigned manifest once a key is here).
@@ -212,7 +218,7 @@ class Updater:
             valid, signer = winapi.authenticode(path)
         except Exception:
             return False
-        return valid and str(signer).strip() == PUBLISHER          # 9.2 exactly the publisher, not a name containing it
+        return valid and str(signer).strip() in PUBLISHERS         # 9.2 exactly a publisher name, not a name containing it
 
     def download(self, which="latest"):
         """Fetch and check the newest version (or the previous one). Returns the path of the checked installer."""

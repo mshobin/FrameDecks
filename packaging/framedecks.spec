@@ -47,6 +47,10 @@ cloud_data = [(str(builtin), ".")] if builtin.exists() else []
 
 # 26.11.2 the speech engine for Follow my voice comes with the installer (the build puts it in src/voice_runtime from the
 # pinned file in src/voice_files.json): the installed app then downloads only the model, never program code
+# 26.11.64 (release review B6): the licence texts of the bundled Python packages, collected by
+# tools/write_third_party_licenses.py in the build (before PyInstaller)
+tpl = root / "build-extra" / "THIRD_PARTY_LICENSES.txt"
+licence_data = [(str(tpl), ".")] if tpl.exists() else []
 voice_rt = root / "src" / "voice_runtime"
 voice_data = [(str(voice_rt), "voice_runtime")] if (voice_rt / "libvosk.dll").exists() else []
 
@@ -55,7 +59,7 @@ a = Analysis(
     pathex=[str(root / "src"), str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "src" / "vcam" / "models"), "vcam/models"), (str(root / "src" / "vcam" / "bin"), "vcam/bin"),
            (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "eula.md"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), "."),
-           (str(root / "src" / "voice_files.json"), ".")] + pptx_data + cloud_data + voice_data,
+           (str(root / "src" / "voice_files.json"), ".")] + pptx_data + cloud_data + voice_data + licence_data,
     hiddenimports=["server", "errlog", "dpapi_file", "supervisor", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.chatcard", "media_names", "ed25519", "manifest_sig", "updater", "vcam.priority", "vcam.present_window", "desktop_win", "memory", "capture", "legacy", "meeting_form", "meeting_keys", "live_push", "meeting_notes", "voice_follow", "voice_worker", "scripture_speech", "scripture_listen", "lesson_import",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],

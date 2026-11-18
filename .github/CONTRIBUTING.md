@@ -34,9 +34,10 @@ or a screenshot.
 2. **Volunteers first.** Use the words the app uses (**Frame**, **Content**, **Go Live**, **Speaker View**), plain
    English, and no jargon. If a setting needs a paragraph to explain, look for a simpler design.
 3. **Offline first.** Nothing may require an account, a subscription or an internet connection to run a meeting.
-   The only online feature today is the optional ESV scripture lookup.
-4. **Private by default.** Member data stays on the PC. It is never sent to the phone remote, the overlay pages or
-   any server. Do not add telemetry.
+   Online features (the ESV lookup, updates, a workspace, Sync, Members' phones) are optional and only used when
+   switched on.
+4. **Private by default.** Member data stays on the PC unless the PC is linked to a workspace, where only its owners and
+   admins can see it. It is never sent to the phone remote or the overlay pages. Do not add telemetry.
 5. **No surprise redesigns.** The visual design (colours, type, components, Book + Candle branding) is deliberate.
    Discuss visual changes in an issue before writing them.
 6. **Keep the installer working.** `app/`, `src/vcam/`, `src/server.py`, `src/desktop_app.py` and `packaging/` are bundled by
