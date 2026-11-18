@@ -162,3 +162,23 @@ test("the download page offers a link only from a checked manifest, never a gues
   assert.doesNotMatch(panel, /latest\/FrameDecks-Setup\.exe|LATEST_WINDOWS/);
   assert.match(panel, /Downloads open here very soon/);
 });
+
+test("the legal texts are final: Indian law, Mumbai courts for organisations, 18+, a grievance contact", () => {
+  const doc = (n) => readFileSync(new URL(`docs/legal/${n}.md`, root), "utf8");
+  for (const n of ["terms", "eula", "privacy", "cookies"]) {
+    assert.doesNotMatch(doc(n), /to be confirmed|is a draft|are a draft/i, n);
+  }
+  for (const n of ["terms", "eula"]) {
+    assert.match(doc(n), /governed by the laws of India/, n);
+    assert.match(doc(n).replace(/\*\*/g, ""), /courts at Mumbai, India have exclusive jurisdiction/, n);
+    assert.match(doc(n).replace(/\s+/g, " "), /mandatory laws of the country where you live/, n);
+  }
+  assert.match(doc("terms"), /at least \*\*18 years old\*\*/);
+  assert.match(doc("privacy"), /Workspace accounts are for people aged \*\*18 and over\*\*/);
+  for (const r of ["**Europe (EU and EEA):**", "**United Kingdom:**", "**India:**", "**United States:**", "**Middle East"]) {
+    assert.ok(doc("privacy").includes(r), r);
+  }
+  assert.match(doc("terms"), /Grievance Officer/);
+  assert.match(src("app/contact/page.tsx"), /grievance@framedecks\.com/);
+});
+

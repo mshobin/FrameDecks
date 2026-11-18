@@ -1,9 +1,11 @@
 # FrameDecks Privacy Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 18 November 2026 (members' phones: first names, hands, the quiz, the take-home page; the prayer journey and attendance on your PC; processors and children corrected)*
+*Effective 18 November 2026 · Version 2026-11-18 (India as governing law; grievance contact; data breaches; regional information for Europe, the UK, India, the United States and the Middle East; 18+ accounts)*
 
-FrameDecks is made by **Shobin Mathews** ("we", "us"). Contact: privacy@framedecks.com. Who is responsible for which
-data is set out under "Who is responsible" below.
+FrameDecks is made and run by **Shobin Mathews** ("we", "us"), an individual (not a company) and a citizen of India.
+Contact: privacy@framedecks.com. Complaints: grievance@framedecks.com (see "Your rights"). Who is responsible for
+which data is set out under "Who is responsible" below. These terms are governed by the laws of India; the sections
+under "Regional information" explain how they meet the laws where you live.
 
 ## The short version
 
@@ -94,24 +96,38 @@ If you use these in a meeting with other people, tell them.
 - **Your own account** (your email, passkeys, trusted devices, security events, terms acceptance): we are responsible
   (the controller).
 - **A workspace's plan, member list and members' phones data:** the church or group that runs the workspace is
-  responsible (the controller). We process this data for it (as its processor), only to provide the Service. People on
-  a church's member list, and people using members' phones, should ask that church first about their data; we help the
-  church answer.
+  responsible (the controller; under India's Digital Personal Data Protection Act, 2023, the "Data Fiduciary"). We
+  process this data for it (as its processor; the "Data Processor"), only to provide the Service. People on a church's
+  member list, and people using members' phones, should ask that church first about their data; we help the church
+  answer.
 
-### Data processing terms for churches
+### Data processing terms for churches and organisations
 
-For data a workspace holds, we:
+These terms form an agreement between us and each organisation that uses a workspace (GDPR Article 28 and UK GDPR
+Article 28; section 8 of India's Digital Personal Data Protection Act; and the equivalent rules elsewhere). The
+organisation accepts them by using a workspace. For data a workspace holds, we:
 
-- process it only to provide the Service and on the workspace's instructions (what its owners and admins do in
-  FrameDecks);
-- make sure anyone who processes it for us is bound to keep it confidential;
-- protect it as described on the Security page;
-- use only the processors listed below, and announce a new one here before using it;
-- help the workspace answer requests from the people whose data it is, and with security and data protection
-  questions;
-- tell the workspace's owners without undue delay if a breach affects its data;
-- delete it when the workspace is deleted (backups within 30 days), and let owners export it before then;
-- answer reasonable questions to show we follow these terms.
+- **process it only on the organisation's instructions:** what its owners and admins do in FrameDecks, these Terms and
+  the Privacy Policy. We tell the organisation if we think an instruction breaks the law;
+- **keep it confidential:** anyone who processes it for us is bound to keep it confidential;
+- **protect it:** encryption in transit, access rules in the database so each workspace sees only its own data,
+  encrypted backups and the other measures on the Security page;
+- **use only the sub-processors listed under "Who processes it for us"**, under contracts that protect the data at
+  least as well. We announce a new sub-processor on this page at least 14 days before using it; an organisation that
+  objects may stop using the workspace and export or delete its data;
+- **transfer it abroad only with safeguards:** the European Commission's Standard Contractual Clauses (and the UK
+  Addendum), an adequacy decision, or what the law of the organisation's country allows;
+- **help the organisation** answer requests from the people whose data it is, and with security, breach and data
+  protection questions, including impact assessments;
+- **tell the organisation's owners without undue delay**, and within 72 hours where we can, if a breach affects its
+  data, with what we know and what we are doing about it;
+- **delete it** when the workspace is deleted (backups within 30 days), and let owners export it before then;
+- **show we follow these terms:** answer reasonable written questions, and give the information an organisation needs
+  for its own records.
+
+The organisation, in turn, is responsible for having a lawful basis or consent for the data it puts in (explicit
+consent for information that shows religious belief where the law needs it), for parents' or guardians' permission for
+children, for telling the people concerned, and for answering their requests.
 
 ## Who processes it for us
 
@@ -150,20 +166,60 @@ You can see, correct, export and delete your data:
 - Your export also includes your Trusted Devices and your security events. Passkeys are kept by Supabase's sign-in
   service; ask privacy@framedecks.com if you want a list of them.
 
-Depending on where you live, you may also have the right to object, to restrict processing, and to complain to your
-data protection authority. Write to privacy@framedecks.com; we answer within one month.
+Depending on where you live, you may also have the right to object, to restrict processing, to nominate someone to use
+your rights if you die or cannot act, and to complain to your data protection authority (see "Regional information").
+Write to privacy@framedecks.com; we answer within one month, and sooner where the law says so.
+
+**Complaints and our Grievance Officer.** Shobin Mathews, grievance@framedecks.com. We acknowledge a complaint within 24
+hours and aim to resolve it within 15 days. If you are not satisfied, you may complain to your data protection
+authority (in India, the Data Protection Board of India).
+
+## Data breaches
+
+If a breach of security affects personal data, we will contain it, find out what happened, and tell the people and
+organisations affected without undue delay, with what happened, what it means for them and what they can do. Where the
+law requires it, we also tell the regulator (for example the Data Protection Board of India, or the relevant
+authority in Europe or the UK within 72 hours).
 
 ## Children
 
-Workspaces are not meant for children under 16. A workspace may list young people as members (for example, a youth
-group); the workspace is responsible for having permission from their parents or guardians.
+Workspace accounts are for people aged **18 and over**. A workspace may list young people as members (for example, a
+youth group); the church or group is responsible for having verifiable permission from their parents or guardians, as
+India's Digital Personal Data Protection Act and other laws require, and we do not track children or show them
+advertising.
 
 The members' phone pages need no account. When the leader switches them on, a phone can send a first name, a raised
 hand, quiz answers (shown on a leaderboard by first name) and prayer requests, and the leader's PC may keep first names
-for Care and attendance. We do not knowingly collect personal information from children under 13 ourselves, and these
-features are run by the church. A church that uses members' phones with children should tell parents first, leave
-**Ask for a first name** and the **Bible quiz** off for groups under 13, and avoid asking children for their names in
-prayer requests or typed answers.
+for Care and attendance. We do not knowingly collect personal information from children ourselves, and these features
+are run by the church. A church that uses members' phones with children should tell parents first, leave **Ask for a
+first name** and the **Bible quiz** off for groups of children, and avoid asking children for their names in prayer
+requests or typed answers.
+
+## Regional information
+
+The same practices apply to everyone. These notes explain how they meet the law where you live.
+
+- **Europe (EU and EEA):** the General Data Protection Regulation applies. Our legal bases are in "Why we may use it".
+  You have the rights listed under "Your rights", including portability and the right to object, and you may complain
+  to the data protection authority of the country where you live or work. Transfers outside the EEA use the European
+  Commission's Standard Contractual Clauses or an adequacy decision.
+- **United Kingdom:** the UK GDPR and the Data Protection Act 2018 apply in the same way. The regulator is the
+  Information Commissioner's Office (ico.org.uk). Transfers use the UK Addendum to the Standard Contractual Clauses or
+  UK adequacy regulations.
+- **India:** the Digital Personal Data Protection Act, 2023 and its Rules apply. This notice is our notice to you; where
+  we rely on your consent you may withdraw it as easily as you gave it (for example by deleting your data). You have the
+  rights to information, correction, erasure, grievance redressal and to nominate someone. Contact our Grievance
+  Officer (above); you may then approach the Data Protection Board of India. We report personal data breaches to the
+  Board as the law requires. For a workspace's data, the church is the Data Fiduciary and we are its Data Processor.
+- **United States:** we do not sell or share personal information (as those words are used in California and other
+  state privacy laws), we do not use it for targeted advertising, and we do not use sensitive information to infer
+  things about you. You may ask to know, correct or delete your information at privacy@framedecks.com, and we will not
+  treat you differently for asking.
+- **Middle East (including Saudi Arabia, the United Arab Emirates, Qatar, Bahrain and Kuwait):** you may ask to see,
+  correct or delete your information, and to withdraw consent. Information that shows religious belief is treated as
+  sensitive and handled only on the church's instructions with its consent. The Service stores data with Supabase and
+  Cloudflare outside the region; we use them under contracts that protect it, as listed under "Who processes it for
+  us".
 
 ## Changes
 

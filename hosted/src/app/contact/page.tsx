@@ -18,6 +18,11 @@ const WAYS = [
     text: "See, export or delete your data, or ask how it is used.",
   },
   {
+    title: "Complaints (Grievance Officer)",
+    mail: "grievance@framedecks.com",
+    text: "A complaint about FrameDecks or how your data is handled. We reply within 24 hours and aim to resolve it within 15 days.",
+  },
+  {
     title: "Security",
     mail: "security@framedecks.com",
     text: "Report a vulnerability privately. Please read the disclosure policy first.",

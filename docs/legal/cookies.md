@@ -1,6 +1,6 @@
 # FrameDecks Cookie Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 16 November 2026 (all storage listed)*
+*Effective 18 November 2026 · Version 2026-11-18 (all storage listed)*
 
 framedecks.com does not use advertising, analytics or tracking cookies. It stores only what it needs to work, in your
 browser's storage (local storage, or this tab's session storage until you trust the device):

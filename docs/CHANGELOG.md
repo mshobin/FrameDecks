@@ -10,6 +10,17 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed (legal texts final)
+- Terms of Service rewritten (version 2026-11-18): laws of India, courts at Mumbai for organisations, consumers keep
+  their home-country protections; 18+ accounts; organisations responsible for the personal data they put in
+  (controller / Data Fiduciary) with an organisation-only indemnity; free service that may change; Grievance Officer
+  (IT Rules 2021, DPDP Act 2023) at grievance@framedecks.com.
+- EULA, Privacy Policy and Cookie Policy: version 2026-11-18, no draft markers; privacy adds identity, DPDP terms,
+  fuller data terms for organisations (Article 28 / DPDP s.8, 14-day sub-processor notice), data breaches, children
+  (18+), and regional information for the EU/EEA, UK, India, the US and the Middle East.
+- `TERMS_VERSION` 2026-11-18 (everyone accepts the final texts once); Contact page lists the grievance contact; test in
+  `hosted/tests/legal-pages.test.mjs`.
+
 ## [26.11.64] - 2026-11-18
 
 Full notes: [docs/releases/v26.11.64.md](releases/v26.11.64.md). Fixes from the production release review.
