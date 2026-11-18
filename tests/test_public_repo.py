@@ -16,8 +16,9 @@ def read(rel):
 
 class Licence(unittest.TestCase):
     def test_license_is_the_official_apache_2_text(self):
-        # the SHA-256 of https://www.apache.org/licenses/LICENSE-2.0.txt (LF line endings)
-        self.assertEqual(hashlib.sha256((ROOT / "LICENSE").read_bytes()).hexdigest(),
+        # the SHA-256 of https://www.apache.org/licenses/LICENSE-2.0.txt with LF line endings (a Windows checkout may
+        # turn them into CRLF, so they are put back before hashing)
+        self.assertEqual(hashlib.sha256((ROOT / "LICENSE").read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
                          "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30")
 
     def test_the_names_stay_ours_and_the_history_is_stated(self):
