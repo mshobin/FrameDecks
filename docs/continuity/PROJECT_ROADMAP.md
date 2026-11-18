@@ -6,7 +6,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |
-| Hosted Next.js companion + CI + Cloudflare Pages | Done (Vercel remains until retired) |
+| Hosted Next.js companion + CI + Cloudflare Pages | Done (deployed by GitHub Actions; Vercel retired 18 November 2026) |
 | PWA manifest + safe service worker | Done (device acceptance pending) |
 | Tenant schema + RLS | Done; tested in-repo on PGlite; all scripts `0001`–`0009` run in live Supabase (`0001`–`0008` 26 Oct, `0009` 27 Oct); live RLS tests pending |
 | Supabase project, providers, sign-in UI | Done for emailed links (live sign-in confirmed 25 Oct); Google/Microsoft need owner setup |
