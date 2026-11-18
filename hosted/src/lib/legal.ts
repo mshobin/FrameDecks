@@ -1,6 +1,6 @@
 // Which Terms of Service and Privacy Policy are current (docs/legal/terms.md and privacy.md, "Version 2026-11-18"),
 // and the acceptance a new person ticked before their account existed (recorded by accept_terms once signed in).
-export const TERMS_VERSION = "2026-11-18";      // 26.11.64: India, Mumbai, 18+, no longer a draft: everyone accepts again
+export const TERMS_VERSION = "2026-11-18";      // 26.11.64: laws of England and Wales, 18+, no longer a draft: everyone accepts again
 export const PENDING_KEY = "fd-terms-accepted";
 
 export function rememberAcceptance(

@@ -1,6 +1,6 @@
 # FrameDecks End User License Agreement
 
-*Effective 18 November 2026 · Version 2026-11-18 (open source under the Apache License 2.0; this Agreement covers the official program; governed by the laws of India)*
+*Effective 18 November 2026 · Version 2026-11-18 (open source under the Apache License 2.0; this Agreement covers the official program; governed by the laws of England and Wales)*
 
 This End User License Agreement (the "Agreement") is between you and **Shobin Mathews** ("we", "us"), the owner of
 FrameDecks. It covers the FrameDecks desktop program, its installer, its updates, the FrameDecks vCam virtual camera and the
@@ -82,9 +82,9 @@ under the Apache License continue under its own terms. Sections 1, 3, 4, 7, 8 an
 
 ## 10. General
 
-- **Governing law:** this Agreement is governed by the laws of India. If you use the Software as a consumer, you also
-  keep the protection of the mandatory laws of the country where you live, and you may bring a claim in the courts
-  there. For organisations, the courts at Mumbai, India have exclusive jurisdiction.
+- **Governing law:** this Agreement is governed by the laws of England and Wales. If you use the Software as a
+  consumer, you also keep the protection of the mandatory laws of the country where you live, and you may bring a claim
+  in the courts there. For organisations, the courts of England and Wales have exclusive jurisdiction.
 - **Complaints:** please write to grievance@framedecks.com first; we acknowledge within 24 hours and aim to resolve a
   complaint within 15 days.
 - **Export:** you will not use or export the Software where that is against the law.

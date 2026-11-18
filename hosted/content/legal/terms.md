@@ -1,6 +1,6 @@
 # FrameDecks Terms of Service
 
-*Effective 18 November 2026 · Version 2026-11-18 (governed by the laws of India; courts of Mumbai for organisations; 18+ accounts; grievance contact; churches' data terms)*
+*Effective 18 November 2026 · Version 2026-11-18 (governed by the laws of England and Wales; English courts for organisations; 18+ accounts; complaints contact; churches' data terms)*
 
 These Terms cover your use of the FrameDecks website at framedecks.com, your FrameDecks workspaces, and the online
 services the FrameDecks program uses (opening your workspace with one-time links and passkeys, Trusted Devices,
@@ -25,9 +25,9 @@ church, group or other organisation, you accept them for it too and confirm that
   its first owner, and a workspace must always have an owner.
 - **The organisation decides what personal data it puts into FrameDecks and is responsible for it.** That includes its
   member lists, prayer requests, first names and attendance from members' phones, and anything else about the people
-  it serves. Under data protection law the organisation is the controller (under India's Digital Personal Data
-  Protection Act, the "Data Fiduciary"), and we process that data only on its behalf, as its processor (the "Data
-  Processor"), under the data terms in the Privacy Policy.
+  it serves. Under data protection law (such as the UK GDPR and the EU GDPR) the organisation is the controller (under
+  India's Digital Personal Data Protection Act, the "Data Fiduciary"), and we process that data only on its behalf, as
+  its processor (the "Data Processor"), under the data terms in the Privacy Policy.
 - The organisation is responsible for telling the people concerned, having a lawful basis or consent (explicit consent
   where the law needs it, for example for information about religious belief), getting parents' or guardians'
   permission for children, and answering their requests. We help, as the Privacy Policy describes.
@@ -80,22 +80,24 @@ problem does not stop them, and rehearse.
 
 TO THE FULLEST EXTENT THE LAW ALLOWS, WE ARE NOT LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR
 PUNITIVE LOSS, OR FOR LOSS OF DATA, PROFITS, GOODWILL OR OPPORTUNITY, ARISING FROM THE SERVICE OR THESE TERMS. Because
-the Service is free, our total liability for all claims about it is limited to USD 50 (or its equivalent in Indian
-rupees). Nothing in these Terms limits liability for death or personal injury caused by negligence, for fraud, or for
+the Service is free, our total liability for all claims about it is limited to GBP 50 (or its equivalent in your
+currency). Nothing in these Terms limits liability for death or personal injury caused by negligence, for fraud, or for
 anything else the law does not allow to be limited, and nothing affects the mandatory rights you have as a consumer
 where you live.
 
 ## 9. Law, courts and complaints
 
-- **Governing law:** these Terms are governed by the laws of India.
+- **Governing law:** these Terms are governed by the laws of England and Wales.
 - **Consumers:** if you use FrameDecks as a consumer, you also keep the protection of the mandatory laws of the country
-  where you live, and you may bring a claim in the courts there.
-- **Organisations:** the courts at **Mumbai, India** have exclusive jurisdiction over any dispute with an organisation
+  where you live, and you may bring a claim in the courts there. If you live in Scotland or Northern Ireland, you may
+  also bring a claim in the courts of that country.
+- **Organisations:** the courts of England and Wales have exclusive jurisdiction over any dispute with an organisation
   about the Service or these Terms.
 - **Talk to us first:** before going to court, please write to grievance@framedecks.com. We acknowledge a complaint
   within 24 hours and aim to resolve it within 15 days.
-- **Grievance Officer** (Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, and
-  the Digital Personal Data Protection Act, 2023): Shobin Mathews, grievance@framedecks.com.
+- **Users in India:** our Grievance Officer under the Information Technology (Intermediary Guidelines and Digital Media
+  Ethics Code) Rules, 2021 and the Digital Personal Data Protection Act, 2023 is Shobin Mathews,
+  grievance@framedecks.com.
 
 ## 10. General
 

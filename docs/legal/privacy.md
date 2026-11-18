@@ -1,11 +1,11 @@
 # FrameDecks Privacy Policy
 
-*Effective 18 November 2026 · Version 2026-11-18 (India as governing law; grievance contact; data breaches; regional information for Europe, the UK, India, the United States and the Middle East; 18+ accounts)*
+*Effective 18 November 2026 · Version 2026-11-18 (England and Wales as governing law; complaints contact; data breaches; regional information for Europe, the UK, India, the United States and the Middle East; 18+ accounts)*
 
 FrameDecks is made and run by **Shobin Mathews** ("we", "us"), an individual (not a company) and a citizen of India.
 Contact: privacy@framedecks.com. Complaints: grievance@framedecks.com (see "Your rights"). Who is responsible for
-which data is set out under "Who is responsible" below. These terms are governed by the laws of India; the sections
-under "Regional information" explain how they meet the laws where you live.
+which data is set out under "Who is responsible" below. These terms are governed by the laws of England and Wales; the
+sections under "Regional information" explain how they meet the laws where you live.
 
 ## The short version
 
@@ -170,23 +170,24 @@ Depending on where you live, you may also have the right to object, to restrict 
 your rights if you die or cannot act, and to complain to your data protection authority (see "Regional information").
 Write to privacy@framedecks.com; we answer within one month, and sooner where the law says so.
 
-**Complaints and our Grievance Officer.** Shobin Mathews, grievance@framedecks.com. We acknowledge a complaint within 24
-hours and aim to resolve it within 15 days. If you are not satisfied, you may complain to your data protection
-authority (in India, the Data Protection Board of India).
+**Complaints.** Write to grievance@framedecks.com (Shobin Mathews, also our Grievance Officer for users in India). We
+acknowledge a complaint within 24 hours and aim to resolve it within 15 days. If you are not satisfied, you may
+complain to your data protection authority: in the UK the Information Commissioner's Office, in the EU the authority
+where you live, in India the Data Protection Board of India.
 
 ## Data breaches
 
 If a breach of security affects personal data, we will contain it, find out what happened, and tell the people and
 organisations affected without undue delay, with what happened, what it means for them and what they can do. Where the
-law requires it, we also tell the regulator (for example the Data Protection Board of India, or the relevant
-authority in Europe or the UK within 72 hours).
+law requires it, we also tell the regulator (for example the Information Commissioner's Office in the UK or the
+relevant authority in Europe within 72 hours, or the Data Protection Board of India).
 
 ## Children
 
 Workspace accounts are for people aged **18 and over**. A workspace may list young people as members (for example, a
-youth group); the church or group is responsible for having verifiable permission from their parents or guardians, as
-India's Digital Personal Data Protection Act and other laws require, and we do not track children or show them
-advertising.
+youth group); the church or group is responsible for having permission from their parents or guardians where the law
+requires it (for example under the UK GDPR, the EU GDPR or India's Digital Personal Data Protection Act), and we do not
+track children or show them advertising.
 
 The members' phone pages need no account. When the leader switches them on, a phone can send a first name, a raised
 hand, quiz answers (shown on a leaderboard by first name) and prayer requests, and the leader's PC may keep first names

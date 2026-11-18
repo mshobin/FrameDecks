@@ -163,14 +163,15 @@ test("the download page offers a link only from a checked manifest, never a gues
   assert.match(panel, /Downloads open here very soon/);
 });
 
-test("the legal texts are final: Indian law, Mumbai courts for organisations, 18+, a grievance contact", () => {
+test("the legal texts are final: laws of England and Wales, English courts for organisations, 18+, a complaints contact", () => {
   const doc = (n) => readFileSync(new URL(`docs/legal/${n}.md`, root), "utf8");
   for (const n of ["terms", "eula", "privacy", "cookies"]) {
     assert.doesNotMatch(doc(n), /to be confirmed|is a draft|are a draft/i, n);
   }
   for (const n of ["terms", "eula"]) {
-    assert.match(doc(n), /governed by the laws of India/, n);
-    assert.match(doc(n).replace(/\*\*/g, ""), /courts at Mumbai, India have exclusive jurisdiction/, n);
+    assert.match(doc(n), /governed by the laws of England and Wales/, n);
+    assert.match(doc(n).replace(/\*\*/g, ""), /courts of England and Wales have exclusive jurisdiction/, n);
+    assert.doesNotMatch(doc(n), /Mumbai|laws of India/, n);
     assert.match(doc(n).replace(/\s+/g, " "), /mandatory laws of the country where you live/, n);
   }
   assert.match(doc("terms"), /at least \*\*18 years old\*\*/);
