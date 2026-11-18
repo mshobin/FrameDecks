@@ -10,6 +10,18 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed (ready for a public repository)
+- Licence: `LICENSE` is the Apache License 2.0 (official text); `NOTICE` rewritten (trademarks kept, history of the
+  proprietary 7.0–26.11.62 versions); `docs/legal/eula.md` sections 1–3 and 9 now cover the official program on top of
+  Apache 2.0 (version 2026-10-29 kept, wording updated); installer shows the EULA (`LicenseFile=..\docs\legal\eula.md`)
+  and ships `eula.md`; About, site footer, `/legal`, README, FAQ, CONTRIBUTING, third-party notices and code-signing
+  updated; `hosted/package.json` licence `Apache-2.0`.
+- Credit email `hello@framedecks.com` (`app/js/brand.js`, `brand.json`, About header).
+- `db-backup.yml`: backups go to the private R2 bucket `framedecks-backups` (secrets `R2_BACKUP_ACCESS_KEY_ID`,
+  `R2_BACKUP_SECRET_ACCESS_KEY`, `CLOUDFLARE_ACCOUNT_ID`), size-checked, 30 days; an artifact only while the
+  repository is private and R2 is missing; a public repository without R2 fails instead of uploading; after a good R2
+  copy the old backup artifacts are deleted (`actions: write`). Test `tests/test_public_repo.py`.
+
 ### Changed
 - Website hosting: Cloudflare Pages only; Vercel retired. GitHub Actions (`hosted.yml`, job `deploy`, after `checks`,
   `main` only) builds with the repository secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY` and runs

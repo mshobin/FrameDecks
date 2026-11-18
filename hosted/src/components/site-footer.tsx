@@ -87,8 +87,8 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="fd-site-foot-legal">
-        © 2026 Shobin Mathews. All rights reserved. FrameDecks is proprietary
-        software, free to use under the <Link href="/eula">EULA</Link>. Version{" "}
+        © 2026 Shobin Mathews. FrameDecks is open-source software under the
+        Apache License 2.0, free to use under the <Link href="/eula">EULA</Link>. Version{" "}
         {brand.version}.
       </p>
     </footer>

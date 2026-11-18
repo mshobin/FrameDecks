@@ -1,14 +1,37 @@
 # Database backups: how they work and how to restore one
 
 The free Supabase plan has no daily backups, so FrameDecks makes its own. The **Database backup** GitHub Action runs
-every night at 04:23 Kuwait time. It saves an **encrypted** copy of the workspace database and keeps each copy for
-30 days. Setup is in [free-hosting.md](../deployment/free-hosting.md), Part B.
+every night at 04:23 Kuwait time. It saves an **encrypted** copy of the workspace database in a **private Cloudflare
+R2 bucket** (`framedecks-backups`) and keeps each copy for 30 days. Setup is in
+[free-hosting.md](../deployment/free-hosting.md), Part B, and the R2 bucket below.
+
+## Where backups are kept (private R2 bucket)
+
+Until 26.11.63 each backup was a workflow artifact. In a public repository anyone signed in to GitHub can download
+artifacts, so backups now go to R2, which only your Cloudflare account can read. The workflow uploads to R2 when its
+three secrets exist; while they do not, it keeps an artifact **only if the repository is private**, and in a public
+repository it refuses to upload anywhere (the run fails, and you get an issue). After the first good copy in R2 it
+deletes the backups earlier runs kept as artifacts.
+
+Set it up once (about 10 minutes):
+1. Cloudflare → **R2 Object Storage** → **Create bucket** → name `framedecks-backups`, location *Automatic*. Leave
+   **Public access** off and add no custom domain.
+2. Optional: the bucket → Settings → **Object lifecycle rules** → add a rule that deletes objects with prefix
+   `backups/` after 30 days (the workflow also removes copies older than 30 days).
+3. R2 → **Manage R2 API Tokens** → **Create API token**: permission **Object Read & Write**, *Apply to specific
+   buckets only* → `framedecks-backups`, TTL as you like. Copy the **Access Key ID** and **Secret Access Key** (shown
+   once).
+4. GitHub → the repository → Settings → Secrets and variables → Actions → add `R2_BACKUP_ACCESS_KEY_ID`,
+   `R2_BACKUP_SECRET_ACCESS_KEY` and (if not there yet) `CLOUDFLARE_ACCOUNT_ID`.
+5. Actions → **Database backup** → Run workflow. It should end with `Kept in R2: framedecks-backups/backups/<date>/`
+   and list the old artifacts it deleted.
 
 **Who this is for:** the owner, and whoever helps them if the database is ever lost.
 
 ## What is in a backup
 
-The file is `framedecks-backup-<date>.tar.enc`, under the run's **Artifacts** in GitHub → Actions → Database backup.
+The file is `framedecks-backup-<date>.tar.enc`, in Cloudflare → R2 → `framedecks-backups` → `backups/<date>/`
+(older backups, from before R2, were under the run's **Artifacts** in GitHub → Actions → Database backup).
 It holds:
 - `public.dump`: everything FrameDecks keeps. That is workspaces, people and roles, invitations, synced plans and
   members, history, linked PCs, groups, the audit log, and who may read what.
@@ -27,8 +50,8 @@ You need:
 - **PostgreSQL 17 tools:** the "Command Line Tools" from the PostgreSQL installer for Windows, or WSL/Linux.
 - **openssl:** Git for Windows includes it, at `C:\Program Files\Git\usr\bin\openssl.exe`.
 
-1. **Download the backup.** Pick the latest good run, then download the artifact and unzip it to get the `.tar.enc`
-   file and its `.tar.enc.mac` (backups from 9.3 on).
+1. **Download the backup.** Cloudflare → R2 → `framedecks-backups` → `backups/` → the latest date → download the
+   `.tar.enc` file and its `.tar.enc.mac`. (A backup kept as an artifact: download it from the run and unzip it.)
 1. **Check it was not changed** (needs Python 3, from the repository folder; the passphrase stays out of the command):
    ```powershell
    $env:BACKUP_PASSPHRASE = "YOUR PASSPHRASE"

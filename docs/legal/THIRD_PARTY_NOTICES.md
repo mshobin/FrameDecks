@@ -1,6 +1,6 @@
 # Third-party notices
 
-FrameDecks is proprietary software ([LICENSE](../../LICENSE), [EULA](eula.md)). It uses the software and assets below,
+FrameDecks is open-source software under the Apache License 2.0 ([LICENSE](../../LICENSE), [EULA](eula.md)). It uses the software and assets below,
 each under its own licence, which continues to apply to that component. Licences that ask for their text to travel with
 copies are honoured as follows:
 - the files under `app/vendor/` and `app/fonts/` keep their own licence files;

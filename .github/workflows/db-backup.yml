@@ -1,7 +1,12 @@
 # An encrypted copy of the workspace database every night (free plan, docs/deployment/free-hosting.md, Part B).
 # Supabase Free has no daily backups. The copy is encrypted with BACKUP_PASSPHRASE (only the owner knows it) before
-# it leaves the runner, and kept 30 days with the run. Needs the repository secrets SUPABASE_DB_URL (Session pooler
-# URI) and BACKUP_PASSPHRASE; does nothing until they exist. Restore: docs/operations/database-backup.md.
+# it leaves the runner. Needs the repository secrets SUPABASE_DB_URL (Session pooler URI) and BACKUP_PASSPHRASE; does
+# nothing until they exist. Restore: docs/operations/database-backup.md.
+# Where it is kept: a private Cloudflare R2 bucket (framedecks-backups), 30 days, once R2_BACKUP_ACCESS_KEY_ID,
+# R2_BACKUP_SECRET_ACCESS_KEY and CLOUDFLARE_ACCOUNT_ID exist. A workflow artifact is used only while the repository
+# is private and R2 is not set up yet: in a public repository anyone signed in to GitHub can download artifacts, so a
+# backup is then never uploaded as one, and the run fails instead. After a good copy in R2, the backups kept as
+# artifacts by earlier runs are deleted.
 name: Database backup
 
 on:
@@ -12,6 +17,7 @@ on:
 permissions:
   contents: read
   issues: write      # only to open an issue when a run fails (step below)
+  actions: write     # only to delete the backups earlier runs kept as artifacts, once R2 has a good copy
 
 jobs:
   backup:
@@ -20,6 +26,11 @@ jobs:
     env:
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_BACKUP_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      R2_BUCKET: framedecks-backups
+      KEEP_DAYS: "30"
     steps:
       - name: Check the secrets
         id: ready
@@ -50,8 +61,65 @@ jobs:
         if: steps.ready.outputs.go == 'true'
         run: tools/db_backup.sh backup
 
-      - name: Keep it for 30 days
+      - name: Where to keep it (R2, or an artifact only while the repository is private)
         if: steps.ready.outputs.go == 'true'
+        id: where
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          private=$(gh api "repos/$GITHUB_REPOSITORY" --jq .private)
+          echo "private=$private" >> "$GITHUB_OUTPUT"
+          if [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "to=r2" >> "$GITHUB_OUTPUT"
+          elif [ "$private" = "true" ]; then
+            echo "::warning::Kept as a workflow artifact for now. Set up the private R2 bucket (docs/operations/database-backup.md) before the repository is made public."
+            echo "to=artifact" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::The repository is public and R2 is not set up: the backup is not uploaded anywhere (an artifact would be downloadable by anyone signed in to GitHub). Add R2_BACKUP_ACCESS_KEY_ID, R2_BACKUP_SECRET_ACCESS_KEY and CLOUDFLARE_ACCOUNT_ID (docs/operations/database-backup.md)."
+            exit 1
+          fi
+
+      - name: Keep it in the private R2 bucket for 30 days
+        if: steps.ready.outputs.go == 'true' && steps.where.outputs.to == 'r2'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_BACKUP_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+        run: |
+          set -euo pipefail
+          ep="https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          day=$(date -u +%Y-%m-%d)
+          for f in backup/*.tar.enc backup/*.tar.enc.sha256 backup/*.tar.enc.mac; do
+            [ -e "$f" ] || continue
+            aws s3 cp "$f" "s3://$R2_BUCKET/backups/$day/$(basename "$f")" --endpoint-url "$ep" --only-show-errors
+            want=$(stat -c %s "$f")
+            got=$(aws s3api head-object --bucket "$R2_BUCKET" --key "backups/$day/$(basename "$f")" --endpoint-url "$ep" --query ContentLength --output text)
+            [ "$want" = "$got" ] || { echo "::error::$f: R2 holds $got bytes, not $want"; exit 1; }
+          done
+          echo "Kept in R2: $R2_BUCKET/backups/$day/"
+          # copies older than KEEP_DAYS go (the bucket may also have its own lifecycle rule)
+          cutoff=$(date -u -d "-$KEEP_DAYS days" +%Y-%m-%d)
+          aws s3api list-objects-v2 --bucket "$R2_BUCKET" --prefix backups/ --endpoint-url "$ep" --query 'Contents[].Key' --output text \
+            | tr '\t' '\n' | while read -r key; do
+                d=$(echo "$key" | cut -d/ -f2)
+                if [ -n "$d" ] && [ "$d" != "None" ] && [[ "$d" < "$cutoff" ]]; then
+                  aws s3api delete-object --bucket "$R2_BUCKET" --key "$key" --endpoint-url "$ep" > /dev/null && echo "removed $key"
+                fi
+              done
+
+      - name: Remove the backups earlier runs kept as artifacts
+        if: steps.ready.outputs.go == 'true' && steps.where.outputs.to == 'r2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" --paginate \
+            --jq '.artifacts[] | select(.name | startswith("framedecks-backup-")) | .id' \
+            | while read -r id; do gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" && echo "deleted artifact $id"; done
+
+      - name: Keep it for 30 days (private repository only, until R2 is set up)
+        if: steps.ready.outputs.go == 'true' && steps.where.outputs.to == 'artifact' && steps.where.outputs.private == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: framedecks-backup-${{ github.run_number }}

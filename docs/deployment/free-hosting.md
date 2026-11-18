@@ -137,23 +137,30 @@ codes go through Resend (free plan: 3,000 emails a month, 100 a day).
 
 ## Part E: public repository, free signing, permanent downloads
 
-All of this is prepared. The full steps are in [code-signing.md](code-signing.md); in short:
-1. **Check before making the repository public.**
-   - Run GitHub's secret scanning: Settings → Code security → **Secret scanning**.
-   - The repository has never held a secret: keys are only in Cloudflare, Supabase, GitHub secrets and your
-     PC.
-   - Old branches from closed pull requests become public too; delete any you do not want shown.
-2. **Make it public:** Settings → General → Danger Zone → **Change visibility → Public**. GitHub Actions minutes
-   become free and unlimited for public repositories.
-3. **Apply to SignPath Foundation** (https://signpath.org) with the repository URL and the Apache 2.0 licence.
-   After approval:
-   - add the `SIGNPATH_API_TOKEN` secret and the three `SIGNPATH_*` variables;
-   - every installer is then signed by itself.
-4. **Permanent downloads.**
-   1. On GitHub, go to **Releases → Draft a new release**.
-   2. Create a tag such as `v6.10.1` on `main` and publish.
-   3. The installer build attaches the installer and its checksum to the release page by itself. That page is the
-      one place churches download from, and it never expires.
+Public repositories get unlimited free GitHub Actions minutes, and open-source projects get free code signing from
+SignPath Foundation. FrameDecks is open source under the Apache License 2.0 from 26.11.63. Already done in the code:
+the licence, NOTICE and EULA; the credit line uses hello@framedecks.com; nightly backups go to a private R2 bucket and
+are never uploaded as an artifact in a public repository; the whole history, every branch and tag were scanned for keys
+and tokens (none found). In order:
+1. **Backups to R2 first:** [database-backup.md](../operations/database-backup.md), "Where backups are kept". Run the
+   backup once and check that the old backup artifacts are gone (Actions → Database backup → older runs show no
+   artifact).
+2. **Delete the old branches** (a backup of them was sent to you as `framedecks-old-branches.bundle`): GitHub → Code →
+   Branches → *All* → the bin icon next to `wip-26.11.12`, `wip-26.11.13`, `wip-26.11.14`,
+   `claude/blissful-turing-j2nx8z`, `docs/trust-fix-merged-handoff`, `fix/readme-release-header-v6111`,
+   `fix/trust-layer-errors-confirmations`, `modernization-v1` and `release/6.8`. Leave `main` and the `dependabot/*`
+   branches.
+3. **Turn on secret scanning:** Settings → Code security → Secret Protection (Secret scanning and Push protection).
+4. **Make it public:** Settings → General → Danger Zone → **Change visibility → Make public**, and type the name.
+5. **Then:**
+   - Actions → Database backup → Run workflow once more, to see it keep the copy in R2.
+   - Settings → Actions → General → *Fork pull request workflows from outside collaborators*: **Require approval for
+     all outside collaborators** (forks never get your secrets either way).
+   - Apply to **SignPath Foundation** (https://signpath.org) with the repository address and the Apache 2.0 licence
+     ([code-signing.md](code-signing.md)). After approval add the `SIGNPATH_API_TOKEN` secret and the three
+     `SIGNPATH_*` variables; every installer is then signed by itself.
+6. **Permanent downloads.** The installer build attaches the installer and its checksum to each GitHub Release, which
+   never expires; framedecks.com/download stays the main door.
 
 ---
 

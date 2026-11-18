@@ -82,7 +82,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Free plan (`docs/deployment/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
   `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
   `docs/operations/database-backup.md`). Both do nothing until their repository secrets exist.
-- Licence (7.0): proprietary. `LICENSE` is the EULA (`docs/legal/eula.md`, kept equal by a website test) and
+- Licence (26.11.63): Apache License 2.0 again (7.0–26.11.62 were proprietary); the EULA covers the official program. Before: `LICENSE` is the EULA (`docs/legal/eula.md`, kept equal by a website test) and
   `NOTICE`; the installer shows `LICENSE`. Every shipped dependency or vendored file needs a row in
   `docs/legal/THIRD_PARTY_NOTICES.md`; no copyleft code beyond the LGPL files already listed. Signing: off until
   secrets exist (`docs/deployment/code-signing.md`; SignPath Foundation no longer applies).

@@ -1,42 +1,39 @@
 # FrameDecks End User License Agreement
 
-*Effective 29 October 2026 · Version 2026-10-29 · Wording updated 16 November 2026 (notice before paid features, liability wording, features that read copied text or hear sound)*
+*Effective 29 October 2026 · Version 2026-10-29 · Wording updated 18 November 2026 (FrameDecks is open source under the Apache License 2.0; this Agreement covers the official program)*
 
 This End User License Agreement (the "Agreement") is between you and **Shobin Mathews** ("we", "us"), the owner of
 FrameDecks. It covers the FrameDecks desktop program, its installer, its updates, the FrameDecks vCam virtual camera and the
 documentation that comes with them (together, the "Software"). By installing or using the Software you accept this
 Agreement. If you do not accept it, do not install or use the Software.
 
-## 1. Proprietary software
+## 1. Open-source software
 
-The Software is proprietary. It is licensed to you, not sold. We and our licensors keep all rights, title and interest
-in the Software, including copyright, trade secrets, trademarks (including the name **FrameDecks**, the FrameDecks
-emblem and **FrameDecks vCam**) and all other intellectual property. Nothing in this Agreement gives you any right that is
-not expressly stated here.
+FrameDecks is open-source software. Its source code is licensed under the **Apache License, Version 2.0** (the
+`LICENSE` file, and https://www.apache.org/licenses/LICENSE-2.0). That licence decides what you may copy, change and
+share. This Agreement adds terms for the Software as we build it and offer it at framedecks.com, and it never takes
+away a right the Apache License gives you. If the two ever differ about copying, changing or sharing the Software, the
+Apache License wins.
 
 ## 2. Your licence
 
-Subject to this Agreement, we give you a free, non-exclusive, non-transferable, revocable licence to:
-
-- install and use the Software on computers you own or control, for any lawful purpose, personal or for an
-  organisation, including churches, schools, charities and businesses;
-- make copies of the installer only as needed for backup or to install it on those computers.
+You may install and use the Software on any computer, for any lawful purpose, personal or for an organisation,
+including churches, schools, charities and businesses, and copy, change and share it under the Apache License.
 
 The Software is free of charge. We may offer paid features or services in the future under separate terms. Features
 that are free today will not become paid without at least 30 days' notice.
 
-## 3. What you may not do
+## 3. Our names, and fair use of our services
 
-Except as this Agreement or applicable law expressly allows, you may not:
-
-- copy, modify, adapt, translate or create derivative works of the Software;
-- decompile, disassemble, reverse engineer or otherwise try to obtain its source code;
-- sell, rent, lease, lend, sublicense, publish or distribute the Software, or offer it for download from anywhere other
-  than framedecks.com;
-- remove or change any copyright, trademark or proprietary notice;
-- bypass or interfere with its update, security or licence features;
-- use the Software to break the law or to infringe anyone's rights, including copyright in songs, texts or images you
-  present.
+- **Names and emblem.** The Apache License does not give permission to use the names **FrameDecks** and
+  **FrameDecks vCam** or the FrameDecks emblem (its section 6); we keep them as our trademarks. If you share a changed
+  version, give it its own name and emblem and do not present it as the official FrameDecks or as coming from us. You
+  may say truthfully that it is based on FrameDecks.
+- **Our services.** Do not interfere with, overload or try to get around the security of framedecks.com, its update
+  and download services or the FrameDecks workspace. A changed version may not use them as if it were the official
+  program, except with our written permission.
+- **The law.** Do not use the Software to break the law or to infringe anyone's rights, including copyright in songs,
+  texts or images you present.
 
 ## 4. Third-party components
 
@@ -80,8 +77,8 @@ do not allow these limits; there, they apply only as far as the law allows.
 
 ## 9. Ending this Agreement
 
-You may end this Agreement at any time by uninstalling the Software. It ends automatically if you break it. When it
-ends you must stop using the Software and delete your copies. Sections 1, 3, 4, 7, 8 and 10 continue after it ends.
+You may end this Agreement at any time by uninstalling the Software. It ends automatically if you break it. Your rights
+under the Apache License continue under its own terms. Sections 1, 3, 4, 7, 8 and 10 continue after it ends.
 
 ## 10. General
 
@@ -96,6 +93,7 @@ ends you must stop using the Software and delete your copies. Sections 1, 3, 4, 
 
 ## Copyright notice
 
-FrameDecks © 2026 Shobin Mathews. All rights reserved. FrameDecks, FrameDecks vCam and the FrameDecks emblem are
-trademarks of Shobin Mathews. Versions of FrameDecks up to 6.14 were published under the Apache License 2.0, and copies
-of those versions remain under that licence; this Agreement covers version 7.0 and later.
+FrameDecks © 2026 Shobin Mathews, licensed under the Apache License 2.0. FrameDecks, FrameDecks vCam and the
+FrameDecks emblem are trademarks of Shobin Mathews. Versions up to 6.14 were published under the Apache License 2.0;
+versions 7.0 to 26.11.62 under the FrameDecks Proprietary Software License, and copies of those versions remain under
+it. From 26.11.63 FrameDecks is again published under the Apache License 2.0.

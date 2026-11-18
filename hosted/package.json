@@ -2,7 +2,7 @@
   "name": "framedecks-hosted",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "node scripts/write-sync-config.mjs && node scripts/write-brand.mjs && node scripts/write-content.mjs && next dev",
     "build": "node scripts/write-sync-config.mjs && node scripts/write-brand.mjs && node scripts/write-content.mjs && next build && node scripts/write-csp.mjs",

@@ -1,14 +1,17 @@
-# Code signing (7.0: closed source)
+# Code signing
 
 Windows warns about unsigned programs ("Windows protected your PC"), and some church IT policies block them. Until
-6.14 the plan was SignPath Foundation's free programme. **That programme is for open-source projects only, so it does
-not apply from 7.0 on** (FrameDecks is now proprietary, from a private repository).
+6.14 the plan was SignPath Foundation's free programme, which is for open-source projects only. From 7.0 to 26.11.62
+FrameDecks was proprietary, so it did not apply. **From 26.11.63 FrameDecks is open source again (Apache License 2.0),
+so SignPath Foundation's free signing is the first choice** once the repository is public: apply at
+https://signpath.org with the repository address; the workflow's SignPath steps below are already wired in.
 
 ## Options now
 
 | Option | Cost (October 2026) | Notes |
 | --- | --- | --- |
-| **Azure Trusted Signing** (recommended) | about USD 10 a month | Microsoft-managed certificate, no hardware token, builds reputation with SmartScreen quickly. Needs identity validation of the publisher (an individual in some countries, otherwise a registered business). Signs from GitHub Actions with Microsoft's `azure/trusted-signing-action`. |
+| **SignPath Foundation** (recommended, free for open source) | free | Needs the public repository and SignPath's review. The workflow's SignPath steps below work unchanged. |
+| **Azure Trusted Signing** | about USD 10 a month | Microsoft-managed certificate, no hardware token, builds reputation with SmartScreen quickly. Needs identity validation of the publisher (an individual in some countries, otherwise a registered business). Signs from GitHub Actions with Microsoft's `azure/trusted-signing-action`. |
 | SignPath (commercial plan) | paid, quoted per project | The workflow's SignPath steps below keep working unchanged with a paid plan. |
 | OV or EV certificate from a certificate authority | about USD 200–500 a year | Must be kept on a hardware token or cloud HSM; signing from CI needs the authority's cloud signing service. |
 
@@ -24,8 +27,9 @@ same three signing points get the Trusted Signing action instead (a small workfl
 
 ## What is already done in the repository
 
-- **Licence files.** `LICENSE` (the FrameDecks proprietary licence), `NOTICE` and `docs/legal/THIRD_PARTY_NOTICES.md`
-  are in place. The installer carries all three in the program folder (`packaging/framedecks.spec`).
+- **Licence files.** `LICENSE` (the Apache License 2.0), `NOTICE`, `docs/legal/eula.md` and
+  `docs/legal/THIRD_PARTY_NOTICES.md` are in place. The installer carries all four in the program folder
+  (`packaging/framedecks.spec`).
 - **The Windows build is ready to sign** (`.github/workflows/build-windows.yml`). Once the secret below exists, it:
   1. sends the program folder to SignPath and gets back `FRAMEDECKS.exe` and both camera DLLs signed;
   2. builds the installer from the signed files;

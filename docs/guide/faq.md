@@ -195,9 +195,9 @@ No. FrameDecks is free: no subscription, billing or per-seat fees. A workspace o
 link, is needed only to plan together. Paid team and cloud features may come later; anything free today will not become paid without at least 30 days' notice.
 
 **What licence is it under?**
-FrameDecks is proprietary software, free to use under the [End User License Agreement](https://framedecks.com/eula).
-Download it only from [framedecks.com/download](https://framedecks.com/download), and please do not share the installer
-elsewhere. Components made by others keep their own licences (for example, the FrameDecks vCam is built from softcam,
+FrameDecks is open-source software under the Apache License 2.0, and the program from framedecks.com is free to use
+under the [End User License Agreement](https://framedecks.com/eula). Download it from
+[framedecks.com/download](https://framedecks.com/download), so you get the signed, official version with its updates. Components made by others keep their own licences (for example, the FrameDecks vCam is built from softcam,
 MIT licence, and the background-blur model is from MediaPipe, Apache 2.0); they are listed at framedecks.com/legal.
 
 ## Technical

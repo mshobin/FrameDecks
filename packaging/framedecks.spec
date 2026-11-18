@@ -54,7 +54,7 @@ a = Analysis(
     [str(root / "src" / "desktop_app.py")],
     pathex=[str(root / "src"), str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "src" / "vcam" / "models"), "vcam/models"), (str(root / "src" / "vcam" / "bin"), "vcam/bin"),
-           (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), "."),
+           (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "eula.md"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), "."),
            (str(root / "src" / "voice_files.json"), ".")] + pptx_data + cloud_data + voice_data,
     hiddenimports=["server", "errlog", "dpapi_file", "supervisor", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.chatcard", "media_names", "ed25519", "manifest_sig", "updater", "vcam.priority", "vcam.present_window", "desktop_win", "memory", "capture", "legacy", "meeting_form", "meeting_keys", "live_push", "meeting_notes", "voice_follow", "voice_worker", "scripture_speech", "scripture_listen", "lesson_import",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",

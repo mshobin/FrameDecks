@@ -57,19 +57,19 @@ export default function LegalPage() {
         ))}
       </ul>
       <article className="fd-doc">
-        <h2 id="copyright">Copyright and proprietary software notice</h2>
+        <h2 id="copyright">Copyright and licence</h2>
         <p>
-          FrameDecks © 2026 Shobin Mathews. All rights reserved. FrameDecks is
-          proprietary software: it is licensed, free of charge, under the{" "}
-          <Link href="/eula">End User License Agreement</Link>, not sold.
-          FrameDecks, FrameDecks vCam and the FrameDecks emblem are trademarks of
-          Shobin Mathews. You may not copy, modify, redistribute or reverse
-          engineer the program except as the EULA or the law allows.
+          FrameDecks © 2026 Shobin Mathews. FrameDecks is open-source software
+          under the Apache License 2.0: you may use, copy, change and share it
+          under that licence. The program offered here also comes with the{" "}
+          <Link href="/eula">End User License Agreement</Link>. FrameDecks,
+          FrameDecks vCam and the FrameDecks emblem are trademarks of Shobin
+          Mathews: a changed version needs its own name and emblem.
         </p>
         <p>
-          Versions of FrameDecks up to 6.14 were published under the Apache
-          License 2.0, and copies of those versions remain under that licence.
-          Version 7.0 and later are proprietary.
+          Versions up to 6.14 were published under the Apache License 2.0;
+          versions 7.0 to 26.11.62 under the FrameDecks Proprietary Software
+          License, and copies of those versions remain under it.
         </p>
         <h2 id="third-party">{notices.title}</h2>
       </article>

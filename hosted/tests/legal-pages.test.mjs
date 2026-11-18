@@ -32,11 +32,17 @@ test("the lists the website takes from the program (error codes) are up to date 
   }
 });
 
-test("LICENSE carries the EULA, and the legal texts share one version", () => {
+test("LICENSE is the Apache License 2.0, the EULA covers the official program, and the legal texts share one version", () => {
+  // 26.11.63: open source again; the installer shows the EULA (packaging/installer.iss)
   const license = readFileSync(new URL("LICENSE", root), "utf8");
-  assert.match(license, /^FrameDecks Proprietary Software License/);
-  assert.ok(license.includes(readFileSync(new URL("docs/legal/eula.md", root), "utf8")));
-  assert.doesNotMatch(license, /Apache License\s+Version 2\.0, January 2004/);
+  assert.match(license, /^\s*Apache License\s+Version 2\.0, January 2004/);
+  assert.match(license, /END OF TERMS AND CONDITIONS/);
+  assert.doesNotMatch(license, /Proprietary/);
+  const eula = readFileSync(new URL("docs/legal/eula.md", root), "utf8");
+  assert.match(eula, /## 1\. Open-source software/);
+  assert.match(eula, /never takes\s+away a right the Apache License gives you/);
+  assert.match(readFileSync(new URL("NOTICE", root), "utf8"), /^FrameDecks\nCopyright 2026 Shobin Mathews\n/);
+  assert.match(readFileSync(new URL("packaging/installer.iss", root), "utf8"), /^LicenseFile=\.\.\\docs\\legal\\eula\.md$/m);
   for (const n of ["eula", "terms", "privacy", "cookies"]) {
     assert.match(readFileSync(new URL(`docs/legal/${n}.md`, root), "utf8"), new RegExp(`Version ${TERMS_VERSION}`), n);
   }
@@ -49,12 +55,12 @@ test("the footer links to every page it promises, and each page exists", () => {
   for (const href of wanted.filter((h) => !h.includes("#"))) {
     assert.ok(existsSync(new URL(`../src/app${href}/page.tsx`, import.meta.url)), `no page for ${href}`);
   }
-  assert.match(footer.replace(/\s+/g, " "), /© 2026 Shobin Mathews\. All rights reserved\. FrameDecks is proprietary software/);
+  assert.match(footer.replace(/\s+/g, " "), /© 2026 Shobin Mathews\. FrameDecks is open-source software under the Apache License 2\.0/);
   assert.match(src("components/landing.tsx"), /<SiteFooter \/>/);
   assert.match(src("components/public-page.tsx"), /<SiteFooter \/>/);
 });
 
-test("nothing on the website points to the source repository or calls FrameDecks open source", () => {
+test("nothing on the website points to the source repository, and the licence is named the same way everywhere", () => {
   const files = [];
   const walk = (dir) => {
     for (const name of readdirSync(dir)) {
@@ -67,10 +73,10 @@ test("nothing on the website points to the source repository or calls FrameDecks
   for (const f of files) {
     const text = readFileSync(f, "utf8");
     assert.doesNotMatch(text, /github\.com\/mshobin/i, f.pathname);
-    assert.doesNotMatch(text.replace(/\/\/.*$/gm, ""), /open[ -]source|Apache 2\.0 licence/i, f.pathname);
+    assert.doesNotMatch(text.replace(/\/\/.*$/gm, ""), /is proprietary software|All rights reserved/i, f.pathname);
   }
   assert.match(src("lib/pc-setup.ts"), /export const DOWNLOADS = "\/download";/);
-  assert.equal(JSON.parse(readFileSync(new URL("package.json", here), "utf8")).license, "UNLICENSED");
+  assert.equal(JSON.parse(readFileSync(new URL("package.json", here), "utf8")).license, "Apache-2.0");
 });
 
 test("published Markdown never links into the repository", async () => {

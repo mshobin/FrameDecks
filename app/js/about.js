@@ -153,8 +153,9 @@ function footer(){
     h('p', {cls: 'kc-foot-line', text: B.footer}),
     h('p', {cls: 'kc-foot-small'}, [h('span', {'data-about-version': '', text: version ? 'Version ' + version : ''}), ' · ', B.disclaimer]),
     h('p', {cls: 'kc-foot-small', text: 'When asking for help, Settings → Diagnostics → “Copy diagnostics” adds useful technical details (it never includes your PIN or member information).'}),
-    /* 7.0: proprietary software, free to use under the EULA (LICENSE); the links open in the normal browser (app-bridge.js) */
-    h('p', {cls: 'kc-foot-small kc-legal'}, ['© 2026 Shobin Mathews. All rights reserved. FrameDecks is proprietary software, free to use under the ',
+    /* 26.11.63: open source under the Apache License 2.0 (LICENSE), with the EULA for the official program; the links
+     * open in the normal browser (app-bridge.js) */
+    h('p', {cls: 'kc-foot-small kc-legal'}, ['© 2026 Shobin Mathews. FrameDecks is open-source software under the Apache License 2.0, free to use under the ',
       h('a', {href: 'https://framedecks.com/eula', target: '_blank', rel: 'noopener', text: 'End User License Agreement'}), '. ',
       h('a', {href: 'https://framedecks.com/legal', target: '_blank', rel: 'noopener', text: 'Legal and third-party notices'}), ' · ',
       h('a', {href: 'https://framedecks.com/privacy', target: '_blank', rel: 'noopener', text: 'Privacy'})])

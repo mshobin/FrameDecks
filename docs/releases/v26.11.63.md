@@ -35,6 +35,10 @@ keeps all your meetings, members, settings, notes, pinned Chat Bubbles and recor
   of Print, Copy and Email.
 
 ## Enhancements
+- **FrameDecks is open source again**, under the Apache License 2.0: anyone may read, use, change and share it. The
+  program from framedecks.com still comes with the End User License Agreement, which now covers the official program
+  and the FrameDecks name and emblem. The About screen and the website say so.
+- The About screen and the phone remote's credit line give hello@framedecks.com as the contact address.
 - Members' phones has quick links to Discussion, Bible quiz, Take-home page and Prayer journey under the code.
 - The meeting summary has a **Take-home page** button.
 - Closing members' phones keeps prayer requests in the Prayer journey and keeps today's first names for Care and

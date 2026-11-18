@@ -55,7 +55,7 @@ window.KCBrand = {
   creator: {
     name: 'Shobin Mathews',
     roles: ['Enterprise IT Consultant', 'Leader', 'Follower of Jesus Christ'],
-    email: 'mshobin@gmail.com',
+    email: 'hello@framedecks.com',
     badge: 'Inspired by Service',
     // DRAFT - written for you to replace with your own words before release.
     story: [

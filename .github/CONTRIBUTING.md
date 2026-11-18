@@ -89,10 +89,10 @@ A change is ready to merge when:
 
 ## Licence
 
-FrameDecks is proprietary software ([LICENSE](../LICENSE)). This repository is private; contributions are by invitation
-only, and a contributor assigns the copyright in their contribution to Shobin Mathews (a written agreement is signed
-first). A new dependency or vendored file needs a licence that allows use in proprietary software (no GPL or AGPL;
-LGPL only as a separate, replaceable library) and a row in
+FrameDecks is open-source software under the Apache License 2.0 ([LICENSE](../LICENSE)). A contribution you send is
+licensed under the same licence (its section 5). The names FrameDecks and FrameDecks vCam and the emblem stay
+trademarks of Shobin Mathews. A new dependency or vendored file needs a licence that is compatible with Apache 2.0
+(no GPL or AGPL; LGPL only as a separate, replaceable library) and a row in
 [THIRD_PARTY_NOTICES.md](../docs/legal/THIRD_PARTY_NOTICES.md) in the same change.
 
 ---

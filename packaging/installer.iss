@@ -28,10 +28,10 @@ AppContact=hello@framedecks.com
 AppPublisherURL=https://framedecks.com
 AppSupportURL=https://framedecks.com/help
 AppUpdatesURL=https://framedecks.com/download
-AppComments=Proprietary software by Shobin Mathews, free to use under the FrameDecks EULA.
-; 7.0: the End User License Agreement (LICENSE = docs/legal/eula.md) is shown and must be accepted; a silent update
+AppComments=Open-source software by Shobin Mathews (Apache License 2.0), with the FrameDecks EULA for the official program.
+; 7.0: the End User License Agreement (26.11.63: docs/legal/eula.md; LICENSE is the Apache License 2.0) is shown and must be accepted; a silent update
 ; (/VERYSILENT, src/updater.py) accepts it on the person's behalf, as they accepted it when first installing
-LicenseFile=..\LICENSE
+LicenseFile=..\docs\legal\eula.md
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany=Shobin Mathews
 VersionInfoDescription=FrameDecks Setup

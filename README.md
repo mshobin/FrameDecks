@@ -5,8 +5,8 @@ Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures,
 PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your stream at the same time. Run it from
 the PC, a phone or an iPad. FrameDecks runs on the presenting PC, and a service can continue without an internet
 connection. Optional workspace features let a team plan together and sync meeting metadata; presentation media,
-rendering and camera output stay on the PC. FrameDecks is proprietary software, free to download and use from
-[framedecks.com](https://framedecks.com/download). This repository is private.
+rendering and camera output stay on the PC. FrameDecks is open-source software under the Apache License 2.0, free to
+download and use from [framedecks.com](https://framedecks.com/download).
 
 > **Status: FrameDecks is ready for teaching, Bible study, small-group and hybrid services, with documented gaps.**
 > There is no dedicated song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), and the Windows
@@ -136,13 +136,15 @@ No feature, test result or screenshot in this repository is faked; where somethi
 the docs say so.
 
 ## License
-FrameDecks © 2026 Shobin Mathews. All rights reserved. FrameDecks is proprietary software, licensed under the
-[End User License Agreement](LICENSE) ([docs/legal/eula.md](docs/legal/eula.md)); see also [NOTICE](NOTICE). Do not
-copy, publish or share this repository's contents. Versions up to 6.14 were published under the Apache License 2.0
-and copies of them remain under it. Third-party components keep their own licences, listed in
-[THIRD_PARTY_NOTICES.md](docs/legal/THIRD_PARTY_NOTICES.md). Legal pages for users: [terms](docs/legal/terms.md),
-[privacy](docs/legal/privacy.md), [cookies](docs/legal/cookies.md), [security](docs/legal/security.md),
-[vulnerability disclosure](docs/legal/vulnerability-disclosure.md), all published on framedecks.com.
+FrameDecks © 2026 Shobin Mathews, licensed under the [Apache License 2.0](LICENSE); see also [NOTICE](NOTICE). The
+official program from framedecks.com also comes with the [End User License Agreement](docs/legal/eula.md).
+FrameDecks, FrameDecks vCam and the FrameDecks emblem are trademarks of Shobin Mathews: a changed version needs its
+own name and emblem. Versions up to 6.14 were published under the Apache License 2.0; versions 7.0 to 26.11.62 under
+the FrameDecks Proprietary Software License, and copies of those versions remain under it. Third-party components keep
+their own licences, listed in [docs/legal/THIRD_PARTY_NOTICES.md](docs/legal/THIRD_PARTY_NOTICES.md). Legal pages
+for users: [terms](docs/legal/terms.md), [privacy](docs/legal/privacy.md), [cookies](docs/legal/cookies.md),
+[security](docs/legal/security.md), [vulnerability disclosure](docs/legal/vulnerability-disclosure.md), all published on
+framedecks.com.
 
 ## Code signing policy
 Windows releases are to be code-signed (options and costs: [code-signing.md](docs/deployment/code-signing.md); the free
