@@ -15,6 +15,17 @@ download and use from [framedecks.com](https://framedecks.com/download).
 > [repository audit](docs/project/history/2026-10-18-v6.6-repository-audit.md), [modernization status](docs/project/history/modernization-status.md),
 > and the [roadmap](docs/ROADMAP.md).
 
+## Screenshots
+
+<p align="center"><img src="docs/images/go-live.gif" alt="The Presentation window: Go Live shows a scripture and a question, the next two questions follow, then Black screen" width="640"></p>
+
+| Studio | Presentation window | Phone remote |
+|---|---|---|
+| <img src="docs/images/studio.webp" alt="The Studio with the sample Bible Study Frame: Frames and Decks on the left, the live canvas in the middle, Up next and Go Live on the right" width="400"> | <img src="docs/images/presentation-window.webp" alt="The full-screen Presentation window showing a scripture card and a discussion question" width="400"> | <img src="docs/images/phone-remote.webp" alt="The phone remote: on-screen status, a large Next button, question arrows and Question / Both / Scripture" width="160"> |
+
+<sub>Captured from `python src/server.py` with the built-in sample plan (Bible Study, Birthday). The GIF shows the keys
+T (Go Live), → (next question) twice, then K (Black screen).</sub>
+
 ## What it does
 - **Frames and Content**: one Frame per moment of the service; **+ Content** adds a Question, Scripture, Text,
   Image, Video, Timer, PowerPoint or Free Content (announcement, prayer, lower third, branding, camera, screen,
