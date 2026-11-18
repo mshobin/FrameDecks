@@ -10,6 +10,11 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Added (README screenshots)
+- `docs/images/`: real captures of the Studio, the Presentation window and the phone remote, and `go-live.gif`
+  (Go Live → next question twice → Black screen), taken from `python src/server.py` with the sample plan; shown in a
+  new **Screenshots** section of the README.
+
 ### Changed (release names, a tidy Actions list)
 - Website: the download card says **FrameDecks v26.11 · Stable Release · Updated November 2026** (`shortVersion`,
   `updatedLabel` in `hosted/src/lib/releases.ts`; the month from the manifest's release date, else from the version);
