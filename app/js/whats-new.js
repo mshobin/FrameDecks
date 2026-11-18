@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.63': [
+    {title: 'Hands up and a Bible quiz', text: 'With members\u2019 phones open, people can raise a hand to share, and you see the queue. Ask a quick quiz on today\u2019s scriptures: phones answer, the leaderboard goes on screen.'},
+    {title: 'Take-home page and Prayer journey', text: 'After the meeting, give members a page for the week. Prayer requests are kept on your PC: mark them Still praying or Answered.'},
+    {title: 'Co-leader and health check', text: 'Hand the meeting to a co-leader\u2019s phone, then take back. The meeting summary now shows how the timing went, with tips.'}
+  ],
   '26.11.62': [
     {title: 'One Next', text: 'In the Studio the big Next beside the preview is the one Next. The top bar keeps its Previous arrows.'},
     {title: '+ New starts every meeting', text: 'Blank, a copy of this meeting, a ready-made set (Quick Start), the Library, Import and Export are all in + New.', show: {spot: '#mt-new'}},

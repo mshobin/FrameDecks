@@ -20,6 +20,17 @@ function h(tag, attrs, kids){
   return el;
 }
 function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
+/* 26.11.63 musicians on members' phones see the Song on screen with its chords (app setting roomChords, on by default) */
+function chordsSwitch(){
+  var box = h('input', {type: 'checkbox', id: 'sg-chords'}); box.checked = true;
+  fetch('api/app/info').then(function(r){ return r.json(); }).then(function(d){ box.checked = !(d.settings && d.settings.roomChords === false); }).catch(function(){});
+  box.addEventListener('change', function(){
+    fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({roomChords: box.checked})})
+      .then(function(r){ if (!r.ok) throw new Error(); toast(box.checked ? 'Musicians can see the chords on their phones' : 'Chords are off on phones'); })
+      .catch(function(){ box.checked = !box.checked; toast('That did not save', true); });
+  });
+  return h('label', {cls: 'check sg-chords', title: 'With members’ phones open, the Chords tab shows the Song on screen with its chords, Transpose and Capo'}, [box, ' Chords on musicians’ phones']);
+}
 function api(body){
   return fetch('api/songs', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'That did not work.'); return d; }); });
@@ -69,7 +80,8 @@ function build(){
           h('button', {cls: 'btn small', type: 'button', html: I('folder-open', 14) + ' Import…', title: 'Lyrics as text, ChordPro or OpenLyrics files (more than one at once)', onclick: function(){ fileIn.click(); }}),
           h('button', {cls: 'btn small', type: 'button', html: I('presentation', 14) + ' From PowerPoint', title: 'The words of the selected Frame’s slides become a song you can edit', onclick: fromSlides})]),
         list,
-        h('div', {cls: 'sg-foot'}, [field('CCLI licence', lic, 'sg-licf'), h('button', {cls: 'btn small quiet', type: 'button', html: I('list-checks', 14) + ' Usage report', onclick: report})])]),
+        h('div', {cls: 'sg-foot'}, [field('CCLI licence', lic, 'sg-licf'), h('button', {cls: 'btn small quiet', type: 'button', html: I('list-checks', 14) + ' Usage report', onclick: report})]),
+        chordsSwitch()]),
       h('section', {cls: 'sg-ed', 'aria-label': 'Song'}, [
         h('div', {cls: 'sg-row'}, [field('Title', ed.title, 'sg-wide'), field('Key', ed.key, 'sg-key')]),
         h('div', {cls: 'sg-row'}, [field('Author', ed.author), field('CCLI song number', ed.ccli), field('Copyright', ed.copyright)]),
@@ -155,9 +167,9 @@ function remove(){
 
 /* ---------- into a Frame ---------- */
 function layerOf(song){
-  var items = L.arrange(song).map(function(p){ return {id: rid('v'), label: p.label, text: p.text}; });
+  var items = L.arrange(song).map(function(p){ var it = {id: rid('v'), label: p.label, text: p.text}; if (p.chords) it.chords = p.chords; return it; });   // 26.11.63 chords for the musicians' view
   return SC.cleanLayer({id: 'L' + Math.random().toString(36).slice(2, 9), kind: 'song', name: song.title, visible: true, opacity: 1,
-    c: {song: song.title, items: items, at: 0, credit: L.credit(song, licence), songId: song.id}});
+    c: {song: song.title, items: items, at: 0, credit: L.credit(song, licence), songId: song.id, key: (song.key || '').slice(0, 12)}});
 }
 function add(asNew){
   save(true).then(function(song){

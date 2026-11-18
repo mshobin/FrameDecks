@@ -1,0 +1,61 @@
+/* FrameDecks 26.11.63 - meeting together (app/js/together.js): Discussion, Bible quiz, Take-home page, Prayer journey,
+ * Care and attendance. The same calm dialog as Polls and Typed answers (responses.css), with a few additions. */
+.tg-dlg{width:min(640px,94vw)}
+.tg-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.tg-row-t{flex:1;display:grid;gap:2px}
+.tg-row-t b{font-size:15px;color:var(--ink)}
+.tg-switch{flex:none;width:46px;height:26px;border-radius:999px;border:1px solid var(--edge);background:var(--neutral-btn,var(--blue-250));position:relative;cursor:pointer;padding:0}
+.tg-knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--gray-1000);transition:left .15s}
+.tg-switch[aria-checked=true]{background:var(--live-strong);border-color:var(--live-strong)}
+.tg-switch[aria-checked=true] .tg-knob{left:22px}
+.tg-switch:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.tg-queue .ta-item p .hint,.tg-qlist .ta-item p .hint{font-size:13px}
+.tg-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.tg-chip{display:inline-block;padding:5px 12px;border-radius:999px;border:1px solid var(--line-soft);background:var(--panel-2);color:var(--ink);font-size:14px}
+button.tg-chip{cursor:pointer}
+button.tg-chip:hover{border-color:var(--accent)}
+.tg-timer{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:14px}
+.tg-timer .rs-label{margin:0}
+.tg-timer input{flex:1;min-width:140px}
+#tg-clock{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);min-width:64px}
+#tg-clock.done{color:var(--live-strong)}
+.tg-right .rs-bar-fill{background:var(--live-strong)}
+.tg-right>span:first-child{font-weight:700}
+.tg-board{margin:0;padding-left:22px;display:grid;gap:4px}
+.tg-board li{font-size:15px;color:var(--ink)}
+.tg-board li b{float:right;font-variant-numeric:tabular-nums}
+.tg-done{opacity:.7}
+.tg-edit{padding:12px;border:1px solid var(--accent);border-radius:12px;background:var(--panel-2)}
+.tg-edit .field input{font-size:16px;width:100%}
+.tg-edit .rs-opt b{width:16px}
+.tg-edit-foot{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.tg-preview{margin:12px 0;padding:12px 14px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2);display:grid;gap:8px;max-height:34vh;overflow:auto}
+.tg-pv-h{margin:0;font-weight:700;color:var(--ink)}
+.tg-part b{font-size:13px;color:var(--muted)}
+.tg-part ul{margin:2px 0 0;padding-left:18px;font-size:14px;color:var(--ink)}
+.tg-dlg .field textarea{font-size:16px;width:100%}
+.tg-inline{display:flex;align-items:center;gap:10px;margin-top:12px}
+.tg-inline>span{white-space:nowrap}
+.tg-prayers{max-height:44vh}
+.tg-prayer{padding:10px 12px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2);display:grid;gap:6px}
+.tg-prayer p{margin:0;font-size:15px;color:var(--ink);overflow-wrap:anywhere}
+.tg-prayer p.hint{font-size:13px;color:var(--muted)}
+.tg-prayer input[type=text]{width:100%}
+.tg-prayer-foot{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.tg-prayer-foot .check{margin-right:auto}
+.tg-hist{list-style:none;margin:12px 0 4px;padding:0;height:56px;display:flex;align-items:flex-end;gap:4px}
+.tg-hist li{flex:1;max-width:28px;border-radius:4px 4px 0 0;background:var(--accent)}
+.tg-forget{margin-top:14px}
+.tg-forget summary{cursor:pointer;color:var(--muted);font-size:14px}
+/* the meeting health check in the summary (js/meeting-summary.js), the leader only */
+.sum-health{margin:14px 0;padding:12px 14px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel-2)}
+.sum-health h3{margin:0 0 6px;font-size:16px;color:var(--ink)}
+.sum-health ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px;color:var(--ink)}
+.sum-health .hint{margin:0 0 6px}
+.sum-health-over h3{color:var(--live-strong)}
+.kc-print-summary .sum-health{display:none}
+/* the co-leader seat: the handover and a quiet sign while a co-leader is connected */
+.co-hand{display:flex;align-items:center;gap:18px;margin:14px 0}
+.co-qr{width:150px;flex:none;background:var(--gray-1000);border-radius:12px;padding:6px}
+.co-pill{position:fixed;left:16px;bottom:16px;z-index:40;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--raised);color:var(--ink);font-size:14px;font-weight:600;box-shadow:var(--el-2);cursor:pointer}
+.co-dot{width:8px;height:8px;border-radius:50%;background:var(--live-strong)}

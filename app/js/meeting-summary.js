@@ -53,7 +53,20 @@ function page(s){
   });
   if (!s.frames.length) list.appendChild(h('li', {cls: 'sum-empty', text: 'Nothing was put on screen in this meeting.'}));
   return [h('p', {cls: 'kc-dlg-kicker', text: 'Meeting summary'}), h('h2', {id: 'sum-title', text: s.meeting}),
-    h('p', {cls: 'kc-dlg-sub', text: when(s.started) + ' · ' + hm(s.ms)}), stats, list];
+    h('p', {cls: 'kc-dlg-sub', text: when(s.started) + ' · ' + hm(s.ms)}), stats, health(s.health), list];
+}
+/* 26.11.63 the meeting health check: how the timing went against the plan, with a few tips for next time (only you
+ * see it; it is left out of Print, Copy and Email) */
+function health(x){
+  if (!x || !x.mood) return null;
+  var head = {'on-time': 'On time', over: 'Ran ' + Math.round(x.diff) + ' min over', under: 'Finished ' + Math.round(-x.diff) + ' min early', 'no-plan': 'How it went'}[x.mood] || 'How it went';
+  var sub = x.mood === 'no-plan' ? '' : Math.round(x.minutes) + ' min, ' + Math.round(x.planned) + ' planned for the Frames shown.';
+  var lines = (x.overruns || []).slice(0, 3).map(function(o){ return '“' + o.name + '” took ' + Math.round(o.min) + ' min (' + o.plan + ' planned)'; })
+    .concat((x.quick || []).slice(0, 2).map(function(o){ return '“' + o.name + '” was quicker: ' + Math.round(o.min) + ' of ' + o.plan + ' min'; }));
+  return h('section', {cls: 'sum-health' + (x.mood === 'over' ? ' sum-health-over' : ''), 'aria-label': 'Meeting health check'}, [
+    h('h3', {text: 'Health check · ' + head}), sub ? h('p', {cls: 'hint', text: sub}) : null,
+    lines.length ? h('ul', null, lines.map(function(t){ return h('li', {text: t}); })) : null,
+    (x.tips || []).length ? h('ul', {cls: 'sum-tips'}, x.tips.map(function(t){ return h('li', {text: t}); })) : null]);
 }
 
 /* 26.11.24 the sermon notes: made from what was presented (each Frame's Teleprompter script, the scriptures in full,
@@ -268,6 +281,7 @@ function draw(){
     h('button', {cls: 'btn ghost', type: 'button', text: 'Copy', onclick: copy}),
     h('button', {cls: 'btn ghost', type: 'button', text: 'Email', onclick: email}),
     view === 'notes' ? h('button', {cls: 'btn', type: 'button', text: 'Share with members’ phones', onclick: share}) : null,
+    view === 'summary' && window.KCTogether ? h('button', {cls: 'btn', type: 'button', text: 'Take-home page', title: 'What members keep for the week: the verses, the questions, the songs and when you meet next', onclick: function(){ d.close(); KCTogether.takehome(); }}) : null,
     h('button', {cls: 'btn', type: 'button', text: 'Print / Save as PDF', onclick: print}),
     h('button', {cls: 'btn primary', type: 'button', text: 'Close', onclick: function(){ d.close(); }})]);
   var body = view !== 'summary' && !notes ? [h('p', {cls: 'sum-empty', text: view === 'moment' ? 'Making the moment…' : 'Making the notes…'})]

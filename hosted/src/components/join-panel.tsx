@@ -10,6 +10,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { CodeBoxes } from "@/components/code-boxes";
 import { ConnectSteps, settle, type StepState } from "@/components/connect-steps";
 import { SlidePicture, SlideViewer, useShownSlides, type ShownSlide } from "@/components/follow-slides";
+import { ChordsView, HandButton, NameBar, QuizBox, TakeHomeView, songHasChords, useCheckin, useTakehome, type Song } from "@/components/follow-together";
 import { Button } from "@/components/ui/button";
 import { codeFromHash, codeProblem, guessDeviceName, isShortCode, tidyCode, type JoinRole } from "@/lib/join-code";
 import { finishDevice, startDevice, takeHashCode } from "@/lib/join-device";
@@ -19,6 +20,7 @@ import { TERMS_VERSION, legalNotSetUp, rememberAcceptance } from "@/lib/legal";
 import { PRAYER_MAX, PRAYER_NAME_MAX, isPrayerCode, prayerCodeFromHash, tidyPrayerCode } from "@/lib/prayer-code";
 import { percentages, tidyResponse, voterId, type RoomResponse } from "@/lib/room-responses";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { rememberPrayer } from "@/lib/takehome";
 import { useSession, useSessionAtArrival } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
 
@@ -358,6 +360,9 @@ function PrayerForm({ code }: Readonly<{ code: string }>) {
       setProblem("This prayer wall is closed.");           // 26.11.58 (0028): a closed wall answers instead of failing
       return;
     }
+    // 26.11.63 (0030): the request's id stays on this phone so the take-home page can say how it is going
+    const id = (data as { id?: unknown } | null)?.id;
+    if (typeof id === "string" || typeof id === "number") rememberPrayer(String(id), body);
     setSent(name.trim());
     setBody("");
   }
@@ -425,7 +430,14 @@ type Screen = {
   question?: { label: string; text: string };
   verse?: { ref: string; text: string };
   slide?: { n: number; of: number; page?: number; title?: string; text?: string; img?: string; off?: boolean };
+  // 26.11.63 meeting together (0030): the name box, raised hands, a quiz, the take-home page, chords for musicians
+  people?: boolean;
+  hands?: boolean;
+  quiz?: boolean;
+  takehome?: boolean;
+  song?: Song;
 };
+type Tab = "screen" | "pray" | "notes" | "chords" | "home";
 type Notes = {
   title: string;
   date: number;
@@ -643,7 +655,7 @@ export function FollowPanel() {
   const supabase = browserSupabase();
   const [code, setCode] = useState<string | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
-  const [tab, setTab] = useState<"screen" | "pray" | "notes">("screen");
+  const [tab, setTab] = useState<Tab>("screen");
   const [checking, setChecking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -703,6 +715,11 @@ export function FollowPanel() {
     return () => window.clearInterval(t);
   }, [code, rev, respRev, look, lookResponse]);
 
+  // 26.11.63 the take-home page: a tab while the room is open and offers one, the whole page once the room closes
+  const open = room?.status === "open";
+  const takehome = useTakehome(supabase, code, open ? `open:${rev}` : `shut:${room?.status}`, open ? !!room?.screen?.takehome : !!room);
+  const checkedIn = useCheckin(supabase, open ? code : null, !!room?.screen?.people);
+
   async function answer(i: number) {
     if (!supabase || !code || !resp.r) return;
     // the look that follows brings this phone's answer back (or the next question, if the leader asked another)
@@ -711,6 +728,21 @@ export function FollowPanel() {
     void lookResponse(code);
   }
 
+  if (supabase && room && room.status !== "open" && code && takehome) {
+    return (
+      <main className="fl-app" id="main" tabIndex={-1}>
+        <header className="fl-head fl-head-home">
+          <FollowBrand />
+        </header>
+        <div className="fl-body">
+          <TakeHomeView t={takehome} />
+          <button type="button" className="fl-slide-back" onClick={() => setRoom(null)}>
+            Follow another meeting
+          </button>
+        </div>
+      </main>
+    );
+  }
   if (!supabase || !room || room.status !== "open" || !code) {
     return (
       <main className="fd-auth fd-auth-single fl-entry" id="main" tabIndex={-1}>
@@ -724,9 +756,11 @@ export function FollowPanel() {
     );
   }
   const s = room.screen ?? {};
-  const tabs: ["screen" | "pray" | "notes", string][] = [["screen", "On screen"]];
+  const tabs: [Tab, string][] = [["screen", "On screen"]];
   if (s.prayer) tabs.push(["pray", "Prayer"]);
   if (room.notes) tabs.push(["notes", "Notes"]);
+  if (s.song && songHasChords(s.song)) tabs.push(["chords", "Chords"]);
+  if (takehome) tabs.push(["home", "Take-home"]);
   const shown = tabs.some(([k]) => k === tab) ? tab : "screen";
   const cur = s.live && s.slide && !s.slide.off && Number.isInteger(s.slide.page) ? (s.slide.page as number) : null;
   // the slides to look back at: those shown so far, and always the one on screen (it may not be in the list yet)
@@ -743,11 +777,16 @@ export function FollowPanel() {
         </p>
       </header>
       <div className="fl-body">
+        {shown === "screen" && checkedIn && <NameBar supabase={supabase} code={code} />}
         {shown === "screen" && <ScreenView s={s} onSlide={() => cur !== null && setViewing(cur)} earlier={history.length > 1} />}
+        {shown === "screen" && s.hands && <HandButton supabase={supabase} code={code} rev={rev} />}
+        {shown === "screen" && s.quiz && <QuizBox supabase={supabase} code={code} roomRev={rev} />}
         {shown === "screen" && resp.r && <ResponseBox r={resp.r} problem={answerProblem} onAnswer={(i) => void answer(i)} />}
         {shown === "screen" && <AnswerBox code={code} roomRev={rev} />}
         {shown === "pray" && s.prayer && <PrayerForm code={s.prayer} />}
         {shown === "notes" && room.notes && <NotesView notes={room.notes} slides={slides.list} picture={slides.picture} />}
+        {shown === "chords" && s.song && <ChordsView song={s.song} />}
+        {shown === "home" && takehome && <TakeHomeView t={takehome} />}
       </div>
       {tabs.length > 1 && (
         <nav className="fl-tabs" role="tablist" aria-label="Follow the meeting">

@@ -39,7 +39,11 @@ def clean_song(raw, keep_id=None):
         text = _s(x.get("text"), MAX_TEXT)
         if not text:
             continue
-        secs.append({"label": _s(x.get("label"), 40) or "Verse %d" % (len(secs) + 1), "text": text})
+        sec = {"label": _s(x.get("label"), 40) or "Verse %d" % (len(secs) + 1), "text": text}
+        chords = _s(x.get("chords"), MAX_TEXT * 2)              # 26.11.63 the same words with [G] chords (musicians' view)
+        if chords and "[" in chords:
+            sec["chords"] = chords
+        secs.append(sec)
         if len(secs) >= MAX_SECTIONS:
             break
     if not title:

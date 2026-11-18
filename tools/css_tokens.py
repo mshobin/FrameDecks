@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DESKTOP = [ROOT / "app/css" / f for f in ("theme.css", "console.css", "members.css", "teleprompter.css", "about.css",
                                           "dashboard.css", "speaker.css", "window.css", "memory.css", "onboarding.css", "spotlight.css", "motion.css",
-                                          "verse-listen.css", "slides.css", "edit-preview.css", "lesson-import.css", "run-order.css", "songs.css", "stage-display.css")]
+                                          "verse-listen.css", "slides.css", "edit-preview.css", "lesson-import.css", "run-order.css", "songs.css", "stage-display.css", "together.css")]
 WEBSITE = [ROOT / "hosted/src/app" / f for f in ("globals.css", "design.css", "about.css", "motion.css", "light.css", "plan.css", "help/guide.css")]
 TYPE_SCALE = (12, 13, 14, 15, 16, 18, 20, 24, 30)
 WEIGHTS = (400, 500, 600, 700, 800)

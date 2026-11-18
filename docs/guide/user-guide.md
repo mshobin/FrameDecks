@@ -327,8 +327,27 @@ Not the phone remote: this is for everyone in the meeting, with nothing to insta
   is shown, the time left counts down above Next and on the stage screen, and FrameDecks tells you when it is up.
   **Breakout** puts the countdown on screen (at the top) with the question kept visible, for breakout rooms or table
   groups; phones following the meeting see the question too.
-- **A co-leader can take over:** give them the phone remote (Settings → Phone & iPad Remote, or search *hand over* in
-  the command palette). Their Next, Previous and Go Live work alongside yours.
+- **Discussion** (26.11.63; Engage → Discussion): switch on **I'd like to share** and people raise a hand on their phone.
+  Hands appear in the order they went up; **Shared** lowers a hand and ticks the person off, and **Not shared yet**
+  lists everyone who gave a first name and has not spoken. **Ask for a first name** puts an optional name box on
+  phones. A quiet timer for each question shows only on your PC.
+- **Bible quiz** (26.11.63): questions are made from the meeting's scriptures; change any of them or **Write a
+  question**. **Ask** sends it to phones with a countdown and puts it on screen as a Chat Bubble; **Show the answer**
+  marks the right one; **Leaderboard on screen** shows the top five by first name (quick right answers score more).
+- **Take-home page** (26.11.63; the meeting summary or Members' phones): a page members keep for the week on the same
+  follow page: the scriptures, questions, songs, the sermon notes if shared, prayer requests marked OK to share, and
+  when you meet next. Add a note and choose how long it stays (up to two weeks).
+- **Prayer journey** (26.11.63): every prayer request is kept on this PC. Mark it **Still praying** or **Answered**
+  (add how it was answered) and tick **OK to share** to include it, without a name, on the take-home page and the
+  **Answered prayers** card. The person who asked sees on their phone whether it is still being prayed for or answered.
+- **Care and attendance** (26.11.63; search *care*): from the first names typed on phones, who is new and who has
+  missed the last two meetings, with how many joined each week. On this PC only; remove any meeting or name.
+- **Chords for musicians** (26.11.63): Songs keep [G] chords. While a Song is on screen, phones get a **Chords** tab
+  with **Transpose** and **Capo**. Switch it off in the Song Library (**Chords on musicians' phones**).
+- **A co-leader can take over** (26.11.63; More → Co-leader): **Make a co-leader PIN** gives them a PIN of their own
+  and a QR code. Their phone opens the phone remote with a focused layout (no meeting app, voice commands, switching
+  meetings or Emergency). The Studio shows **Co-leader connected**; **Take back** ends it at once (it also ends by
+  itself after 8 hours).
 - Prayer requests wait in the list for you. Nothing is shown unless you choose it, and a name only if you choose.
 - It needs this PC connected to your workspace (Settings → Sync). In Settings → Features these switches are together
   under **On members' phones**.

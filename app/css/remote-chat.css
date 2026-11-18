@@ -9,3 +9,7 @@ body.cm-typing #cm-done{display:inline-flex;align-items:center}
 body.cm-typing .panels{padding-bottom:100vh}
 /* 26.11.61 the meeting's own logo in the top bar keeps its shape (remote.js) */
 .top-mark.is-brand{width:auto;max-width:96px;object-fit:contain}
+/* 26.11.63 the co-leader seat (js/remote.js whoAmI): a focused layout, without the PC's meeting app, voice commands,
+ * switching meetings or the emergency screen */
+body.co #mtg,body.co #vcc,body.co #mt-switch,body.co #t-emergency{display:none}
+.co-badge{flex:none;margin-left:auto;margin-right:8px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;background:var(--gold-soft);color:var(--gold)}

@@ -27,10 +27,11 @@ def short(text, n=LIST_LINE):
 
 
 class PrayerWall:
-    def __init__(self, team, clock=time.time, on_received=None, poll=POLL_SECONDS):
+    def __init__(self, team, clock=time.time, on_received=None, poll=POLL_SECONDS, on_request=None):
         """team(): the workspace's API for this PC and the website address ((api, site)), or raises when not linked.
         on_received(n): told how many new requests came in (the meeting summary counts them)."""
         self.team, self.clock, self.on_received, self.poll = team, clock, on_received, poll
+        self.on_request = on_request     # 26.11.63 on_request(body, name, id): each request also goes to the prayer journey
         self.lock = threading.Lock()
         self.code, self.url, self.closes_at = "", "", 0.0
         self.items = []          # newest last: {id, body, name, at, status: new | shown | done}
@@ -113,7 +114,13 @@ class PrayerWall:
                     continue
                 name = " ".join(str((r or {}).get("name") or "").split())[:40]
                 self.items.append({"id": "p" + uuid.uuid4().hex[:10], "body": body, "name": name,
-                                   "at": int(self.clock() * 1000), "status": "new"})
+                                   "at": int(self.clock() * 1000), "status": "new",
+                                   "sid": str((r or {}).get("id") or "")[:40]})   # 26.11.63 the asker follows it by this
+                if self.on_request:
+                    try:
+                        self.on_request(body, name, str((r or {}).get("id") or "")[:40])
+                    except Exception as e:     # the prayer journey never stops the wall
+                        print("Prayer journey:", e)
                 new += 1
             if new:
                 self.items = self.items[-MAX_ITEMS:]

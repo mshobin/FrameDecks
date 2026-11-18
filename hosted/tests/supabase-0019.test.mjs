@@ -46,7 +46,8 @@ test("the PC opens a wall; a phone sees it is open and sends a request with only
   const peek = (await one(phone("select prayer_peek($1) as r", [code.toLowerCase()]))).r;
   assert.deepEqual(peek, { status: "open", team: "Grace Church" });
   const sent = (await one(phone("select prayer_send($1, $2, $3) as r", [code, "  Pray for my mother's surgery on Friday \u0007 ", "Mary"]))).r;
-  assert.deepEqual(sent, { sent: true });
+  assert.deepEqual(sent, { sent: true, id: sent.id }, "0030: the new request's id comes back too");
+  assert.match(sent.id, /^[0-9a-f-]{36}$/);
   await phone("select prayer_send($1, $2)", [code, "For peace at work"]);
 });
 

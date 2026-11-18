@@ -644,6 +644,32 @@ class CloudApi:
     def pc_room_answers_list(self):
         return self._rpc("pc_room_answers_list", {})
 
+    # 26.11.63 the discussion helper, the Bible quiz and the take-home page (0030_meeting_together.sql)
+    def pc_room_people(self):
+        return self._rpc("pc_room_people", {})
+
+    def pc_room_hand_down(self, who=None):
+        return self._rpc("pc_room_hand_down", {"who": who})
+
+    def pc_room_quiz_open(self, question, options, correct, seconds=20):
+        return self._rpc("pc_room_quiz_open", {"question": str(question or "")[:200], "options": list(options or []),
+                                               "correct": int(correct), "seconds": int(seconds)})
+
+    def pc_room_quiz_reveal(self):
+        return self._rpc("pc_room_quiz_reveal", {})
+
+    def pc_room_quiz_close(self):
+        return self._rpc("pc_room_quiz_close", {})
+
+    def pc_room_quiz_results(self):
+        return self._rpc("pc_room_quiz_results", {})
+
+    def pc_takehome_publish(self, body, days=8):
+        return self._rpc("pc_takehome_publish", {"body": body, "days": int(days)})
+
+    def pc_takehome_remove(self):
+        return self._rpc("pc_takehome_remove", {})
+
     def pc_devices(self):
         return self._rpc("pc_devices", {})
 

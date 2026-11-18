@@ -127,8 +127,9 @@ class OnMembersPhones(unittest.TestCase):
         self.assertIn("{feature: 'responses', side: 'members'}", chips)
         self.assertIn("var SIDES = {members: {label: 'On members’ phones'", chips)
         engage = [line for line in chips.splitlines() if line.strip().startswith("A('engage'")]
-        self.assertEqual([("side: 'members'" in line) for line in engage][-2:], [True, True])
-        self.assertNotIn(True, [("side: 'members'" in line) for line in engage][:-2])
+        # 26.11.63 Discussion and Bible quiz joined Members' phones and Polls: still together, still last
+        self.assertEqual([("side: 'members'" in line) for line in engage][-4:], [True, True, True, True])
+        self.assertNotIn(True, [("side: 'members'" in line) for line in engage][:-4])
 
     def test_command_center_and_top_bar_show_the_heading(self):
         cc = read("app/js/command-center.js")

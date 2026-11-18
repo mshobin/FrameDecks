@@ -56,7 +56,7 @@ test("one network's wrong guesses never block phones that have the right code", 
   for (let i = 0; i < 60; i++) await phone("select prayer_peek($1)", [`ZZZZZZ${i}`], net);
   await assert.rejects(phone("select prayer_peek($1)", ["ZZZZZZZZ"], net), /Too many wrong codes/, "a wrong code is still limited");
   assert.equal((await one(phone("select prayer_peek($1) as r", [wall], net))).r.status, "open", "the right code still works");
-  assert.deepEqual((await one(phone("select prayer_send($1, 'Pray for our families') as r", [wall], net))).r, { sent: true });
+  assert.equal((await one(phone("select prayer_send($1, 'Pray for our families') as r", [wall], net))).r.sent, true);
   await pc("select pc_room_response_open('Ready?', 'yesno')");
   assert.equal((await one(phone("select room_respond($1, 'phone-28-0123456789', 0) as r", [room], net))).r.status, "in");
   await pc("select pc_room_answers_open('What stood out?')");

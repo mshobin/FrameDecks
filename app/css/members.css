@@ -179,3 +179,4 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 .io-menu>summary::-webkit-details-marker{display:none}
 .io-menu-list{position:absolute;left:0;top:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;align-items:stretch;gap:4px;min-width:240px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--el-3)}
 .io-menu-list .btn{justify-content:flex-start}
+.pw-more{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;margin-top:10px;font-size:14px}

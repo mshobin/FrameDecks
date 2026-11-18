@@ -23,7 +23,18 @@ try { localStorage.removeItem('bcc-remote-role'); localStorage.removeItem('bcc-r
 
 /* ---------- Sign in ---------- */
 function showLogin(msg){ $('app').hidden = true; $('login').hidden = false; $('login-msg').textContent = msg || ''; setTimeout(function(){ $('pin').focus(); }, 50); }
-function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was){ pollStudio(); if (live) render(); } }
+function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was){ pollStudio(); if (live) render(); whoAmI(); } }
+/* 26.11.63 a co-leader's phone (the leader handed over with a second PIN): a focused layout and a small badge; the
+ * leader's Take back on the PC ends it, and this page asks for a PIN again */
+function whoAmI(){
+  fetch('api/remote/me', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).then(function(d){
+    var co = d.role === 'co';
+    document.body.classList.toggle('co', co);
+    var b = document.getElementById('co-badge');
+    if (co && !b){ b = document.createElement('span'); b.id = 'co-badge'; b.className = 'co-badge'; b.textContent = 'Co-leader'; $('hide-all').before(b); }
+    if (b) b.hidden = !co;
+  }).catch(function(){});
+}
 $('login-form').addEventListener('submit', function(e){
   e.preventDefault();
   var pin = $('pin').value.replace(/\D/g, '');

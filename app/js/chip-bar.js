@@ -41,6 +41,9 @@ var DO = {
   slides: function(){ if (window.KCSlides) KCSlides.open({studio: true}); },   // 26.11.45 every slide at once
   nametags: function(){ if (window.KCNameTags) KCNameTags.open(); },
   responses: function(){ if (window.KCResponses) KCResponses.open(); else toast('Polls are not ready on this PC', true); },
+  discussion: function(){ if (window.KCTogether) KCTogether.discussion(); },
+  quiz: function(){ if (window.KCTogether) KCTogether.quiz(); },
+  coleader: function(){ if (window.KCTogether) KCTogether.coleader(); },
   // 26.11.14 Listen for scripture: on (asks first) or off here; Auto is in the Command Center, on the phone and in Settings
   listen: function(){
     var V = window.KCVerseListen, st = V && V.state(); if (!V) return;

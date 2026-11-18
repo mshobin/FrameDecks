@@ -43,6 +43,9 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import songbook       # 26.11.57 the Song Library (one per church, on this PC)
+import meeting_together   # 26.11.63 who is here, raised hands, the Bible quiz, the take-home page
+import prayer_journey     # 26.11.63 prayer requests over the weeks (this PC only, encrypted)
+import care               # 26.11.63 care and attendance (this PC only, encrypted)
 import meeting_log  # 26.11.23 what was shown, for the meeting summary
 import features as FEAT   # 26.11.31 features you switch on or off (Settings > Start here > Features)
 import prayer_wall  # 26.11.23 prayer requests from phones in the meeting
@@ -56,7 +59,7 @@ import voice_commands   # 26.11.20 Voice commands, hold to talk (only while on, 
 import memory    # 9.0: Chat Bubbles in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 import dpapi_file   # 26.11.58 (release sign-off L3): the member file encrypted for this Windows account
 
-APP_VERSION = "26.11.62"
+APP_VERSION = "26.11.63"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -112,7 +115,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
-REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/join-qr.svg", "/api/remote/live.jpg",
+REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/api/remote/me", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/join-qr.svg", "/api/remote/live.jpg",
                     "/api/slides", "/api/slides/thumb",
                     "/api/remote/memory", "/api/pointer", "/api/remote/notes", "/api/remote/verse-listen",
                     "/api/remote/meeting-key", "/api/remote/voice-commands",
@@ -167,7 +170,10 @@ def _session_entry(value, now):
     if isinstance(value, (int, float)):
         return {"exp": min(float(value), longest), "used": now}
     if isinstance(value, dict) and isinstance(value.get("exp"), (int, float)) and isinstance(value.get("used"), (int, float)):
-        return {"exp": min(float(value["exp"]), longest), "used": min(float(value["used"]), now)}
+        out = {"exp": min(float(value["exp"]), longest), "used": min(float(value["used"]), now)}
+        if value.get("role") == "co":                    # 26.11.63 a co-leader's phone (Take back ends it)
+            out["role"] = "co"
+        return out
     return None
 
 
@@ -203,6 +209,39 @@ def save_sessions():
 
 
 sessions = load_sessions()
+
+# ---------- 26.11.63 the co-leader seat ----------
+# The leader hands the meeting to a co-leader for a while: a second PIN, made fresh each time and kept in memory only,
+# opens the same phone remote with a focused layout (Next, Previous, Hide all, Chat Bubbles, the Content). The Studio
+# shows that a co-leader is connected; Take back ends every co-leader sign-in at once and forgets the PIN.
+CO_HOURS = 8                    # a co-leader sign-in lasts one meeting day at most
+CO = {"pin": "", "since": 0.0}
+
+
+def co_start():
+    CO["pin"], CO["since"] = f"{secrets.randbelow(1000000):06d}", time.time()
+    while CO["pin"] == remote_pin():
+        CO["pin"] = f"{secrets.randbelow(1000000):06d}"
+    return co_body()
+
+
+def co_end():
+    CO["pin"], CO["since"] = "", 0.0
+    with sessions_lock:
+        gone = [k for k, v in sessions.items() if v.get("role") == "co"]
+        for k in gone:
+            sessions.pop(k, None)
+        if gone:
+            save_sessions()
+    return co_body()
+
+
+def co_body():
+    now = time.time()
+    with sessions_lock:
+        live = [v for v in sessions.values() if v.get("role") == "co" and session_alive(v, now)]
+    return {"on": bool(CO["pin"]), "pin": CO["pin"], "since": CO["since"], "connected": len(live),
+            "lastUsed": max((v["used"] for v in live), default=0)}
 
 
 # ---------- 26.11.58 (release sign-off L2): the program's own key for requests from this PC ----------
@@ -1334,7 +1373,8 @@ def memory_action(data):
 
 
 # ---------- 26.11.23 the prayer requests wall (src/prayer_wall.py; 0019_prayer_wall.sql) ----------
-PRAYER = prayer_wall.PrayerWall(lambda: SYNC._team(), on_received=lambda n: MEETING_LOG.count("prayer.received", n))
+PRAYER = prayer_wall.PrayerWall(lambda: SYNC._team(), on_received=lambda n: MEETING_LOG.count("prayer.received", n),
+                                on_request=lambda body, name, sid: JOURNEY.add(body, name, sid))   # 26.11.63 kept over the weeks
 
 
 def _prayer_card(title, text, stay=False, qr=""):
@@ -1384,7 +1424,169 @@ def join_refresh():
 
 
 ROOM = member_room.MemberRoom(lambda: SYNC._team(), lambda: state,
-                              prayer_code=lambda: PRAYER.code if PRAYER.is_open() else "")
+                              prayer_code=lambda: PRAYER.code if PRAYER.is_open() else "",
+                              extra=lambda: room_extra(), on_open=lambda: TOGETHER.new_room(),
+                              on_close=lambda: keep_attendance())
+
+
+# ---------- 26.11.63 meeting together: people, hands, quiz, take-home; prayer journey; care and attendance ----------
+JOURNEY = prayer_journey.PrayerJourney(str(DATA / "kc-prayer-journey.json"))
+CARE = care.Care(str(DATA / "kc-care.json"))
+TOGETHER = meeting_together.Together(lambda: SYNC._team(), room_open=lambda: ROOM.is_open(), poke=lambda: ROOM.poke())
+
+
+def room_extra():
+    """What else phones are told (member_room.screen_of): the meeting together switches, and whether musicians may
+    see the Song's chords (Settings, on by default; only while Songs are switched on)."""
+    out = TOGETHER.flags()
+    if app_settings().get("roomChords", True) and feature_on("songs"):
+        out["chords"] = True
+    return out
+
+
+def keep_attendance():
+    """Before members' phones close: the first names given today go to Care and attendance (this PC only)."""
+    names, count = TOGETHER.names_today()
+    if count:
+        CARE.record(names, count, (state.get("meeting") or {}).get("title") or (state.get("brand") or {}).get("meeting") or "")
+
+
+def _songs_shown(summary):
+    """The songs on screen in a meeting run (each once), for the take-home page."""
+    names = {f.get("name") for f in (summary or {}).get("frames") or []}
+    out = []
+    for sc in state.get("scenes") or []:
+        if not isinstance(sc, dict) or sc.get("name") not in names:
+            continue
+        for l in sc.get("layers") or []:
+            c = (l or {}).get("c") or {}
+            if l.get("kind") == "song" and (c.get("song") or c.get("title")):
+                t = str(c.get("song") or c.get("title"))[:120]
+                if not any(x["title"] == t for x in out):
+                    out.append({"title": t, "credit": str(c.get("credit") or "")[:200]})
+    return out
+
+
+def takehome_build(data=None):
+    """The take-home page for the meeting that just happened (the leader can add a note; the sermon notes go too
+    when they are shared on members' phones)."""
+    data = data if isinstance(data, dict) else {}
+    s = meeting_summary(data.get("run") or "latest")
+    notes_text = ""
+    shared = ROOM.notes if getattr(ROOM, "notes", None) else None
+    if data.get("withNotes", True) and isinstance(shared, dict):
+        parts = []
+        for sec in shared.get("sections") or []:
+            if isinstance(sec, dict):
+                head = str(sec.get("frame") or "").strip()
+                body = str(sec.get("script") or "").strip()
+                if head or body:
+                    parts.append((head + "\n" if head else "") + body)
+        notes_text = "\n\n".join(parts)
+    nxt = meeting_together.next_meeting_of(state)
+    if nxt and data.get("join"):
+        nxt["join"] = str(data.get("join"))[:200]
+    return meeting_together.takehome_body(state, s, prayers=JOURNEY.for_takehome(), next_meeting=nxt,
+                                          note=data.get("note") or "", notes_text=notes_text, songs=_songs_shown(s))
+
+
+def together_http(handler, data=None):
+    """GET /api/room/together (the Discussion panel and the quiz, polled every 2 s) and POST {op: ...} (this PC only)."""
+    if not handler.is_local():
+        return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+    try:
+        if data is None:
+            TOGETHER.refresh()
+            if TOGETHER.quiz:
+                TOGETHER.quiz_refresh()
+            res = dict(TOGETHER.body(), quiz=TOGETHER.quiz_body())
+        else:
+            d = data if isinstance(data, dict) else {}
+            op = str(d.get("op") or "")
+            if op == "flag":
+                TOGETHER.set_flag(str(d.get("name") or ""), bool(d.get("on")))
+            elif op == "handDown":
+                _linked(lambda: TOGETHER.hand_down(d.get("id"), bool(d.get("shared"))))
+            elif op == "tick":
+                TOGETHER.tick(str(d.get("id") or ""), bool(d.get("on", True)))
+            elif op == "quizBuild":
+                return handler.reply(200, json.dumps({"questions": meeting_together.build_quiz(state, int(d.get("n") or 5))}), TYPES[".json"])
+            elif op == "quizOpen":
+                if not feature_on("responses"):
+                    raise ValueError("Polls and responses are switched off in Settings > Features.")
+                _linked(lambda: TOGETHER.quiz_open(d.get("question"), d.get("seconds") or 20))
+                if d.get("show", True):
+                    _prayer_card(*TOGETHER.question_card(), stay=True)
+                MEETING_LOG.count("responses.opened")
+            elif op == "quizReveal":
+                _linked(TOGETHER.quiz_reveal)
+                if d.get("show", True):
+                    _prayer_card(*TOGETHER.answer_card(), stay=True)
+            elif op == "quizBoard":
+                _prayer_card(*TOGETHER.board_card(), stay=True)
+            elif op == "quizClose":
+                _linked(TOGETHER.quiz_close)
+            elif op == "takehomePreview":
+                return handler.reply(200, json.dumps({"body": takehome_build(d)}), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+            elif op == "takehomePublish":
+                body = takehome_build(d)
+                _linked(lambda: TOGETHER.takehome_publish(body, d.get("days") or 8))
+            elif op == "takehomeRemove":
+                _linked(TOGETHER.takehome_remove)
+            elif op == "attendance":
+                keep_attendance()
+            else:
+                raise ValueError("Unknown action.")
+            res = dict(TOGETHER.body(), quiz=TOGETHER.quiz_body())
+    except cloud_sync.Offline as e:
+        return handler.reply(503, json.dumps({"error": str(e), "offline": True}), TYPES[".json"])
+    except (ValueError, OSError) as e:
+        return handler.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+    except cloud_sync.Refused as e:
+        msg = str(e)
+        if "function" in msg.lower() or "PGRST202" in msg:
+            msg = "This needs the workspace update 0030_meeting_together.sql (the FrameDecks owner applies it)."
+        return handler.reply(400, json.dumps({"error": msg}), TYPES[".json"])
+    return handler.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+
+
+def journey_http(handler, data=None):
+    """GET /api/prayer-journey and POST {op: update|remove|showAnswered} (this PC only)."""
+    if not handler.is_local():
+        return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+    try:
+        if data is not None:
+            d = data if isinstance(data, dict) else {}
+            op = str(d.get("op") or "")
+            if op == "update":
+                JOURNEY.update(str(d.get("id") or ""), d.get("status"), d.get("share"), d.get("note"))
+            elif op == "remove":
+                JOURNEY.remove(str(d.get("id") or ""))
+            elif op == "showAnswered":
+                _prayer_card(*JOURNEY.answered_card(), stay=True)
+            else:
+                raise ValueError("Unknown action.")
+        res = JOURNEY.body()
+    except (ValueError, OSError) as e:
+        return handler.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+    return handler.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+
+
+def care_http(handler, data=None):
+    """GET /api/care and POST {op: forget, date?, name?} (this PC only)."""
+    if not handler.is_local():
+        return handler.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+    try:
+        if data is not None:
+            d = data if isinstance(data, dict) else {}
+            if d.get("op") != "forget":
+                raise ValueError("Unknown action.")
+            CARE.forget(d.get("date") or None, d.get("name") or None)
+        res = CARE.body()
+    except (ValueError, OSError) as e:
+        return handler.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+    return handler.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+# ---------- end of 26.11.63 meeting together ----------
 
 
 def _linked(call):
@@ -1971,6 +2173,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "memDur": 12,            # 9.0 Chat Bubbles: seconds an unpinned card stays in the chat overlay (3..120)
                          "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
                          "joinQr": "off",         # 26.11.44 the members' phones QR on the Branding badge: off / beside / below
+                         "roomChords": True,      # 26.11.63 musicians' phones see the Song's chords (members' phones)
                          "slideScripture": True,  # 26.11.45 a slide naming a passage offers it as the scripture card
                          "memLayout": "beside",   # 9.0 on FrameDecks vCam: beside the video, below it, or over it
                          "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
@@ -4015,6 +4218,14 @@ class Handler(BaseHTTPRequestHandler):
                 save_sessions()
             return True
 
+    def session_role(self):
+        """26.11.63 "co" for a co-leader's phone, "leader" for the leader's own phone remote, "" when not signed in."""
+        if not self.signed_in():
+            return ""
+        m = re.search(COOKIE + r"=([A-Za-z0-9_\-]{20,100})", self.headers.get("Cookie", ""))
+        with sessions_lock:
+            return "co" if (sessions.get(m.group(1)) or {}).get("role") == "co" else "leader"
+
     def announce(self):
         # Say in the black window when a new device reaches the PC (IP address only)
         ip = self.client_address[0]
@@ -4054,7 +4265,9 @@ class Handler(BaseHTTPRequestHandler):
             if len(login_recent) >= MAX_LOGIN_FAILS and ip not in known_devices:   # too many wrong PINs from all devices
                 wait = int(600 - (now - login_recent[0])) + 1
                 return self.reply(429, json.dumps({"error": "locked", "wait": wait}), TYPES[".json"])
-            if not secrets.compare_digest(pin.encode(), remote_pin().encode()):
+            leader = secrets.compare_digest(pin.encode(), remote_pin().encode())
+            co = bool(CO["pin"]) and secrets.compare_digest(pin.encode(), CO["pin"].encode())
+            if not leader and not co:
                 count += 1
                 login_recent.append(now)
                 # 5 wrong PINs: wait 1 minute; each further 5 doubles it (up to an hour). Only a right PIN resets it.
@@ -4069,11 +4282,17 @@ class Handler(BaseHTTPRequestHandler):
             if len(known_devices) > 256:
                 known_devices.pop()
         token = secrets.token_urlsafe(32)
+        life = CO_HOURS * 3600 if co and not leader else SESSION_DAYS * 86400
         with sessions_lock:
-            sessions[token] = {"exp": now + SESSION_DAYS * 86400, "used": now}
+            sessions[token] = {"exp": now + life, "used": now}
+            if co and not leader:
+                sessions[token]["role"] = "co"
             save_sessions()
-        cookie = f"{COOKIE}={token}; Path=/; Max-Age={SESSION_DAYS * 86400}; HttpOnly; SameSite=Strict"
-        return self.reply(200, json.dumps({"ok": True}), TYPES[".json"], [("Set-Cookie", cookie)])
+        if co and not leader:
+            print(f"  >> {time.strftime('%H:%M')}  A co-leader joined from {ip}.", flush=True)
+        cookie = f"{COOKIE}={token}; Path=/; Max-Age={int(life)}; HttpOnly; SameSite=Strict"
+        return self.reply(200, json.dumps({"ok": True, "role": "co" if co and not leader else "leader"}), TYPES[".json"],
+                          [("Set-Cookie", cookie)])
 
     def do_GET(self):
         count_request(urlparse(self.path).path)
@@ -4089,6 +4308,13 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if path == "/api/remote/me":                    # 26.11.63 the leader's phone or a co-leader's
+            return self.reply(200, json.dumps({"role": "leader" if self.is_local() else self.session_role()}), TYPES[".json"],
+                              headers=[("Cache-Control", "no-store")])
+        if path == "/api/co-leader":                    # 26.11.63 this PC only: is a co-leader connected
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(co_body()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_body()), TYPES[".json"])
         if path == "/api/remote/live.jpg":              # v6.6 the FrameDecks picture for the phone's drawing pad (PIN-protected)
@@ -4401,6 +4627,12 @@ class Handler(BaseHTTPRequestHandler):
             return room_response_http(self)
         if path == "/api/room/answers":                 # 26.11.57 typed answers from phones (this PC only)
             return room_answers_http(self)
+        if path == "/api/room/together":                # 26.11.63 people, hands, quiz, take-home (this PC only)
+            return together_http(self)
+        if path == "/api/prayer-journey":               # 26.11.63 prayer requests over the weeks (this PC only)
+            return journey_http(self)
+        if path == "/api/care":                         # 26.11.63 care and attendance (this PC only)
+            return care_http(self)
         if path == "/api/alerts":                       # 26.11.25 the corner card (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -5008,6 +5240,22 @@ class Handler(BaseHTTPRequestHandler):
             return room_response_http(self, data if isinstance(data, dict) else {})
         if path == "/api/room/answers":                 # 26.11.57 typed answers from phones (this PC only)
             return room_answers_http(self, data if isinstance(data, dict) else {})
+        if path == "/api/room/together":                # 26.11.63 (this PC only)
+            return together_http(self, data if isinstance(data, dict) else {})
+        if path == "/api/prayer-journey":               # 26.11.63 (this PC only)
+            return journey_http(self, data if isinstance(data, dict) else {})
+        if path == "/api/care":                         # 26.11.63 (this PC only)
+            return care_http(self, data if isinstance(data, dict) else {})
+        if path == "/api/co-leader":                    # 26.11.63 hand over to a co-leader, or take back (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            op = (data or {}).get("op") if isinstance(data, dict) else ""
+            if op not in ("start", "end"):
+                return self.reply(400, json.dumps({"error": "Unknown action."}), TYPES[".json"])
+            if op == "start" and not REMOTE:
+                return self.reply(409, json.dumps({"error": "Switch on the phone remote first (Settings, Phone remote)."}), TYPES[".json"])
+            res = co_start() if op == "start" else co_end()
+            return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/slides":                       # 26.11.45 go to a slide, step, search (the phone remote too)
             try:
                 res = slides_action(data if isinstance(data, dict) else {})

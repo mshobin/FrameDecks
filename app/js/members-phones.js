@@ -82,13 +82,17 @@ function draw(){
       cur.codeOnScreen   // 26.11.43 the code stays on every screen until it is taken off
         ? h('button', {cls: 'btn ghost small', type: 'button', text: 'Take the code off screen', title: 'It is on the camera and the Share Window', onclick: function(){ act('api/members', {op: 'uninvite'}, 'Code taken off screen'); }})
         : h('button', {cls: 'btn ghost small', type: 'button', text: 'Show the code on screen', title: 'The code and a QR code to scan, for people joining on Zoom or Teams. It stays until you take it off.', onclick: function(){ act('api/members', {op: 'invite'}, 'The code is on screen'); }})];
+    // 26.11.63 what members do together (js/together.js), next to the code
+    if (window.KCTogether) join.push(h('div', {cls: 'pw-more'}, [['Discussion', 'discussion'], ['Bible quiz', 'quiz'], ['Take-home page', 'takehome'], ['Prayer journey', 'journey']].map(function(x){
+      return h('button', {cls: 'linkish', type: 'button', text: x[0], onclick: function(){ dlg.close(); KCTogether[x[1]](); }});
+    })));
     if (room.notesShared) join.push(h('p', {cls: 'pw-shared'}, ['Sermon notes shared ', h('button', {cls: 'linkish', type: 'button', text: 'Take back', onclick: function(){ act('api/members', {op: 'unshare-notes'}, 'Notes taken back'); }})]));
     kids.push(h('h2', {id: 'pw-title', text: pr.waiting ? pr.waiting + (pr.waiting === 1 ? ' prayer request waiting' : ' prayer requests waiting') : 'Members can join'}),
       h('div', {cls: 'pw-grid'}, [h('div', {cls: 'pw-join'}, join), h('div', {cls: 'pw-list-wrap'}, right)]));
     var err = room.error || pr.error; if (err) kids.push(h('p', {cls: 'pw-err', role: 'status', text: 'Reconnecting… (' + err + ')'}));
     kids.push(h('div', {cls: 'kc-dlg-foot'}, [
       h('button', {cls: 'btn ghost', type: 'button', text: 'Close for members', onclick: function(){
-        if (window.confirm('Close members’ phones?\n\nThe code stops working, phones stop following, shared notes are taken back and every prayer request in this list is forgotten.')) act('api/members', {op: 'close'}, 'Closed for members');
+        if (window.confirm('Close members’ phones?\n\nThe code stops working, phones stop following, shared notes are taken back and this list of prayer requests is cleared (they stay in the Prayer journey on this PC). First names given today are kept for Care and attendance.')) act('api/members', {op: 'close'}, 'Closed for members');
       }}),
       pr.open ? h('button', {cls: 'btn', type: 'button', text: 'We’re praying for…', title: 'One card with every request shown so far, without names', onclick: function(){ act('api/prayer', {op: 'list'}, 'On screen'); }}) : null,
       h('button', {cls: 'btn primary', type: 'button', text: 'Done for now', onclick: function(){ dlg.close(); }})]));

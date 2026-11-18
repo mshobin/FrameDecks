@@ -228,8 +228,55 @@ def summary(run, plan=None):
             seen_v.add(x["label"])
     return {"id": run.get("id"), "meeting": run.get("meeting") or "Meeting", "started": run.get("started", 0), "ended": run.get("ended", 0),
             "ms": max(0, end - run.get("started", 0)), "frames": frames, "questionCount": len(seen_q), "verseCount": len(seen_v),
+            "health": health(frames, plan or {}, max(0, end - run.get("started", 0))),
             "memory": run.get("memory", 0), "prayer": run.get("prayer") or {"received": 0, "shown": 0},
             "responses": run.get("responses") or {"opened": 0, "shown": 0}}
+
+
+def health(frames, plan, total_ms):
+    """26.11.63 the meeting health check: how the meeting went against its plan, for next time (the leader only).
+    {mood: on-time | over | under | no-plan, minutes, planned, diff, overruns: [{name, min, plan, over}],
+    quick: [{name, min, plan}], skipped: [name], tips: [text]}."""
+    def mins(ms):
+        return round(ms / 60000.0, 1)
+    shown = {}
+    for f in frames:
+        shown[f["name"]] = shown.get(f["name"], 0) + f["ms"]          # a Frame shown twice counts once, both times added
+    planned = {n: p for n, p in (plan or {}).items() if p}
+    total = mins(total_ms)
+    tips, overruns, quick = [], [], []
+    for name, ms in shown.items():
+        p = planned.get(name)
+        if not p:
+            continue
+        m = mins(ms)
+        if m - p >= 2:
+            overruns.append({"name": name, "min": m, "plan": p, "over": round(m - p, 1)})
+        elif p - m >= 2 and m > 0:
+            quick.append({"name": name, "min": m, "plan": p})
+    overruns.sort(key=lambda x: -x["over"])
+    skipped = [n for n in planned if n not in shown]
+    plan_total = round(sum(planned.get(n, 0) for n in shown) or 0, 1)
+    if not planned:
+        mood, diff = "no-plan", 0
+        tips.append("Add planned minutes to each Frame (Frame settings, Planned) to see how the timing went.")
+    else:
+        diff = round(total - plan_total, 1) if plan_total else 0
+        mood = "over" if diff >= 5 else "under" if diff <= -5 else "on-time"
+        for o in overruns[:3]:
+            tips.append("Plan %d min for “%s” next time: it ran %s min over." % (int(round(o["min"])), o["name"], _num(o["over"])))
+        if mood == "over" and not overruns:
+            tips.append("The meeting ran %s min long. One question fewer, or a timer on the discussion, would bring it in." % _num(diff))
+        if skipped:
+            tips.append("Not reached: %s. Move them earlier or plan less before them." % ", ".join(skipped[:4]))
+        if mood == "on-time" and not overruns:
+            tips.append("Right on time. Keep the same plan next week.")
+    return {"mood": mood, "minutes": total, "planned": plan_total, "diff": diff, "overruns": overruns[:6],
+            "quick": quick[:6], "skipped": skipped[:8], "tips": tips[:5]}
+
+
+def _num(x):
+    return ("%.1f" % x).rstrip("0").rstrip(".")
 
 
 def as_text(s):

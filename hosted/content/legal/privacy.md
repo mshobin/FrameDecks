@@ -1,6 +1,6 @@
 # FrameDecks Privacy Policy
 
-*Effective 29 October 2026 · Version 2026-10-29 · Updated 16 November 2026 (members' phones, legal basis, who is responsible, who processes data, children)*
+*Effective 29 October 2026 · Version 2026-10-29 · Updated 18 November 2026 (members' phones: first names, hands, the quiz, the take-home page; the prayer journey and attendance on your PC)*
 
 FrameDecks is made by **Shobin Mathews** ("we", "us"). Contact: privacy@framedecks.com. Who is responsible for which
 data is set out under "Who is responsible" below.
@@ -45,9 +45,12 @@ account:
 | Data | Why | Kept online |
 | --- | --- | --- |
 | The room: what is on screen as words (the Frame's name, a question, a scripture), the sermon notes the leader shares, and a picture (JPEG), title and words of each PowerPoint slide shown | So phones can follow along | Until the room is closed or the next one is opened; a room closes by itself after at most 12 hours, and what it held is removed within an hour after that |
-| Prayer requests: the request, the first name if the person gives one, and a hash of the network address it came from | So the leader can read them and choose what to show | Until the church PC takes it in, at most 24 hours. On the PC it is kept in memory only and is gone when the wall or FrameDecks is closed |
+| Prayer requests: the request, the first name if the person gives one, and a hash of the network address it came from | So the leader can read them and choose what to show | Until the church PC takes it in, at most 24 hours. On the PC it is kept in the Prayer journey (see "On your PC") |
 | Poll answers: the choice, and a hash of a random number the phone keeps (`fd-voter`) so each phone answers once | To count answers | Until the next poll replaces it or the room closes |
 | Typed answers: the answer (up to 280 characters) and the same hash | So the leader can read them and choose what to show | Until the next question replaces it or the room closes |
+| A first name, if the person types one, a raised hand ("I'd like to share") and when, with the same hash | So the leader can invite people to share in turn | Until the room closes or gets a new code |
+| Quiz answers: the choice, how quickly it came, and the same hash | To show the right answer and a leaderboard by first name | Until the next question replaces it or the room closes |
+| The take-home page: the meeting's name and date, scriptures, questions, song titles, the sermon notes if shared, prayer requests the leader marked OK to share (never with a name), and when the next meeting is | So members can look back during the week | Up to 14 days (the leader chooses), or until the leader removes it |
 
 A request sent without a name does not show the leader who sent it. It is not fully anonymous: the network hash above
 is kept with it for up to 24 hours to stop abuse.
@@ -63,6 +66,14 @@ only when you switch them on:
   Unpinned cards stay in memory only; pinned cards are kept on the PC.
 - **Listen for scripture** and **Follow my voice** hear the PC's sound (which in an online meeting includes other
   people's voices) and turn speech into words on the PC itself. Nothing is recorded or sent.
+
+- **Prayer journey** keeps every prayer request from members' phones (the words, the first name if given, and whether it
+  is still being prayed for or answered), encrypted to your Windows account. You can remove any request.
+- **Care and attendance** keeps the first names people chose to type on their phones, with the date of each meeting,
+  encrypted to your Windows account. It is for the leader only; you can remove any meeting or name.
+
+On the phone, framedecks.com remembers in that browser only the first name the person typed, the prayer requests it
+sent (so it can show whether each is still being prayed for or answered) and their Transpose and Capo choice.
 
 If you use these in a meeting with other people, tell them.
 

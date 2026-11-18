@@ -199,7 +199,8 @@ class ThePhonePage(unittest.TestCase):
         panel, page, css = read("hosted/src/components/join-panel.tsx"), read("hosted/src/app/follow/page.tsx"), read("hosted/src/app/join.css")
         self.assertNotIn("AuthShell", page)
         self.assertIn('viewportFit: "cover"', page)
-        head = panel[panel.index('<header className="fl-head">'):panel.index("</header>")]
+        start = panel.index('<header className="fl-head">')
+        head = panel[start:panel.index("</header>", start)]
         self.assertLess(head.index("<FollowBrand />"), head.index('className="fl-meeting"'), "the meeting's name is below the FrameDecks name")
         self.assertIn("100dvh", css)
         self.assertIn("safe-area-inset-bottom", css)

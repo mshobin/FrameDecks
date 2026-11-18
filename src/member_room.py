@@ -34,11 +34,42 @@ SLIDE_FULL = None
 SCREEN_MAX = 15500       # characters: under the room's 16,000-byte screen (0020), with room for JSON escaping
 
 
-def screen_of(st, prayer_code=""):
-    """What phones show now: built only from what is visible on the meeting screen."""
+def song_of(st, sc, live):
+    """26.11.63 the Song on screen with its chords, for musicians' phones: {title, credit, key, at, items} or None.
+    Only a Song Content that is on screen and has at least one part with [G] chords."""
+    on = live.get("on") if isinstance(live.get("on"), dict) else {}
+    for l in (sc or {}).get("layers") or []:
+        if not isinstance(l, dict) or l.get("kind") != "song" or not on.get(l.get("id")):
+            continue
+        c = l.get("c") if isinstance(l.get("c"), dict) else {}
+        items = [x for x in c.get("items") or [] if isinstance(x, dict)]
+        if not any("[" in str(x.get("chords") or "") for x in items):
+            return None
+        out = {"title": _s(c.get("song") or c.get("title") or l.get("name"), 120), "credit": _s(c.get("credit"), 200),
+               "key": _s(c.get("key"), 12), "at": max(0, min(len(items) - 1, int(c.get("at") or 0))), "items": []}
+        room = 9000
+        for x in items[:40]:
+            it = {"label": _s(x.get("label"), 40), "text": str(x.get("text") or "")[:1500]}
+            if "[" in str(x.get("chords") or ""):
+                it["chords"] = str(x.get("chords"))[:2500]
+            room -= len(json.dumps(it))
+            if room < 0:
+                break
+            out["items"].append(it)
+        return out
+    return None
+
+
+def screen_of(st, prayer_code="", extra=None):
+    """What phones show now: built only from what is visible on the meeting screen. extra (26.11.63): the meeting
+    together switches {people, hands, quiz, takehome: True} and chords (musicians may see the Song's chords)."""
     live = st.get("live") if isinstance(st.get("live"), dict) else {}
     sid = str(live.get("scene") or "")
     out = {"v": 1, "live": bool(sid)}
+    extra = extra if isinstance(extra, dict) else {}
+    for k in ("people", "hands", "quiz", "takehome"):
+        if extra.get(k):
+            out[k] = True
     meeting = st.get("meeting") if isinstance(st.get("meeting"), dict) else {}
     if _s(meeting.get("title"), 120):
         out["meeting"] = _s(meeting.get("title"), 120)
@@ -51,6 +82,10 @@ def screen_of(st, prayer_code=""):
         return out
     sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None) or {}
     out["frame"] = _s(sc.get("name"), 120) or "Frame"
+    if extra.get("chords"):
+        song = song_of(st, sc, live)
+        if song:
+            out["song"] = song
     q = st.get("question") if isinstance(st.get("question"), dict) else {}
     if q.get("visible") and _s(q.get("text"), TEXT_MAX):
         out["question"] = {"label": _s(q.get("label"), 60) or "Question", "text": _s(q.get("text"), TEXT_MAX)}
@@ -68,10 +103,12 @@ def screen_of(st, prayer_code=""):
 
 
 class MemberRoom:
-    def __init__(self, team, state, prayer_code=lambda: "", clock=time.time, sleep=None):
+    def __init__(self, team, state, prayer_code=lambda: "", clock=time.time, sleep=None, extra=lambda: {}, on_open=None, on_close=None):
         """team(): (api, site) for this PC, or raises when not linked. state(): the live state. prayer_code(): the
-        open prayer wall's code, or ""."""
+        open prayer wall's code, or "". extra(): 26.11.63 what else phones are told (screen_of). on_open() / on_close():
+        called after a room opens (a new code) and before it closes (the attendance is kept then)."""
         self.team, self.state, self.prayer_code, self.clock = team, state, prayer_code, clock
+        self.extra, self.on_open, self.on_close = extra, on_open, on_close
         self.lock = threading.Lock()
         self.wake = threading.Event()
         self.code, self.url, self.closes_at = "", "", 0.0
@@ -101,11 +138,18 @@ class MemberRoom:
             self.notes, self.notes_dirty, self.last, self.error = None, False, None, ""
             self.slide_key = None
             self.rev += 1
+        if self.on_open:
+            self.on_open()
         self._start()
         self.poke()
         return self.body()
 
     def close(self):
+        if self.on_close:
+            try:
+                self.on_close()
+            except Exception as e:             # keeping the attendance never stops the room closing
+                print("Members' phones (closing):", e)
         self._stop.set()
         self.wake.set()
         try:
@@ -154,7 +198,11 @@ class MemberRoom:
         """One look: publish when what phones show (or the notes) changed. Returns True when it published."""
         if not self.is_open():
             return False
-        screen = screen_of(self.state() or {}, self.prayer_code() or "")
+        try:
+            extra = self.extra() or {}
+        except Exception:
+            extra = {}
+        screen = screen_of(self.state() or {}, self.prayer_code() or "", extra)
         text = json.dumps(screen, sort_keys=True)
         with self.lock:
             notes_dirty, notes = self.notes_dirty, self.notes

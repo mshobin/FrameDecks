@@ -4,7 +4,8 @@
  *                       "Verse 1", "[Chorus]", "Bridge:", "V2", "Pre-Chorus"; a first block of "Title: ..." /
  *                       "CCLI: ..." / "Author: ..." lines fills the details
  *   fromChordPro(text)  .cho / .chordpro / .pro: {title}, {artist}, {ccli}, {copyright}, {key}, {start_of_chorus} ...,
- *                       {comment: Verse 2}; chords in [brackets] are removed
+ *                       {comment: Verse 2}; the words on screen have no chords; 26.11.63 a section with [G] chords
+ *                       also keeps them (section.chords, ChordPro inline) for the musicians' view on their phones
  *   fromOpenLyrics(xml) OpenLyrics .xml: titles, authors, ccliNo, copyright, verseOrder, each <verse name="v1">
  *   fromSlides(slides)  a PowerPoint's slides (title, text): one section per slide with words
  *   arrange(song)       the sections in the order of song.order (V1 C V2 C B C), repeating without copying words
@@ -15,6 +16,9 @@
 var LABEL = /^\s*[\[(]?\s*((?:verse|chorus|refrain|bridge|pre-?chorus|tag|ending|intro|outro|coda|interlude|stanza|vamp)\b[^\])\]:]{0,14}|[vcbp]\d{0,2})\s*[\])]?\s*:?\s*$/i;
 var SHORT = {v: 'Verse', c: 'Chorus', b: 'Bridge', p: 'Pre-Chorus', e: 'Ending', t: 'Tag', i: 'Intro', o: 'Outro'};
 
+var CHORD = /\[[A-G](?:#|b)?[^\]\s]{0,8}(?:\/[A-G](?:#|b)?)?\]/;          // 26.11.63 one ChordPro chord: [G] [Am7] [F#m/C#]
+function hasChords(lines){ return lines.some(function(x){ return CHORD.test(x); }); }
+function noChords(line){ return String(line).replace(/\[[^\]]*\]/g, '').replace(/\s{2,}/g, ' '); }
 function cap(s){ s = String(s || '').trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
 /* "v1" → "Verse 1", "c" → "Chorus", "pre-chorus" → "Pre-Chorus", "verse 2" → "Verse 2" */
 function niceLabel(raw){
@@ -56,7 +60,13 @@ function fromText(text){
     else song.copyright = v.replace(/^©\s*/, '');
   }
   var cur = null;
-  function flush(){ if (cur){ var t = cleanLines(cur.lines); if (t) song.sections.push({label: cur.label, text: t}); } cur = null; }
+  function flush(){
+    if (cur){
+      var ch = hasChords(cur.lines), t = cleanLines(ch ? cur.lines.map(function(x){ return noChords(x).trim(); }) : cur.lines);
+      if (t){ var sec = {label: cur.label, text: t}; if (ch) sec.chords = cleanLines(cur.lines.map(function(x){ return x.trim(); })); song.sections.push(sec); }
+    }
+    cur = null;
+  }
   for (; i < lines.length; i++){
     var line = lines[i], lab = line.match(LABEL);
     if (lab && line.trim().length <= 24){ flush(); cur = {label: niceLabel(lab[1]), lines: []}; continue; }
@@ -72,7 +82,13 @@ function fromText(text){
 /* ---------- ChordPro ---------- */
 function fromChordPro(text){
   var song = blank(), cur = null, inBlock = '';
-  function flush(){ if (cur){ var t = cleanLines(cur.lines); if (t) song.sections.push({label: cur.label, text: t}); } cur = null; }
+  function flush(){
+    if (cur){
+      var t = cleanLines(cur.lines);
+      if (t){ var sec = {label: cur.label, text: t}; if (hasChords(cur.raw)) sec.chords = cleanLines(cur.raw); song.sections.push(sec); }
+    }
+    cur = null;
+  }
   String(text || '').replace(/\r\n?/g, '\n').split('\n').forEach(function(raw){
     var d = raw.match(/^\s*\{\s*([a-z_]+)\s*(?::\s*(.*?))?\s*\}\s*$/i);
     if (d){
@@ -82,20 +98,21 @@ function fromChordPro(text){
       else if (k === 'ccli') song.ccli = v.replace(/[^0-9]/g, '');
       else if (k === 'copyright') song.copyright = v.replace(/^©\s*/, '');
       else if (k === 'key') song.key = v;
-      else if (/^(start_of_chorus|soc)$/.test(k)){ flush(); inBlock = 'chorus'; cur = {label: v || 'Chorus', lines: []}; }
-      else if (/^(start_of_verse|sov)$/.test(k)){ flush(); inBlock = 'verse'; cur = {label: v ? niceLabel(v) : '', lines: []}; }
-      else if (/^(start_of_bridge|sob)$/.test(k)){ flush(); inBlock = 'bridge'; cur = {label: v || 'Bridge', lines: []}; }
+      else if (/^(start_of_chorus|soc)$/.test(k)){ flush(); inBlock = 'chorus'; cur = {label: v || 'Chorus', lines: [], raw: []}; }
+      else if (/^(start_of_verse|sov)$/.test(k)){ flush(); inBlock = 'verse'; cur = {label: v ? niceLabel(v) : '', lines: [], raw: []}; }
+      else if (/^(start_of_bridge|sob)$/.test(k)){ flush(); inBlock = 'bridge'; cur = {label: v || 'Bridge', lines: [], raw: []}; }
       else if (/^(end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob)$/.test(k)){ flush(); inBlock = ''; }
-      else if (/^(comment|c|comment_italic|ci|comment_box|cb)$/.test(k)){ flush(); if (LABEL.test(v)) cur = {label: niceLabel(v.match(LABEL)[1]), lines: []}; }
+      else if (/^(comment|c|comment_italic|ci|comment_box|cb)$/.test(k)){ flush(); if (LABEL.test(v)) cur = {label: niceLabel(v.match(LABEL)[1]), lines: [], raw: []}; }
       return;
     }
     if (/^\s*#/.test(raw)) return;                                 // a ChordPro comment line
-    var line = raw.replace(/\[[^\]]*\]/g, '').replace(/\s{2,}/g, ' ');
+    var line = noChords(raw);
     if (!line.trim()){ if (!inBlock && cur && cur.lines.some(function(x){ return x.trim(); })) flush(); return; }
     var lab = line.match(LABEL);
-    if (lab && !inBlock && line.trim().length <= 24){ flush(); cur = {label: niceLabel(lab[1]), lines: []}; return; }
-    if (!cur) cur = {label: '', lines: []};
+    if (lab && !inBlock && line.trim().length <= 24){ flush(); cur = {label: niceLabel(lab[1]), lines: [], raw: []}; return; }
+    if (!cur) cur = {label: '', lines: [], raw: []};
     cur.lines.push(line.trim());
+    cur.raw.push(raw.trim());
   });
   flush();
   return numberVerses(song);
@@ -157,11 +174,12 @@ function findSection(sections, label){
 function arrange(song){
   var secs = (song && song.sections) || [], order = (song && song.order) || [], out = [];
   if (order.length){
-    order.forEach(function(lab){ var s = findSection(secs, lab); if (s) out.push({label: s.label, text: s.text}); });
+    order.forEach(function(lab){ var s = findSection(secs, lab); if (s) out.push(item(s)); });
     if (out.length) return out;
   }
-  return secs.map(function(s){ return {label: s.label, text: s.text}; });
+  return secs.map(item);
 }
+function item(s){ var o = {label: s.label, text: s.text}; if (s.chords) o.chords = s.chords; return o; }   // 26.11.63 chords ride along
 /* the key pressed while a song is on screen: 1-9 a verse, C chorus, B bridge, P pre-chorus, E ending (or tag);
    the next one after the part on screen, else the first. -1: no such part */
 function jumpTo(items, at, key){
@@ -186,7 +204,7 @@ function credit(song, licence){
 /* the song as text again (for the editor): details, sections with their labels, the order */
 function toText(song){
   var out = [];
-  song.sections.forEach(function(s){ out.push('[' + s.label + ']'); out.push(s.text); out.push(''); });
+  song.sections.forEach(function(s){ out.push('[' + s.label + ']'); out.push(s.chords || s.text); out.push(''); });   // 26.11.63 chords stay when edited
   return out.join('\n').trim();
 }
 /* pick the reader from the file's name and content */

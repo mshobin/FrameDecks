@@ -46,6 +46,9 @@ var ACTIONS = [
   // 26.11.24 one code for everyone (follow along, prayer requests, sermon notes); 26.11.33 a question they answer
   A('engage', 'members', 'Members’ phones', 'smartphone', 'Follow along, prayer requests', ['cc', 'app'], {feature: 'team', side: 'members'}),
   A('engage', 'responses', 'Polls', 'list-checks', 'Ask, then show the answers', ['cc', 'app'], {feature: 'responses', side: 'members'}),
+  // 26.11.63 hands up and a queue for the leader, and a quiz on phones with a leaderboard (js/together.js)
+  A('engage', 'discussion', 'Discussion', 'users', 'Hands up, who shared, a timer', ['cc', 'app'], {feature: 'team', side: 'members'}),
+  A('engage', 'quiz', 'Bible quiz', 'graduation-cap', 'On phones, with a leaderboard', ['cc', 'app'], {feature: 'responses', side: 'members'}),
   // Control (Previous, Next, Go Live and Hide all are pinned in plain view on every surface)
   A('control', 'golive', 'Go Live', 'radio', 'On air or off air', ['cc', 'app', 'phone'], {pinned: true}),
   A('control', 'prevnext', 'Previous and Next', 'chevron-right', 'The Frames in order', ['cc', 'app', 'phone'], {pinned: true}),
@@ -67,6 +70,7 @@ var ACTIONS = [
   A('more', 'sync', 'Sync', 'cloud', 'This PC and your team', ['cc', 'app'], {feature: 'team'}),
   A('more', 'output', 'How people see it', 'cast', 'Zoom, Teams, projector', ['cc', 'app']),
   A('more', 'phone', 'Phone remote', 'smartphone', 'PIN and QR code', ['cc', 'app'], {feature: 'remote'}),
+  A('more', 'coleader', 'Co-leader', 'user', 'Hand over, then take back', ['cc', 'app'], {feature: 'remote'}),   // 26.11.63
   A('more', 'brand', 'Meeting & Branding', 'palette', 'Names, logo, look', ['cc', 'app']),
   A('more', 'keys', 'Shortcuts', 'keyboard', 'Keys for every action', ['cc', 'app']),
   // 26.11.31 switch features on or off (js/features.js): set up before the meeting, so it lives in More

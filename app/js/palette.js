@@ -85,6 +85,12 @@ function commands(){
     ['showverse', 'Show a verse now (type a reference)', 'verse scripture bible reference show now quick live', function(){ if (window.KCQuickVerse){ var r = window.prompt('Bible reference, e.g. Romans 8:28', ''); if (r) KCQuickVerse.show(r); } }],   // 26.11.57
     ['songs', 'Song Library (songs, lyrics, CCLI usage report)', 'songs song lyrics hymn worship library chorus verse ccli chordpro openlyrics', function(){ if (window.KCSongs) KCSongs.open(); }],   // 26.11.57
     ['frameimport', 'Import… (a lesson, PowerPoint slides, songs, Excel or a .frame file)', 'import frame file offline service pc website plan lesson pdf word powerpoint slides songs lyrics excel', function(){ if (window.KCImport) window.KCImport.open(); else { settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); } }],   // 26.11.57 one Import menu
+    ['discussion', 'Discussion: hands up and who has shared (members’ phones)', 'discussion hands raise share queue turn who has not shared timer small group', function(){ if (window.KCTogether) KCTogether.discussion(); }],
+    ['quiz', 'Bible quiz on phones, with a leaderboard', 'quiz bible trivia game kahoot questions leaderboard scores phones kids youth', function(){ if (window.KCTogether) KCTogether.quiz(); }],
+    ['takehome', 'Take-home page for members (after the meeting)', 'take home takeaway week verses questions songs next meeting members phones after', function(){ if (window.KCTogether) KCTogether.takehome(); }],
+    ['journey', 'Prayer journey: still praying and answered', 'prayer journey answered still praying requests testimony follow up', function(){ if (window.KCTogether) KCTogether.journey(); }],
+    ['coleader', 'Co-leader: hand the meeting to a second phone, then take back', 'co leader coleader hand over handover second phone helper assistant take back pin', function(){ if (window.KCTogether) KCTogether.coleader(); }],
+    ['care', 'Care and attendance: who is new, who has missed', 'care attendance absent missed new visitors pastoral follow up who came', function(){ if (window.KCTogether) KCTogether.care(); }],
     ['members', 'Members’ phones (follow along, prayer requests, sermon notes)', 'members phones follow along prayer requests wall pray qr sermon notes', function(){ if (window.KCMembers) KCMembers.open(); }],
     ['sermonnotes', 'Sermon notes (the last meeting, for members)', 'sermon notes minutes members print pdf share', function(){ if (/dashboard/.test(location.pathname) || location.pathname === '/') KCLazy.use('meeting-summary').then(function(g){ g.notes(); }); }],
     ['summary', 'Meeting summary (the last meeting, to print or email)', 'summary minutes report attendance meeting past print email', function(){ if (/dashboard/.test(location.pathname) || location.pathname === '/') KCLazy.use('meeting-summary').then(function(g){ g.open('latest'); }); }],
@@ -115,7 +121,7 @@ function commands(){
   c = c.filter(function(x){ return !F || F.allOn(CMD_FEATURE[x[0]]); });
   return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
-var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary', nametags: 'nametags', responses: 'responses', answers: 'responses',
+var CMD_FEATURE = {listen: 'listen', capture: 'memory', members: 'team', resync: 'team', sermonnotes: 'summary', summary: 'summary', nametags: 'nametags', responses: 'responses', answers: 'responses', discussion: 'team', quiz: 'responses', takehome: 'team', journey: 'team', care: 'team', coleader: 'remote',
   camera: 'vcam', sharedraw: '', sharespot: ''};
 /* 26.11.31 the features themselves: "Chat Bubbles is off · Turn on?" finds it from anywhere, and teaches where they live */
 function featureItems(){

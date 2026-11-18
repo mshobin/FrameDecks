@@ -369,9 +369,12 @@ function cleanLayer(l){
     if (['duration', 'until'].indexOf(c.mode) < 0) c.mode = d.mode;
     if (kind === 'song'){
       c.items = (Array.isArray(c.items) ? c.items : []).filter(isObj).slice(0, 60).map(function(it){
-        return {id: str(it.id || rid('v'), 40), label: str(it.label, 40), text: str(it.text, 2000)}; });
+        var o = {id: str(it.id || rid('v'), 40), label: str(it.label, 40), text: str(it.text, 2000)};
+        if (typeof it.chords === 'string' && it.chords.indexOf('[') >= 0) o.chords = str(it.chords, 4000);   // 26.11.63 [G] chords for musicians' phones
+        return o; });
       c.at = Math.round(Math.min(c.at, Math.max(0, c.items.length - 1)));
       if (c.songId) c.songId = str(c.songId, 40); else delete c.songId;     // 26.11.57 the song in the Song Library (usage report)
+      if (c.key) c.key = str(c.key, 12); else delete c.key;               // 26.11.63 the song's key (chords on phones)
     }
   }
   if (CARD_KINDS.indexOf(kind) >= 0){

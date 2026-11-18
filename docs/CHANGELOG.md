@@ -10,6 +10,34 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.63] - 2026-11-18
+
+Full notes: [docs/releases/v26.11.63.md](releases/v26.11.63.md).
+
+### Added
+- Workspace migration `0030_meeting_together.sql` (rollback in `hosted/supabase/rollback/`): `room_people`, `room_quiz`,
+  `room_quiz_answers`, `room_takehome`; one trigger (`room_together_forget`) clears people and the quiz when a room
+  closes or gets a new code; PC functions `pc_room_people`, `pc_room_hand_down`, `pc_room_quiz_open/reveal/close/results`,
+  `pc_takehome_publish/remove`; phone functions `room_checkin`, `room_hand` (up null only reports), `room_quiz_view`,
+  `room_quiz_answer`, `room_takehome`; `prayer_send` returns the request id.
+- `src/meeting_together.py` (Discussion, Bible quiz, take-home body, next meeting), `src/prayer_journey.py` and
+  `src/care.py` (DPAPI files `kc-prayer-journey.json`, `kc-care.json`); routes `/api/room/together`,
+  `/api/prayer-journey`, `/api/care`, `/api/co-leader`, `/api/remote/me`.
+- `app/js/together.js` and `app/css/together.css`: Discussion, Bible quiz, Take-home page, Prayer journey, Care and
+  attendance, Co-leader dialogs; chips `discussion`, `quiz` (Engage, members side) and `coleader` (More); palette
+  commands for all six.
+- `meeting_log.health()` in the summary; rendered by `meeting-summary.js` (hidden in print).
+- Co-leader seat: a second in-memory PIN (`CO`), sessions with `role: "co"` (8 hours), `co_end()` removes them;
+  `remote.js` `whoAmI()` and `body.co` in `remote-chat.css`.
+- Songs keep `chords` (ChordPro lines) per section and item; song layers carry `key`; `member_room.song_of()` and the
+  `roomChords` setting (Song Library switch).
+- Website: `follow-together.tsx` (name bar, hand, quiz, Chords, take-home), `lib/chords.ts`, `lib/takehome.ts`.
+- Tests: `tests/test_together_2611_63.py`, `hosted/tests/supabase-0030.test.mjs`, `chords.test.mjs`, `takehome.test.mjs`.
+
+### Changed
+- `PrayerWall` calls `on_request(body, name, sid)`; `MemberRoom` takes `extra`, `on_open`, `on_close`.
+- Members' phones: links to the new dialogs; the close confirmation mentions the Prayer journey and attendance.
+
 ## [26.11.62] - 2026-11-17
 
 Full notes: [docs/releases/v26.11.62.md](releases/v26.11.62.md).

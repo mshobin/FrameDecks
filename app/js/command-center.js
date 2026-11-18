@@ -154,6 +154,9 @@ var MAKE = {
   features: function(){ return T('features', function(){ scope('features'); }, null, window.KCFeatures ? KCFeatures.summary() : null); },
   nametags: function(){ return T('nametags', function(){ scope('nametags'); }, {on: !!ntNow()}, ntNow() ? 'On: ' + ntNow().name : null); },
   responses: function(){ return T('responses', function(){ run('cmd:responses', false); }); },
+  discussion: function(){ return T('discussion', function(){ run('cmd:discussion', false); }); },
+  quiz: function(){ return T('quiz', function(){ run('cmd:quiz', false); }); },
+  coleader: function(){ return T('coleader', function(){ run('cmd:coleader', false); }); },
   members: function(){ return T('members', function(){ run('cmd:members', false); }); },     // 26.11.43 the Studio's Members' phones
   all: function(){ return T('all', function(){ scope('settings'); }); },
   help: function(){ return T('help', function(){ run('cmd:welcome', false); }); }};
