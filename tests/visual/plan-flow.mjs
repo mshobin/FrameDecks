@@ -40,7 +40,7 @@ await ctx.addInitScript(() => {
 await ctx.route("https://x.supabase.co/**", async (route) => {
   const u = route.request().url();
   if (u.includes("/rest/v1/memberships")) return route.fulfill({ json: [{ role: "owner", organizations: { id: "org1", name: "Grace", created_at: "2026-01-01" } }] });
-  if (u.includes("/rest/v1/profiles")) return route.fulfill({ json: { terms_version: "2026-10-29" } });
+  if (u.includes("/rest/v1/profiles")) return route.fulfill({ json: { terms_version: TERMS_VERSION } });
   if (u.includes("rpc/sync_pull")) return route.fulfill({ json: { entities: records, seq: 9, more: false } });
   if (u.includes("rpc/sync_push")) {
     const body = route.request().postDataJSON(); pushes.push(body);
@@ -53,6 +53,8 @@ await ctx.route("https://x.supabase.co/**", async (route) => {
   return route.fulfill({ json: [] });
 });
 import { mkdirSync } from "node:fs";
+// The stand-in account has accepted the current Terms (hosted/src/lib/legal.ts), so the acceptance screen stays away
+const TERMS_VERSION = /TERMS_VERSION = "([^"]+)"/.exec(readFileSync(new URL("../../hosted/src/lib/legal.ts", import.meta.url), "utf8"))[1];
 mkdirSync(SP, { recursive: true });
 const p = await ctx.newPage();
 // 26.11.39 changes wait on the page until Sync Now
