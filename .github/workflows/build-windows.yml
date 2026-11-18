@@ -405,7 +405,8 @@ jobs:
       - name: Publish on the Releases page
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
-          name: FrameDecks ${{ needs.build.outputs.version }}
+          # 26.11.63 the release is titled YY.MM.Build (26.11.63); the tag stays v26.11.63 (manifests and the updater use it)
+          name: ${{ needs.build.outputs.version }}
           body_path: dist/release-notes.md
           files: |
             dist/FrameDecks v*.exe

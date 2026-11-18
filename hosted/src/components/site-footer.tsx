@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import brand from "@/lib/brand.json";
+import { shortVersion } from "@/lib/releases";
 
 // The public pages' footer (7.0): five short columns, quiet grey with gold on hover, and the copyright line. Every
 // link stays on framedecks.com; nothing points to the source repository.
@@ -88,8 +89,8 @@ export function SiteFooter() {
       </div>
       <p className="fd-site-foot-legal">
         © 2026 Shobin Mathews. FrameDecks is open-source software under the
-        Apache License 2.0, free to use under the <Link href="/eula">EULA</Link>. Version{" "}
-        {brand.version}.
+        Apache License 2.0, free to use under the <Link href="/eula">EULA</Link>. FrameDecks{" "}
+        {shortVersion(brand.version)}, Stable Release (build {brand.version}).
       </p>
     </footer>
   );

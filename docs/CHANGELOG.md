@@ -10,6 +10,14 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed (release names, a tidy Actions list)
+- Website: the download card says **FrameDecks v26.11 · Stable Release · Updated November 2026** (`shortVersion`,
+  `updatedLabel` in `hosted/src/lib/releases.ts`; the month from the manifest's release date, else from the version);
+  the exact build and its date stay in the small print; footer and Help say FrameDecks v26.11. `/legal`: the EULA card
+  no longer calls itself the licence, and Apache License 2.0 links to its text. Test `hosted/tests/release-name.test.mjs`.
+- GitHub releases are titled `26.11.63` (YY.MM.Build); tags stay `v26.11.63`.
+- New `.github/workflows/tidy-runs.yml`: keeps the newest 10 runs of each workflow (Sundays, or by hand with any number).
+
 ### Changed (ready for a public repository)
 - Licence: `LICENSE` is the Apache License 2.0 (official text); `NOTICE` rewritten (trademarks kept, history of the
   proprietary 7.0–26.11.62 versions); `docs/legal/eula.md` sections 1–3 and 9 now cover the official program on top of

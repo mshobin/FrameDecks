@@ -133,6 +133,9 @@
 .fd-dl-head{display:flex;gap:16px;align-items:center}
 .fd-dl-head h2{margin:0}
 .fd-dl-head p{margin:2px 0 0}
+.fd-dl-head .fd-dl-channel{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.fd-dl-channel strong{font-weight:600}
+.fd-dl-channel span{font-size:14px;opacity:.8}
 .fd-dl-note{padding:10px 14px;border:1px solid var(--hairline);border-radius:12px;background:var(--fill);font-size:14px}
 .fd-dl-actions .fd-dl-mac:disabled{opacity:1;color:var(--text-2);border-color:var(--hairline-strong)}
 .fd-dl-mac svg{opacity:.75}

@@ -259,3 +259,14 @@ be undone; the old notes stay in `docs/releases/archive/` and `docs/archive/`.
   detects the system and says "coming later".
 - **Staged rollout:** a `rollout` percentage in the manifest that the updater compares with a random number kept on
   each PC.
+
+## Names (26.11.63)
+
+- **GitHub:** each release is titled `YY.MM.Build` (for example `26.11.63`); the tag stays `v26.11.63`, because the
+  manifests, the updater and the tag command use it.
+- **Website:** the download card shows `FrameDecks vYY.MM`, **Stable Release** and **Updated <Month YYYY>** (from the
+  manifest's release date). The exact build and its SHA-256 stay in the small print, and the program's About screen
+  keeps the full number for support.
+- **Actions list:** *Tidy workflow runs* (`.github/workflows/tidy-runs.yml`) keeps the newest 10 runs of each workflow,
+  every Sunday or by hand. Installers live on the Releases page and downloads.framedecks.com, backups in R2, so only
+  old logs go.

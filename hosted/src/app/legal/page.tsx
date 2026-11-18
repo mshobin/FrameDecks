@@ -26,7 +26,7 @@ const DOCS = [
   {
     href: "/eula",
     title: "End User License Agreement",
-    text: "The licence for the FrameDecks program.",
+    text: "Terms for the official program from framedecks.com, on top of the Apache License 2.0.",
   },
   {
     href: "/security",
@@ -60,8 +60,12 @@ export default function LegalPage() {
         <h2 id="copyright">Copyright and licence</h2>
         <p>
           FrameDecks © 2026 Shobin Mathews. FrameDecks is open-source software
-          under the Apache License 2.0: you may use, copy, change and share it
-          under that licence. The program offered here also comes with the{" "}
+          under the{" "}
+          <a href="https://www.apache.org/licenses/LICENSE-2.0" rel="noopener">
+            Apache License 2.0
+          </a>
+          : you may use, copy, change and share it under that licence. The
+          program offered here also comes with the{" "}
           <Link href="/eula">End User License Agreement</Link>. FrameDecks,
           FrameDecks vCam and the FrameDecks emblem are trademarks of Shobin
           Mathews: a changed version needs its own name and emblem.

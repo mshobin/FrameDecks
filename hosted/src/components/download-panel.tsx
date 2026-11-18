@@ -27,6 +27,8 @@ import {
   parseRelease,
   type Os,
   type Release,
+  shortVersion,
+  updatedLabel,
 } from "@/lib/releases";
 
 // framedecks.com/download (7.0): the newest version for this computer, straight from the update service
@@ -104,6 +106,7 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
         year: "numeric",
       })
     : "";
+  const updated = updatedLabel(release?.released ?? "", version);
   const elsewhere = os === "macos" || os === "linux";
   const waitButton = (
     <button
@@ -135,10 +138,13 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
               <Monitor size={26} />
             </span>
             <div>
-              <h2 id="fd-dl-title">FrameDecks {version} for Windows</h2>
+              <h2 id="fd-dl-title">FrameDecks {shortVersion(version)}</h2>
+              <p className="fd-dl-channel">
+                <strong>Stable Release</strong>
+                {updated ? <span>{updated}</span> : null}
+              </p>
               <p>
-                Free for every church, school and team.
-                {date ? ` Released ${date}.` : ""}
+                For Windows. Free for every church, school and team.
               </p>
             </div>
           </div>
@@ -204,9 +210,9 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
             </ul>
           </div>
           <p className="fd-dl-fine">
-            By downloading you accept the{" "}
-            <Link href="/eula">End User License Agreement</Link>. Installed
-            copies update themselves.
+            Build {version}{date ? `, released ${date}` : ""}. By downloading
+            you accept the <Link href="/eula">End User License Agreement</Link>.
+            Installed copies update themselves.
           </p>
           {win?.sha256 && (
             <details className="fd-dl-hash">

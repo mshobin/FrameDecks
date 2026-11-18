@@ -7,6 +7,7 @@ import { helpIndex } from "@/lib/help-index";
 import codes from "../../../content/help-codes.json";
 import brand from "@/lib/brand.json";
 import { pageMetadata } from "@/lib/site";
+import { shortVersion } from "@/lib/releases";
 
 export const metadata: Metadata = pageMetadata("Help", "/help");
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = pageMetadata("Help", "/help");
 export default function HelpPage() {
   return (
     <PublicPage
-      eyebrow={`Help Center · FrameDecks ${brand.version}`}
+      eyebrow={`Help Center · FrameDecks ${shortVersion(brand.version)}`}
       title="How can we help?"
       lead="Choose a topic. New here? Getting Started walks you through it step by step, on the website and on the service PC."
       size="full"

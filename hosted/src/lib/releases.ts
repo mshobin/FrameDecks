@@ -130,3 +130,24 @@ export function downloadState(
   if (release) return "ready";
   return checked ? "unavailable" : "checking";
 }
+
+// 26.11.63 how a release is named on the website: "FrameDecks v26.11", "Stable Release", "Updated November 2026".
+// The build number (26.11.63) stays in the small print and on GitHub, where support needs it.
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+  "November", "December"];
+
+/** "26.11.63" → "v26.11" (YY.MM); anything else is shown as it is. */
+export function shortVersion(version: string): string {
+  const m = /^v?(\d{2})\.(\d{1,2})(?:\.\d+)?$/.exec(version.trim());
+  return m ? `v${m[1]}.${m[2].padStart(2, "0")}` : version;
+}
+
+/** "Updated November 2026": from the release date ("2026-11-18") when the update service gives one, else from the
+ * version itself (YY.MM is the year and month of the release). "" when neither says. */
+export function updatedLabel(released: string, version: string): string {
+  const d = /^(\d{4})-(\d{2})/.exec(released || "");
+  if (d && +d[2] >= 1 && +d[2] <= 12) return `Updated ${MONTHS[+d[2] - 1]} ${d[1]}`;
+  const v = /^v?(\d{2})\.(\d{1,2})/.exec((version || "").trim());
+  if (v && +v[2] >= 1 && +v[2] <= 12) return `Updated ${MONTHS[+v[2] - 1]} 20${v[1]}`;
+  return "";
+}
