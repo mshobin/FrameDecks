@@ -2,8 +2,8 @@
 # Supabase Free has no daily backups. The copy is encrypted with BACKUP_PASSPHRASE (only the owner knows it) before
 # it leaves the runner. Needs the repository secrets SUPABASE_DB_URL (Session pooler URI) and BACKUP_PASSPHRASE; does
 # nothing until they exist. Restore: docs/operations/database-backup.md.
-# Where it is kept: a private Cloudflare R2 bucket (framedecks-backups), 30 days, once R2_BACKUP_ACCESS_KEY_ID,
-# R2_BACKUP_SECRET_ACCESS_KEY and CLOUDFLARE_ACCOUNT_ID exist. A workflow artifact is used only while the repository
+# Where it is kept: a private Cloudflare R2 bucket (framedecks-backups), 30 days, once R2_BACKUP_ACCESS_KEY_ID and
+# R2_BACKUP_SECRET_ACCESS_KEY exist (the account ID: secret CLOUDFLARE_ACCOUNT_ID, else the variable R2_ACCOUNT_ID). A workflow artifact is used only while the repository
 # is private and R2 is not set up yet: in a public repository anyone signed in to GitHub can download artifacts, so a
 # backup is then never uploaded as one, and the run fails instead. After a good copy in R2, the backups kept as
 # artifacts by earlier runs are deleted.
@@ -28,7 +28,7 @@ jobs:
       BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_BACKUP_ACCESS_KEY_ID }}
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.R2_ACCOUNT_ID }}
       R2_BUCKET: framedecks-backups
       KEEP_DAYS: "30"
     steps:

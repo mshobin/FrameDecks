@@ -21,8 +21,9 @@ Set it up once (about 10 minutes):
 3. R2 → **Manage R2 API Tokens** → **Create API token**: permission **Object Read & Write**, *Apply to specific
    buckets only* → `framedecks-backups`, TTL as you like. Copy the **Access Key ID** and **Secret Access Key** (shown
    once).
-4. GitHub → the repository → Settings → Secrets and variables → Actions → add `R2_BACKUP_ACCESS_KEY_ID`,
-   `R2_BACKUP_SECRET_ACCESS_KEY` and (if not there yet) `CLOUDFLARE_ACCOUNT_ID`.
+4. GitHub → the repository → Settings → Secrets and variables → Actions → add `R2_BACKUP_ACCESS_KEY_ID` and
+   `R2_BACKUP_SECRET_ACCESS_KEY`. The account ID comes from the existing variable `R2_ACCOUNT_ID` (or a
+   `CLOUDFLARE_ACCOUNT_ID` secret, if you add one).
 5. Actions → **Database backup** → Run workflow. It should end with `Kept in R2: framedecks-backups/backups/<date>/`
    and list the old artifacts it deleted.
 

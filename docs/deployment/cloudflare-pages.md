@@ -55,7 +55,7 @@ node hosted/scripts/smoke-site.mjs https://framedecks.pages.dev --preview
 | Where | Name | Value | Secret? |
 | --- | --- | --- | --- |
 | GitHub → Settings → Secrets and variables → Actions | `CLOUDFLARE_API_TOKEN` | API token with **Account → Cloudflare Pages → Edit** only | Yes |
-| same | `CLOUDFLARE_ACCOUNT_ID` | your Cloudflare account ID (Workers & Pages → right-hand side) | Not really, kept as a secret |
+| same | `CLOUDFLARE_ACCOUNT_ID` | optional: without it the repository variable `R2_ACCOUNT_ID` (already set for releases) is used | Not really |
 | same (already there) | `SUPABASE_URL` | `https://<project>.supabase.co` | Public value |
 | same (already there) | `SUPABASE_ANON_KEY` | the publishable (anon) key, never `service_role` | Public value |
 | Supabase → Authentication → URL Configuration | Site URL | `https://framedecks.com` | |
@@ -78,7 +78,8 @@ so nothing can break while you work.
 2. **Add two repository secrets.** GitHub → the repository → Settings → Secrets and variables → Actions → New
    repository secret:
    - `CLOUDFLARE_API_TOKEN` = the token from step 1;
-   - `CLOUDFLARE_ACCOUNT_ID` = Cloudflare → Workers & Pages → Account ID (copy button on the right).
+   - `CLOUDFLARE_ACCOUNT_ID` is optional: the repository variable `R2_ACCOUNT_ID`, already set for releases, is used
+     when it is missing.
    - Check that `SUPABASE_URL` and `SUPABASE_ANON_KEY` are already in the list (the keep-alive and Windows build use them).
 3. **Run the first deploy.** GitHub → Actions → **Hosted companion checks** → Run workflow → `main`. Wait for both jobs.
    The deploy job's last step must say `smoke-site: https://framedecks.com answers every page…`.
