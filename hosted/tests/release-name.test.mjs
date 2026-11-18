@@ -28,6 +28,8 @@ test("the download card, footer and Help use the short name; the build stays in 
   assert.match(dl, /<strong>Stable Release<\/strong>/);
   assert.match(dl, /updatedLabel\(release\?\.released \?\? "", version\)/);
   assert.match(dl, /Build \{version\}/);
+  // SignPath Foundation asks the download page to say who provides the signing (README "Code signing policy" too)
+  assert.match(dl.replace(/\s+/g, " "), /Free code signing provided by\{" "\} <a href="https:\/\/about\.signpath\.io\/" rel="noopener"> SignPath\.io <\/a> , certificate by\{" "\} <a href="https:\/\/signpath\.org\/" rel="noopener"> SignPath Foundation <\/a>/);
   assert.match(read("../src/components/site-footer.tsx"), /\{shortVersion\(brand\.version\)\}, Stable Release \(build \{brand\.version\}\)/);
   assert.match(read("../src/app/help/page.tsx"), /FrameDecks \$\{shortVersion\(brand\.version\)\}/);
 });

@@ -214,6 +214,18 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
             you accept the <Link href="/eula">End User License Agreement</Link>.
             Installed copies update themselves.
           </p>
+          <p className="fd-dl-fine fd-dl-signing">
+            Free code signing provided by{" "}
+            <a href="https://about.signpath.io/" rel="noopener">
+              SignPath.io
+            </a>
+            , certificate by{" "}
+            <a href="https://signpath.org/" rel="noopener">
+              SignPath Foundation
+            </a>
+            . Applied for in November 2026: until it is approved, the installer
+            is not signed yet.
+          </p>
           {win?.sha256 && (
             <details className="fd-dl-hash">
               <summary>

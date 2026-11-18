@@ -147,13 +147,22 @@ for users: [terms](docs/legal/terms.md), [privacy](docs/legal/privacy.md), [cook
 framedecks.com.
 
 ## Code signing policy
-Windows releases are to be code-signed (options and costs: [code-signing.md](docs/deployment/code-signing.md); the free
-SignPath Foundation programme is for open-source projects only, so a paid certificate or Azure Trusted Signing is
-needed now). The workflow's signing steps stay off until the owner adds the signing secrets.
-- Only installers built by this repository's GitHub Actions from `main` or a version tag are signed.
-- FrameDecks sends nothing to anyone except the daily update check (its version and Windows version) unless a team
-  links a PC to its own workspace (see [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it
-  collects no telemetry.
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by
+[SignPath Foundation](https://signpath.org/). (Applied for in November 2026; until it is approved, installers are not
+yet signed, and the download page says so.)
+
+- **What is signed:** only installers and program files built by this repository's GitHub Actions
+  (`.github/workflows/build-windows.yml`) from a version tag. Nothing built anywhere else is ever signed.
+- **Team roles:** committers and reviewers: [Shobin Mathews](https://github.com/mshobin). Approvers (who approve each
+  signing request): Shobin Mathews. Multi-factor authentication is required for everyone in these roles, on GitHub and on
+  SignPath.
+- **Privacy:** this program will not transfer any information to other networked systems unless specifically requested
+  by the user or the person installing or operating it, with one exception: once a day it asks
+  `api.framedecks.com` whether an update exists, sending only its version and the Windows version. Linking a PC to a
+  FrameDecks workspace, members' phones and the other online features send data only when the user turns them on, as
+  described in the [privacy policy](https://framedecks.com/privacy). It collects no telemetry.
+- **More:** options, set-up and the signing steps in the workflow are in
+  [docs/deployment/code-signing.md](docs/deployment/code-signing.md).
 
 <sub>Earlier versions had other names. Version 6.9 and later install over those versions and move their data into the
 FrameDecks folder on first start, so every group keeps its data.</sub>
