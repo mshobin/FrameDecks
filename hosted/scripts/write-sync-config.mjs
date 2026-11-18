@@ -3,7 +3,7 @@
 // its backup when a PC is linked (cloud_sync.companion_config) and what a program pointed at another website reads. Both are public by design (row-level
 // security protects the data); no secret is here. A file instead of a server route, so the companion is plain static
 // files any free host can serve (docs/architecture/hosting.md). The file is git-ignored: it is made from the two
-// NEXT_PUBLIC_ variables of the host (Cloudflare Pages, Vercel) or hosted/.env.local.
+// NEXT_PUBLIC_ variables of the build (GitHub Actions for Cloudflare Pages) or hosted/.env.local.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 

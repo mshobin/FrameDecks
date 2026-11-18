@@ -15,12 +15,13 @@ prerequisites and full steps, see
 
 ## Hosted companion
 
-The Next.js app deploys to Vercel with `hosted/` as its Root Directory and the
-Next.js framework preset. The hosted workflow runs lint, type-check, tests, and
-a production build; it does not deploy to Vercel. Deployment is handled by the
-Vercel project integration. See the [hosted companion guide](../../hosted/README.md)
-for setup details.
+The Next.js app is built as static files and deployed to Cloudflare Pages
+(project `framedecks`, served at framedecks.com). The hosted workflow runs lint,
+type-check, tests, a production build and a check of the built site; on `main`
+its deploy job builds with the public Supabase values and uploads the build with
+`wrangler pages deploy`, then checks framedecks.com from the outside. See
+[the website on Cloudflare Pages](cloudflare-pages.md) for the settings, owner
+steps and rollback.
 
-The hosted companion is currently a static preview, not a live service. It
-does not connect to the desktop app or provide authentication, cloud data, or
-device pairing.
+The website is a live service: sign-in, workspaces, PC linking and members'
+phones, all through Supabase from the browser.

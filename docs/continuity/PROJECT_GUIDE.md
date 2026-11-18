@@ -38,7 +38,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote unless the owner asks (8.0 one view, 9.1 Capture Memory), and never let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the
-  publishable key goes only in Vercel and `hosted/.env.local`. A PC's sync key lives in Windows Credential Manager
+  publishable key goes only in the GitHub secret `SUPABASE_ANON_KEY` and `hosted/.env.local`. A PC's sync key lives in Windows Credential Manager
   (`kc-sync.json` and `.kc-sync-key` are git-ignored).
 - Sync never sends media or anything live, and never changes the Frame that is on screen (see the design).
 - The workspace is the member list's source (M-D2). A linked PC keeps a copy and rebuilds it from the workspace if
@@ -55,7 +55,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - `hosted/` — Next.js 16 online-first companion, built as **plain static files** (`output: "export"` → `hosted/out/`;
   free plan, `docs/deployment/free-hosting.md`). Canonical address **`https://framedecks.com`** (`hosted/src/lib/site.ts`;
   domains, redirects and Cloudflare settings in `docs/deployment/cloudflare-domains.md`), served by Cloudflare Pages, whose own `https://framedecks.pages.dev` stays as a noindexed fallback
-  (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
+  (deployed by GitHub Actions with `wrangler pages deploy`, `infra/site/wrangler.toml`; `docs/deployment/cloudflare-pages.md`); Vercel is retired. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
   `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1). `0001`–`0008` were run in the live project on 26 October 2026 and `0009` on
@@ -233,5 +233,5 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   by itself, and `supabase-schema.test.mjs` fails if a table the companion uses is not granted.
 - In SQL permission checks, wrap comparisons that can be null in `coalesce(…, false)`: a null makes an `IF` skip the
   refusal (a test caught this in `computer_revoke`).
-- This cloud environment cannot reach `*.supabase.co` or Vercel preview hosts: test hosted features against stand-in
+- This cloud environment cannot reach `*.supabase.co` or Cloudflare's API: test hosted features against stand-in
   responses (Playwright `page.route`) and leave live checks to the owner.

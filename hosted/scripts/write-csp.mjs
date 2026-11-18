@@ -55,6 +55,19 @@ export function routeOf(file) {
   return r === "/" ? "/" : r.replace(/\/$/, "");
 }
 
+/** Cloudflare Pages keeps one rule per exact path: a page whose path already has a rule in public/_headers (such as
+ * /sync, never cached) gets its policy inside that rule, not a second rule that would drop the first one's headers.
+ * Returns the new text, or null when the path has no rule yet. */
+export function addToRule(text, route, line) {
+  const lines = text.split("\n");
+  const at = lines.findIndex((l) => l === route);
+  if (at < 0) return null;
+  let end = at + 1;
+  while (end < lines.length && /^\s+\S/.test(lines[end])) end++;
+  lines.splice(end, 0, line);
+  return lines.join("\n");
+}
+
 function pages(dir, root = dir, list = []) {
   for (const f of readdirSync(dir)) {
     const p = join(dir, f);
@@ -69,14 +82,17 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const headersFile = join(out, "_headers");
   let text = readFileSync(headersFile, "utf8").replace(/\n# 9\.3 page policies[\s\S]*$/, "\n");
   const rules = [];
+  let merged = 0;
   for (const file of pages(out)) {
     if (file === "404.html" || file.startsWith("google")) continue;
     const policy = policyFor(readFileSync(join(out, file), "utf8"));
     if (policy.length > 1900) throw new Error(`${file}: the policy is ${policy.length} characters (Cloudflare allows 2,000 per line)`);
     const route = routeOf(file);
+    const next = addToRule(text, route, `  ${HEADER}: ${policy}`);
+    if (next !== null) { text = next; merged++; continue; }
     rules.push(`${route}\n  ${HEADER}: ${policy}`);    // /a/ and /a.html redirect to /a on Cloudflare Pages
   }
   if (rules.length + (text.match(/^[^\s#]/gm) || []).length > 100) throw new Error("Cloudflare Pages allows 100 header rules");
   writeFileSync(headersFile, `${text.trimEnd()}\n# 9.3 page policies (scripts/write-csp.mjs)\n${rules.join("\n")}\n`);
-  console.log(`write-csp: ${rules.length} page rules (${HEADER})`);
+  console.log(`write-csp: ${rules.length + merged} page rules (${HEADER}${merged ? `; ${merged} added to an existing rule` : ""})`);
 }

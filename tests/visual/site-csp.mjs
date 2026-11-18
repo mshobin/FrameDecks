@@ -17,12 +17,13 @@ const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
 // the page rules: "/route" then "  Header: value"
 const policies = {};
 const lines = readFileSync(join(OUT, "_headers"), "utf8").split("\n");
-const start = lines.findIndex((l) => l.startsWith("# 9.3 page policies"));
-if (start < 0) throw new Error("out/_headers has no page policies: run node hosted/scripts/write-csp.mjs after the build");
-for (let i = start + 1; i < lines.length - 1; i++) {
-  if (lines[i].startsWith("/") && lines[i + 1].startsWith("  ")) {
-    const [name, ...rest] = lines[i + 1].trim().split(": ");
-    policies[lines[i]] = [name, rest.join(": ")];
+if (!lines.some((l) => l.startsWith("# 9.3 page policies"))) throw new Error("out/_headers has no page policies: run node hosted/scripts/write-csp.mjs after the build");
+// every rule's page policy (a page whose path already had a rule, such as /sync, has its policy inside that rule)
+for (let i = 0, route = ""; i < lines.length; i++) {
+  if (lines[i].startsWith("/")) route = lines[i];
+  else if (route && /^\s+Content-Security-Policy(-Report-Only)?: (?!frame-ancestors 'none'$)/.test(lines[i])) {
+    const [name, ...rest] = lines[i].trim().split(": ");
+    policies[route] = [name, rest.join(": ")];
   }
 }
 

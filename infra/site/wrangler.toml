@@ -1,0 +1,11 @@
+# FrameDecks website: framedecks.com on Cloudflare Pages (project "framedecks"; docs/deployment/cloudflare-pages.md).
+# The website is plain static files (hosted/ builds to hosted/out with `npm run build`): no Pages Functions, no
+# bindings (no KV, D1, R2, Durable Objects) and no server code. Supabase is called straight from the browser.
+#
+# GitHub Actions builds and deploys it (.github/workflows/hosted.yml, job "deploy"):
+#   cd infra/site && npx wrangler@4.156.2 pages deploy --branch main
+# This file lives here, not in hosted/, on purpose: Cloudflare's own Git build (root directory "hosted") never reads
+# it, so the dashboard's settings for that build stay as they are until the owner switches automatic builds off.
+name = "framedecks"
+pages_build_output_dir = "../../hosted/out"
+compatibility_date = "2026-10-01"

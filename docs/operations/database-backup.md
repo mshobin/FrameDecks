@@ -55,7 +55,7 @@ You need:
    ```
    The message `schema "public" already exists` is expected and harmless. Any other error: stop and send it.
 6. **If it is a new project, point everything at it:**
-   - Update `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Cloudflare Pages (or Vercel), then
+   - Update the GitHub secrets `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the website build reads them), then
      redeploy.
    - Update the GitHub secrets `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_DB_URL`.
    - Set the Authentication settings again: URL configuration, Google/Microsoft providers, SMTP.

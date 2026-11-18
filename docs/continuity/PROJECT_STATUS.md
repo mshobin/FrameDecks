@@ -75,7 +75,7 @@ Phase detail lives in
 
 ## Completed
 - **Desktop and brand.** Desktop 6.10 and the approved emblem (PRs #7, #18); drift resolved (see "Drift").
-- **Hosted companion** on Cloudflare Pages (`hosted/`); Vercel remains until retired.
+- **Hosted companion** on Cloudflare Pages (`hosted/`), deployed by GitHub Actions (`docs/deployment/cloudflare-pages.md`); Vercel retired (owner deletes the project).
   - Sign-in (PR #18) and workspaces (PR #19) are **confirmed live**.
   - Members and invitations (PR #20) are built.
 - **Phase 4 sync** (PRs #21–#24), **Phase 5 control from the companion** (PRs #25–#27), **companion editing and
@@ -179,12 +179,12 @@ Phase detail lives in
 - **Not tested against live Supabase:** RLS and sync run on PGlite and a stand-in cloud. D4 (conflict rules) was
   built as recommended without an explicit answer.
 - **Audio Content and older versions:** versions 6.10 and before drop it; every linked PC must be updated.
-- **Hosting terms:** Vercel Hobby is personal and non-commercial; see the hosting recommendation.
+- **Hosting terms:** the website is on Cloudflare Pages (free plan; confirm its terms in the dashboard before taking donations); Vercel Hobby, non-commercial only, is retired.
 - **`npm audit`:** high findings in the dev-only ESLint tree (a fix would downgrade `eslint-config-next`).
 - **Wordmark:** the horizontal and stacked logos still crop it from the raster `framedecks-logo-source.png`.
 
 ## Risks
-- Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.
+- Cloudflare Pages project name `framedecks` is taken from docs/deployment/cloudflare-domains.md, not read from the dashboard.
 - Logo checked on 25 October 2026 ([logo visual QA](../qa/2026-10-25-logo-visual-qa.md)): clear in both themes, the
   Speaker/Teleprompter header and the remote. The faint 16 px favicon and 16–20 px tray icon on light backgrounds are fixed by a
   heavier small-size emblem (owner-approved; used only at 16–32 px). The program icon (.ico) carries the new emblem. Unchecked: the real tray

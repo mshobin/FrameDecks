@@ -5,7 +5,7 @@ tags and the Windows program use it. Everything else either redirects to it or i
 
 | Address | What it does | Status |
 | --- | --- | --- |
-| `framedecks.com` | The website: front page, sign-in and the signed-in app (Cloudflare Pages project `framedecks`) | Serves |
+| `framedecks.com` | The website: front page, sign-in and the signed-in app (Cloudflare Pages project `framedecks`, deployed by GitHub Actions: [cloudflare-pages.md](cloudflare-pages.md)) | Serves |
 | `www.framedecks.com` | 301 to `https://framedecks.com` + same path and query | Redirect |
 | `framedecks.app`, `www.framedecks.app` | 301 to `https://framedecks.com` + same path and query | Redirect |
 | `app.framedecks.com` | 302 to `https://framedecks.com` + same path (reserved for the app if it ever gets its own address) | Reserved |

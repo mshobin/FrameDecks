@@ -6,7 +6,7 @@
 fixtures in `tests/fixtures/sync/`), and step 3 (`src/cloud_sync.py`, wired into `src/server.py`, Settings → FrameDecks account,
 tested in `tests/test_cloud_sync.py`; QA picture `docs/qa/2026-10-25-sync-settings.png`), and step 4 (companion
 `/services`, `/members`, `/computers`; QA pictures `docs/qa/2026-10-25-companion-*.png`). Step 5 is the owner's live test.
-**Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
+**Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Cloudflare Pages. The desktop app
 stays the place where services run, offline.
 
 ## In short (for the owner)

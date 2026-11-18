@@ -4,13 +4,16 @@ Where the FrameDecks companion and its database should live for the long term, a
 allow a ministry to use them. This is the answer to decision M-D5 in the [migration plan](../project/history/migration-plan.md).
 Checked 25 October 2026.
 
-**Who this is for:** the owner, who holds the Vercel and Supabase accounts and makes any move.
+**Who this is for:** the owner, who holds the Cloudflare and Supabase accounts.
+
+**Done (18 November 2026):** the website is on Cloudflare Pages, deployed by GitHub Actions; Vercel is retired. How it
+runs now: [cloudflare-pages.md](../deployment/cloudflare-pages.md). The reasoning below is kept as the record.
 
 ## Summary
 
 | Part | Now | Recommended long term | Cost |
 |---|---|---|---|
-| Companion website (`hosted/`) | Vercel Hobby | **Cloudflare**, as static files (a static export of the companion) | $0 |
+| Companion website (`hosted/`) | Cloudflare Pages (was Vercel Hobby) | **Cloudflare**, as static files (a static export of the companion) | $0 |
 | Database and sign-in | Supabase Free | **Supabase**: Free while it is a pilot; **Pro** once churches depend on it | $0, then $25 a month |
 | Desktop downloads | GitHub Actions artifacts | **GitHub Releases** on the public repository (M-D1), signed by SignPath | $0 |
 

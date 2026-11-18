@@ -10,6 +10,24 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed
+- Website hosting: Cloudflare Pages only; Vercel retired. GitHub Actions (`hosted.yml`, job `deploy`, after `checks`,
+  `main` only) builds with the repository secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY` and runs
+  `npx wrangler@4.156.2 pages deploy` from `infra/site/` (new `wrangler.toml`: project `framedecks`, output
+  `../../hosted/out`, no bindings), then `hosted/scripts/smoke-site.mjs` on the deployment and on framedecks.com. It skips
+  with a notice until `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set.
+- `hosted/scripts/write-csp.mjs`: a page whose path already has a rule in `public/_headers` gets its policy inside that
+  rule (`addToRule`). Before, `/sync` got a second rule and Cloudflare Pages dropped its `Cache-Control: no-store`.
+
+### Added
+- `hosted/scripts/verify-site.mjs` (the build has every page, header rule and file; one rule per path; `--cloud`
+  requires the cloud address in `/api/sync-config`), run in CI; `hosted/scripts/smoke-site.mjs` (outside check of a
+  deployed site); `hosted/tests/cloudflare-pages.test.mjs`; `docs/deployment/cloudflare-pages.md` (owner steps, settings,
+  rollback, production checklist).
+
+### Removed
+- `hosted/vercel.json` and the test comparing it with `_headers`; `.vercel/` in `.gitignore`; Vercel in the docs.
+
 ## [26.11.63] - 2026-11-18
 
 Full notes: [docs/releases/v26.11.63.md](releases/v26.11.63.md).

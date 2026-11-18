@@ -86,30 +86,19 @@ npm run build
 The boundary test prevents explicit local HTTP addresses from being added to
 hosted source. It does not replace security review or browser/device testing.
 
-## Cloudflare Pages deployment (the main address)
+## Cloudflare Pages (the main address)
 
-The companion is served at **`https://framedecks.com`**, the one canonical address (Cloudflare Pages custom domain;
-domains, redirects, TLS, cache and WAF in `docs/deployment/cloudflare-domains.md`). The Pages project
-(`framedecks.pages.dev`, kept as a fallback, never indexed) uses: Production branch `main`,
-Framework preset None, Root directory `hosted`, Build command `npm run build`, Build output directory `out`, and the
-variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `NODE_VERSION=22`. In Supabase, the Site URL
-is `https://framedecks.com` and `https://framedecks.com/auth/callback` is an allowed Redirect URL (plus the pages.dev
-one until it redirects). Canonical links, `robots.txt` and `sitemap.xml` come from `SITE_URL` in `src/lib/site.ts`. Full
-steps: `docs/deployment/free-hosting.md`, Part A.
+The companion is served at **`https://framedecks.com`**, the one canonical address (Cloudflare Pages project
+`framedecks`, custom domain; domains, redirects, TLS, cache and WAF in `docs/deployment/cloudflare-domains.md`). Its
+own `framedecks.pages.dev` stays as a fallback that is never indexed. In Supabase, the Site URL is
+`https://framedecks.com` and `https://framedecks.com/auth/callback` is an allowed Redirect URL (plus the pages.dev one
+until it redirects). Canonical links, `robots.txt` and `sitemap.xml` come from `SITE_URL` in `src/lib/site.ts`.
 
-## Vercel deployment (until it is retired)
+## Deployment (Cloudflare Pages)
 
-Use `main` as the Production Branch and set the Root Directory to `hosted`.
-The Root Directory must not be the repository root: Next.js gives a root
-`app/` folder priority over `src/app`, and the desktop app's `app/` folder
-would hide this app's routes. Choose the Next.js framework preset and leave
-the build and output settings at their defaults.
-Sign-in needs two variables (Project → Settings → Environment Variables, for
-Production and Preview, then redeploy; they are read at build time):
-`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (the anon or
-publishable key; never a `service_role` or secret key). In Supabase, under
-Authentication → URL Configuration, set the Site URL to
-`https://framedecks.vercel.app` and allow `https://framedecks.vercel.app/**`
-(add the preview URL pattern too if previews should sign in).
-The app uses the Vercel-provided HTTPS URL; no custom domain or Cloudflare
-configuration is required.
+GitHub Actions deploys the checked build of `main` to the Cloudflare Pages project `framedecks` with
+`wrangler pages deploy` (`.github/workflows/hosted.yml`, job `deploy`; config `infra/site/wrangler.toml`). The build
+reads `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the repository secrets `SUPABASE_URL` and
+`SUPABASE_ANON_KEY`. `node scripts/verify-site.mjs` checks a build before it is deployed and
+`node scripts/smoke-site.mjs https://framedecks.com` checks the live site. Owner steps, settings and rollback:
+`docs/deployment/cloudflare-pages.md`. Vercel is no longer used.

@@ -25,7 +25,8 @@ Do them in order. Each part works on its own: you can stop after any part, and n
 - the PC's setup file `/api/sync-config` is written at build time by `hosted/scripts/write-sync-config.mjs`;
 - the app manifest is a plain file.
 
-Vercel keeps working with the same build in the meantime.
+Since 18 November 2026 GitHub Actions deploys the site and Vercel is retired: the current steps are in
+[cloudflare-pages.md](cloudflare-pages.md). The steps below are how the Pages project was first created.
 
 **What you do:**
 1. **Create a free Cloudflare account** at https://dash.cloudflare.com/sign-up.
@@ -50,7 +51,7 @@ Vercel keeps working with the same build in the meantime.
    | Name | Value |
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | `https://slrsykiknlqlivlnpvrb.supabase.co` |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your publishable key: the same value as in Vercel, under Settings → Environment Variables |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your publishable key (Supabase → Project Settings → API Keys) |
    | `NODE_VERSION` | `22` |
 
 > **Custom domain:** the production address is `https://framedecks.com`. After this part works on `pages.dev`, follow
@@ -60,16 +61,14 @@ Vercel keeps working with the same build in the meantime.
    Also open `https://<name>.pages.dev/api/sync-config`; it should show `{"url":"https://slrsykiknlqlivlnpvrb…","anonKey":"…"}`.
 6. **Let sign-in return to the new address.** In Supabase → **Authentication → URL Configuration**:
    - **Site URL:** `https://<name>.pages.dev`
-   - **Redirect URLs:** add `https://<name>.pages.dev/auth/callback`. Keep the Vercel one until step 8.
+   - **Redirect URLs:** add `https://<name>.pages.dev/auth/callback`.
 7. **Test.**
    - Sign in at the new address.
    - Open Services, Live, Members and Computers.
    - Send me the `<name>.pages.dev` address. I change the program's built-in companion address to it, and the next
      installer uses it.
    - PCs that are already linked keep working; they never need the companion's address again.
-8. **Retire Vercel** once a week passes with no problems:
-   - Vercel → the project → Settings → **Delete Project**.
-   - Remove the Vercel address from the Supabase Redirect URLs.
+8. **Retire Vercel:** see [cloudflare-pages.md](cloudflare-pages.md), owner step 5.
 
 ## Part B: keep the database awake, and back it up every night (free)
 
@@ -141,7 +140,7 @@ codes go through Resend (free plan: 3,000 emails a month, 100 a day).
 All of this is prepared. The full steps are in [code-signing.md](code-signing.md); in short:
 1. **Check before making the repository public.**
    - Run GitHub's secret scanning: Settings → Code security → **Secret scanning**.
-   - The repository has never held a secret: keys are only in Vercel, Cloudflare, Supabase, GitHub secrets and your
+   - The repository has never held a secret: keys are only in Cloudflare, Supabase, GitHub secrets and your
      PC.
    - Old branches from closed pull requests become public too; delete any you do not want shown.
 2. **Make it public:** Settings → General → Danger Zone → **Change visibility → Public**. GitHub Actions minutes

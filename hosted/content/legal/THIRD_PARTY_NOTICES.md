@@ -53,5 +53,5 @@ They are bundled into the built site under those licences.
 
 ## Services, not shipped
 
-Supabase, Vercel and the ESV API (api.esv.org; each church uses its own key under Crossway's terms): these are reached
+Supabase, Cloudflare and the ESV API (api.esv.org; each church uses its own key under Crossway's terms): these are reached
 over the network and not redistributed by FrameDecks.

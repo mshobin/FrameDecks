@@ -39,12 +39,12 @@ a Presentation window for projectors and screen sharing, annotation, a Speaker V
 
 FrameDecks is being modernized incrementally as a free, cloud-connected platform while preserving the current
 local presentation runtime and user workflows. The hosted control plane is planned around Next.js, TypeScript,
-Tailwind CSS, shadcn/ui, Supabase, and Vercel. The mobile PWA remains a remote-control client; presentation rendering
+Tailwind CSS, shadcn/ui, Supabase, and Cloudflare Pages. The mobile PWA remains a remote-control client; presentation rendering
 and media playback remain on local runtimes.
 
 Cloud synchronization is metadata-only. Images, video, audio, presentation assets, and media libraries remain local.
 The product remains completely free: no payments, subscriptions, paywalls, trials, licensing restrictions, or
-feature gating. Initial deployments use Vercel-provided URLs; Cloudflare edge integration is deferred until a custom
+feature gating. The website is served by Cloudflare Pages at framedecks.com (Vercel retired 18 November 2026); edge features beyond static files wait until a custom
 domain is available.
 
 Implementation is tracked in [the modernization status](project/history/modernization-status.md), with the
