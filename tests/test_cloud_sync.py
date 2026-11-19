@@ -428,7 +428,7 @@ class LinkAndUnlink(unittest.TestCase):
         self.svc.stop()
 
     def wait(self, check):
-        for _ in range(200):
+        for _ in range(750):                       # up to 15 s: slow Windows runners take over 4 s for the first sync
             if check():
                 return
             time.sleep(0.02)
