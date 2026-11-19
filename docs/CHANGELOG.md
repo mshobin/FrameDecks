@@ -10,6 +10,10 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Security
+- Website: Next.js and eslint-config-next 16.4.2 → 16.4.6 (pinned), clearing the moderate advisories
+  GHSA-mfr8-8qww-v76h and GHSA-vc7v-qv4w-wrv8 (cache leaks in `use cache`, which the static site does not use).
+
 ### Changed (legal texts final)
 - Terms of Service rewritten (version 2026-11-18): laws of England and Wales, English courts for organisations,
   consumers keep their home-country protections; 18+ accounts; organisations responsible for the personal data they put in
