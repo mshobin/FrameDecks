@@ -24,7 +24,13 @@ import { userSafeError } from "@/lib/user-error";
 
 // The member list (owners and admins). M-D2: the workspace is the list's source; people added, edited or removed
 // here reach the service PC at its next sync. M-D6: groups live in the cloud only (0008_member_groups.sql); the
-// desktop never sees them.
+// desktop never sees them. 26.11.65 (0031_members_local.sql): member details stay on the church's PC unless the
+// workspace owner turns on "Share member details"; while it is off this page shows no list, only where they are kept.
+
+const SHARE_ON_TEXT =
+  "Names, phones, emails, birthdays and roles from the service PC are copied to your FrameDecks workspace, so owners and admins can see and edit them here. You can switch back at any time.";
+const SHARE_OFF_TEXT =
+  "Member details are removed from the cloud now, with their 30-day history and group assignments. The list on your church’s PC is not changed, and plans keep syncing.";
 
 type Person = MemberBody & { rev: number };
 type Message = { ok: boolean; text: string } | null;
@@ -196,9 +202,16 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [showGroups, setShowGroups] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<Message>(null);
+  const [shared, setShared] = useState<boolean | null>(null);
+  const isOwner = workspace.role === "owner";
 
   const load = useCallback(async () => {
     if (!supabase) return;
+    // 0031: where member details are kept. A database from before 0031 has no such setting and keeps sharing.
+    const where = await supabase.from("organizations").select("members_shared").eq("id", workspace.id).maybeSingle();
+    const on = where.error || !where.data ? true : (where.data as { members_shared?: boolean }).members_shared !== false;
+    setShared(on);
+    if (!on) return setPeople([]);
     const { records, error } = await pullWorkspace(supabase, workspace.id);
     if (error) return setPeople(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load the member list. Check your connection and try again.") });
     setPeople(
@@ -231,6 +244,29 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const counts = useMemo(() => groupCounts(links, new Set(list.map((p) => p.id))), [links, list]);
   const shown = useMemo(() => inGroup(list, links, filter), [list, links, filter]);
   const groupName = useMemo(() => new Map((groups ?? []).map((g) => [g.id, g.name])), [groups]);
+
+  async function setSharing(on: boolean) {
+    if (!supabase) return;
+    if (!(await ask({
+      title: on ? "Share member details with your workspace?" : "Keep member details on the church’s PC only?",
+      description: on ? SHARE_ON_TEXT : SHARE_OFF_TEXT,
+      confirmLabel: on ? "Share member details" : "Keep on the PC only",
+    }))) return;
+    setBusy(true);
+    setMessage(null);
+    const { error } = await supabase.rpc("set_members_shared", { org: workspace.id, shared: on });
+    setBusy(false);
+    if (error) return setMessage({ ok: false, text: userSafeError(error, "Couldn’t change where member details are kept. Try again.") });
+    setEditing(null);
+    setMessage({
+      ok: true,
+      text: on
+        ? "Member details are now shared. They appear here after the service PC’s next sync, usually within a minute."
+        : "Member details are now kept on your church’s PC only. They were removed from the cloud.",
+    });
+    setPeople(null);
+    await load();
+  }
 
   if (!supabase) return null;
   if (people === null) return <PageSkeleton />;
@@ -340,6 +376,29 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
   const editingPerson = editing?.id ? list.find((p) => p.id === editing.id) : undefined;
 
+  if (shared === false)
+    return (
+      <>
+        <EmptyState
+          title="Member details are kept on your church’s PC"
+          action={
+            isOwner ? (
+              <button className="live-btn" type="button" disabled={busy} onClick={() => setSharing(true)}>
+                Share member details
+              </button>
+            ) : undefined
+          }
+        >
+          Names, phones, emails and birthdays stay on the service PC and are not stored in the cloud. Plans still sync.
+          {isOwner
+            ? " As the workspace owner, you can share them with your workspace so owners and admins can see and edit them here."
+            : " The workspace owner can choose to share them here."}
+        </EmptyState>
+        {message && <p className={message.ok ? "page-note" : "page-note page-problem"}>{message.text}</p>}
+        {dialog}
+      </>
+    );
+
   return (
     <>
       <p className="page-note">
@@ -446,6 +505,14 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         </div>
       )}
       {!groups && <p className="workspace-hint">Member groups aren’t ready yet. Ask your workspace owner to finish setting them up.</p>}
+      {isOwner && (
+        <p className="workspace-hint">
+          Member details are shared with this workspace.{" "}
+          <button className="member-action" type="button" disabled={busy} onClick={() => setSharing(false)}>
+            Keep them on the church’s PC only
+          </button>
+        </p>
+      )}
       {dialog}
     </>
   );

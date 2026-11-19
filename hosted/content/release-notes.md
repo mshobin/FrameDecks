@@ -1,29 +1,23 @@
-## FrameDecks v26.11.64
-Safer songs and backups, a co-leader seat with firm limits, and clearer privacy wording.
+## FrameDecks v26.11.65
+Member details now stay on your church's PC.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Chat Bubbles and recordings.
 
 ## What's New
-- **Your Song Library is protected.** If the songs file is busy (for example, a sync tool or antivirus is reading it),
-  a change now waits with a message instead of saving over it. A damaged file is kept aside and the newest good copy
-  from your backups is used.
-- **Daily backups keep everything.** Besides the plan and members, backups now include the Song Library, Care and
-  attendance, the prayer journey, settings, looks and the Studio layout. Backups made by hand or before an update are
-  kept apart, so they never push out the daily ones.
+- **Member details stay on your PC.** Names, phones, emails, birthdays and roles of your members are kept on your
+  church's PC and are no longer copied to the cloud. Plans, Frames, questions and verses still sync as before.
+- **The workspace owner decides.** On the website's People page, the workspace owner can choose **Share member
+  details** so owners and admins can see and edit the list online, and switch back at any time. Switching back removes
+  the member details from the cloud at once, with their history and group assignments; the list on the PC stays.
 
 ## Enhancements
-- **Co-leader limits are enforced by your PC.** A co-leader's phone can run Next, Previous, Hide all, the Content,
-  slides and Chat Bubbles, but your PC now refuses your meeting app's Mute and Camera, your notes, voice commands and
-  switching to another meeting from it. A co-leader's sign-in also ends when FrameDecks closes.
-- Care and attendance keeps meetings for 12 months, then removes them by itself.
-- On members' phones, the first-name box now says where the name goes: the leader, the quiz leaderboard if you play,
-  and attendance on the leader's PC.
-- The program folder now includes the full licence texts of the libraries FrameDecks is built from.
-- Ready for code-signed updates: once releases are signed through SignPath Foundation, installed copies accept them.
+- New workspaces start with member details on the PC only. Workspaces that already share their member list keep
+  sharing until the owner switches it off on the People page.
+- Settings → Sync shows where member details are kept.
+- The Privacy Policy now says the member list is stored online only while the workspace owner shares it.
 
 ## Fixes
-- Website and guides no longer say that pictures never leave your PC: video files and the camera stay on your PC, and
-  slide pictures go online only while Members' phones is open.
+- No changes in this release.
 
 ## Performance Improvements
 - No changes in this release.

@@ -108,9 +108,31 @@ class Engine:
         state.setdefault("known", {})
         state.setdefault("held", [])
 
+    # -- 26.11.65 member details stay on this PC unless the workspace owner shares them --
+    def members_shared(self):
+        """True while the workspace shares member details (sync_pull's "membersShared"; a cloud from before 26.11.65
+        does not say, and keeps sharing as before)."""
+        return self.state.get("membersShared", True) is not False
+
+    def _note_members_shared(self, page):
+        if "membersShared" in page:
+            self.state["membersShared"] = bool(page.get("membersShared"))
+        if not self.members_shared():               # nothing about members is sent, so no deletions either
+            known = self.state["known"]
+            for k in [k for k in known if k.startswith("member/")]:
+                del known[k]
+            self.state["held"] = [r for r in self.state["held"] if r.get("kind") != "member"]
+
     # -- helpers --
     def _local_records(self, plan, members):
-        return {key_of(r["kind"], r["id"]): r for r in E.split(plan, members)["entities"]}
+        records = {key_of(r["kind"], r["id"]): r for r in E.split(plan, members)["entities"]}
+        if not self.members_shared():
+            # member records stay here, and the running order leaves out which people it lists
+            records = {k: r for k, r in records.items() if r["kind"] != "member"}
+            order = records.get("order/order")
+            if order and isinstance(order.get("body"), dict) and "members" in order["body"]:
+                records["order/order"] = dict(order, body={k: v for k, v in order["body"].items() if k != "members"})
+        return records
 
     @staticmethod
     def _live_frame(plan):
@@ -121,9 +143,12 @@ class Engine:
         records, since = [], self.state["cursor"]
         while True:
             page = self.api.pull(since)
+            self._note_members_shared(page)
             records.extend(page.get("entities") or [])
             since = page.get("seq", since)
             if not page.get("more"):
+                if not self.members_shared():
+                    records = [r for r in records if r.get("kind") != "member"]
                 return records, since
 
     # -- 26.11.36 the first sync, planned and shown before anything changes (src/first_sync.py) --
@@ -253,7 +278,7 @@ class Engine:
         # The plan here was lost or replaced (a damaged file at start-up, or every Frame gone at once): this round takes
         # the workspace's version of everything it holds, instead of sending deletions for it (production audit H1)
         adopt = bool(self.state.pop("adopt", False))
-        rebuilt = self._rebuild_members() if self.member_authority == "cloud" else 0
+        rebuilt = self._rebuild_members() if self.member_authority == "cloud" and self.members_shared() else 0
         remote, cursor = self._pull_all()
         remote = self.state["held"] + remote          # held changes are tried again first
         self.state["held"] = []
@@ -933,6 +958,8 @@ class Service:
                "lastSync": self.status["lastSync"], "error": self.status["error"], "companion": COMPANION_URL,
                "held": len(self.state.get("held") or []), "phase": self.phase(), "update": self.update,
                "computerName": self.computer_name}
+        if self.state.get("link"):                      # 26.11.65 where member details are kept
+            out["membersShared"] = self.state.get("membersShared", True) is not False
         if self.state.get("firstPending"):              # 26.11.36 waiting for the leader's choice
             out["first"] = self.first or {"state": "checking"}
         elif self.first and self.first.get("state") == "done":

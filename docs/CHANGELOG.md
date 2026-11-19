@@ -21,6 +21,23 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 - `TERMS_VERSION` 2026-11-18 (everyone accepts the final texts once); Contact page lists the grievance contact; test in
   `hosted/tests/legal-pages.test.mjs`.
 
+## [26.11.65] - 2026-11-19
+
+Full notes: [docs/releases/v26.11.65.md](releases/v26.11.65.md). Member details stay on the church's PC.
+
+### Changed
+- Migration `0031_members_local.sql` (rollback `0031_members_local_down.sql`): `organizations.members_shared` (new
+  workspaces false, existing ones set to true); triggers skip `member` rows in `entities` and `entity_history` while it
+  is false; owner-only `set_members_shared(org, shared)` (turning off deletes member records, their history and group
+  assignments; audit `workspace.members_shared`); admins cannot change it by updating the workspace; `sync_pull` returns
+  `membersShared`. Test `hosted/tests/supabase-0031.test.mjs`.
+- `src/cloud_sync.py`: the Engine reads `membersShared` from each pull; while false no member record or the order's
+  member list is sent, member keys leave `known` (no deletions), and the member list is never rebuilt from the cloud.
+  A cloud from before 0031 keeps sharing. Settings → Sync says where member details are kept.
+- Website People page: while not shared it shows where member details are kept and, for the owner, **Share member
+  details**; while shared, the owner can keep them on the PC only (with a confirmation).
+- Privacy Policy: the member list is stored in the cloud only while the owner shares it.
+
 ## [26.11.64] - 2026-11-18
 
 Full notes: [docs/releases/v26.11.64.md](releases/v26.11.64.md). Fixes from the production release review.

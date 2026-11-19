@@ -16,6 +16,8 @@ sections under "Regional information" explain how they meet the laws where you l
   answers and typed answers from phones also pass through the website (see "Members' phones" below).
 - A workspace on framedecks.com is needed only to plan together and to sync a PC with it. You open it with a passkey or a
   one-time email code; there are no passwords.
+- Member details (names, phones, emails, birthdays) stay on your church's PC. They are copied to the workspace only if
+  its owner turns on **Share member details**, and turning it off removes them from the cloud at once.
 - No advertising, no tracking, no selling or sharing of your data.
 
 ## What we keep, and why
@@ -28,7 +30,7 @@ sections under "Regional information" explain how they meet the laws where you l
 | Your Trusted Devices: the name you give each, when it was trusted and last used, and a hash of its device token (never the token itself) | To open your workspace on those devices without a new link, and to let you remove them | Until you remove the device, at most 180 days |
 | Security events: links asked for (your address and network only as hashes), links opened, devices trusted, removed or expired | Security and accountability | One year |
 | A workspace's plan: Frame names, words (scripture, questions, scripts) and order, with 30 days of earlier versions | To sync the plan between the PC and the website, and to undo changes | While the workspace exists; earlier versions 30 days |
-| A workspace's member list (names and, if the workspace adds them, country, phone, email, birth date, role, groups) | For the workspace's own use: birthdays, invitations, groups | While the workspace keeps them |
+| A workspace's member list (names and, if the workspace adds them, country, phone, email, birth date, role, groups), only if the workspace owner turns on **Share member details** (new workspaces start with it off, so member details stay on your church's PC) | For the workspace's own use: birthdays, invitations, groups | While sharing is on; turning it off removes them, their earlier versions and group assignments from the cloud at once |
 | Linked PCs' names, and a log of who changed people, roles, invitations, PCs and Trusted Devices, and when the workspace synced | Security and accountability | Log: one year |
 | Your passkeys: the public key and the name of each (the private key never leaves your device) | To open your workspace without a code | Until you remove the passkey or delete your data |
 | Commands sent to a PC from the website (who sent which command, and when) | To run a meeting from the website, and to show the PC what was asked | 7 days |
@@ -62,7 +64,8 @@ is kept with it for up to 24 hours to stop abuse.
 ## On your PC
 
 The program keeps your plan, songs, notes, member list, settings and daily backups in your Windows user folder. They
-are protected by your Windows sign-in; we never see them unless your workspace syncs them (above). Two features work
+are protected by your Windows sign-in; we never see them unless your workspace syncs them (above). The member list
+syncs only if the workspace owner turns on Share member details. Two features work
 only when you switch them on:
 
 - **Capture Chats** reads text you copy (Ctrl+C) while it is on and turns it into Chat Bubbles. It uses the name of the

@@ -50,6 +50,8 @@ before(async () => {
   org = (await as(OWNER, "insert into organizations(name, created_by) values ('Evening Study', $1) returning id", [OWNER])).rows[0].id;
   otherOrg = (await as(OTHER, "insert into organizations(name, created_by) values ('Elsewhere', $1) returning id", [OTHER])).rows[0].id;
   await as(OWNER, "insert into memberships(organization_id, user_id, role) values ($1, $2, 'member')", [org, MEMBER]);
+  // 0031: a new workspace keeps member details on its PC; these tests are about a workspace that shares them
+  await as(OWNER, "select set_members_shared($1, true)", [org]);
 });
 
 after(() => db?.close());

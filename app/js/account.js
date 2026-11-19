@@ -205,6 +205,10 @@ function buildLinked(root, d){
       h('p', {cls: 'hint', id: 'sync-light-fix', hidden: 'hidden'}),
       h('p', {cls: 'hint', id: 'sync-held', hidden: 'hidden'})]),
     h('span', {cls: 'sync-team', text: d.workspace || ''})]));
+  /* 26.11.65 where member details are kept: on this PC unless the workspace owner shares them (on the website) */
+  if (d.membersShared != null) root.appendChild(h('p', {cls: 'hint', id: 'sync-members-where', text: d.membersShared
+    ? 'Member details: shared with your workspace. The workspace owner can keep them on this PC only (website → Members).'
+    : 'Member details: kept on this PC only. Plans sync; names, phones, emails and birthdays stay here.'}));
   root.appendChild(h('div', {cls: 'sync-actions'}, [
     h('button', {cls: 'btn primary', type: 'button', id: 'sync-add', text: 'Add a device', onclick: function(){ allowBox = false; openInvite('self'); }}),
     h('button', {cls: 'btn', type: 'button', id: 'sync-browser', text: 'Open in this PC’s browser', title: 'Opens your workspace on framedecks.com in this PC’s browser, already signed in as you', onclick: function(e){ openHere(e.currentTarget); }}),

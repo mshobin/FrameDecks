@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.65': [
+    {title: 'Member details stay on your PC', text: 'Names, phones, emails and birthdays of your members now stay on your church\u2019s PC. Plans still sync. The workspace owner can choose to share them on the website, and switch back at any time.'}
+  ],
   '26.11.64': [
     {title: 'Your songs are protected', text: 'If the Song Library file is busy or damaged, FrameDecks never saves over it, and daily backups now keep your songs, Care and attendance and the prayer journey too.'},
     {title: 'Co-leader limits, enforced', text: 'A co-leader\u2019s phone runs the meeting, but your PC refuses your Mute, Camera, notes and switching meetings from it.'}
