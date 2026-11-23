@@ -251,7 +251,8 @@ function endDrag(e){
 }
 box.addEventListener('pointerup', endDrag);
 box.addEventListener('pointercancel', endDrag);
-box.addEventListener('dblclick', function(e){ e.preventDefault(); e.stopPropagation(); editSel(); });
+// 26.11.66 the part under the pointer: the label (title), the words, or a scripture's reference (before, always the words)
+box.addEventListener('dblclick', function(e){ e.preventDefault(); e.stopPropagation(); var c = cardEl(sel); if (c) PE.editAt(c, e.clientX, e.clientY); });
 function nudge(dx, dy, far){
   var l = layerOf(sel); if (!l || l.locked) return;
   if (sel.kind === 'question'){ if (dy) setLook(sel, {qBottom: clamp(lookVal(l, 'qBottom', 8) - dy * (far ? 4 : 1), 4, 24)}); return; }

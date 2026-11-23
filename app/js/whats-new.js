@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.66': [
+    {title: 'Double-click any part of a card', text: 'In the preview, double-click a question\u2019s or scripture\u2019s title, the words, or a scripture\u2019s reference to edit just that part. Announcements, prayers and name titles too.'}
+  ],
   '26.11.65': [
     {title: 'Member details stay on your PC', text: 'Names, phones, emails and birthdays of your members now stay on your church\u2019s PC. Plans still sync. The workspace owner can choose to share them on the website, and switch back at any time.'}
   ],

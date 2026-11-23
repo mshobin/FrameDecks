@@ -10,20 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.66] - 2026-11-23
+
+Full notes: [docs/releases/v26.11.66.md](releases/v26.11.66.md). Every part of a card is edited by double-clicking it in the preview.
+
+### Fixed
+- `app/js/preview-tools.js`: a double-click on a selected card's outline passes the pointer to
+  `KCPreviewEdit.editAt` (`app/js/preview-edit.js`), so the title (label), the words or a scripture's reference is
+  edited; before, the outline always opened the words. A double-click on the reference types in the Reference box.
+  Test `tests/test_preview_titles_2611_66.py`.
+
 ### Security
 - Website: Next.js and eslint-config-next 16.4.2 → 16.4.6 (pinned), clearing the moderate advisories
   GHSA-mfr8-8qww-v76h and GHSA-vc7v-qv4w-wrv8 (cache leaks in `use cache`, which the static site does not use).
-
-### Changed (legal texts final)
-- Terms of Service rewritten (version 2026-11-18): laws of England and Wales, English courts for organisations,
-  consumers keep their home-country protections; 18+ accounts; organisations responsible for the personal data they put in
-  (controller / Data Fiduciary) with an organisation-only indemnity; free service that may change; complaints contact
-  grievance@framedecks.com (also the Grievance Officer for users in India under the IT Rules 2021 and DPDP Act 2023).
-- EULA, Privacy Policy and Cookie Policy: version 2026-11-18, no draft markers; privacy adds identity, DPDP terms,
-  fuller data terms for organisations (Article 28 / DPDP s.8, 14-day sub-processor notice), data breaches, children
-  (18+), and regional information for the EU/EEA, UK, India, the US and the Middle East.
-- `TERMS_VERSION` 2026-11-18 (everyone accepts the final texts once); Contact page lists the grievance contact; test in
-  `hosted/tests/legal-pages.test.mjs`.
 
 ## [26.11.65] - 2026-11-19
 
@@ -45,6 +44,17 @@ Full notes: [docs/releases/v26.11.65.md](releases/v26.11.65.md). Member details 
 ## [26.11.64] - 2026-11-18
 
 Full notes: [docs/releases/v26.11.64.md](releases/v26.11.64.md). Fixes from the production release review.
+
+### Changed (legal texts final)
+- Terms of Service rewritten (version 2026-11-18): laws of England and Wales, English courts for organisations,
+  consumers keep their home-country protections; 18+ accounts; organisations responsible for the personal data they put in
+  (controller / Data Fiduciary) with an organisation-only indemnity; free service that may change; complaints contact
+  grievance@framedecks.com (also the Grievance Officer for users in India under the IT Rules 2021 and DPDP Act 2023).
+- EULA, Privacy Policy and Cookie Policy: version 2026-11-18, no draft markers; privacy adds identity, DPDP terms,
+  fuller data terms for organisations (Article 28 / DPDP s.8, 14-day sub-processor notice), data breaches, children
+  (18+), and regional information for the EU/EEA, UK, India, the US and the Middle East.
+- `TERMS_VERSION` 2026-11-18 (everyone accepts the final texts once); Contact page lists the grievance contact; test in
+  `hosted/tests/legal-pages.test.mjs`.
 
 ### Fixed
 - `src/songbook.py`: a write never replaces a file that could not be read (busy → error, nothing changed; damaged →

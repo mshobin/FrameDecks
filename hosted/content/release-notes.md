@@ -1,23 +1,20 @@
-## FrameDecks v26.11.65
-Member details now stay on your church's PC.
+## FrameDecks v26.11.66
+Edit every part of a card straight on the preview.
 Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
 keeps all your meetings, members, settings, notes, pinned Chat Bubbles and recordings.
 
 ## What's New
-- **Member details stay on your PC.** Names, phones, emails, birthdays and roles of your members are kept on your
-  church's PC and are no longer copied to the cloud. Plans, Frames, questions and verses still sync as before.
-- **The workspace owner decides.** On the website's People page, the workspace owner can choose **Share member
-  details** so owners and admins can see and edit the list online, and switch back at any time. Switching back removes
-  the member details from the cloud at once, with their history and group assignments; the list on the PC stays.
+- No new features in this release.
 
 ## Enhancements
-- New workspaces start with member details on the PC only. Workspaces that already share their member list keep
-  sharing until the owner switches it off on the People page.
-- Settings → Sync shows where member details are kept.
-- The Privacy Policy now says the member list is stored online only while the workspace owner shares it.
+- Double-clicking a scripture's reference line (for example "John 15:5 · ESV") opens the editor with the typing in the
+  Reference box, ready to change it.
 
 ## Fixes
-- No changes in this release.
+- **Titles can be edited on the preview again.** After a card was selected, a double-click on its title (for example
+  "Question", "Scripture" or an announcement's heading) opened the words instead, so the title could only be changed
+  in the area below. Now a double-click edits the part you clicked: the title, the words, or a scripture's reference.
+  This works for questions, scriptures, announcements, prayers, name titles and timers.
 
 ## Performance Improvements
 - No changes in this release.

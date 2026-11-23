@@ -2,6 +2,7 @@
  *
  * Double-click a card on the canvas (the Frame preview, or the live FrameDecks vCam picture) to edit it in place:
  *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;
+ *   - a scripture's reference line (26.11.66): the same editor, typing in the Reference box;
  *   - the body: the question, the scripture (with reference and translation), or the text of an announcement,
  *     prayer, lower third or timer message.
  * Enter saves, Shift+Enter starts a new line, Esc cancels, a click outside saves (js/editable.js).
@@ -93,6 +94,7 @@ document.addEventListener('kc-frame-select', function(){ setTimeout(hint, 0); })
 /* edit(card, x, y, map): map turns the page's coordinates into #canvas-wrap's */
 function edit(card, x, y, map, sid){
   var lbl = card.querySelector('.card-label'), onLabel = lbl && lbl.offsetParent !== null && within(lbl.getBoundingClientRect(), x, y);
+  var refEl = card.querySelector('.card-ref'), onRef = !onLabel && refEl && refEl.offsetParent !== null && within(refEl.getBoundingClientRect(), x, y);
   var r = map((onLabel ? lbl : card).getBoundingClientRect());
   if (card.classList.contains('card-question') || card.classList.contains('card-verse')){
     var kind = card.classList.contains('card-verse') ? 'verse' : 'question', t = shownItem(kind, sid);
@@ -104,6 +106,7 @@ function edit(card, x, y, map, sid){
     if (kind === 'question') return E.float(wrap, r, Object.assign({title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, maxLength: 2000, label: 'Question',
       save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return save({text: v}); }}, d));
     return E.float(wrap, r, Object.assign({title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, serif: true, maxLength: 4000, label: 'Scripture text',
+      focus: onRef ? 'first' : '',                                   // 26.11.66 a double-click on the reference types there
       fields: [{key: 'ref', value: t.it.ref || '', placeholder: 'e.g. John 15:5', label: 'Reference'}, {key: 'version', value: t.it.version || '', placeholder: 'ESV', label: 'Translation', width: '110px'}],
       save: function(v, extra){ return save({text: v, ref: (extra.ref || '').trim(), version: (extra.version || '').trim()}); }}, d));
   }
@@ -180,6 +183,12 @@ document.addEventListener('dblclick', function(e){
   });
 }, true);
 
+/* 26.11.66 a double-click on the selected card's outline (js/preview-tools.js lies over the card once it is selected):
+   edit the part under the pointer (the label, the words, or a scripture's reference), as a double-click on the card does */
+function editAt(card, cx, cy){
+  var f = frame.getBoundingClientRect(), s = f.width / 1920, wr = wrap.getBoundingClientRect();
+  edit(card, (cx - f.left) / s, (cy - f.top) / s, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
+}
 /* 26.11.50 type in a card from the toolbar or the keyboard (js/preview-tools.js): as a double-click on its words */
 function editCard(card){
   var f = frame.getBoundingClientRect(), s = f.width / 1920, wr = wrap.getBoundingClientRect(), r = card.getBoundingClientRect();
@@ -187,7 +196,7 @@ function editCard(card){
   var x = tr.width ? tr.left + tr.width / 2 : r.left + r.width / 2, y = tr.height ? tr.top + tr.height / 2 : r.top + r.height * 0.65;
   edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
 }
-window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline, editCard: editCard, cardAt: cardAt, previewDoc: previewDoc, toWrap: toWrap,
+window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline, editCard: editCard, editAt: editAt, cardAt: cardAt, previewDoc: previewDoc, toWrap: toWrap,
   shownItem: shownItem, frameId: frameId};
 hint();
 })();
